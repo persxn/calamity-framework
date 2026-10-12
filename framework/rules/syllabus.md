@@ -49,6 +49,10 @@ level: 2
 - write a Dockerfile for a small program and explain each instruction
 ```
 
+`needs` names earlier topics of the same skill by id, or a topic of another
+skill by its full key (`needs: [cp.trees/subtree-dp]`), so one topic can
+wait for what it uses without the whole skill depending on the other.
+
 ## Rules
 
 - **8 to 25 topics.** One topic is one idea that can be taught and tested in

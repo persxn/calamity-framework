@@ -5,6 +5,7 @@ track: cp
 group: language
 prereqs: [cp.cpp]
 tags: [cp]
+cf_tags: [data structures]
 weaves_into: [cp]
 aliases: [stl, standard template library, vector, set, map, priority queue]
 band: 800
@@ -14,6 +15,8 @@ summary: "Containers and algorithms that turn an idea into twenty lines: vector,
 ---
 
 `band` is the Codeforces rating from which this skill is expected; a topic's own `band` marks a part that belongs to a later rating. Practice problems come from `cf recommend --skill cp.stl`.
+
+Competing in another language (`cp.language`)? The ideas carry over: Python has lists, `sort` with a key, `bisect`, `dict` and `collections.Counter`, `heapq` and `collections.deque`; Java has `ArrayList`, sorting with a `Comparator`, `TreeMap` and `TreeSet`, `PriorityQueue`, `ArrayDeque` and `HashMap`. Keep this skill and have the curriculum-architect write `learner/syllabus/cp.stl.md` with the same topic ids, that language's tools in the objectives, and without `bitset` and `pbds`, which are C++ only.
 
 # Boss
 

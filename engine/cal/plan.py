@@ -147,6 +147,8 @@ def new_candidates(repo: Repo, tree, state, when, skill: str | None = None, limi
                     taken += 1 if ts.first_day == day else 0
                     continue
                 covered = ts is not None and ts.covered_ts is not None
+                if not covered and state.deferred(topic):
+                    continue                # banded well above the learner's rating: later
                 watched = covered and ts.covered_by == "source"
                 row = {"key": topic.key, "skill": skill_id, "title": topic.title, "covered": covered, "led": watched}
                 if watched:
@@ -155,7 +157,8 @@ def new_candidates(repo: Repo, tree, state, when, skill: str | None = None, limi
                     continue
                 if skill_id in waiting and not covered:
                     continue                # its lecture has not been logged yet
-                if not lookahead and any(_untouched(state, "%s/%s" % (skill_id, need)) for need in topic.needs):
+                if not lookahead and any(_untouched(state, need if "/" in need else "%s/%s" % (skill_id, need))
+                                         for need in topic.needs):
                     continue
                 rows.append(row)
                 listed.add(topic.key)
@@ -267,14 +270,17 @@ def today_line(t: dict) -> str:
 
 
 def boss_ready(repo: Repo, tree, state) -> list:
-    """Enrolled skills whose every topic is at least solid and whose boss is not passed yet."""
+    """Enrolled skills whose every topic is at least solid and whose boss is not passed yet.
+
+    Topics deferred to a later Codeforces rating (`State.deferred`) are not waited for.
+    """
     out = []
     for skill_id in state.enrolled_skills():
         node = tree.nodes[skill_id]
         sk = state.skills[skill_id]
         if sk.boss_ok or sk.mode == "brushup":
             continue
-        counts = state.skill_counts(skill_id)
+        counts = state.skill_counts(skill_id, in_scope=True)
         if node.kind == "milestone" and not counts["total"]:
             if state.unlocked(skill_id):
                 out.append(skill_id)

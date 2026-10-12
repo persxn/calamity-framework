@@ -302,3 +302,133 @@ class ShippedTree(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+BANDED_DP = """---
+id: cp.dp
+title: Dynamic programming
+track: cp
+group: core
+tags: [cp]
+weaves_into: [cp]
+cf_tags: [dp]
+band: 1200
+est_hours: 30
+order: 20
+summary: DP.
+---
+
+# Boss
+
+A timed set of DP problems.
+
+Passes when:
+
+- four of five are accepted
+
+# Topics
+
+## knapsack | Knapsack
+level: 3
+- 0/1 knapsack
+
+## lis | Longest increasing subsequence
+level: 3
+- LIS in n log n
+
+## sos | Sum over subsets
+level: 5
+band: 1700
+- SOS DP
+
+## on-a-search | DP after a binary search
+needs: [cp.bs/on-answer]
+level: 3
+- a DP whose state is found by searching the answer
+"""
+
+
+class RatingBands(Case):
+    """A topic banded well above a linked learner's rating waits; topics can wait for another skill's topic."""
+
+    def setUp(self):
+        super().setUp()
+        write(self.sb.path("learner", "tree", "cp.dp.md"), BANDED_DP)
+        self.sb.onboard()
+
+    def new_topics(self):
+        from cal import plan
+        from cal.util import parse_ts
+
+        sb = self.sb
+        state = sb.state()
+        return [row["key"] for row in plan.new_candidates(state.repo, state.tree, state, parse_ts(sb.now()), skill="cp.dp")]
+
+    def test_without_a_handle_nothing_waits_for_a_rating(self):
+        self.sb.run("enroll", "cp.dp", "--force")
+        self.assertIn("cp.dp/sos", self.new_topics())
+
+    def test_a_banded_topic_waits_and_the_boss_does_not_wait_for_it(self):
+        sb = self.sb
+        sb.run("profile", "set", "cp.handle", "tester")
+        sb.run("enroll", "cp.dp", "--force")
+        self.assertNotIn("cp.dp/sos", self.new_topics())                  # 1700 > 0 + 200
+        self.assertTrue(sb.state().deferred(sb.tree().topic("cp.dp/sos")))
+        sb.run("placement", "cp.dp", "--known", "knapsack,lis,on-a-search")
+        self.assertIn("NEXT: boss", sb.run("next"))                        # sos is not waited for
+        sb.run("boss", "record", "cp.rating-1200", "pass", "--evidence", "rating history shows 1250")
+        sb.run("boss", "record", "cp.rating-1400", "pass", "--evidence", "rating history shows 1450")
+        self.assertEqual(sb.state().cp_level(), 1400)
+        self.assertNotIn("cp.dp/sos", self.new_topics())                  # 1700 > 1400 + 200
+        sb.run("profile", "set", "cfg.cp.band_lookahead", "300")
+        self.assertIn("cp.dp/sos", self.new_topics())                     # 1700 <= 1400 + 300
+        self.assertNotIn("NEXT: boss", sb.run("next"))                     # now the boss waits for it too
+        out = sb.run("ask", "--topic", "cp.dp/sos", expect=4)             # asking for it by name always works
+        self.assertTrue(out.startswith("NEED_ITEM"))
+
+    def test_a_topic_waits_for_the_topic_of_another_skill_it_needs(self):
+        sb = self.sb
+        sb.run("enroll", "cp.dp", "--force")
+        self.assertNotIn("cp.dp/on-a-search", self.new_topics())
+        sb.item("cp.bs/on-answer")
+        sb.do("cp.bs/on-answer")
+        self.assertIn("cp.dp/on-a-search", self.new_topics())
+
+    def test_an_unknown_topic_of_another_skill_is_an_error(self):
+        write(self.sb.path("learner", "tree", "cp.dp.md"), BANDED_DP.replace("cp.bs/on-answer", "cp.bs/nope"))
+        self.assertIn("needs unknown topic 'cp.bs/nope'", self.sb.run("tree", "check", expect=2) + self.sb.err)
+
+
+class ShippedCompetitiveProgramming(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.tree = Tree(Repo(REPO))
+
+    def test_a_tag_goes_to_the_skill_that_teaches_it_at_this_rating(self):
+        from cal import cf
+
+        self.assertEqual(cf.tag_skills(self.tree, 1000)["data structures"], "cp.stl")
+        self.assertEqual(cf.tag_skills(self.tree, 1500)["data structures"], "cp.range-queries")
+        self.assertEqual(cf.tag_skills(self.tree, 1200)["graphs"], "cp.graphs-basics")
+        self.assertEqual(cf.tag_skills(self.tree, 1700)["graphs"], "cp.graphs-advanced")
+
+    def test_prerequisites_are_only_what_the_topics_use(self):
+        get = self.tree.get
+        self.assertNotIn("cp.sorting-greedy", get("cp.binary-search").prereqs)
+        self.assertIn("cp.sorting-greedy/sort-then-scan", get("cp.binary-search").topic("predicate-design").needs)
+        self.assertNotIn("cp.trees", get("cp.dp-advanced").prereqs)
+        self.assertEqual(get("cp.dp-advanced").topic("tree-dp").needs, ["cp.trees/subtree-dp"])
+        self.assertNotIn("cp.dp-advanced", get("cp.advanced-techniques").prereqs)
+        for node in self.tree.nodes.values():
+            for topic in node.topics:
+                for need in topic.needs:
+                    if "/" in need:
+                        self.assertTrue(self.tree.has_topic(need), "%s needs %s" % (topic.key, need))
+
+    def test_rare_tags_are_optional_and_off_the_milestone_routes(self):
+        for ident in ("cp.game-theory", "cp.geometry"):
+            self.assertTrue(self.tree.get(ident).optional)
+            self.assertNotIn(ident, self.tree.ancestors("cp.rating-2200"))
+
+    def test_every_language_member_can_meet_a_language_prerequisite(self):
+        self.assertEqual(self.tree.get("dart").slot, "language")

@@ -113,7 +113,7 @@ layer 5: · express
 layer 6: · mern-stack
 about 372 hours across 14 skill(s) at the mastery standard (estimates from the skill files)
 choices on this route (enrol in an alternative and the route follows it):
-  language: javascript (or python, java, kotlin)
+  language: javascript (or python, java, kotlin, dart)
 ✓ mastered or known   ◕ ready (unlocks the next skills)   ◐ learning
 ○ open to start   · locked
 ```

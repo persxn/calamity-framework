@@ -4,6 +4,7 @@ title: Dart
 track: 10x
 group: mobile
 prereqs: [dev-environment]
+slot: language
 tags: [language, runnable]
 weaves_into: [flutter]
 aliases: [dart lang]

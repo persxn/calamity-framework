@@ -4,7 +4,7 @@ title: "Codeforces 1800 (Expert, upper half)"
 track: cp
 group: milestones
 kind: milestone
-prereqs: [cp.rating-1600, cp.range-queries, cp.dp-advanced, cp.game-theory]
+prereqs: [cp.rating-1600, cp.range-queries, cp.dp-advanced]
 tags: [cp]
 aliases: ["1800", "expert, upper half"]
 rating: 1800

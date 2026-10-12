@@ -712,11 +712,43 @@ class State:
 
     # ------------------------------------------------------------ skill queries
 
-    def skill_counts(self, skill_id: str) -> dict:
+    def cp_level(self) -> int:
+        """The highest Codeforces rating milestone the log shows as reached, or 0."""
+        best = 0
+        for node in self.tree.nodes.values():
+            if node.track == "cp" and node.kind == "milestone":
+                sk = self.skills.get(node.id)
+                rating = node.meta.get("rating")
+                if sk is not None and sk.boss_ok and isinstance(rating, int) and not isinstance(rating, bool):
+                    best = max(best, rating)
+        return best
+
+    def deferred(self, topic) -> bool:
+        """A competitive-programming topic whose `band` is well above the learner's level waits.
+
+        Only for a learner with a Codeforces handle: their level is the highest rating milestone
+        reached (from the log), and a topic is deferred while its band is more than
+        `cp.band_lookahead` above it. Without a handle nothing is deferred.
+        """
+        if not topic.band:
+            return False
+        node = self.tree.nodes.get(topic.skill)
+        if node is None or node.track != "cp" or not self.repo.prof("cp.handle"):
+            return False
+        try:
+            ahead = int(self.repo.cfg("cp.band_lookahead", 200))
+        except (TypeError, ValueError):
+            ahead = 200
+        return topic.band > self.cp_level() + ahead
+
+    def skill_counts(self, skill_id: str, in_scope: bool = False) -> dict:
+        """Topics of a skill by status. `in_scope` leaves out topics deferred to a later rating."""
         node = self.tree.nodes.get(skill_id)
         counts = dict.fromkeys(TOPIC_ORDER, 0)
         if node is not None:
             for topic in node.topics:
+                if in_scope and self.deferred(topic):
+                    continue
                 counts[self.topic_status(topic.key)] += 1
         counts["total"] = sum(counts[s] for s in TOPIC_ORDER)
         return counts
@@ -778,7 +810,8 @@ class State:
             return "known"
         if total:
             need = float(self.repo.cfg("brushup.ready_share" if brushup else "ready_share", 0.6))
-            if (counts["solid"] + counts["mastered"]) / float(total) >= need:
+            scope = self.skill_counts(skill_id, in_scope=True)  # topics deferred to a later rating do not count
+            if scope["total"] and (scope["solid"] + scope["mastered"]) / float(scope["total"]) >= need:
                 return "ready"
         if sk.enrolled:
             return "paused" if sk.paused else "active"

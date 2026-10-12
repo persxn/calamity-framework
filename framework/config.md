@@ -45,6 +45,7 @@ cp.band_low: 100             # practise problems rated this far above the curren
 cp.band_high: 300            # ... up to this far above it
 cp.resolve_days: 7           # a problem solved with the editorial comes back after this long
 cp.credit_days: 14           # a Codeforces solve can be credited to a topic for this long
+cp.band_lookahead: 200       # with a linked handle, a topic banded more than this above the highest rating milestone reached waits
 
 # --- coach
 coach.cooldown_days: 3       # a behaviour pattern is not raised again for this long

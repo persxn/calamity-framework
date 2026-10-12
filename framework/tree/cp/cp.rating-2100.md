@@ -4,7 +4,7 @@ title: Codeforces 2100 (Master)
 track: cp
 group: milestones
 kind: milestone
-prereqs: [cp.rating-1900, cp.geometry, cp.advanced-techniques, cp.math-advanced]
+prereqs: [cp.rating-1900, cp.advanced-techniques, cp.math-advanced]
 tags: [cp]
 aliases: ["2100", master]
 rating: 2100

@@ -25,6 +25,12 @@ The first public release.
   a plan back from the exam date, the exam's marking in practice and timed
   tests, mocks and their review, a final phase that gives every topic one
   last review before the exam.
+- Skill-tree rules that keep routes short: a topic can wait for a single
+  topic of another skill (`needs: [cp.trees/subtree-dp]`) instead of the
+  whole skill depending on it; with a linked Codeforces handle, topics
+  banded well above the learner's rating wait, and a skill's boss does not
+  wait for them; Codeforces tags point to the skill that teaches them at
+  the learner's rating; game theory and geometry are optional.
 - A competitive-programming coach that reads a Codeforces handle through
   the public API: tag analysis, practice sets above the rating with tags
   hidden, upsolving, contests, rating milestones, judged solves credited as

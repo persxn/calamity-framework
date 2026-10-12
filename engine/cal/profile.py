@@ -32,7 +32,7 @@ CFG_RANGES = {
     "ready_share": (0.0, 1.0), "brushup.ready_share": (0.0, 1.0), "recall_n": (0, 30), "weave_n": (0, 6),
     "gate.daily_hours": (0.5, 24.0), "gate.exam_clamp_days": (0, 60), "gate.final_phase_days": (0, 180),
     "cp.band_low": (-1000, 2000), "cp.band_high": (-1000, 2000), "cp.resolve_days": (1, 365),
-    "cp.credit_days": (1, 365), "coach.cooldown_days": (0, 60),
+    "cp.credit_days": (1, 365), "cp.band_lookahead": (0, 3000), "coach.cooldown_days": (0, 60),
 }
 FIXED_CFG = ("schema",)
 

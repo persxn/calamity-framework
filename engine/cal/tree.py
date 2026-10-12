@@ -342,7 +342,10 @@ class Tree:
             ids = {t.id for t in node.topics}
             for topic in node.topics:
                 for need in topic.needs:
-                    if need not in ids:
+                    if "/" in need:  # a topic of another skill, by its full key
+                        if not self.has_topic(need):
+                            errors.append("%s: topic %r needs unknown topic %r" % (twhere, topic.id, need))
+                    elif need not in ids:
                         errors.append("%s: topic %r needs unknown topic %r" % (twhere, topic.id, need))
                 for other in topic.same_as:
                     if "/" not in other:

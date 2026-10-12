@@ -18,7 +18,7 @@ Ask, then record:
 | Ask | Record |
 |---|---|
 | Your Codeforces handle? | `cf link <handle>`, then `cf sync` (public API, no password) |
-| Which language do you compete in? | `profile set cp.language cpp`. The track teaches C++; a learner using another language drops `cp.cpp` and `cp.stl` |
+| Which language do you compete in? | `profile set cp.language cpp`. The track teaches C++; a learner using another language drops `cp.cpp` (`tree drop cp.cpp`) and keeps `cp.stl`, taught with that language's equivalents (the note in `framework/tree/cp/cp.stl.md`) |
 | What rating are you aiming for, by when? | `profile set cp.target_rating 1800`, `profile set cp.target_date 2027-08-31`, and add `cp.rating-1800` to `goals` |
 | How much time a day, and how do you practise now? | goes into `learner/cp/plan.md` |
 
@@ -176,8 +176,12 @@ this order:
 then a `code` item compiled with `g++ -std=c++17 -O2 -Wall -Wextra` (plus
 `-fsanitize=address,undefined` while learning) and run against cases. Teach
 a technique when it is what blocks problems in the learner's band. A
-topic's own `band` says when a harder part of a skill starts to matter;
-leave those parts until the rating gets there.
+topic's own `band` says when a harder part of a skill starts to matter.
+With a linked handle the engine leaves those parts for later by itself: a
+topic banded more than `cp.band_lookahead` (200) above the highest rating
+milestone reached is not started, and a skill's boss and its readiness do
+not wait for it. `ask --topic <key>` still takes one now if the learner
+wants it.
 
 ## Files
 

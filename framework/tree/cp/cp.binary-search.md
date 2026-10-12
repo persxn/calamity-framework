@@ -3,7 +3,7 @@ id: cp.binary-search
 title: Binary search
 track: cp
 group: foundations
-prereqs: [cp.sorting-greedy]
+prereqs: [cp.stl, cp.complexity]
 tags: [cp]
 weaves_into: [cp]
 aliases: [binary search, bsearch, binary search on answer]
@@ -40,7 +40,7 @@ level: 2
 - minimise the maximum, maximise the minimum; choose bounds that certainly fail and certainly pass
 
 ## predicate-design | Writing the check
-needs: [on-answer]
+needs: [on-answer, cp.sorting-greedy/sort-then-scan]
 level: 3
 - a greedy feasibility check in O(n); total cost O(n log range)
 

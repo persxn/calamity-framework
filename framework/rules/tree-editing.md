@@ -79,7 +79,7 @@ already on.
 
 | Slot | Shipped members |
 |---|---|
-| `language` | javascript, python, java, kotlin |
+| `language` | javascript, python, java, kotlin, dart |
 | `frontend-framework` | react, vue, svelte |
 | `state-management` | redux |
 | `animation` | framer-motion, gsap |

@@ -295,11 +295,7 @@ def tag_table(repo: Repo, tree, data: dict, seen: dict, when, days: int = 180) -
         if node.track == "cp" and node.cf_tags and node.band <= rating + 200:
             for tag in node.cf_tags:
                 expected.setdefault(tag, node.id)
-    skill_for = {}
-    for node in tree.live():
-        if node.track == "cp":
-            for tag in node.cf_tags:
-                skill_for.setdefault(tag, node.id)
+    skill_for = tag_skills(tree, rating)
     rows = []
     for tag in sorted(set(tags) | set(expected)):
         t = tags.get(tag, {"tag": tag, "solved": [], "attempted": 0, "unsolved": 0, "tries": 0})
@@ -519,6 +515,24 @@ def _division(name: str) -> str:
     if "educational" in low:
         return "edu"
     return "other"
+
+
+def tag_skills(tree, rating: int) -> dict:
+    """For each Codeforces tag, the skill of the tree that teaches it at this rating.
+
+    A tag can belong to several skills (`data structures`: the STL early, range queries later):
+    the one with the highest band within 200 of the rating wins, else the lowest band.
+    """
+    owners = {}
+    for node in tree.live():
+        if node.track == "cp":
+            for tag in node.cf_tags:
+                owners.setdefault(tag, []).append(node)
+    out = {}
+    for tag, nodes in owners.items():
+        near = [n for n in nodes if n.band <= rating + 200]
+        out[tag] = (max(near, key=lambda n: (n.band, n.id)) if near else min(nodes, key=lambda n: (n.band, n.id))).id
+    return out
 
 
 def suited_divisions(rating: int) -> tuple:

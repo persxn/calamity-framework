@@ -3,7 +3,7 @@ id: cp.dp-advanced
 title: "Dynamic programming: advanced"
 track: cp
 group: advanced
-prereqs: [cp.dp-basics, cp.bit-manipulation, cp.trees]
+prereqs: [cp.dp-basics, cp.bit-manipulation]
 tags: [cp]
 weaves_into: [cp]
 aliases: [bitmask dp, digit dp, tree dp, interval dp, sos dp]
@@ -37,6 +37,7 @@ level: 3
 - count numbers up to N with a digit property: position, tight flag, started flag, extra state
 
 ## tree-dp | DP on trees
+needs: [cp.trees/subtree-dp]
 level: 3
 - states per vertex combined over children; why merging child tables by size is O(n^2) in total
 

@@ -71,7 +71,7 @@ greedy               1         0      -    1.0      0.51  yes                 cp
 math                 2         0      -    0.0      0.48  yes                 cp.math-basics
 implementation       5         0   1067    0.0      0.28  yes                 cp.implementation
 
-due at this rating but not practised in the last 180 days: bitmasks (cp.bit-manipulation), brute force (cp.implementation), combinatorics (cp.combinatorics), constructive algorithms (cp.constructive), dfs and similar (cp.graphs-basics), dsu (cp.dsu), graphs (cp.graphs-basics), number theory (cp.number-theory), probabilities (cp.combinatorics), sortings (cp.sorting-greedy), strings (cp.strings-basics), ternary search (cp.binary-search), trees (cp.trees), two pointers (cp.prefix-sums-two-pointers)
+due at this rating but not practised in the last 180 days: bitmasks (cp.bit-manipulation), brute force (cp.implementation), combinatorics (cp.combinatorics), constructive algorithms (cp.constructive), data structures (cp.stl), dfs and similar (cp.graphs-basics), dsu (cp.dsu), graphs (cp.graphs-basics), number theory (cp.number-theory), probabilities (cp.combinatorics), sortings (cp.sorting-greedy), strings (cp.strings-basics), ternary search (cp.binary-search), trees (cp.trees), two pointers (cp.prefix-sums-two-pointers)
 synced 10h ago
 ```
 
@@ -145,6 +145,13 @@ Codeforces tags it covers and the rating from which it is expected. They
 are taught like any other skill (`/study cp.stl`), usually with code
 compiled with warnings and sanitizers and run against cases, and followed
 by problems on the technique (`cf recommend --skill cp.binary-search`).
+
+Some topics belong to a later rating than their skill (Aho-Corasick in
+advanced strings, FFT in advanced maths). Once your handle is linked, those
+wait until your rating is close: a topic is not started while its band is
+more than 200 above the highest rating milestone you have reached, and a
+skill's boss does not wait for it. Game theory and geometry are optional:
+useful, but not on the route to a rating milestone.
 
 A skill can be marked known from your record alone when Codeforces has
 already tested it: its band is at least 200 below your rating and you have

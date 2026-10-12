@@ -3,7 +3,7 @@ id: cp.advanced-techniques
 title: Advanced techniques
 track: cp
 group: advanced
-prereqs: [cp.range-queries, cp.trees, cp.dp-advanced]
+prereqs: [cp.range-queries, cp.trees]
 tags: [cp]
 weaves_into: [cp]
 aliases: [meet in the middle, small to large, centroid, hld]
@@ -43,6 +43,7 @@ level: 4
 - count pairs across the midpoint; merge-sort style counting
 
 ## bitset-optimisation | Bitset speed-ups
+needs: [cp.dp-basics/knapsack-01]
 level: 4
 - subset-sum reachability and transitive closure 64 times faster
 

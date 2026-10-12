@@ -9,6 +9,7 @@ weaves_into: [cp]
 aliases: [games, nim, grundy]
 cf_tags: [games]
 band: 1700
+optional: true
 est_hours: 12
 order: 40
 summary: Decide who wins a two-player game with perfect play.

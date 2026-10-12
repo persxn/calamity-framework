@@ -9,6 +9,7 @@ weaves_into: [cp]
 aliases: [geometry, convex hull, cross product]
 cf_tags: [geometry]
 band: 1800
+optional: true
 est_hours: 25
 order: 60
 summary: "Computational geometry in integers wherever possible: cross products, intersections, areas, hulls."
