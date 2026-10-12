@@ -1,0 +1,10 @@
+# One line ending everywhere, on every operating system, so the same files hash the
+# same on every machine and Windows checkouts do not turn LF into CRLF.
+* text=auto eol=lf
+
+# The event log is append-only and every line is one event: when two machines
+# both added lines, keep both.
+learner/events/*.jsonl merge=union
+
+# A generated snapshot; `rebuild` rewrites it after a merge.
+learner/PROGRESS.md merge=union

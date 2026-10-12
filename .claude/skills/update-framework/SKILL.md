@@ -1,0 +1,61 @@
+---
+name: update-framework
+description: Bring a newer version of the Calamity Framework (engine, rule books, skills, shipped skill trees) into the learner's repository without touching their data.
+argument-hint: "[address of the framework repository]"
+disable-model-invocation: true
+---
+
+# Update the framework
+
+The framework lives in `engine/`, `framework/`, `.claude/`, `CLAUDE.md` and
+`README.md`. Everything under `learner/` is the learner's and is never
+changed by an update: their syllabi, tree changes and settings override the
+shipped files instead of editing them.
+
+1. **A clean start.** `git status --short` must show nothing uncommitted;
+   if it does, run the sync skill first.
+
+2. **Where updates come from.** `git remote -v`. The framework should be
+   the remote named `upstream`. If it is missing, ask the learner for the
+   address (or use the argument) and add it:
+
+       git remote add upstream <address>
+
+3. **Look before merging.**
+
+       git fetch upstream
+       cat framework/VERSION
+       git show upstream/main:framework/VERSION
+       git diff --stat HEAD...upstream/main -- engine framework .claude CLAUDE.md
+
+   (Use the framework's default branch if it is not `main`.) Tell the
+   learner what changes: versions, which areas, and anything in
+   `.claude/settings.json` (permissions) or the engine that they should
+   know about before accepting. Read the diff of `.claude/settings.json`
+   and of any hook or script in full and describe it plainly.
+
+4. **Merge** when they agree:
+
+       git merge upstream/main
+
+   Conflicts can only arise in framework files that were edited locally.
+   Prefer the upstream version and move the local change to where it
+   belongs (`learner/tree/`, `learner/syllabus/`, `cfg.*` in the profile).
+
+5. **Verify.**
+
+       python3 engine/calamity.py selftest
+       python3 engine/calamity.py doctor
+       python3 engine/calamity.py tree check
+       python3 engine/calamity.py rebuild
+
+   All four must pass. `tree check` may warn that a learner override now
+   shadows a changed shipped skill: show those to the learner. If anything
+   fails, undo with `git merge --abort` (during the merge) or
+   `git reset --hard ORIG_HEAD` (after it), and report what failed.
+
+6. **Say what is new** in a few lines, and that the session-start hook
+   needs no change. Push with the sync skill if they want.
+
+Do not run an update in the middle of a study session, and never from a
+source the learner did not name.

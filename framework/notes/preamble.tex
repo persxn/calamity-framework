@@ -1,0 +1,160 @@
+% Calamity study notes: shared preamble.
+% The engine copies this file next to main.tex as calamity-preamble.tex and loads it with
+% \input{calamity-preamble}. It uses only packages from the LaTeX base, required and
+% recommended collections, so it builds with pdfLaTeX, XeLaTeX, LuaLaTeX and Tectonic.
+% No shell escape is needed or used. Conventions: framework/rules/notes-latex.md
+
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[utf8]{inputenc}
+  % T1 needs scalable fonts to look right: use it only when Latin Modern is installed.
+  \IfFileExists{lmodern.sty}{\usepackage[T1]{fontenc}\usepackage{lmodern}}{}
+\fi
+% XeLaTeX and LuaLaTeX read UTF-8 and load Latin Modern by themselves; nothing to add for them.
+\usepackage[a4paper,margin=2.4cm,headheight=14pt]{geometry}
+\IfFileExists{microtype.sty}{\usepackage[expansion=false]{microtype}}{}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\IfFileExists{booktabs.sty}{\usepackage{booktabs}}{%
+  \newcommand{\toprule}{\hline}\newcommand{\midrule}{\hline}\newcommand{\bottomrule}{\hline}}
+\usepackage{listings}
+\usepackage{fancyhdr}
+\usepackage[hidelinks]{hyperref}
+
+% ---------------------------------------------------------------- layout
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.55em}
+\setcounter{tocdepth}{1}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\nouppercase{\leftmark}}
+\fancyhead[R]{\small\thepage}
+\renewcommand{\headrulewidth}{0.3pt}
+
+\definecolor{calrule}{HTML}{8A8F98}
+\definecolor{calidea}{HTML}{EEF3FB}
+\definecolor{calwarn}{HTML}{FBF1E6}
+\definecolor{calcode}{HTML}{F6F6F4}
+\definecolor{calkey}{HTML}{1F4E8C}
+\definecolor{calstr}{HTML}{8A3B12}
+\definecolor{calcom}{HTML}{5F6B5F}
+
+% ---------------------------------------------------------------- boxes
+% keyidea: the one thing to remember.   pitfall: the usual way to get it wrong.
+% Both are unbreakable, so keep them to a few lines.
+\newsavebox{\calbox}
+\newenvironment{calframed}[2]{%
+  \def\calfill{#1}\par\medskip\noindent
+  \begin{lrbox}{\calbox}\begin{minipage}{\dimexpr\linewidth-2\fboxsep-2\fboxrule\relax}%
+  \setlength{\parskip}{0.4em}\textbf{#2}\ }{%
+  \end{minipage}\end{lrbox}\fcolorbox{calrule}{\calfill}{\usebox{\calbox}}\par\medskip}
+\newenvironment{keyidea}{\begin{calframed}{calidea}{Key idea.}}{\end{calframed}}
+\newenvironment{pitfall}{\begin{calframed}{calwarn}{Pitfall.}}{\end{calframed}}
+
+% example: a worked example, numbered within the section.
+\theoremstyle{definition}
+\newtheorem{example}{Worked example}[section]
+
+% mistakes: what the learner got wrong while studying this topic.
+% recall: questions to answer from memory before reading the section again.
+\newenvironment{mistakes}{\subsection*{Mistakes I made}\begin{itemize}}{\end{itemize}}
+\newenvironment{recall}{\subsection*{Recall prompts}\begin{enumerate}}{\end{enumerate}}
+
+% ---------------------------------------------------------------- inline helpers
+% \code{git rebase -i}  inline code; fine with _ ^ & $ ~ but not with % # or unbalanced braces
+%                       (use \lstinline|...| for those).
+% \term{idempotent}     a term being defined.      \bigO{n \log n}    complexity.
+\newcommand{\code}[1]{\texttt{\detokenize{#1}}}
+\newcommand{\term}[1]{\emph{#1}}
+\newcommand{\bigO}[1]{\ensuremath{\mathcal{O}(#1)}}
+
+% ---------------------------------------------------------------- code listings
+% Listings must be plain ASCII. Use: \begin{lstlisting}[language=Python,caption={...}]
+\lstset{
+  basicstyle=\ttfamily\small,
+  columns=fullflexible,
+  keepspaces=true,
+  breaklines=true,
+  breakatwhitespace=false,
+  showstringspaces=false,
+  tabsize=2,
+  frame=single,
+  rulecolor=\color{calrule},
+  backgroundcolor=\color{calcode},
+  keywordstyle=\color{calkey}\bfseries,
+  stringstyle=\color{calstr},
+  commentstyle=\color{calcom}\itshape,
+  numbers=left,
+  numberstyle=\tiny\color{calrule},
+  numbersep=8pt,
+  xleftmargin=1.6em,
+  aboveskip=0.8em,
+  belowskip=0.6em,
+  captionpos=b
+}
+% Built in: C, C++, Java, Python, SQL, bash, HTML, XML, Go, make, and more.
+% Defined here because listings does not ship them:
+\lstdefinelanguage{JavaScript}{
+  keywords={async,await,break,case,catch,class,const,continue,debugger,default,delete,do,else,export,
+    extends,finally,for,from,function,if,import,in,instanceof,let,new,of,return,static,super,switch,this,
+    throw,try,typeof,var,void,while,yield,true,false,null,undefined},
+  sensitive=true,
+  comment=[l]{//},
+  morecomment=[s]{/*}{*/},
+  morestring=[b]',
+  morestring=[b]",
+  morestring=[b]`
+}
+\lstdefinelanguage{TypeScript}[]{JavaScript}{
+  morekeywords={abstract,any,as,boolean,declare,enum,implements,interface,is,keyof,namespace,never,number,
+    private,protected,public,readonly,string,type,unknown}
+}
+\lstdefinelanguage{Kotlin}{
+  keywords={abstract,as,break,by,catch,class,companion,const,continue,data,do,else,enum,false,final,finally,
+    for,fun,if,import,in,interface,internal,is,lateinit,null,object,open,override,package,private,protected,
+    public,return,sealed,super,suspend,this,throw,true,try,typealias,val,var,when,while},
+  sensitive=true,
+  comment=[l]{//},
+  morecomment=[s]{/*}{*/},
+  morestring=[b]",
+  morestring=[b]'
+}
+\lstdefinelanguage{Dart}{
+  keywords={abstract,as,assert,async,await,break,case,catch,class,const,continue,default,do,dynamic,else,
+    enum,extends,extension,external,factory,false,final,finally,for,get,if,implements,import,in,is,late,
+    library,mixin,new,null,on,operator,part,required,return,set,static,super,switch,this,throw,true,try,
+    typedef,var,void,while,with,yield},
+  sensitive=true,
+  comment=[l]{//},
+  morecomment=[s]{/*}{*/},
+  morestring=[b]",
+  morestring=[b]'
+}
+\lstdefinelanguage{Dockerfile}{
+  keywords={FROM,RUN,CMD,LABEL,EXPOSE,ENV,ADD,COPY,ENTRYPOINT,VOLUME,USER,WORKDIR,ARG,ONBUILD,STOPSIGNAL,
+    HEALTHCHECK,SHELL,AS},
+  sensitive=true,
+  comment=[l]{\#},
+  morestring=[b]"
+}
+\lstdefinelanguage{YAML}{
+  keywords={true,false,null},
+  sensitive=false,
+  comment=[l]{\#},
+  morestring=[b]',
+  morestring=[b]"
+}
+\lstdefinelanguage{JSON}{
+  keywords={true,false,null},
+  sensitive=true,
+  morestring=[b]"
+}
+\lstdefinelanguage{HCL}{
+  keywords={resource,variable,output,provider,module,data,locals,terraform,for_each,count,depends_on,true,false,null},
+  sensitive=true,
+  comment=[l]{\#},
+  morecomment=[s]{/*}{*/},
+  morestring=[b]"
+}
+\lstdefinelanguage{text}{}

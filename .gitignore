@@ -1,0 +1,49 @@
+# Machine-local state: never committed
+.calamity/
+.claude/settings.local.json
+.claude/agent-memory-local/
+
+# Secrets never belong in this repository
+.env
+.env.*
+!.env.example
+*.har
+cookies.txt
+
+# Python
+__pycache__/
+*.py[cod]
+
+# Study notes: build products (fragments, tex/ sections and stamps.json are kept)
+learner/notes/**/main.tex
+learner/notes/**/calamity-preamble.tex
+learner/notes/**/main.pdf
+learner/notes/**/*-notes.pdf
+learner/notes/**/*.aux
+learner/notes/**/*.log
+learner/notes/**/*.toc
+learner/notes/**/*.out
+learner/notes/**/*.fls
+learner/notes/**/*.fdb_latexmk
+learner/notes/**/*.synctex.gz
+learner/notes/**/*.xdv
+
+# Exercise workspaces: dependencies and build output
+learner/work/**/node_modules/
+learner/work/**/dist/
+learner/work/**/build/
+learner/work/**/target/
+learner/work/**/.gradle/
+learner/work/**/.venv/
+learner/work/**/venv/
+learner/work/**/.next/
+learner/work/**/.terraform/
+learner/work/**/*.class
+learner/cp/**/*.out
+learner/cp/**/a.out
+learner/cp/**/*.exe
+
+# Operating systems and editors
+.DS_Store
+Thumbs.db
+.idea/

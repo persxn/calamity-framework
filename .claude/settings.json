@@ -1,0 +1,44 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python3 engine/calamity.py *)",
+      "Bash(python engine/calamity.py *)",
+      "Bash(py -3 engine/calamity.py *)",
+      "PowerShell(python3 engine/calamity.py *)",
+      "PowerShell(python engine/calamity.py *)",
+      "PowerShell(py -3 engine/calamity.py *)",
+      "Edit(/learner/profile.md)",
+      "Edit(/learner/schedule.md)",
+      "Edit(/learner/notes/**)",
+      "Edit(/learner/syllabus/**)",
+      "Edit(/learner/tree/**)",
+      "Edit(/learner/sources/**)",
+      "Edit(/learner/work/**)",
+      "Edit(/learner/cp/**)",
+      "Edit(/learner/gate/**)",
+      "Edit(/learner/bridges/**)",
+      "Edit(/.calamity/tmp/**)"
+    ],
+    "ask": [
+      "Bash(python3 engine/calamity.py setup *)",
+      "Bash(python engine/calamity.py setup *)",
+      "Bash(py -3 engine/calamity.py setup *)",
+      "PowerShell(python3 engine/calamity.py setup *)",
+      "PowerShell(python engine/calamity.py setup *)",
+      "PowerShell(py -3 engine/calamity.py setup *)",
+      "Edit(/engine/**)",
+      "Edit(/framework/**)",
+      "Edit(/CLAUDE.md)"
+    ],
+    "deny": [
+      "Edit(/learner/events/**)",
+      "Read(/learner/items/**)",
+      "Edit(/learner/items/**)",
+      "Edit(/learner/PROGRESS.md)",
+      "Read(**/.env)",
+      "Read(**/.env.local)",
+      "Read(**/cookies.txt)",
+      "Read(**/*.har)"
+    ]
+  }
+}

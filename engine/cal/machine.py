@@ -1,0 +1,258 @@
+"""Per-machine setup and the health check.
+
+`setup` prepares this machine: a machine id, the learner folders and, when
+asked, the session-start hook in .claude/settings.local.json (a file that is
+never committed). `doctor` reports what is and is not in order.
+"""
+from __future__ import annotations
+
+import json
+import os
+import platform
+import shlex
+import shutil
+import sys
+
+from . import cf, notes, sources
+from .store import Repo, read_text, write_text
+from .util import CalError, fmt_delta, now, parse_ts
+
+
+def _script(repo: Repo) -> str:
+    return os.path.join(repo.root, "engine", "calamity.py")
+
+
+def engine_cmd(repo: Repo) -> str:
+    """How to call the engine on this machine, as typed from the repository root."""
+    try:
+        with open(os.path.join(repo.local, "machine.json"), "r", encoding="utf-8") as fh:
+            cmd = json.load(fh).get("cmd")
+        if cmd:
+            return cmd
+    except (OSError, ValueError):
+        pass
+    return guess_cmd()
+
+
+def guess_cmd() -> str:
+    if platform.system().lower().startswith("win"):
+        found = shutil.which("python")
+        try:
+            same = bool(found) and os.path.samefile(found, sys.executable)
+        except OSError:
+            same = False
+        return ("python" if same else "py -3") + " engine/calamity.py"
+    return "python3 engine/calamity.py"
+
+
+def _settings_path(repo: Repo) -> str:
+    return os.path.join(repo.root, ".claude", "settings.local.json")
+
+
+def _load_settings(path: str) -> dict:
+    if not os.path.isfile(path):
+        return {}
+    try:
+        data = json.loads(read_text(path) or "{}")
+    except ValueError:
+        raise CalError("%s is not valid JSON; fix or remove it, then run setup again" % path)
+    if not isinstance(data, dict):
+        raise CalError("%s should contain a JSON object" % path)
+    return data
+
+
+def _is_ours(entry) -> bool:
+    for hook in (entry or {}).get("hooks", []) if isinstance(entry, dict) else []:
+        args = hook.get("args") or []
+        blob = " ".join([str(hook.get("command", ""))] + [str(a) for a in args])
+        if "calamity.py" in blob and "brief" in blob:
+            return True
+    return False
+
+
+def install_hook(repo: Repo) -> str:
+    """Add (or refresh) the SessionStart hook that prints the brief."""
+    path = _settings_path(repo)
+    data = _load_settings(path)
+    hooks = data.setdefault("hooks", {})
+    if not isinstance(hooks, dict):
+        raise CalError("'hooks' in %s is not an object" % path)
+    entries = [e for e in hooks.get("SessionStart", []) if not _is_ours(e)]
+    entries.append({"hooks": [{
+        "type": "command",
+        "command": sys.executable,
+        "args": [_script(repo), "brief", "--hook"],
+        "timeout": 30,
+    }]})
+    hooks["SessionStart"] = entries
+    write_text(path, json.dumps(data, indent=2) + "\n")
+    return "session-start hook written to .claude/settings.local.json (takes effect in the next session)"
+
+
+def remove_hook(repo: Repo) -> str:
+    path = _settings_path(repo)
+    data = _load_settings(path)
+    hooks = data.get("hooks") if isinstance(data.get("hooks"), dict) else {}
+    before = hooks.get("SessionStart", [])
+    after = [e for e in before if not _is_ours(e)]
+    if len(after) == len(before):
+        return "no Calamity hook was installed"
+    if after:
+        hooks["SessionStart"] = after
+    else:
+        hooks.pop("SessionStart", None)
+    if not hooks:
+        data.pop("hooks", None)
+    write_text(path, json.dumps(data, indent=2) + "\n")
+    return "session-start hook removed"
+
+
+def install_statusline(repo: Repo) -> str:
+    python = sys.executable.replace("\\", "/")
+    script = _script(repo).replace("\\", "/")
+    windows = platform.system().lower().startswith("win")
+    if windows and (" " in python or " " in script):
+        raise CalError("the status line cannot be set up automatically when the Python or repository path "
+                       "contains spaces on Windows")
+    command = "%s %s statusline" % ((python, script) if windows else (shlex.quote(python), shlex.quote(script)))
+    path = _settings_path(repo)
+    data = _load_settings(path)
+    data["statusLine"] = {"type": "command", "command": command}
+    write_text(path, json.dumps(data, indent=2) + "\n")
+    return "status line written to .claude/settings.local.json"
+
+
+def hook_state(repo: Repo) -> str:
+    """'ok', 'missing' or a description of what is wrong."""
+    path = _settings_path(repo)
+    try:
+        data = _load_settings(path)
+    except CalError:
+        return "settings.local.json is not valid JSON"
+    entries = (data.get("hooks") or {}).get("SessionStart", []) if isinstance(data.get("hooks"), dict) else []
+    for entry in entries:
+        if not _is_ours(entry):
+            continue
+        hook = entry["hooks"][0]
+        if not os.path.isfile(str(hook.get("command", ""))):
+            return "hook points at a Python that no longer exists (%s)" % hook.get("command")
+        args = hook.get("args") or []
+        if not args or not os.path.isfile(str(args[0])):
+            return "hook points at a repository path that no longer exists"
+        try:
+            if not os.path.samefile(args[0], _script(repo)):
+                return "hook points at a different copy of the repository"
+        except OSError:
+            return "hook path could not be checked"
+        return "ok"
+    return "missing"
+
+
+def setup(repo: Repo, machine: str | None = None, hook: bool = False, statusline: bool = False) -> str:
+    repo.ensure_dirs()
+    ident = repo.set_machine(machine) if machine else repo.machine()
+    cmd = guess_cmd()
+    write_text(os.path.join(repo.local, "machine.json"), json.dumps({"id": ident, "cmd": cmd}) + "\n")
+    lines = ["machine: %s" % ident, "engine command on this machine: %s" % cmd,
+             "python: %s (%s)" % (sys.executable, platform.python_version())]
+    if hook:
+        lines.append(install_hook(repo))
+    else:
+        state = hook_state(repo)
+        lines.append("session-start hook: %s%s" % (state, "" if state == "ok" else " (install with: setup --hook)"))
+    if statusline:
+        lines.append(install_statusline(repo))
+    lines.append("learner folders ready under learner/")
+    return "\n".join(lines)
+
+
+# ---------------------------------------------------------------- doctor
+
+
+def doctor(repo: Repo):
+    """Return (exit_code, text). Exit code 1 when something must be fixed."""
+    from .state import State
+    from .tree import Tree
+
+    rows = []
+
+    def add(level, what, detail=""):
+        rows.append((level, what, detail))
+
+    v = sys.version_info
+    add("OK" if v >= (3, 9) else "FAIL", "Python %d.%d.%d" % (v[0], v[1], v[2]), "" if v >= (3, 9) else "3.9 or newer is required")
+    add("OK" if shutil.which("git") else "WARN", "git", "" if shutil.which("git") else "not found on PATH; syncing between machines needs it")
+    for rel in ("config.md", "method.md", os.path.join("tree", "tracks.md")):
+        ok = os.path.isfile(os.path.join(repo.framework, rel))
+        add("OK" if ok else "FAIL", "framework/%s" % rel.replace(os.sep, "/"), "" if ok else "missing")
+
+    tree = Tree(repo)
+    errors, warnings = tree.check()
+    live = tree.live()
+    add("FAIL" if errors else "OK", "skill tree: %d skills, %d topics" % (len(live), sum(len(n.topics) for n in live)),
+        "; ".join(errors[:3]) + (" ..." if len(errors) > 3 else ""))
+    if warnings:
+        add("WARN", "skill tree warnings: %d" % len(warnings), warnings[0])
+
+    state = State(repo, tree)
+    add("OK" if repo.onboarded() else "WARN", "learner profile",
+        "" if repo.onboarded() else "not onboarded yet (run the onboard skill)")
+    files = repo.event_files()
+    add("FAIL" if repo.event_errors else "OK", "event log: %d events in %d file(s)" % (state.n_events, len(files)),
+        "; ".join(repo.event_errors[:3]))
+
+    on_disk = set()
+    if os.path.isdir(repo.items_dir):
+        for skill in os.listdir(repo.items_dir):
+            d = os.path.join(repo.items_dir, skill)
+            if os.path.isdir(d):
+                on_disk.update(n[:-5] for n in os.listdir(d) if n.endswith(".json"))
+    known = set(state.items)
+    missing, orphans = known - on_disk, on_disk - known
+    counts = {}
+    for it in state.items.values():
+        counts[it.status] = counts.get(it.status, 0) + 1
+    add("WARN" if (missing or orphans) else "OK",
+        "items: %s" % (", ".join("%d %s" % (c, s) for s, c in sorted(counts.items())) or "none"),
+        ("%d logged item(s) have no file" % len(missing) if missing else "")
+        + ("; %d item file(s) were never logged (not created by the engine)" % len(orphans) if orphans else ""))
+
+    src_errors, src_warnings = sources.check(repo, tree)
+    n_sources = len(sources.load_all(repo))
+    add("FAIL" if src_errors else "OK", "study sources: %d" % n_sources, "; ".join(src_errors[:3]))
+    if src_warnings:
+        add("WARN", "study source warnings", src_warnings[0])
+
+    add("OK", "machine id: %s" % repo.machine())
+    state_h = hook_state(repo)
+    add("OK" if state_h == "ok" else "WARN", "session-start hook",
+        "" if state_h == "ok" else "%s; the brief still works when run by hand (setup --hook installs it)" % state_h)
+
+    attrs = os.path.join(repo.root, ".gitattributes")
+    has_union = os.path.isfile(attrs) and "merge=union" in read_text(attrs)
+    add("OK" if has_union else "WARN", ".gitattributes union merge for the event log",
+        "" if has_union else "missing: two machines could then conflict on the same file")
+    ignore = os.path.join(repo.root, ".gitignore")
+    ignored = os.path.isfile(ignore) and ".calamity" in read_text(ignore)
+    add("OK" if ignored else "WARN", ".gitignore covers .calamity/", "" if ignored else "machine-local files could be committed")
+
+    engine = notes.tex_engine()
+    add("OK" if engine else "WARN", "TeX engine for PDF notes",
+        engine[0] if engine else "none found; notes stay as .tex until one is installed")
+
+    handle = repo.prof("cp.handle")
+    if handle:
+        data = cf.load(repo)
+        if data is None:
+            add("WARN", "Codeforces %s" % handle, "not synced on this machine (cf sync)")
+        else:
+            add("OK", "Codeforces %s" % handle, "synced %s" % fmt_delta(parse_ts(data["fetched"]) - now()))
+
+    width = max(len(r[1]) for r in rows)
+    lines = [("%-4s  %s%s" % (level, what.ljust(width), ("  " + detail) if detail else "")).rstrip()
+             for level, what, detail in rows]
+    fails = sum(1 for r in rows if r[0] == "FAIL")
+    warns = sum(1 for r in rows if r[0] == "WARN")
+    lines.append("")
+    lines.append("%d problem(s), %d warning(s)" % (fails, warns))
+    return (1 if fails else 0), "\n".join(lines)
