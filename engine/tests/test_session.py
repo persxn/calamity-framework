@@ -97,6 +97,10 @@ class AskAnswer(Case):
         out = sb.answer(ident, "A", err="concept", note="mixed up | and >")
         self.assertIn("WRONG", out)
         self.assertIn("KEY: C", out)
+        # the last line tells the tutor what the learner must hear, whatever the learner can see of this output
+        self.assertTrue(out.strip().split("\n")[-1].startswith("next: tell the learner it was wrong; give the KEY and "
+                                                                 "the SOLUTION above"), out)
+        self.assertIn("it is recorded as concept", out)
         state = sb.state()
         ts = state.topics["shell/pipes"]
         self.assertEqual(ts.errors, {"concept": 1})
@@ -115,6 +119,13 @@ class AskAnswer(Case):
         self.assertEqual((ts.n, ts.n_ok, ts.n_vok), (2, 1, 0))  # scheduled, but not evidence
         self.assertNotIn("answer again today", sb.run("today"))
         self.assertIn("shell/pipes", sb.run("stats", "errors"))
+
+    def test_a_right_answer_is_announced_too(self):
+        sb = self.sb
+        ident = sb.item("shell/pipes")
+        sb.ask("shell/pipes")
+        out = sb.answer(ident, "B")
+        self.assertEqual(out.strip().split("\n")[-1], "next: tell the learner it was right, in one line, then go on")
 
     def test_grade_follows_hints_and_time(self):
         sb = self.sb

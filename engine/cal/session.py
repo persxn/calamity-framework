@@ -351,9 +351,17 @@ def answer(repo: Repo, tree, state, when, item_id: str, raw=None, result: str | 
     lines.append(describe_topic(repo, new_state, primary))
     if kind == "placement" and not ok and not studied:
         lines.append("placement: not known yet. The topic stays in the queue as new material; nothing was scheduled.")
-    elif not ok and not err:
-        lines.append("once the cause is clear, record it: mistake %s %s" % (item_id, "|".join(ERROR_TAGS)))
     lines.append(plan.today_line(plan.today(repo, tree, new_state, when)))
+    # The learner may not see this output: say what to tell them, right where the next step is decided.
+    if kind == "placement":
+        lines.append("next: in a placement test, no feedback until the test is over; ask the next question")
+    elif ok:
+        lines.append("next: tell the learner it was right, in one line, then go on")
+    else:
+        lines.append("next: tell the learner it was wrong; give the KEY and the SOLUTION above; find the cause and "
+                     "%s; repair the gap in a few lines; only then go on" % (
+                         ("it is recorded as %s (mistake %s <kind> changes that)" % (err, item_id)) if err
+                         else "record it: mistake %s %s" % (item_id, "|".join(ERROR_TAGS))))
     return "\n".join(lines)
 
 
