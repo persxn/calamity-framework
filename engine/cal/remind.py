@@ -24,7 +24,7 @@ TAG = "calamity-remind"
 def check(repo: Repo, tree, state, when, always: bool = False):
     """Return (exit_code, message). 0 = something is due, 3 = stay quiet."""
     if not repo.onboarded():
-        return 3, ""
+        return (0, "Calamity: not set up yet; open Claude Code in the folder and run /onboard") if always else (3, "")
     t = plan.today(repo, tree, state, when)
     if t["sleep"]["inside"] and not always:
         return 3, ""

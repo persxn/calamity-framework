@@ -169,6 +169,9 @@ class Reminders(Case):
         sb.run("profile", "set", "cfg.new_per_day", "0")
         self.assertEqual(sb.run("remind", "check", expect=3), "")      # nothing due: stay quiet
         self.assertIn("nothing due right now", sb.run("remind", "check", "--always"))
+        sb.run("profile", "unset", "onboarded")                         # a reminder before onboarding says so
+        self.assertEqual(sb.run("remind", "check", expect=3), "")
+        self.assertIn("not set up yet", sb.run("remind", "check", "--always"))
 
     def test_render_needs_times(self):
         sb = self.sb

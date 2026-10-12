@@ -113,7 +113,7 @@ done, not described.
 
 ## Weaving
 
-The work list (`item needs`) names earlier topics under `embed`. Build them
+The work list (`item needs --full`) names earlier topics under `embed`. Build them
 into the exercise where a practitioner would really meet them: a Java
 exercise that ends in a Dockerfile and a commit; a FastAPI endpoint whose
 test needs a SQL join. List each embedded topic in `topics` after the
