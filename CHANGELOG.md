@@ -53,7 +53,7 @@ The first public release.
 
 ### Development
 
-- 221 unit tests (`selftest`), an end-to-end run of two laptops and a
+- Unit tests (`selftest`), an end-to-end run of two laptops and a
   framework update (`tools/e2e.py`), a fuzzer (`tools/fuzz.py`), sample
   output from pretend learners (`tools/demo.py`), and continuous
   integration on Linux, macOS and Windows.

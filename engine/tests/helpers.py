@@ -481,7 +481,7 @@ class Sandbox:
         else:
             data.pop("solution")
             data.pop("expect_s")  # hands-on work takes the engine's default (15 minutes)
-            data["check"] = more.pop("check", "cd learner/work/x && ./run-tests.sh  # passes when it exits 0")
+            data["check"] = more.pop("check", "./run-tests.sh  # passes when it exits 0")
             data["rubric"] = more.pop("rubric", ["does the thing"])
         data.update(more)
         path = self.path(".calamity", "tmp", "draft-%d.json" % self._n)

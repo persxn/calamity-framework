@@ -161,7 +161,8 @@ def weights_from_items(repo: Repo, tree, state, apply: bool = False) -> str:
     """Average marks per subject over fully-imported official papers."""
     papers = {}
     for st in state.items.values():
-        if st.src != "official" or st.status not in ("verified", "disputed") or not st.topics:
+        # Marks and topics come from the paper itself, so a question counts before its key is checked.
+        if st.src != "official" or st.status not in ("draft", "verified", "disputed") or not st.topics:
             continue
         try:
             item = items.load(repo, st.id)

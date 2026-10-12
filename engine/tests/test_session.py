@@ -52,7 +52,7 @@ class AskAnswer(Case):
         nxt = sb.run("next")
         self.assertIn("NEXT: new", nxt)
         self.assertIn("topic: shell/pipes | Pipes", nxt)
-        self.assertIn("covered shell/pipes", nxt)
+        self.assertIn("then: ask --topic shell/pipes --taught", nxt)   # teaching and testing in one call
         self.assertIn("NEXT: new", sb.run("ask"))          # not taught yet: nothing is served
         self.assertIn("covered: shell/pipes", sb.run("covered", "shell/pipes"))
         again = sb.run("next")                              # taught (perhaps in an earlier session): test, do not reteach
@@ -191,7 +191,8 @@ class AskAnswer(Case):
             sb.item("shell/pipes")
         sb.run("covered", "shell/pipes")
         out = sb.run("ask", "--due")
-        self.assertIn("NEXT: new", out)                                   # nothing is due, and new material is not served
+        self.assertTrue(out.startswith("NOTHING_DUE"))                    # nothing is due, and new material is not offered
+        self.assertNotIn("NEXT: new", out)
         self.assertNotIn("ITEM it-", out)
         self.assertEqual(sb.state().items[sorted(sb.state().items)[0]].n_shown, 0)
         sb.do("shell/pipes")
@@ -211,6 +212,13 @@ class AskAnswer(Case):
         out = sb.run("answer", ident, "--result", "pass", "--evidence", "ran chmod 640; ls -l shows rw-r-----")
         self.assertIn("CORRECT", out)
         self.assertEqual(sb.state().topics["shell/perms"].n_vok, 1)
+        # a failed check has no key to show: the tutor reports what the check showed
+        sb.advance(days=3)
+        sb.run("ask", "--topic", "shell/perms")
+        out = sb.run("answer", ident, "--result", "fail", "--evidence", "ls -l shows rw-rw-rw-", "--err", "method")
+        last = out.strip().split("\n")[-1]
+        self.assertIn("say what the check showed", last)
+        self.assertNotIn("KEY", last)
 
     def test_dispute_voids_an_unfair_answer(self):
         sb = self.sb

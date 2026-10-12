@@ -252,6 +252,17 @@ class Codeforces(Case):
         self.assertIn("1301 -> 1234", contests)
         self.assertIn("-67", contests)
         self.assertIn("rated contests: 4 · contests with submissions made as a participant", contests)
+        self.assertNotIn("RUNNING NOW", contests)
+        # half an hour into round 950: the cache from the last sync still says it has not started
+        sb.at("2026-10-13T10:30:00+05:30")
+        live = sb.run("cf", "contests")
+        self.assertIn("RUNNING NOW", live)
+        self.assertIn("1700  Codeforces Round 950 (Div. 2)", live)
+        self.assertIn("give no help of any kind", live)
+        self.assertIn("ends\n", live)
+        self.assertEqual(live.count("Round 950"), 1)                          # listed as running, not as upcoming
+        sb.at("2026-10-13T12:30:00+05:30")                                     # over: two hours long
+        self.assertNotIn("RUNNING NOW", sb.run("cf", "contests"))
 
     def test_credit(self):
         sb = self.sb

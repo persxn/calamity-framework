@@ -22,7 +22,7 @@ has not set a year and papers, run its "Onboarding a GATE learner" first.
 | to review a mock | the mock review below |
 | to see mock history | `python3 engine/calamity.py gate mocks` |
 | where marks leak | `python3 engine/calamity.py gate errors` |
-| to add past papers | "Past questions" in the playbook, then `item import --official` and `gate weights --apply` |
+| to add past papers | "Past questions" in the playbook, then `item import --official`, the new ids to the `checker` agent, and `gate weights --apply` |
 | a target in marks | "The target" in the playbook; the strategist researches it and records the source |
 | to drop or pause a subject | show `gate triage`, state the cost in marks, then `pause <subject>` if they decide |
 

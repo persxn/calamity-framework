@@ -63,7 +63,7 @@ cannot show them.
 |---|---|
 | `item needs [--skill S] [--n N] [--full]` | The examiner's work list: upcoming topics with no unseen verified item. `--full` adds each topic's difficulty, format, objectives and topics to embed. |
 | `item draft --file F [--by examiner]` | Store one draft (a JSON object). |
-| `item import --file F [--by examiner] [--official]` | Store a list of drafts. `--official` marks official-paper items as verified by provenance. |
+| `item import --file F [--by examiner] [--official]` | Store a list of drafts. `--official` stores official-paper items with their official keys; like any draft, each needs the checker's blind answer. |
 | `item show ITEM [ITEM ...] [--check] [--reveal]` | The item (or several) without its key. `--check` adds the check and rubric of a hands-on item. `--reveal` adds key and solution, only for an item the learner has already answered (never for a draft, an unanswered item or one that is waiting for an answer). |
 | `item verify ITEM --answer "..." --by checker`, `item verify ITEM=ANSWER [ITEM=ANSWER ...] --by checker` | Blind verification of auto-graded items, one or a whole batch: each independent answer must match the sealed key. In a batch every item is checked before anything is recorded. |
 | `item verify ITEM --ran --evidence "..." --by checker` | Verification of a hands-on item: its check was run against a reference solution. `--fail` rejects it. |

@@ -401,7 +401,8 @@ def next_text(repo: Repo, tree, state, when, action: dict) -> str:
             lines.append("do: ask --topic %s   (taught already, not tested yet: test it now; teach again only what "
                          "the answer exposes)" % key)
         else:
-            lines.append("do: teach one small chunk, run: covered %s , then: ask --topic %s" % (key, key))
+            lines.append("do: teach one small chunk, then: ask --topic %s --taught   (records the teaching and serves "
+                         "the question)" % key)
     elif kind == "watch":
         lines.append("NEXT: watch")
         if action.get("turn"):

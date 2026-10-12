@@ -82,7 +82,7 @@ class Laptop:
             elif kind == "nat":
                 d.update(answer=answer, solution="Computed step by step to %s." % answer)
             else:
-                d.update(check="cd learner/work/e2e && sh check.sh   # passes when it exits 0", rubric=["works"])
+                d.update(check="sh check.sh   # passes when it exits 0", rubric=["works"])
             drafts.append(d)
         self.write(".calamity/tmp/drafts.json", json.dumps(drafts))
         out = self.cal("item", "import", "--file", ".calamity/tmp/drafts.json", "--by", "examiner")

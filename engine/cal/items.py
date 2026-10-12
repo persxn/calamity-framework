@@ -264,6 +264,11 @@ def validate_draft(data, tree) -> dict:
         rubric = [str(r).strip() for r in (data.get("rubric") or []) if str(r).strip()]
         if kind in ("code", "task") and len(check) < 10:
             raise CalError("%s items need a 'check': the exact commands to run and what must be true to pass" % kind)
+        # The checker runs the check on its own solution in a scratch folder and the tutor on the learner's
+        # work, so the check must not lead into the learner's exercise folder itself.
+        if "learner/work" in check.replace("\\", "/"):
+            raise CalError("a check runs from inside the exercise folder: give its commands without "
+                           "`cd learner/work/...` or any path into learner/work/ (the stem names the folder)")
         if kind == "open" and not rubric:
             raise CalError("open items need a 'rubric' (a list of things a correct answer must contain)")
         public["check"] = check
@@ -347,7 +352,7 @@ def blind_text(item: dict, tree, with_check: bool = False) -> str:
         # below a second line of dashes: the question above is for the learner, this part is not
         extra = []
         if item.get("check"):
-            extra += ["CHECK (run this to judge the answer):", item["check"]]
+            extra += ["CHECK (run it from inside the exercise folder the question names):", item["check"]]
         if item.get("rubric"):
             extra += ([""] if extra else []) + ["RUBRIC (a correct answer contains):"] + ["- " + r for r in item["rubric"]]
         if extra:

@@ -270,13 +270,13 @@ def cmd_item(c, a):
         made = []
         for draft in data:
             item = items.create(repo, tree, draft, created_by=a.by or "import")
-            if a.official:
-                repo.append("item_verify", item=item["id"], ok=True, method="official", by=a.by or "import",
-                            note=item["source"]["ref"])
             made.append(item["id"])
         _discard_draft_file(repo, a)
-        tail = ("verified by provenance (official key); have the checker agent solve each one blind as a "
-                "transcription check" if a.official else "stored as drafts; each needs: item verify")
+        # Official questions go through the same blind check as any other: until the checker's answer
+        # matches the official key, a slip in the transcription could reach the learner.
+        tail = ("stored as drafts with their official keys; each needs the checker's blind answer (item verify). "
+                "A mismatch puts the item on hold as disputed until the transcription is compared with the paper"
+                if a.official else "stored as drafts; each needs: item verify")
         return 0, "imported %d item(s): %s\n%s" % (len(made), ", ".join(made), tail)
     if a.action == "list":
         rows = []
@@ -320,6 +320,8 @@ def cmd_item(c, a):
                 raise CalError("%s is a %s item: verify it on its own with --ran --evidence" % (ident, item["type"]))
             if st is not None and st.status == "rejected":
                 raise CalError("item %s was rejected; write a new draft instead (nothing was recorded)" % ident)
+            if st is not None and st.status == "verified":
+                raise CalError("item %s is verified already (nothing was recorded)" % ident)
             if (a.by or "").strip() == item.get("created_by"):
                 raise CalError("an item cannot be verified by its own author (%s)" % a.by)
         lines = []
@@ -354,6 +356,10 @@ def cmd_item(c, a):
             raise CalError("an item cannot be verified by its own author (%s)" % by)
         if status == "rejected":
             raise CalError("item %s was rejected; write a new draft instead" % a.item)
+        if status == "verified":
+            raise CalError("item %s is verified already. If the learner disputes its key, solve it blind and "
+                           "report your answer; the tutor decides with: item dispute %s --reason \"...\" --void"
+                           % (a.item, a.item))
         if item["type"] in items.AUTO_TYPES:
             if a.answer is None:
                 raise CalError("solve it independently, then: item verify %s --answer <your answer> --by %s" % (a.item, by))

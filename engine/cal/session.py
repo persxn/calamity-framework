@@ -172,7 +172,10 @@ def ask(repo: Repo, tree, state, when, topic: str | None = None, item_id: str | 
                 repo.append("covered", topic=key, by="tutor")
         else:
             action = plan.next_action(repo, tree, state, when, skill=skill)
-            if action["action"] not in ("review", "new") or (due_only and action["action"] != "review"):
+            if due_only and action["action"] != "review":
+                return 0, ("NOTHING_DUE\nNo review is due right now%s, so the surprise recall is over. Go on with "
+                           "the main block: ask%s" % (" in %s" % skill if skill else "", " --skill %s" % skill if skill else ""))
+            if action["action"] not in ("review", "new"):
                 return 0, plan.next_text(repo, tree, state, when, action)
             key = action["topic"]
             if action["action"] == "new" and not action.get("covered"):
@@ -358,8 +361,9 @@ def answer(repo: Repo, tree, state, when, item_id: str, raw=None, result: str | 
     elif ok:
         lines.append("next: tell the learner it was right, in one line, then go on")
     else:
-        lines.append("next: tell the learner it was wrong; give the KEY and the SOLUTION above; find the cause and "
+        lines.append("next: tell the learner it was wrong; %s; find the cause and "
                      "%s; repair the gap in a few lines; only then go on" % (
+                         "give the KEY and the SOLUTION above" if reveal else "say what the check showed",
                          ("it is recorded as %s (mistake %s <kind> changes that)" % (err, item_id)) if err
                          else "record it: mistake %s %s" % (item_id, "|".join(ERROR_TAGS))))
     return "\n".join(lines)

@@ -58,8 +58,9 @@ verifies it, and the one that verifies never sees the key.
 
 5. **Official questions.** Items transcribed from an official paper that the
    learner supplied carry `source.kind: official` with a reference (paper,
-   year, question number). `item import --official` trusts the official key;
-   the checker still solves each one blind as a transcription check. A
+   year, question number). `item import --official` stores them as drafts
+   with the official key, and the checker solves each one blind like any
+   other item: a slip in the transcription must not reach the learner. A
    mismatch puts the item on hold as `disputed` until the transcription is
    compared with the paper (`item restore <item>` when it holds).
 
@@ -67,9 +68,11 @@ What reaches the learner: verified items only. `ask` refuses anything else.
 
 ## When the learner disagrees with a key
 
-Do not defend the key from memory. Send the item id to the checker for a
-fresh blind solve, with the learner's objection as context. If the key does
-not hold:
+Do not defend the key from memory. Send only the item id to the checker
+for a fresh blind solve (the objection may name the key). The checker
+returns its own answer and does not run `item verify`, which the engine
+refuses for a verified item. If its answer differs from the key, the key
+does not hold:
 
     python3 engine/calamity.py item dispute <item> --reason "..." --void
 

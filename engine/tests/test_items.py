@@ -126,9 +126,14 @@ class Drafts(Case):
         self.assertEqual(nat["public"]["expect_s"], 150)
         task = items.validate_draft({"type": "task", "topics": ["docker/dockerfile", "shell/pipes"],
                                      "stem": "Write a Dockerfile for the service in learner/work/docker/ex1.",
-                                     "check": "cd learner/work/docker/ex1 && docker build -t ex1 .  # passes on exit 0"}, tree)
+                                     "check": "docker build -t ex1 .  # passes on exit 0"}, tree)
         self.assertEqual(task["public"]["topics"], ["docker/dockerfile", "shell/pipes"])
         self.assertEqual(task["public"]["expect_s"], 900)
+        # a check that leads into the learner's folder would make the checker build its solution there
+        for check in ("cd learner/work/docker/ex1 && docker build -t ex1 .", "test -f learner\\work\\docker\\ex1\\Dockerfile"):
+            with self.assertRaises(CalError):
+                items.validate_draft({"type": "task", "topics": ["docker/dockerfile"], "check": check,
+                                      "stem": "Write a Dockerfile for the service in learner/work/docker/ex1."}, tree)
         with self.assertRaises(CalError):
             items.validate_draft({"type": "task", "topics": ["docker/dockerfile"], "stem": "Do the task now."}, tree)
         with self.assertRaises(CalError):
@@ -256,7 +261,10 @@ class Drafts(Case):
         write(path, json.dumps([official]))
         out = sb.run("item", "import", "--file", path, "--official")
         ident = out.split("imported 1 item(s): ")[1].split()[0]
-        self.assertEqual(sb.state().items[ident].status, "verified")
+        # an official key is no reason to skip the blind check: a transcription can be wrong
+        self.assertIn("each needs the checker's blind answer", out)
+        self.assertEqual(sb.state().items[ident].status, "draft")
+        sb.run("ask", "--id", ident, expect=2)
         # the transcription check disagrees: the item is put on hold, not rejected
         self.assertIn("disputed", sb.run("item", "verify", ident, "--answer", "A", "--by", "checker"))
         self.assertEqual(sb.state().items[ident].status, "disputed")
@@ -264,6 +272,21 @@ class Drafts(Case):
         sb.run("item", "restore", ident)
         self.assertEqual(sb.state().items[ident].status, "verified")
         sb.run("item", "restore", ident, expect=2)
+        # a second copy whose blind answer matches is verified the ordinary way
+        write(path, json.dumps([dict(official, source={"kind": "official", "ref": "GATE CS 2025 Q.32"})]))
+        other = sb.run("item", "import", "--file", path, "--official").split("imported 1 item(s): ")[1].split()[0]
+        self.assertIn("verified", sb.run("item", "verify", other, "--answer", "B", "--by", "checker"))
+        self.assertEqual(sb.state().items[other].status, "verified")
+
+    def test_a_verified_item_is_not_verified_again(self):
+        # A dispute is settled by item dispute, never by a second verify that would flip the item at once.
+        sb = self.sb
+        ident = sb.item("docker/images", answer="B")
+        sb.run("item", "verify", ident, "--answer", "A", "--by", "checker", expect=2)
+        self.assertIn("verified already", sb.err)
+        self.assertIn("item dispute", sb.err)
+        sb.run("item", "verify", "%s=A" % ident, "--by", "checker", expect=2)
+        self.assertEqual(sb.state().items[ident].status, "verified")
 
     def test_bad_files(self):
         sb = self.sb

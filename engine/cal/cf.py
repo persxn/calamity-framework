@@ -531,12 +531,35 @@ def suited_divisions(rating: int) -> tuple:
     return ("1", "1+2", "edu")
 
 
+def running(data: dict, when) -> list:
+    """Contests running at `when`, judged by their start and length: the phases in the cache are only
+    as fresh as the last sync, and a contest listed as upcoming then may have started since."""
+    now = when.timestamp()
+    out = []
+    for c in data.get("contests") or []:
+        start, length = c.get("startTimeSeconds"), c.get("durationSeconds") or 0
+        if c.get("phase") in ("BEFORE", "CODING") and isinstance(start, (int, float)) and start <= now < start + length:
+            out.append(c)
+    return sorted(out, key=lambda c: c["startTimeSeconds"])
+
+
 def contests_text(repo: Repo, tree, state, when, n: int = 5) -> str:
     data = _need(repo)
     seen = problems_seen(data)
     rating = base_rating(repo, data, seen, when)
     lines = []
-    upcoming = sorted((c for c in data["contests"] if c.get("phase") == "BEFORE" and c.get("startTimeSeconds")),
+    live = running(data, when)
+    if live:
+        rows = [[c["id"], c.get("name", ""), _local(c["startTimeSeconds"] + c.get("durationSeconds", 0), when)
+                 .strftime("%a %d %b %H:%M")] for c in live]
+        lines.append("RUNNING NOW (local time of the end):")
+        lines.append(table(rows, ["id", "name", "ends"]))
+        lines.append("During a rated contest, give no help of any kind with its problems (problem ids start with "
+                     "the contest id), until it has ended.")
+        lines.append("")
+    live_ids = {c["id"] for c in live}
+    upcoming = sorted((c for c in data["contests"] if c.get("phase") == "BEFORE" and c.get("startTimeSeconds")
+                       and c["id"] not in live_ids and c["startTimeSeconds"] > when.timestamp()),
                       key=lambda c: c["startTimeSeconds"])
     if upcoming:
         rows = [[c["id"], c.get("name", ""), _local(c["startTimeSeconds"], when).strftime("%a %d %b %H:%M"),

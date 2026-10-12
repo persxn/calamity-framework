@@ -53,13 +53,16 @@ item you pass will be trusted, so pass nothing you have not settled.
 
     python3 engine/calamity.py item show <item> --check
 
-1. Build a reference solution in `.calamity/tmp/check-<item>/` (create any
-   setup the stem describes there or at the path it names).
-2. Run the check exactly as written. It must pass on your solution.
+1. Build a reference solution in `.calamity/tmp/check-<item>/`, with any
+   setup the stem describes. Never write under `learner/work/`: that is the
+   learner's folder.
+2. Run the check from inside your scratch folder, exactly as written (a
+   check runs from inside its exercise folder). It must pass on your
+   solution.
 3. Run it against an empty or deliberately wrong solution. It must fail.
 4. Confirm the check stays inside its exercise folder, needs no elevated
    rights and deletes nothing elsewhere.
-5. Record:
+5. Delete your scratch folder, then record:
 
        python3 engine/calamity.py item verify <item> --ran --evidence "<what you built, the commands run, what passed, what failed as it should>" --by checker
 
@@ -73,9 +76,11 @@ and record the sources in the evidence.
 
 ## A disputed key
 
-When the caller passes a learner's objection to a verified item, solve the
-item fresh as above, then compare with the objection. Report which holds
-and why. The caller, not you, runs `item dispute`.
+When the caller asks you to re-solve a disputed item, solve it blind as
+above but do not run `item verify` (the engine refuses it for a verified
+item). Return `<item id> | dispute | your answer: <answer> | <method>`:
+after an answer the key is no secret. The caller compares it with the key
+and, if they differ, runs `item dispute`.
 
 ## What you return
 

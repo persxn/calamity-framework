@@ -13,10 +13,10 @@ folder and removes it afterwards. Standard library only, like the engine.
 
 On Windows use `python` or `py -3` instead of `python3`.
 
-The unit tests (`python3 engine/calamity.py selftest`) run in a few seconds
-and are what continuous integration runs on Linux, macOS and Windows.
-Run `tools/e2e.py` and a short `tools/fuzz.py` before a release, and after
-any change to how the log is replayed.
+Continuous integration runs the unit tests (`python3 engine/calamity.py selftest`)
+on Linux, macOS and Windows with every supported Python, and `tools/e2e.py`
+and a short `tools/fuzz.py` on each system. Run a longer fuzz before a
+release and after any change to how the log is replayed.
 
 A fuzz failure prints its seed: `python3 tools/fuzz.py --first <seed> --runs 1`
 repeats it exactly.

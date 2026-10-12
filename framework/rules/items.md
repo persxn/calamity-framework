@@ -91,7 +91,7 @@ done, not described.
   "topics": ["docker/multi-stage", "java/packaging"],
   "difficulty": 3,
   "stem": "In `learner/work/docker/ex-multistage/` there is a small Java service (created by this exercise's setup below). Write a Dockerfile that builds the jar in one stage and runs it from a JRE-only image as a non-root user.\n\nSetup: ...",
-  "check": "cd learner/work/docker/ex-multistage && docker build -t ex-ms . && docker run --rm ex-ms id -u | grep -vx 0 && docker image inspect ex-ms --format '{{.Size}}' | awk '$1 < 250000000 {ok=1} END {exit !ok}'\nPasses when every command exits 0.",
+  "check": "docker build -t ex-ms . && docker run --rm ex-ms id -u | grep -vx 0 && docker image inspect ex-ms --format '{{.Size}}' | awk '$1 < 250000000 {ok=1} END {exit !ok}'\nRuns from inside the exercise folder. Passes when every command exits 0.",
   "rubric": ["two stages; the final stage has no JDK or build tool", "USER set to a non-root user", "dependency layer cached separately from the source"],
   "expect_s": 1200
 }
@@ -102,6 +102,9 @@ done, not described.
 - The check is a short list of commands whose exit status or output decides
   the result, followed by one line that says what "pass" means. It must fail
   on an empty solution.
+- A check runs from inside the exercise folder, so it never names
+  `learner/work/` (the engine refuses one that does): the checker runs it on
+  its own solution in a scratch folder, the tutor on the learner's work.
 - A check runs only inside the exercise folder, needs no elevated rights,
   deletes nothing outside that folder and pulls nothing from the network
   except the project's own declared dependencies.
