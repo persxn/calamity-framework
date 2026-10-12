@@ -113,16 +113,21 @@ def render(repo: Repo, times=None, os_name: str | None = None, python: str | Non
     ])
 
 
+# Every Calamity task lives in the Task Scheduler folder \\Calamity\\. Installing first clears that folder,
+# so new times replace the old ones instead of adding to them; removing clears it whatever the times were.
+_CLEAR_TASKS = ('powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "Get-ScheduledTask -TaskPath '
+                "'\\Calamity\\' -ErrorAction SilentlyContinue | Unregister-ScheduledTask -Confirm:$false\"")
+
+
 def _windows(out_dir: str, slots, python: str, engine: str, shown: str) -> str:
     script = os.path.join(out_dir, "notify.ps1")
     write_text(script, _NOTIFY_PS1 % {"python": python.replace('"', ""), "engine": engine.replace('"', "")})
-    install, remove = [], []
+    install, remove = [_CLEAR_TASKS], [_CLEAR_TASKS]
     for h, m in slots:
         name = "Calamity\\Remind-%02d%02d" % (h, m)
         install.append(
             'schtasks /Create /F /SC DAILY /ST %02d:%02d /TN "%s" /TR "powershell.exe -NoProfile -ExecutionPolicy Bypass '
             '-WindowStyle Hidden -File \\"%s\\""' % (h, m, name, script))
-        remove.append('schtasks /Delete /F /TN "%s"' % name)
     write_text(os.path.join(out_dir, "install.cmd"), "@echo off\r\n" + "\r\n".join(install) + "\r\n")
     write_text(os.path.join(out_dir, "remove.cmd"), "@echo off\r\n" + "\r\n".join(remove) + "\r\n")
     return "\n".join([

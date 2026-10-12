@@ -122,6 +122,50 @@ def install_statusline(repo: Repo) -> str:
     return "status line written to .claude/settings.local.json"
 
 
+def _our_statusline(data: dict):
+    """The status line entry if it is the one `setup --statusline` wrote, else None."""
+    entry = data.get("statusLine")
+    if isinstance(entry, dict):
+        command = str(entry.get("command", ""))
+        if "calamity.py" in command and command.rstrip().endswith("statusline"):
+            return entry
+    return None
+
+
+def remove_statusline(repo: Repo) -> str:
+    path = _settings_path(repo)
+    data = _load_settings(path)
+    if _our_statusline(data) is None:
+        return "no Calamity status line was installed"
+    data.pop("statusLine", None)
+    write_text(path, json.dumps(data, indent=2) + "\n")
+    return "status line removed"
+
+
+def statusline_state(repo: Repo) -> str:
+    """'ok', 'missing', 'other' (someone else's status line) or what is wrong with ours."""
+    try:
+        data = _load_settings(_settings_path(repo))
+    except CalError:
+        return "settings.local.json is not valid JSON"
+    entry = _our_statusline(data)
+    if entry is None:
+        return "other" if data.get("statusLine") else "missing"
+    command = str(entry.get("command", ""))
+    try:
+        parts = shlex.split(command) if not platform.system().lower().startswith("win") else command.split(" ")
+    except ValueError:
+        return "status line command cannot be read"
+    if len(parts) < 3 or not os.path.isfile(parts[0]):
+        return "status line points at a Python that no longer exists"
+    try:
+        if not os.path.samefile(parts[1], _script(repo)):
+            return "status line points at a different copy of the repository"
+    except OSError:
+        return "status line points at a repository path that no longer exists"
+    return "ok"
+
+
 def hook_state(repo: Repo) -> str:
     """'ok', 'missing' or a description of what is wrong."""
     path = _settings_path(repo)
@@ -197,6 +241,10 @@ def doctor(repo: Repo):
     state = State(repo, tree)
     add("OK" if repo.onboarded() else "WARN", "learner profile",
         "" if repo.onboarded() else "not onboarded yet (run the onboard skill)")
+    repo.config()
+    if repo.config_errors:
+        add("WARN", "configuration overrides: %d ignored" % len(repo.config_errors),
+            repo.config_errors[0] + "; fix it with profile set cfg.<key> <value> or profile unset cfg.<key>")
     files = repo.event_files()
     add("FAIL" if repo.event_errors else "OK", "event log: %d events in %d file(s)" % (state.n_events, len(files)),
         "; ".join(repo.event_errors[:3]))
@@ -227,6 +275,14 @@ def doctor(repo: Repo):
     state_h = hook_state(repo)
     add("OK" if state_h == "ok" else "WARN", "session-start hook",
         "" if state_h == "ok" else "%s; the brief still works when run by hand (setup --hook installs it)" % state_h)
+    state_s = statusline_state(repo)
+    if state_s == "ok":
+        add("OK", "status line", "installed")
+    elif state_s in ("missing", "other"):
+        add("OK", "status line", "not installed (optional: setup --statusline)" if state_s == "missing"
+            else "another status line is configured")
+    else:
+        add("WARN", "status line", "%s (setup --statusline writes it again, setup --remove-statusline removes it)" % state_s)
 
     attrs = os.path.join(repo.root, ".gitattributes")
     has_union = os.path.isfile(attrs) and "merge=union" in read_text(attrs)

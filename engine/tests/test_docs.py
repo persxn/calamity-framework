@@ -244,8 +244,15 @@ class Structure(unittest.TestCase):
         self.assertIn("learner/events/*.jsonl merge=union", attrs)
         with open(os.path.join(REPO, ".gitignore"), "r", encoding="utf-8") as fh:
             ignore = fh.read().split("\n")
-        for line in (".calamity/", ".claude/settings.local.json", ".env", "__pycache__/"):
+        for line in (".calamity/", ".claude/settings.local.json", ".env", "__pycache__/", ".tmp-*"):
             self.assertIn(line, ignore)
+
+    def test_a_wrong_key_is_disputed_with_void(self):
+        """The answer graded against a wrong key must stop counting, wherever the procedure is written."""
+        for rel in (os.path.join("framework", "method.md"), os.path.join("framework", "rules", "verification.md")):
+            with open(os.path.join(REPO, rel), "r", encoding="utf-8") as fh:
+                text = " ".join(fh.read().split())
+            self.assertRegex(text, r'item dispute <item> --reason "\.\.\." --void', rel)
 
     def test_text_files_are_clean(self):
         for path in documents() + [os.path.join(REPO, ".gitignore"), os.path.join(REPO, ".gitattributes")]:

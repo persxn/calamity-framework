@@ -65,6 +65,8 @@ Repeat until the finish line, the sleep guard, or the learner stops:
 
     python3 engine/calamity.py next --skill <skill>
 
+(plain `next` in a session across everything).
+
 | The engine says | Do |
 |---|---|
 | `review` | `ask --topic <key>`, then `answer`, as in step 2. |

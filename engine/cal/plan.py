@@ -570,6 +570,8 @@ def brief(repo: Repo, tree, state, when, engine_cmd: str = "") -> str:
         out.append("Behaviour pattern not yet raised today: %s" % pattern["fact"])
     if repo.event_errors:
         out.append("Data notes: %d event line(s) could not be read (see doctor)." % len(repo.event_errors))
+    if repo.config_errors:
+        out.append("Data notes: %d configuration override(s) ignored (see doctor)." % len(repo.config_errors))
     tree_errors, _ = tree.check()
     if tree_errors:
         out.append("Data notes: the skill tree has %d error(s) (see tree check)." % len(tree_errors))

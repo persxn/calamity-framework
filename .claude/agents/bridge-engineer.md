@@ -61,10 +61,13 @@ Requirements, all of them:
 
 Run the tool against a small sample you construct (a few lines of pasted
 text, a tiny export file, a recorded API response), in dry-run mode, and
-confirm the output imports cleanly:
+confirm the output would import cleanly without touching the learner's
+source file:
 
-    python3 engine/calamity.py source import <source> --file .calamity/tmp/<source>.json
-    python3 engine/calamity.py source check
+    python3 engine/calamity.py source import <source> --file .calamity/tmp/<source>-sample.json --dry-run
+
+It must report no errors. Never import the sample for real: it would add
+made-up lectures to the learner's catalogue.
 
 Do not run it against the learner's real account yourself. The learner
 runs it the first time, after the tutor has explained what it does.

@@ -152,8 +152,10 @@ def add(repo: Repo, ident: str, title: str, kind: str, url: str, route: str, tra
     return path
 
 
-def import_items(repo: Repo, ident: str, rows) -> tuple:
-    """Add or replace items of a source from a list of dicts. Returns (added, replaced)."""
+def import_items(repo: Repo, ident: str, rows, dry_run: bool = False) -> tuple:
+    """Add or replace items of a source from a list of dicts. Returns (added, replaced).
+
+    `dry_run` checks the list and counts what would change without writing anything."""
     src = get(repo, ident)
     if not isinstance(rows, list):
         raise CalError("expected a JSON list of items")
@@ -183,6 +185,8 @@ def import_items(repo: Repo, ident: str, rows) -> tuple:
             added += 1
             order.append(item_id)
         entries[item_id] = (str(row.get("title") or item_id).strip().replace("\n", " "), meta)
+    if dry_run:
+        return added, replaced
     body_lines = src.body.split("\n")
     lines, start = fm.section(src.body, "Items")
     if lines is None:

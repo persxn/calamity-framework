@@ -207,6 +207,8 @@ def validate_draft(data, tree) -> dict:
     if len(stem) < 8:
         raise CalError("item stem is missing or too short")
     try:
+        if isinstance(data.get("difficulty"), bool):
+            raise TypeError
         difficulty = int(data.get("difficulty", 2))
     except (TypeError, ValueError):
         raise CalError("difficulty must be 1..5")
@@ -216,12 +218,14 @@ def validate_draft(data, tree) -> dict:
     node = tree.get(skill)
     if marks is None and node.track.startswith("gate") and kind in ("mcq", "msq", "nat"):
         marks = 1
-    if marks is not None and marks not in (1, 2):
+    if marks is not None and (isinstance(marks, bool) or marks not in (1, 2)):
         raise CalError("marks must be 1 or 2 (or omitted)")
     expect = data.get("expect_s")
     if expect is None:
         expect = (90 if marks == 1 else 210) if marks else DEFAULT_EXPECT[kind]
     try:
+        if isinstance(expect, bool):
+            raise TypeError
         expect = int(expect)
     except (TypeError, ValueError):
         raise CalError("expect_s must be a number of seconds")

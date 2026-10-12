@@ -240,14 +240,6 @@ def dump(meta: dict, body: str = "") -> str:
     return "\n".join(lines) + "\n" + (("\n" + body) if body else "")
 
 
-def save(path, meta: dict, body: str = "") -> None:
-    text = dump(meta, body)
-    if not text.endswith("\n"):
-        text += "\n"
-    with open(path, "w", encoding="utf-8", newline="\n") as fh:
-        fh.write(text)
-
-
 # ------------------------------------------------------------------ sections
 
 _H1_RE = re.compile(r"^#\s+(.+?)\s*$")

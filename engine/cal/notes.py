@@ -263,7 +263,12 @@ def pdf(repo: Repo, tree, skill_id: str) -> str:
             msg.append("Fix the section named in the error, then run: notes pdf %s" % skill_id)
         raise CalError("\n".join(msg))
     final = os.path.join(base, "%s-notes.pdf" % skill_id.replace(".", "-"))
-    shutil.copyfile(built, final)
+    try:
+        shutil.copyfile(built, final)
+    except OSError as exc:  # on Windows, a PDF viewer holding the old file open blocks the copy
+        raise CalError("the PDF was built (%s) but could not be copied to %s: %s. If it is open in a PDF "
+                       "viewer, close it and run: notes pdf %s" % (repo.rel(built), repo.rel(final),
+                                                                   exc.strerror or exc, skill_id))
     pages = ""
     m = re.search(r"\((\d+) pages?", last.stdout.decode("utf-8", "replace"))
     if m:

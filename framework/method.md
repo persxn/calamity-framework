@@ -82,8 +82,9 @@ it schedules the topic but never counts as evidence.
 - When a woven exercise fails, name the topic that broke with
   `--blame <key>` so the others are not penalised.
 - If the learner says a key is wrong, do not argue from memory: have the
-  checker re-solve it, and `python3 engine/calamity.py item dispute <item> --reason "..."` if it
-  does not hold.
+  checker re-solve it, and if the key does not hold,
+  `python3 engine/calamity.py item dispute <item> --reason "..." --void` (the
+  answer graded against the wrong key stops counting).
 
 ## Two modes
 

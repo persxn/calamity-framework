@@ -231,8 +231,14 @@ class Reminders(Case):
         self.assertIn("/SC DAILY /ST 21:45", install)
         self.assertIn('/TN "Calamity\\Remind-2145"', install)
         self.assertIn("notify.ps1", install)
+        # installing again with other times must not leave the old tasks behind: both scripts clear
+        # the whole \\Calamity\\ task folder first, whatever times were installed before
+        clear = "Get-ScheduledTask -TaskPath '\\Calamity\\' -ErrorAction SilentlyContinue | Unregister-ScheduledTask"
+        self.assertLess(install.index(clear), install.index("schtasks /Create"))
         with open(os.path.join(folder, "remove.cmd"), "rb") as fh:
-            self.assertEqual(fh.read().decode("utf-8").count("schtasks /Delete"), 2)
+            remove = fh.read().decode("utf-8")
+        self.assertIn(clear, remove)
+        self.assertNotIn("schtasks /Create", remove)
         with open(os.path.join(folder, "notify.ps1"), "r", encoding="utf-8") as fh:
             ps1 = fh.read()
         self.assertIn("remind check", ps1)

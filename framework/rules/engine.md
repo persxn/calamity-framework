@@ -64,7 +64,7 @@ cannot show them.
 | `item needs [--skill S] [--n N]` | The examiner's work list: upcoming topics with no unseen verified item, each with difficulty, format, objectives and topics to embed. |
 | `item draft --file F [--by examiner]` | Store one draft (a JSON object). |
 | `item import --file F [--by examiner] [--official]` | Store a list of drafts. `--official` marks official-paper items as verified by provenance. |
-| `item show ITEM [--check] [--reveal]` | The item without its key. `--check` adds the check and rubric of a hands-on item. `--reveal` adds key and solution (not for drafts). |
+| `item show ITEM [--check] [--reveal]` | The item without its key. `--check` adds the check and rubric of a hands-on item. `--reveal` adds key and solution, only for an item the learner has already answered (never for a draft, an unanswered item or one that is waiting for an answer). |
 | `item verify ITEM --answer "..." --by checker` | Blind verification of an auto-graded item: the independent answer must match the sealed key. |
 | `item verify ITEM --ran --evidence "..." --by checker` | Verification of a hands-on item: its check was run against a reference solution. `--fail` rejects it. |
 | `item reject ITEM --reason`, `item dispute ITEM --reason`, `item restore ITEM` | Withdraw an item; put a verified item on hold; reinstate a disputed one. |
@@ -75,7 +75,7 @@ cannot show them.
 | Command | What it does |
 |---|---|
 | `source add ID --title "..." --kind course\|playlist\|book\|site\|other --url U --route api\|export\|browser-session\|paste\|manual-log --tracks a,b --note "what the terms allow"` | Register a source (`learner/sources/ID.md`). |
-| `source import ID --file F` | Add or replace its lectures from a JSON list: `[{"id", "title", "topics": ["skill/topic"], "minutes", "order", "section", "url"}]`. |
+| `source import ID --file F [--dry-run]` | Add or replace its lectures from a JSON list: `[{"id", "title", "topics": ["skill/topic"], "minutes", "order", "section", "url"}]`. `--dry-run` checks the list and says what would change, writing nothing. |
 | `source status [ID]`, `source check` | Progress and next lectures; validate topic mappings. |
 | `log SOURCE ITEM [--undo] [--upto] [--score X] [--method manual\|manual-log\|paste\|screenshot\|api\|export\|browser-session]` | Mark a lecture done. ITEM is its id, its number, or a unique piece of its title. `--upto` logs everything up to it as watched earlier (it does not count as today's work). |
 
@@ -122,7 +122,7 @@ cannot show them.
 | `dash [progress\|roadmap\|queue\|gate\|cp\|week\|all] [--track T] [--all-tracks] [--width N] [--ascii]` | Dashboards as plain text. |
 | `statusline` | One line for the Claude Code status line. |
 | `remind check [--always]`, `remind render --times 09:00,20:30 [--os linux\|darwin\|windows]` | Is anything due (for a scheduler); write scheduler files and print how to install them. Nothing is installed by the engine. |
-| `setup [--machine NAME] [--hook] [--statusline] [--remove-hook]` | Prepare this machine. `--hook` writes the session-start hook to `.claude/settings.local.json`. |
+| `setup [--machine NAME] [--hook] [--statusline] [--remove-hook] [--remove-statusline]` | Prepare this machine. `--hook` writes the session-start hook and `--statusline` the status line to `.claude/settings.local.json`; the `--remove-` flags take them out again. |
 | `doctor`, `rebuild`, `selftest`, `version` | Health check; replay the log and rewrite `learner/PROGRESS.md`; run the engine's tests; versions. |
 
 ## Profile keys

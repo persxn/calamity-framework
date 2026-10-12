@@ -7,6 +7,7 @@ numbers (schedules, mastery, dashboards) are recomputed by replaying it.
 """
 from __future__ import annotations
 
+import contextlib
 import json
 import os
 import re
@@ -20,6 +21,7 @@ from .util import CalError, iso, new_id, now, parse_ts, slug, utc
 SCHEMA = 1
 _MACHINE_RE = re.compile(r"^[a-z0-9][a-z0-9-]{0,31}$")
 _last_q = 0  # write order within this process (see Repo.append)
+LOCK_WAIT = 15.0  # seconds a command waits for another engine process to finish writing
 
 
 def _next_q() -> int:
@@ -39,20 +41,100 @@ def _engine_dir() -> str:
     return os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
-def write_text(path: str, text: str) -> None:
-    """Write a file atomically with LF newlines and UTF-8."""
+def write_text(path: str, text: str, durable: bool = True) -> None:
+    """Write a file atomically with LF newlines and UTF-8.
+
+    The text goes to a temporary file in the same folder, which then replaces the target, so a
+    reader never sees half a file. `durable` also flushes it to disk first, so a power cut cannot
+    leave an empty file behind (caches skip that). On Windows a file that another program holds
+    open cannot be replaced for a moment (an antivirus scan, a sync client, another engine
+    command reading it), so the replace is retried for a while before giving up.
+    """
     os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
     fd, tmp = tempfile.mkstemp(prefix=".tmp-", dir=os.path.dirname(path) or ".")
     try:
         with os.fdopen(fd, "w", encoding="utf-8", newline="\n") as fh:
             fh.write(text)
-        os.replace(tmp, path)
+            if durable:
+                fh.flush()
+                try:
+                    os.fsync(fh.fileno())
+                except OSError:
+                    pass
+        for attempt in range(12):
+            try:
+                os.replace(tmp, path)
+                break
+            except PermissionError:
+                if attempt == 11:
+                    raise
+                time.sleep(0.05 * (attempt + 1))
     except BaseException:
         try:
             os.unlink(tmp)
         except OSError:
             pass
         raise
+
+
+@contextlib.contextmanager
+def file_lock(path: str, wait: float = LOCK_WAIT):
+    """Hold an exclusive lock on `path` (a small lock file) while the block runs.
+
+    Engine commands can run at the same time: a background examiner storing items while the
+    tutor records an answer. Appends to the event log and read-modify-write updates of the
+    profile go through this lock so that neither can damage or lose the other's write. On
+    Linux and macOS appends are atomic anyway; on Windows they are not.
+    """
+    os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
+    fh = open(path, "a+b")
+    locked = False
+    try:
+        deadline = time.monotonic() + wait
+        if os.name == "nt":
+            import msvcrt
+
+            while not locked:
+                try:
+                    fh.seek(0)
+                    msvcrt.locking(fh.fileno(), msvcrt.LK_NBLCK, 1)
+                    locked = True
+                except OSError:
+                    if time.monotonic() > deadline:
+                        raise CalError("another Calamity command is still writing (lock: %s). Try again; if "
+                                       "nothing else is running, delete that file." % path)
+                    time.sleep(0.02)
+        else:
+            import fcntl
+
+            fcntl.flock(fh.fileno(), fcntl.LOCK_EX)
+            locked = True
+        yield
+    finally:
+        if locked and os.name == "nt":
+            import msvcrt
+
+            try:
+                fh.seek(0)
+                msvcrt.locking(fh.fileno(), msvcrt.LK_UNLCK, 1)
+            except OSError:
+                pass
+        fh.close()  # closing the file also releases a flock
+
+
+def check_event(event) -> str | None:
+    """Why a parsed log line is not a usable event, or None if it is."""
+    if not isinstance(event, dict):
+        return "not a JSON object"
+    for field in ("id", "t", "ts"):
+        if not isinstance(event.get(field), str) or not event[field]:
+            return "'%s' is missing or not a string" % field
+    for field in ("k", "m"):
+        if field in event and not isinstance(event[field], str):
+            return "'%s' is not a string" % field
+    if "q" in event and (not isinstance(event["q"], int) or isinstance(event["q"], bool)):
+        return "'q' is not an integer"
+    return None
 
 
 def read_text(path: str) -> str:
@@ -89,6 +171,7 @@ class Repo:
         self._profile_body = ""
         self._events = None
         self.event_errors = []
+        self.config_errors = []
         self.memo = {}  # files parsed during this command (sources, exam facts); cleared by invalidate()
 
     # ------------------------------------------------------------ paths
@@ -116,16 +199,30 @@ class Repo:
 
     # ------------------------------------------------------------ config
 
+    def config_defaults(self) -> dict:
+        """framework/config.md as shipped, before the learner's overrides."""
+        path = os.path.join(self.framework, "config.md")
+        if not os.path.isfile(path):
+            return {}
+        meta, _ = fm.load(path)
+        return meta
+
     def config(self) -> dict:
+        """Defaults with the learner's `cfg.<key>` overrides applied. An override the engine cannot
+        use (wrong type, out of range, no such setting) is skipped and listed in config_errors."""
         if self._config is None:
-            path = os.path.join(self.framework, "config.md")
-            meta = {}
-            if os.path.isfile(path):
-                meta, _ = fm.load(path)
+            from .profile import coerce_cfg
+
+            defaults = self.config_defaults()
+            meta = dict(defaults)
+            errors = []
             for key, value in self.profile().items():
                 if key.startswith("cfg."):
-                    meta[key[4:]] = value
-            self._config = meta
+                    try:
+                        meta[key[4:]] = coerce_cfg(key[4:], value, defaults)
+                    except CalError as exc:
+                        errors.append("%s (the default is used)" % exc)
+            self._config, self.config_errors = meta, errors
         return self._config
 
     def cfg(self, key: str, default=None):
@@ -165,25 +262,37 @@ class Repo:
     def set_profile(self, key: str, value) -> None:
         if not re.match(r"^[A-Za-z0-9_][A-Za-z0-9_.\-]*$", key):
             raise CalError("bad profile key %r" % key)
-        meta = dict(self.profile())
-        if value is None:
-            meta.pop(key, None)
-        else:
-            meta[key] = value
-        self.save_profile(meta)
+        with self.lock():
+            self._profile = None  # read it again under the lock: another command may just have changed it
+            meta = dict(self.profile())
+            if value is None:
+                meta.pop(key, None)
+            else:
+                meta[key] = value
+            self.save_profile(meta)
+
+    def lock(self):
+        """The lock every write to the log or the profile holds (see store.file_lock)."""
+        return file_lock(os.path.join(self.local, "write.lock"))
 
     # ------------------------------------------------------------ machine
 
     def machine(self) -> str:
-        path = os.path.join(self.local, "machine.json")
+        ident = self._read_machine()
+        if ident:
+            return ident
+        with self.lock():  # two first commands at once must not give this machine two names
+            return self._read_machine() or self.set_machine(None)
+
+    def _read_machine(self) -> str:
         try:
-            with open(path, "r", encoding="utf-8") as fh:
+            with open(os.path.join(self.local, "machine.json"), "r", encoding="utf-8") as fh:
                 ident = json.load(fh).get("id", "")
-            if _MACHINE_RE.match(ident):
+            if isinstance(ident, str) and _MACHINE_RE.match(ident):
                 return ident
-        except (OSError, ValueError):
+        except (OSError, ValueError, AttributeError):
             pass
-        return self.set_machine(None)
+        return ""
 
     def set_machine(self, name: str | None) -> str:
         if name:
@@ -210,25 +319,24 @@ class Repo:
                 event[name] = value
         os.makedirs(self.events_dir, exist_ok=True)
         path = os.path.join(self.events_dir, "%s.%s.jsonl" % (when.strftime("%Y-%m"), event["m"]))
-        line = json.dumps(event, ensure_ascii=False, separators=(",", ":"))
-        needs_newline = False
-        try:
-            with open(path, "rb") as fh:
-                fh.seek(0, os.SEEK_END)
-                if fh.tell() > 0:
-                    fh.seek(-1, os.SEEK_END)
-                    needs_newline = fh.read(1) != b"\n"
-        except OSError:
-            pass
-        with open(path, "a", encoding="utf-8", newline="\n") as fh:
-            if needs_newline:
-                fh.write("\n")
-            fh.write(line + "\n")
-            fh.flush()
+        data = (json.dumps(event, ensure_ascii=False, separators=(",", ":")) + "\n").encode("utf-8")
+        with self.lock():
             try:
-                os.fsync(fh.fileno())
+                with open(path, "rb") as fh:
+                    fh.seek(0, os.SEEK_END)
+                    if fh.tell() > 0:
+                        fh.seek(-1, os.SEEK_END)
+                        if fh.read(1) != b"\n":
+                            data = b"\n" + data  # an earlier line lost its newline: never glue two events
             except OSError:
                 pass
+            with open(path, "ab") as fh:
+                fh.write(data)
+                fh.flush()
+                try:
+                    os.fsync(fh.fileno())
+                except OSError:
+                    pass
         self._events = None  # reload on next read, so order always matches the files
         return event
 
@@ -270,10 +378,17 @@ class Repo:
                     continue
                 try:
                     event = json.loads(raw)
-                    event["_dt"] = parse_ts(event["ts"])
-                    event["t"], event["id"]
-                except (ValueError, KeyError, TypeError) as exc:
-                    errors.append("%s:%d: not a valid event (%s)" % (name, n, exc.__class__.__name__))
+                except ValueError:
+                    errors.append("%s:%d: not a valid event (not JSON)" % (name, n))
+                    continue
+                problem = check_event(event)
+                if problem is None:
+                    try:
+                        event["_dt"] = parse_ts(event["ts"])
+                    except (ValueError, TypeError):
+                        problem = "'ts' is not a timestamp"
+                if problem is not None:
+                    errors.append("%s:%d: not a valid event (%s)" % (name, n, problem))
                     continue
                 event.setdefault("m", "unknown")
                 event["_seq"] = (name, n)
@@ -317,5 +432,5 @@ class Repo:
     def write_json_cache(self, name: str, data) -> str:
         path = os.path.join(self.cache_dir, name)
         os.makedirs(os.path.dirname(path), exist_ok=True)
-        write_text(path, json.dumps(data, ensure_ascii=False))
+        write_text(path, json.dumps(data, ensure_ascii=False), durable=False)
         return path

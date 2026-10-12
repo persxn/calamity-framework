@@ -106,7 +106,8 @@ explain why, using the solution.
 
 - Keys are sealed in the item file; `ask` and `item show` never print them
   before an answer is recorded.
-- An item cannot be verified by its author, and a draft cannot be revealed.
+- An item cannot be verified by its author, and its key cannot be revealed
+  (`item show --reveal`) before the learner has answered it.
 - Mastery counts only answers to verified items and judged Codeforces
   solves. Oral checks, answers given after seeing the solution the same day,
   and solves that followed an editorial schedule the topic but are not

@@ -47,3 +47,6 @@ learner/cp/**/*.exe
 .DS_Store
 Thumbs.db
 .idea/
+
+# Left behind if an engine command was stopped in the middle of writing a file
+.tmp-*

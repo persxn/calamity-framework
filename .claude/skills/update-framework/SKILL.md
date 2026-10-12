@@ -23,9 +23,21 @@ shipped files instead of editing them.
 
 3. **Look before merging.**
 
-       git fetch upstream
+       git fetch upstream --tags
        cat framework/VERSION
        git show upstream/main:framework/VERSION
+       git merge-base HEAD upstream/main
+
+   If `git merge-base` prints nothing, this copy began as a downloaded
+   archive rather than a clone, and git sees no shared history. Connect it
+   once to the release it came from, keeping every file as it is now
+   (`<version>` is the number in `framework/VERSION`):
+
+       git merge -s ours --allow-unrelated-histories -m "Adopt the framework history at <version>" v<version>
+
+   If there is no tag `v<version>`, stop and tell the learner: the update
+   then has to be done by hand. Then:
+
        git diff --stat HEAD...upstream/main -- engine framework .claude CLAUDE.md
 
    (Use the framework's default branch if it is not `main`.) Tell the

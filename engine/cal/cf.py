@@ -71,6 +71,15 @@ def _pause() -> None:
         time.sleep(PAUSE)
 
 
+def target_rating(repo: Repo):
+    """The learner's rating target as a number, or None when it is unset or unreadable."""
+    try:
+        value = int(float(repo.prof("cp.target_rating")))
+    except (TypeError, ValueError):
+        return None
+    return value if value > 0 else None
+
+
 def handle_of(repo: Repo) -> str:
     handle = str(repo.prof("cp.handle") or "")
     if not handle:
@@ -587,7 +596,7 @@ def rating_text(repo: Repo, state, when, tree=None) -> str:
         if len(changes) < 6:
             lines.append("Fewer than six rated contests: Codeforces is still settling a new account's displayed "
                          "rating, so these early gains overstate the pace.")
-    target = repo.prof("cp.target_rating")
+    target = target_rating(repo)
     target_date = repo.prof("cp.target_date")
     if target and rating:
         gap = int(target) - int(rating)
@@ -639,7 +648,7 @@ def brief_lines(repo: Repo, state, when) -> list:
     if data is None:
         return ["Codeforces %s: not synced on this machine yet." % handle]
     line = "Codeforces " + status_text(repo, state, when)
-    target = repo.prof("cp.target_rating")
+    target = target_rating(repo)
     rating = current_rating(data)
     if target and rating and int(target) > int(rating):
         line += " · target %s (%d to go)" % (target, int(target) - int(rating))

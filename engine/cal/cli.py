@@ -10,6 +10,7 @@ Exit codes: 0 ok, 1 doctor found problems, 2 error, 3 nothing due (remind),
 from __future__ import annotations
 
 import argparse
+import codecs
 import hashlib
 import json
 import os
@@ -17,13 +18,13 @@ import subprocess
 import sys
 
 from . import fm, items, plan, session, sources, tree as tree_mod
+from . import profile as profile_rules
 from .state import State
 from .store import Repo, read_text
 from .tree import Tree
 from .util import CalError, csv_list, now, term_width, to_ascii, utf8_stdio
 
 VERSION_FILE = "VERSION"
-LIST_KEYS = ("tracks", "goals", "focus", "gate.papers", "reminders.times")
 
 
 class Ctx:
@@ -53,16 +54,35 @@ class Ctx:
         self._state = None
 
 
+def decode_text(raw: bytes) -> str:
+    """Bytes from a file or a pipe as text: UTF-8, or UTF-16 when a byte-order mark says so
+    (Windows PowerShell 5 writes UTF-16 when output is redirected to a file)."""
+    if raw.startswith((codecs.BOM_UTF16_LE, codecs.BOM_UTF16_BE)):
+        return raw.decode("utf-16")
+    return raw.decode("utf-8-sig")
+
+
+def _stdin_bytes() -> bytes:
+    """Standard input as raw bytes, whatever code page the console or pipe would decode it with."""
+    if hasattr(sys.stdin, "buffer"):
+        return sys.stdin.buffer.read()
+    return sys.stdin.read().encode("utf-8")
+
+
 def _read_json(args):
-    if getattr(args, "stdin", False):
-        raw = sys.stdin.read()
-    elif getattr(args, "file", None):
-        try:
-            raw = read_text(args.file)
-        except OSError as exc:
-            raise CalError("could not read %s (%s)" % (args.file, exc.strerror or exc))
-    else:
-        raise CalError("give the JSON with --file PATH or --stdin")
+    try:
+        if getattr(args, "stdin", False):
+            raw = decode_text(_stdin_bytes())
+        elif getattr(args, "file", None):
+            try:
+                with open(args.file, "rb") as fh:
+                    raw = decode_text(fh.read())
+            except OSError as exc:
+                raise CalError("could not read %s (%s)" % (args.file, exc.strerror or exc))
+        else:
+            raise CalError("give the JSON with --file PATH or --stdin")
+    except UnicodeDecodeError:
+        raise CalError("the JSON is not UTF-8 text; save it as UTF-8 and try again")
     try:
         return json.loads(raw)
     except ValueError as exc:
@@ -91,11 +111,15 @@ def cmd_brief(c, a):
 
     if a.hook:
         try:
+            src = "manual"
             if not sys.stdin.isatty():
-                raw = sys.stdin.read()
-                src = (json.loads(raw).get("source") if raw.strip() else None) or "startup"
-            else:
-                src = "manual"
+                src = "startup"
+                try:  # what Claude Code says about the session; anything unexpected is not a reason to fail
+                    data = json.loads(decode_text(_stdin_bytes()) or "{}")
+                    if isinstance(data, dict) and isinstance(data.get("source"), str) and data["source"]:
+                        src = data["source"][:20]
+                except (ValueError, OSError, AttributeError):
+                    pass
             if c.repo.onboarded():
                 c.repo.append("session", when=c.when, src=src)
             return 0, plan.brief(c.repo, c.tree, c.state, c.when, machine.engine_cmd(c.repo))
@@ -278,8 +302,14 @@ def cmd_item(c, a):
     if a.action == "show":
         text = items.blind_text(item, tree, with_check=a.check)
         if a.reveal:
+            # Nothing shown before an answer may leak a key: the key of an item opens only once the
+            # learner has answered it, and never while it waits for an answer.
             if status == "draft":
                 raise CalError("a draft is shown blind until it is verified")
+            if st is None or not st.last_attempt:
+                raise CalError("the key of %s stays sealed until the learner has answered it" % a.item)
+            if st.open:
+                raise CalError("%s is waiting for the learner's answer: record it first (answer %s ...)" % (a.item, a.item))
             text += "\n---\n" + items.reveal_text(item)
         return 0, text + "\n---\nstatus: %s%s" % (status, (" (%s)" % st.reason) if st and st.reason else "")
     if a.action == "verify":
@@ -476,7 +506,18 @@ def cmd_source(c, a):
     if a.action == "import":
         if not a.source:
             raise CalError("name the source id")
-        added, replaced = sources.import_items(repo, a.source, _read_json(a))
+        rows = _read_json(a)
+        if a.dry_run:
+            added, replaced = sources.import_items(repo, a.source, rows, dry_run=True)
+            unknown = sorted({str(k) for row in rows for k in csv_list(row.get("topics"))
+                              if not c.tree.has_topic(str(k))})
+            unmapped = sum(1 for row in rows if not csv_list(row.get("topics")))
+            lines = ["dry run, nothing written: %d item(s) would be added, %d replaced" % (added, replaced)]
+            lines += ["ERROR unknown topic %s" % k for k in unknown]
+            if unmapped:
+                lines.append("warn  %d item(s) not mapped to any topic" % unmapped)
+            return (2 if unknown else 0), "\n".join(lines)
+        added, replaced = sources.import_items(repo, a.source, rows)
         c.refresh()
         errors, warnings = sources.check(repo, c.tree)
         tail = "\n".join(["ERROR " + e for e in errors] + ["warn  " + w for w in warnings])
@@ -728,17 +769,7 @@ def cmd_profile(c, a):
         return 0, "unset: %s" % a.key
     if not a.value:
         raise CalError("usage: profile set <key> <value>")
-    raw = " ".join(a.value) if a.text else (a.value[0] if len(a.value) == 1 else a.value)
-    if isinstance(raw, list):
-        value = [fm.parse_value(v) for v in raw]
-    elif a.text:
-        value = raw
-    elif "," in raw and not raw.strip().startswith("["):
-        value = [fm.parse_value(v) for v in csv_list(raw)]
-    else:
-        value = fm.parse_value(raw)
-    if a.key in LIST_KEYS and not isinstance(value, list):
-        value = [value]
+    value = profile_rules.parse(a.key, a.value, a.text, repo.config_defaults())
     repo.set_profile(a.key, value)
     return 0, "%s: %s" % (a.key, fm.dump_value(value))
 
@@ -746,8 +777,13 @@ def cmd_profile(c, a):
 def cmd_setup(c, a):
     from . import machine
 
-    if a.remove_hook:
-        return 0, machine.remove_hook(c.repo)
+    if a.remove_hook or a.remove_statusline:
+        done = []
+        if a.remove_hook:
+            done.append(machine.remove_hook(c.repo))
+        if a.remove_statusline:
+            done.append(machine.remove_statusline(c.repo))
+        return 0, "\n".join(done)
     return 0, machine.setup(c.repo, a.machine, a.hook, a.statusline)
 
 
@@ -778,7 +814,9 @@ def cmd_selftest(c, a):
     proc = subprocess.run([sys.executable, "-m", "unittest", "discover", "-s", os.path.join(engine_dir, "tests"), "-t", engine_dir],
                           cwd=engine_dir, env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     out = proc.stdout.decode("utf-8", "replace").strip().split("\n")
-    return (0 if proc.returncode == 0 else 2), "\n".join(out[-12:])
+    if proc.returncode == 0:
+        return 0, "\n".join(out[-4:])
+    return 2, "\n".join(out[-400:])  # the whole report: the failure is what the reader needs
 
 
 def cmd_version(c, a):
@@ -797,6 +835,24 @@ def cmd_remind(c, a):
 
 
 # ---------------------------------------------------------------- parser
+
+
+def _number(kind, low, what):
+    def convert(text):
+        try:
+            value = kind(text)
+        except (TypeError, ValueError):
+            raise argparse.ArgumentTypeError("%r is not a number" % text)
+        if value != value or value < low:
+            raise argparse.ArgumentTypeError("%s, got %s" % (what, text))
+        return value
+    return convert
+
+
+_positive = _number(int, 1, "must be 1 or more")
+_count = _number(int, 0, "must be 0 or more")
+_hours = _number(float, 0, "must be 0 or more")
+_width = _number(int, 20, "must be 20 or more")
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -827,10 +883,10 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("--answer", help="the learner's answer (mcq/msq/nat/short)")
     sp.add_argument("--result", choices=("pass", "fail"), help="outcome of a hands-on item's check")
     sp.add_argument("--evidence", help="what was run and what happened (hands-on items)")
-    sp.add_argument("--hints", type=int, default=0)
+    sp.add_argument("--hints", type=_count, default=0)
     sp.add_argument("--err", help="error kind when wrong: " + ", ".join(session.ERROR_TAGS))
     sp.add_argument("--note")
-    sp.add_argument("--seconds", type=int, help="time taken, if measured by hand")
+    sp.add_argument("--seconds", type=_count, help="time taken, if measured by hand")
     sp.add_argument("--blame", help="when a woven exercise fails: the topic(s) that broke")
     sp.add_argument("--kind", choices=("new", "review", "weave", "boss", "placement"))
     sp = add("mistake", cmd_mistake, "Say what kind of mistake the last wrong answer to an item was.")
@@ -842,7 +898,7 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("result", choices=("pass", "fail"))
     sp.add_argument("--note")
     sp.add_argument("--err")
-    sp.add_argument("--hints", type=int, default=0)
+    sp.add_argument("--hints", type=_count, default=0)
     sp = add("covered", cmd_covered, "Mark topics as taught (ready for their first test).")
     sp.add_argument("topics", nargs="+")
     sp.add_argument("--by", default="tutor", choices=("tutor", "self", "source"))
@@ -856,7 +912,7 @@ def build_parser() -> argparse.ArgumentParser:
         add(name, _enrollment(name), text).add_argument("skill")
     sp = add("weave", cmd_weave, "Earlier topics to embed in the next exercise for a skill.")
     sp.add_argument("skill")
-    sp.add_argument("--n", type=int)
+    sp.add_argument("--n", type=_positive)
     sp = add("placement", cmd_placement, "Record the outcome of a placement test.")
     sp.add_argument("skill")
     sp.add_argument("--known", help="topic ids the learner already knows")
@@ -873,8 +929,8 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("action", choices=("build", "show", "finish"))
     sp.add_argument("test", nargs="?")
     sp.add_argument("--skills")
-    sp.add_argument("--n", type=int, default=10)
-    sp.add_argument("--minutes", type=int, default=25)
+    sp.add_argument("--n", type=_positive, default=10)
+    sp.add_argument("--minutes", type=_positive, default=25)
     sp.add_argument("--label")
 
     sp = add("item", cmd_item, "Item bank: needs, draft, import, show (blind), verify, list, reject, dispute, restore.")
@@ -895,7 +951,7 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("--skill")
     sp.add_argument("--topic")
     sp.add_argument("--status", choices=("draft", "verified", "rejected", "disputed"))
-    sp.add_argument("--n", type=int, default=6, help="needs: how many topics to list")
+    sp.add_argument("--n", type=_positive, default=6, help="needs: how many topics to list")
     sp.add_argument("--void", action="store_true", help="dispute: also cancel the last answer recorded against the item")
 
     sp = add("tree", cmd_tree, "The skill tree: list, show, path, suggest, check, add, set, drop, restore.")
@@ -914,11 +970,11 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("--aliases")
     sp.add_argument("--summary")
     sp.add_argument("--scope", help="markdown bullet list of what mastery covers (tree add)")
-    sp.add_argument("--hours", type=float)
+    sp.add_argument("--hours", type=_hours)
     sp.add_argument("--optional", action="store_true")
     sp.add_argument("--not-optional", dest="not_optional", action="store_true")
     sp.add_argument("--status")
-    sp.add_argument("--n", type=int, default=5)
+    sp.add_argument("--n", type=_positive, default=5)
     sp.add_argument("--yes", action="store_true")
     sp.add_argument("--ascii", action="store_true")
     sp = add("find", cmd_find, "Search skills, topics, lectures and notes.")
@@ -942,6 +998,7 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("--note", help="what the terms allow, in one line")
     sp.add_argument("--file")
     sp.add_argument("--stdin", action="store_true")
+    sp.add_argument("--dry-run", dest="dry_run", action="store_true", help="import: check and count, write nothing")
     sp = add("log", cmd_log, "Log a lecture or chapter as done (by id, number or a piece of its title).")
     sp.add_argument("source")
     sp.add_argument("item")
@@ -958,7 +1015,7 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("--date")
     sp.add_argument("--source")
     sp.add_argument("--sections")
-    sp.add_argument("--minutes", type=int)
+    sp.add_argument("--minutes", type=_positive)
     sp.add_argument("--note")
     sp.add_argument("--mode", choices=session.MODES)
     sp.add_argument("--apply", action="store_true")
@@ -968,8 +1025,8 @@ def build_parser() -> argparse.ArgumentParser:
                                        "mark", "assign", "credit"))
     sp.add_argument("args", nargs="*")
     sp.add_argument("--full", action="store_true")
-    sp.add_argument("--days", type=int, default=180)
-    sp.add_argument("--n", type=int, default=5)
+    sp.add_argument("--days", type=_positive, default=180)
+    sp.add_argument("--n", type=_positive, default=5)
     sp.add_argument("--tags")
     sp.add_argument("--low", type=int)
     sp.add_argument("--high", type=int)
@@ -980,7 +1037,7 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("--skill", help="recommend: take the tags from this cp skill")
     sp.add_argument("--topic", help="credit: the topic this problem exercised")
     sp.add_argument("--also", help="credit: further topics the same problem exercised")
-    sp.add_argument("--hints", type=int, default=0)
+    sp.add_argument("--hints", type=_count, default=0)
 
     sp = add("notes", cmd_notes, "Study notes: status, fragment, section, stamp, assemble, pdf.")
     sp.add_argument("action", choices=("status", "fragment", "section", "stamp", "assemble", "pdf"))
@@ -988,7 +1045,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     sp = add("stats", cmd_stats, "How the learner works: week, hours, patterns, errors, flags.")
     sp.add_argument("action", nargs="?", default="flags", choices=("flags", "week", "hours", "patterns", "errors"))
-    sp.add_argument("--days", type=int, default=7)
+    sp.add_argument("--days", type=_positive, default=7)
     sp.add_argument("--track")
     sp = add("observe", cmd_observe, "Record an observation about what helps this learner.")
     sp.add_argument("text", nargs="+")
@@ -998,14 +1055,14 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("--topic")
     sp = add("observations", cmd_observations, "Show recorded observations.")
     sp.add_argument("--tag")
-    sp.add_argument("--n", type=int, default=15)
+    sp.add_argument("--n", type=_positive, default=15)
     sp = add("workout", cmd_workout, "Log a workout.")
     sp.add_argument("minutes", type=int)
     sp.add_argument("--note")
 
     sp = add("dash", cmd_dash, "Dashboards: progress, roadmap, queue, gate, cp, week, all.")
     sp.add_argument("view", nargs="?", default="progress", choices=("progress", "roadmap", "queue", "gate", "cp", "week", "all"))
-    sp.add_argument("--width", type=int)
+    sp.add_argument("--width", type=_width)
     sp.add_argument("--ascii", action="store_true")
     sp.add_argument("--track")
     sp.add_argument("--all-tracks", dest="all_tracks", action="store_true")
@@ -1020,7 +1077,8 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("--machine")
     sp.add_argument("--hook", action="store_true", help="install the session-start hook in .claude/settings.local.json")
     sp.add_argument("--remove-hook", dest="remove_hook", action="store_true")
-    sp.add_argument("--statusline", action="store_true")
+    sp.add_argument("--statusline", action="store_true", help="show the finish line in Claude Code's status line")
+    sp.add_argument("--remove-statusline", dest="remove_statusline", action="store_true")
     add("doctor", cmd_doctor, "Check that everything is in order.")
     add("rebuild", cmd_rebuild, "Replay the event log and rewrite learner/PROGRESS.md.")
     add("selftest", cmd_selftest, "Run the engine's own tests.")
@@ -1042,13 +1100,30 @@ def main(argv=None) -> int:
         return 0
     try:
         code, text = args.func(Ctx(), args)
+        if text:
+            if getattr(args, "ascii", False):
+                text = to_ascii(text)
+            sys.stdout.write(text.rstrip("\n") + "\n")
+            sys.stdout.flush()
     except CalError as exc:
         sys.stderr.write("error: %s\n" % exc)
         return 2
     except BrokenPipeError:
         return 0
-    if text:
-        if getattr(args, "ascii", False):
-            text = to_ascii(text)
-        sys.stdout.write(text.rstrip("\n") + "\n")
+    except KeyboardInterrupt:
+        sys.stderr.write("interrupted\n")
+        return 130
+    except OSError as exc:  # the machine said no: a full disk, a file another program holds, no permission
+        where = (" %s:" % exc.filename) if getattr(exc, "filename", None) else ""
+        hint = (" Another program may have the file open, or it is read-only."
+                if isinstance(exc, PermissionError) else "")
+        sys.stderr.write("error:%s %s.%s\n" % (where, exc.strerror or exc, hint))
+        return 2
+    except Exception:  # a bug in the engine: say so plainly, keep the details for the report
+        import traceback
+
+        traceback.print_exc()
+        sys.stderr.write("error: internal error in the engine (details above). Run `doctor`; if this keeps "
+                         "happening, report it with the lines above.\n")
+        return 2
     return int(code or 0)

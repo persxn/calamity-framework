@@ -112,7 +112,7 @@ class Drafts(Case):
             {"type": "essay"}, {"topics": []}, {"topics": ["docker/nope"]}, {"topics": ["docker/images", "docker/images"]},
             {"stem": "short"}, {"difficulty": 9}, {"marks": 3}, {"options": ["only one"]}, {"options": ["a", "a"]},
             {"answer": "E"}, {"solution": ""}, {"expect_s": 0}, {"skill": "java"}, {"source": {"kind": "stolen"}},
-            {"source": {"kind": "official"}},
+            {"source": {"kind": "official"}}, {"marks": True}, {"difficulty": True}, {"expect_s": True},
         )
         for change in bad:
             with self.assertRaises(CalError, msg=str(change)):
@@ -173,6 +173,12 @@ class Drafts(Case):
         good = sb.draft("docker/images", answer="C")
         self.assertIn("verified", sb.run("item", "verify", good, "--answer", "c", "--by", "checker"))
         self.assertEqual(sb.state().items[good].status, "verified")
+        # the key stays sealed until the learner has answered, and while the item waits for an answer
+        sb.run("item", "show", good, "--reveal", expect=2)
+        self.assertNotIn("KEY", sb.err + sb.run("item", "show", good, "--reveal", expect=2))
+        sb.run("ask", "--id", good)
+        sb.run("item", "show", good, "--reveal", expect=2)
+        sb.answer(good, "A")
         self.assertIn("KEY: C", sb.run("item", "show", good, "--reveal"))
 
     def test_hands_on_verification(self):
