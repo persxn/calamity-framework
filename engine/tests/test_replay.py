@@ -148,5 +148,116 @@ class Determinism(Case):
         self.assertIn("NEXT: enroll", sb.run("next"))
 
 
+class Snapshot(Case):
+    """The replay snapshot (.calamity/cache/replay.json) is a shortcut: it may never change a result."""
+
+    def states(self):
+        root = self.sb.root
+        cached = State(Repo(root), Tree(Repo(root)))
+        full = State(Repo(root), Tree(Repo(root)), use_cache=False)
+        return cached, full
+
+    def info(self):
+        cached, full = self.states()
+        self.assertEqual(cached.fingerprint(), full.fingerprint(), cached.cache_info)
+        return cached.cache_info
+
+    def test_every_command_gives_the_state_a_full_replay_gives(self):
+        sb = self.sb
+        plain_run = sb.run
+        seen = []
+
+        def run(*args, **kwargs):
+            out = plain_run(*args, **kwargs)
+            seen.append(self.info())
+            return out
+
+        sb.run = run
+        Determinism.build_history(self)
+        self.assertTrue(any(i.startswith("snapshot + ") and not i.startswith("snapshot + 0 ") for i in seen))
+        self.assertTrue(any(i.startswith("full replay") for i in seen))
+        self.assertGreater(len(seen), 80)
+
+    def test_the_snapshot_is_set_aside_whenever_it_cannot_be_trusted(self):
+        sb = self.sb
+        sb.onboard(tracks="dev")
+        sb.run("enroll", "shell")
+        item = sb.item("shell/pipes")
+        sb.run("covered", "shell/pipes")
+        sb.do("shell/pipes", answer="A")
+        self.info()
+        self.assertEqual(self.info(), "snapshot + 0 new event(s)")
+        Repo(sb.root).append("note", text="written by another command")
+        self.assertEqual(self.info(), "snapshot + 1 new event(s)")
+        Repo(sb.root).append("errtag", attempt=sb.state().items[item].last_attempt, err="concept")
+        self.assertEqual(self.info(), "full replay (snapshot not usable (new errtag event))")
+        # a laptop's events merged in later, dated before what the snapshot already holds
+        write(sb.path("learner", "events", "2026-01.laptop-b.jsonl"),
+              '{"id":"b1","ts":"2026-01-05T10:00:00+05:30","m":"laptop-b","t":"note","v":1,"q":1,"text":"old"}\n')
+        self.assertEqual(self.info(), "full replay (snapshot not usable (events dated before the snapshot))")
+        # a log file rewritten, or removed
+        log = sb.path("learner", "events", "2026-03.%s.jsonl" % Repo(sb.root).machine())
+        with open(log, "r", encoding="utf-8") as fh:
+            lines = fh.read().split("\n")
+        write(log, "\n".join(lines[1:]))
+        self.assertEqual(self.info(), "full replay (a log file changed)")
+        os.remove(sb.path("learner", "events", "2026-01.laptop-b.jsonl"))
+        self.assertEqual(self.info(), "full replay (a log file is gone)")
+        # the profile, and so the settings replay reads, changed
+        sb.run("profile", "set", "cfg.relearn_minutes", "20")
+        self.assertEqual(self.info(), "full replay (inputs changed)")
+        # a damaged snapshot
+        cache = sb.path(".calamity", "cache", "replay.json")
+        write(cache, "{not json")
+        self.assertEqual(self.info(), "full replay (snapshot unreadable)")
+        with open(cache, "r", encoding="utf-8") as fh:
+            data = json.load(fh)
+        del data["state"]["topics"]
+        write(cache, json.dumps(data))
+        self.assertTrue(self.info().startswith("full replay (snapshot not usable ("))
+        # a line still being written is read, but never stored in a snapshot
+        self.info()
+        with open(log, "ab") as fh:
+            fh.write(b'{"id":"half","ts":"2026-03-')
+        self.assertEqual(self.info(), "snapshot + 0 new event(s)")
+        with open(cache, "r", encoding="utf-8") as fh:
+            sizes = json.load(fh)["files"]
+        self.assertEqual(sizes[os.path.basename(log)][0], os.path.getsize(log) - len(b'{"id":"half","ts":"2026-03-'))
+        os.environ["CALAMITY_NO_CACHE"] = "1"
+        try:
+            self.assertEqual(State(Repo(sb.root), Tree(Repo(sb.root))).cache_info, "full replay")
+        finally:
+            del os.environ["CALAMITY_NO_CACHE"]
+
+    def test_doctor_catches_a_snapshot_that_disagrees(self):
+        sb = self.sb
+        sb.onboard(tracks="dev")
+        sb.run("enroll", "shell")
+        sb.item("shell/pipes")
+        self.info()
+        self.assertIn("agrees with a full replay", sb.run("doctor", expect=None))
+        cache = sb.path(".calamity", "cache", "replay.json")
+        with open(cache, "r", encoding="utf-8") as fh:
+            data = json.load(fh)
+        data["state"]["n_events"] += 1          # a snapshot that is valid in form but wrong in content
+        write(cache, json.dumps(data))
+        self.assertEqual(State(Repo(sb.root), Tree(Repo(sb.root))).cache_info, "snapshot + 0 new event(s)")
+        self.assertIn("disagreed with a full replay and was deleted", sb.run("doctor", expect=None))
+        self.assertFalse(os.path.exists(cache))
+        sb.run("doctor", expect=None)
+        self.assertIn("agrees with a full replay", sb.run("doctor", expect=None))
+
+    def test_rebuild_starts_from_scratch(self):
+        sb = self.sb
+        sb.onboard(tracks="dev")
+        sb.run("enroll", "shell")
+        self.info()
+        cache = sb.path(".calamity", "cache", "replay.json")
+        write(cache, "{}")
+        sb.run("rebuild")
+        with open(cache, "r", encoding="utf-8") as fh:
+            self.assertEqual(json.load(fh)["state"]["n_events"], sb.state().n_events)
+
+
 if __name__ == "__main__":
     unittest.main()

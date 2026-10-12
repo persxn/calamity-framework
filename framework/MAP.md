@@ -39,6 +39,7 @@ engine/
   calamity.py              entry point of the CLI
   cal/                     the engine (Python standard library only)
   tests/                   run with: python3 engine/calamity.py selftest
+tools/                     development checks: end-to-end run, fuzzer, sample output, timing (tools/README.md)
 framework/                 shipped with the framework; the same for every learner
   method.md                the method (always in context)
   MAP.md                   this file
@@ -63,7 +64,7 @@ learner/                   everything about one learner; this is what they sync
   cp/                      competitive programming: plan.md, solutions/, reviews/
   gate/                    plan.md, <year>.md corrections, mock reviews
   bridges/<source>/        generated code that connects one study source, with its README
-.calamity/                 machine-local and never committed: machine id, caches, scratch
+.calamity/                 machine-local and never committed: machine id, caches (the replay snapshot), scratch
 ```
 
 Tracks shipped: `10x` (the developer path), `ai` (maths, ML, LLM

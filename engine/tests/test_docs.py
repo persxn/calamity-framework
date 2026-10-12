@@ -27,7 +27,8 @@ AGENTS = ("bridge-engineer", "checker", "cp-coach", "curriculum-architect", "exa
 
 
 def documents():
-    paths = [os.path.join(REPO, "CLAUDE.md"), os.path.join(REPO, "README.md"), os.path.join(REPO, "learner", "README.md")]
+    paths = [os.path.join(REPO, "CLAUDE.md"), os.path.join(REPO, "README.md"), os.path.join(REPO, "learner", "README.md"),
+             os.path.join(REPO, "tools", "README.md")]
     for folder, _, files in os.walk(os.path.join(REPO, "framework")):
         if os.sep + "tree" + os.sep in folder + os.sep:
             continue  # skill-tree files mention commands only in prose

@@ -794,8 +794,9 @@ def cmd_doctor(c, a):
 
 
 def cmd_rebuild(c, a):
-    from . import progress
+    from . import progress, snapshot
 
+    snapshot.discard(c.repo)  # rebuild means from scratch: the next snapshot is made from this replay
     errors, warnings = c.tree.check()
     state = c.state
     path = progress.write(c.repo, c.tree, state)

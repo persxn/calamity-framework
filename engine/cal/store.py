@@ -32,7 +32,7 @@ def _next_q() -> int:
     return _last_q
 
 
-def _order_key(event: dict):
+def order_key(event: dict):
     q = event.get("q")
     return (utc(event["_dt"]), str(event["m"]), q if isinstance(q, int) else 0, str(event["id"]))
 
@@ -120,6 +120,66 @@ def file_lock(path: str, wait: float = LOCK_WAIT):
             except OSError:
                 pass
         fh.close()  # closing the file also releases a flock
+
+
+def log_text(raw: bytes) -> str:
+    """The text of a log file as Python's text mode reads it (UTF-8, universal newlines)."""
+    return raw.decode("utf-8").replace("\r\n", "\n").replace("\r", "\n")
+
+
+def parse_event_text(name: str, text: str, first_line: int = 1):
+    """Events in the text of one log file, or of its tail starting at line `first_line`.
+    Returns (events, problems), each problem as (file, line, what is wrong)."""
+    events, problems = [], []
+    for n, raw in enumerate(text.split("\n"), first_line):
+        raw = raw.strip()
+        if not raw:
+            continue
+        if raw.startswith(("<<<<<<<", "=======", ">>>>>>>")):
+            problems.append((name, n, "git conflict marker (resolve by keeping both sides)"))
+            continue
+        try:
+            event = json.loads(raw)
+        except ValueError:
+            problems.append((name, n, "not a valid event (not JSON)"))
+            continue
+        problem = check_event(event)
+        if problem is None:
+            try:
+                event["_dt"] = parse_ts(event["ts"])
+            except (ValueError, TypeError):
+                problem = "'ts' is not a timestamp"
+        if problem is not None:
+            problems.append((name, n, "not a valid event (%s)" % problem))
+            continue
+        event.setdefault("m", "unknown")
+        event["_seq"] = (name, n)
+        events.append(event)
+    return events, problems
+
+
+def order_and_dedup(events, seen_ids: set, seen_keys: set):
+    """Sort events into replay order and drop duplicates (an id, or an idempotency key 'k', seen
+    before, in this list or in the sets given). Returns (events, seen_ids, seen_keys)."""
+    events = sorted(events, key=order_key)
+    unique = []
+    for event in events:
+        if event["id"] in seen_ids:
+            continue
+        k = event.get("k")
+        if k is not None:
+            if k in seen_keys:
+                continue
+            seen_keys.add(k)
+        seen_ids.add(event["id"])
+        unique.append(event)
+    return unique, seen_ids, seen_keys
+
+
+def format_problems(problems) -> list:
+    """Problems with log lines as the messages doctor and the brief show, in file and line order."""
+    return [("%s: %s" % (name, what)) if not n else ("%s:%d: %s" % (name, n, what))
+            for name, n, what in sorted(problems, key=lambda p: (p[0], p[1]))]
 
 
 def check_event(event) -> str | None:
@@ -349,6 +409,10 @@ class Repo:
             if name.endswith(".jsonl")
         )
 
+    def read_event_file(self, name: str) -> bytes:
+        with open(os.path.join(self.events_dir, name), "rb") as fh:
+            return fh.read()
+
     def events(self) -> list:
         """All events from every machine, in a deterministic order.
 
@@ -360,52 +424,19 @@ class Repo:
         """
         if self._events is not None:
             return self._events
-        loaded, errors = [], []
+        loaded, problems = [], []
         for path in self.event_files():
             name = os.path.basename(path)
             try:
-                with open(path, "r", encoding="utf-8") as fh:
-                    lines = fh.read().split("\n")
+                text = log_text(self.read_event_file(name))
             except (OSError, UnicodeDecodeError) as exc:
-                errors.append("%s: unreadable (%s)" % (name, exc))
+                problems.append((name, 0, "unreadable (%s)" % exc))
                 continue
-            for n, raw in enumerate(lines, 1):
-                raw = raw.strip()
-                if not raw:
-                    continue
-                if raw.startswith(("<<<<<<<", "=======", ">>>>>>>")):
-                    errors.append("%s:%d: git conflict marker (resolve by keeping both sides)" % (name, n))
-                    continue
-                try:
-                    event = json.loads(raw)
-                except ValueError:
-                    errors.append("%s:%d: not a valid event (not JSON)" % (name, n))
-                    continue
-                problem = check_event(event)
-                if problem is None:
-                    try:
-                        event["_dt"] = parse_ts(event["ts"])
-                    except (ValueError, TypeError):
-                        problem = "'ts' is not a timestamp"
-                if problem is not None:
-                    errors.append("%s:%d: not a valid event (%s)" % (name, n, problem))
-                    continue
-                event.setdefault("m", "unknown")
-                event["_seq"] = (name, n)
-                loaded.append(event)
-        loaded.sort(key=_order_key)
-        seen_ids, seen_keys, unique = set(), set(), []
-        for event in loaded:
-            if event["id"] in seen_ids:
-                continue
-            k = event.get("k")
-            if k is not None:
-                if k in seen_keys:
-                    continue
-                seen_keys.add(k)
-            seen_ids.add(event["id"])
-            unique.append(event)
-        self._events, self.event_errors = unique, errors
+            found, bad = parse_event_text(name, text)
+            loaded += found
+            problems += bad
+        unique, _, _ = order_and_dedup(loaded, set(), set())
+        self._events, self.event_errors = unique, format_problems(problems)
         return unique
 
     def invalidate(self) -> None:

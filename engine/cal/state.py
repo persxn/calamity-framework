@@ -7,10 +7,11 @@ events always agree, whatever order the files arrive in.
 from __future__ import annotations
 
 import hashlib
-from datetime import timedelta
+import json
+from datetime import datetime, timedelta
 
-from . import fsrs, gateinfo
-from .store import Repo
+from . import fsrs, gateinfo, snapshot
+from .store import Repo, format_problems, log_text, order_and_dedup, order_key, parse_event_text
 from .tree import Tree
 from .util import ceil_int, day_bounds, daykey, in_window, parse_hhmm, utc
 
@@ -119,7 +120,14 @@ class DayStats:
 
 
 class State:
-    def __init__(self, repo: Repo, tree: Tree):
+    """The learner's state, replayed from the event log.
+
+    `use_cache` (default: on unless CALAMITY_NO_CACHE is set) lets a stored snapshot stand in
+    for the part of the log it was built from (see snapshot.py); the result is the same either
+    way, which the test suite, the fuzzer and `doctor` check. `cache_info` says what happened.
+    """
+
+    def __init__(self, repo: Repo, tree: Tree, use_cache: bool | None = None):
         self.repo = repo
         self.tree = tree
         self.topics = {}
@@ -145,7 +153,10 @@ class State:
         self._start_hour = int(repo.cfg("day_start_hour", 4))
         self._settings = {}      # configuration values already read and converted during this replay
         self._day_of = (None, None)
-        self._build()
+        self._voided = set()
+        self._handler_errors = []
+        self.cache_info = "off"
+        self._build(snapshot.enabled() if use_cache is None else use_cache)
 
     # ------------------------------------------------------------ basics
 
@@ -260,35 +271,122 @@ class State:
 
     # ------------------------------------------------------------ replay
 
-    def _build(self) -> None:
-        events = self.repo.events()
-        for e in events:
-            if e["t"] == "rename":
-                if e.get("what") == "skill":
-                    self._alias_skill[str(e.get("old"))] = str(e.get("new"))
-                else:
-                    self._alias_topic[str(e.get("old"))] = str(e.get("new"))
-        voided = {str(e.get("attempt")) for e in events if e["t"] == "void"}
-        # The kind of a mistake is often worked out after the answer was recorded (`mistake`):
-        # the latest classification of an attempt replaces whatever the attempt itself carried.
-        self._retag = {str(e.get("attempt")): str(e.get("err")) for e in events if e["t"] == "errtag" and e.get("err")}
-        for e in events:
-            handler = getattr(self, "_on_" + e["t"], None)
-            dt = e["_dt"]
-            self.last_dt = dt
-            self.n_events += 1
-            self._day_stats(dt).stamps.append(dt)
-            if e["t"] == "attempt" and e["id"] in voided:
-                self.n_voided += 1  # answered against a key later found wrong: it no longer counts
-                continue
-            if handler is not None:
+    def _build(self, use_cache: bool) -> None:
+        files, problems = snapshot.read_log(self.repo)
+        base, key, why, events = None, None, "snapshot not used", []
+        if use_cache and not problems:
+            key = snapshot.inputs_key(self.repo, self.tree)
+            base, tails = snapshot.load(self.repo, key, files)
+            if base is None:
+                why = tails
+            else:
                 try:
-                    handler(e, dt)
-                except (KeyError, TypeError, ValueError) as exc:
-                    self.repo.event_errors.append(
-                        "%s:%s: could not apply %s event (%s)" % (e["_seq"][0], e["_seq"][1], e["t"], exc)
-                    )
+                    found, new_problems = [], []
+                    for name, raw, first_line in tails:
+                        more, bad = parse_event_text(name, snapshot.tail_text(raw), first_line)
+                        found += more
+                        new_problems += bad
+                    kinds = sorted({e["t"] for e in found if e["t"] in snapshot.GLOBAL_TYPES})
+                    if kinds:
+                        raise ValueError("new %s event" % kinds[0])
+                    last = base["last_key"]
+                    if last is not None:
+                        last = (datetime.fromisoformat(last[0]), last[1], last[2], last[3])
+                        if any(order_key(e) <= last for e in found):
+                            raise ValueError("events dated before the snapshot")
+                    snapshot.decode_state(self, base["state"])
+                    self._voided = set(base["voided"])
+                    self._handler_errors = list(base["handler_errors"])
+                    problems = [tuple(p) for p in base["parse_problems"]] + new_problems
+                    events, seen_ids, seen_keys = order_and_dedup(found, set(base["seen_ids"]), set(base["seen_keys"]))
+                    last_key = base["last_key"]
+                    self.cache_info = "snapshot + %d new event(s)" % len(events)
+                except (ValueError, KeyError, TypeError, AttributeError, IndexError, UnicodeDecodeError) as exc:
+                    self.__init_fresh()
+                    base, why = None, "snapshot not usable (%s)" % exc
+        if base is None:
+            loaded = []
+            for name, raw in files:
+                try:
+                    text = log_text(raw)
+                except UnicodeDecodeError as exc:
+                    problems.append((name, 0, "unreadable (%s)" % exc))
+                    continue
+                more, bad = parse_event_text(name, text)
+                loaded += more
+                problems += bad
+            events, seen_ids, seen_keys = order_and_dedup(loaded, set(), set())
+            for e in events:
+                if e["t"] == "rename":
+                    if e.get("what") == "skill":
+                        self._alias_skill[str(e.get("old"))] = str(e.get("new"))
+                    else:
+                        self._alias_topic[str(e.get("old"))] = str(e.get("new"))
+            self._voided = {str(e.get("attempt")) for e in events if e["t"] == "void"}
+            # The kind of a mistake is often worked out after the answer was recorded (`mistake`):
+            # the latest classification of an attempt replaces whatever the attempt itself carried.
+            self._retag = {str(e.get("attempt")): str(e.get("err")) for e in events if e["t"] == "errtag" and e.get("err")}
+            last_key = None
+            self.cache_info = "full replay (%s)" % why if use_cache else "full replay"
+        for e in events:
+            self._apply(e)
+        if events:
+            k = order_key(events[-1])
+            last_key = [k[0].isoformat(), k[1], k[2], k[3]]
+        self.repo.event_errors = format_problems(problems) + self._handler_errors
+        if key is not None and (base is None or events):
+            self._save_snapshot(key, files, problems, seen_ids, seen_keys, last_key)
         self._finish()
+
+    def __init_fresh(self) -> None:
+        """Forget a half-restored snapshot before replaying from scratch."""
+        self.topics, self.skills, self.items, self.days, self.tests, self.src = {}, {}, {}, {}, {}, {}
+        self.mocks, self.notes, self.cp_assigned = [], [], []
+        self.cp_marks, self.cp_credits, self.weights = {}, {}, {}
+        self.last_dt, self.n_events, self.n_voided = None, 0, 0
+        self._alias_topic, self._alias_skill, self._retag = {}, {}, {}
+        self._voided, self._handler_errors = set(), []
+
+    def _save_snapshot(self, key, files, problems, seen_ids, seen_keys, last_key) -> None:
+        if any(p[1] == 0 for p in problems):
+            return  # an unreadable file: nothing to stand on
+        for _, raw in files:
+            if (raw and not raw.endswith(b"\n")) or b"\r" in raw:
+                return  # a line still being written, or line ends the replay reads differently
+        try:
+            state = snapshot.encode_state(self)
+        except snapshot.Uncacheable:
+            return
+        snapshot.save(self.repo, {
+            "format": snapshot.FORMAT, "key": key,
+            "files": {name: list(snapshot.consumed(raw)) for name, raw in files},
+            "last_key": last_key, "seen_ids": sorted(seen_ids), "seen_keys": sorted(seen_keys),
+            "voided": sorted(self._voided), "parse_problems": [list(p) for p in problems],
+            "handler_errors": self._handler_errors, "state": state,
+        })
+
+    def _apply(self, e) -> None:
+        """Replay one event."""
+        handler = getattr(self, "_on_" + e["t"], None)
+        dt = e["_dt"]
+        self.last_dt = dt
+        self.n_events += 1
+        self._day_stats(dt).stamps.append(dt)
+        if e["t"] == "attempt" and e["id"] in self._voided:
+            self.n_voided += 1  # answered against a key later found wrong: it no longer counts
+            return
+        if handler is not None:
+            try:
+                handler(e, dt)
+            except (KeyError, TypeError, ValueError, AttributeError, IndexError) as exc:
+                self._handler_errors.append(
+                    "%s:%s: could not apply %s event (%s)" % (e["_seq"][0], e["_seq"][1], e["t"], exc)
+                )
+
+    def fingerprint(self) -> str:
+        """A digest of everything replay produced; two states with the same digest are the same."""
+        data = {"state": snapshot.encode_state(self), "errors": self.repo.event_errors}
+        return hashlib.sha256(json.dumps(data, ensure_ascii=False, separators=(",", ":")).encode("utf-8")).hexdigest()
 
     def _on_enroll(self, e, dt):
         sk = self.skill(self.canon_skill(e["skill"]))

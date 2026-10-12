@@ -248,6 +248,19 @@ def doctor(repo: Repo):
     files = repo.event_files()
     add("FAIL" if repo.event_errors else "OK", "event log: %d events in %d file(s)" % (state.n_events, len(files)),
         "; ".join(repo.event_errors[:3]))
+    # The replay snapshot is a shortcut and must never change an answer: compare it with a full replay.
+    from . import snapshot
+
+    if state.cache_info.startswith("snapshot"):
+        try:
+            same = state.fingerprint() == State(repo, tree, use_cache=False).fingerprint()
+        except snapshot.Uncacheable:
+            same = True
+        if same:
+            add("OK", "replay snapshot", "agrees with a full replay of the log")
+        else:
+            snapshot.discard(repo)
+            add("WARN", "replay snapshot", "disagreed with a full replay and was deleted; please report this")
 
     on_disk = set()
     if os.path.isdir(repo.items_dir):

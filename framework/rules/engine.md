@@ -123,7 +123,7 @@ cannot show them.
 | `statusline` | One line for the Claude Code status line. |
 | `remind check [--always]`, `remind render --times 09:00,20:30 [--os linux\|darwin\|windows]` | Is anything due (for a scheduler); write scheduler files and print how to install them. Nothing is installed by the engine. |
 | `setup [--machine NAME] [--hook] [--statusline] [--remove-hook] [--remove-statusline]` | Prepare this machine. `--hook` writes the session-start hook and `--statusline` the status line to `.claude/settings.local.json`; the `--remove-` flags take them out again. |
-| `doctor`, `rebuild`, `selftest`, `version` | Health check; replay the log and rewrite `learner/PROGRESS.md`; run the engine's tests; versions. |
+| `doctor`, `rebuild`, `selftest`, `version` | Health check (it also checks the replay snapshot against a full replay); replay the whole log and rewrite `learner/PROGRESS.md`; run the engine's tests; versions. |
 
 ## Profile keys
 
@@ -144,7 +144,10 @@ override any default in `framework/config.md`.
 
 ## Environment variables (for tests and tools)
 
-`CALAMITY_ROOT` points the engine at another repository root,
+`CALAMITY_NO_CACHE=1` makes every command replay the whole log instead of
+starting from the snapshot in `.calamity/cache/replay.json` (the snapshot is
+disposable: deleting it changes nothing but speed). `CALAMITY_ROOT` points
+the engine at another repository root,
 `CALAMITY_FRAMEWORK` at another framework folder, `CALAMITY_NOW` fixes the
 clock (an ISO timestamp), and `CALAMITY_CF_FIXTURES` makes the Codeforces
 commands read `<method>.json` files from a folder instead of the network.
