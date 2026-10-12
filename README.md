@@ -38,16 +38,47 @@ What makes it different:
    reviews due, new topics, lectures. Reaching it is the day done. There are
    no points, levels or streaks.
 
-Your record is plain text in your own folder. Nothing is sent anywhere, and
-there is no telemetry.
+Your record is plain text in your own folder. The engine sends nothing
+anywhere except the Codeforces calls you ask for, and there is no
+telemetry; your conversations with Claude go through Claude Code like any
+other session.
+
+## Quick start
+
+New to terminals? That is fine: you copy three short blocks, then you just
+talk. Each step is explained under [Installation](#installation), with a
+full guide for [Linux](docs/setup-linux.md), [macOS](docs/setup-macos.md)
+and [Windows](docs/setup-windows.md).
+
+1. **Install Claude Code** and sign in (a Pro, Max, Team, Enterprise or
+   Console account).
+2. **Get the framework:**
+   `git clone https://github.com/persxn/calamity-framework.git calamity`,
+   then `cd calamity`.
+3. **Start:** run `claude` in that folder, accept the trust prompt, and
+   type `/onboard`.
+
+A few things that make it forgiving:
+
+- **You do not need to learn any command.** Say what you want in plain
+  words: "teach me Git", "what's next?", "quiz me", "I'm done for today".
+  The slash commands below are shortcuts.
+- **You cannot break your record.** It is an append-only log; a mistake is
+  corrected by a new entry, never by losing old ones. If something looks
+  wrong, say so, or run `doctor`: it says what is wrong and how to fix it.
+- **Stop whenever you like, skip days if you must.** Reviews wait for you,
+  most forgotten first; nothing resets, and nothing scolds you.
+- **Wrong answers are expected.** Each one is explained at once, its cause
+  is found, and the topic comes back soon, so the gap closes.
 
 ## Contents
 
+- [Quick start](#quick-start)
 - [What it looks like](#what-it-looks-like)
 - [Requirements](#requirements)
 - [Installation](#installation)
 - [Your first session](#your-first-session)
-- [Everyday use](#everyday-use)
+- [Commands](#commands)
 - [The three tools](#the-three-tools)
 - [Your data](#your-data)
 - [Optional extras](#optional-extras)
@@ -296,30 +327,139 @@ questions it opens with; `/study` until the finish line; log any lecture
 you watched elsewhere with `/log`; `/sync` when you want your progress
 saved.
 
-## Everyday use
+## Commands
+
+There are two kinds. **Slash commands** are typed inside Claude Code; they
+are shortcuts for things you could also ask in plain words. **Engine
+commands** are the small program in `engine/` that keeps your record;
+Claude runs them for you, and you can run the views yourself in any
+terminal.
+
+### Slash commands (inside Claude Code)
+
+| Command | Use it when | Examples |
+|---|---|---|
+| `/onboard` | The first time; adding a track; setting up a second computer | `/onboard`, `/onboard gate`, `/onboard cp`, `/onboard machine` |
+| `/study` | You want to learn. Opens with a few recall questions, then teaches one small chunk at a time and tests each at once | `/study`, `/study docker`, `/study git-gh` |
+| `/recall` | You have ten minutes: only the questions that are due, no new material | `/recall`, `/recall 5`, `/recall docker` |
+| `/today` | You want today's finish line and the one next thing to do | `/today` |
+| `/dash` | You want to see progress: the whole picture, the route ahead, the revision queue, the week, GATE or Codeforces | `/dash`, `/dash roadmap`, `/dash queue`, `/dash week` |
+| `/tree` | You are choosing what to learn: what a skill covers, the route to a goal, what is open next; adding, swapping or dropping skills | `/tree path mern-stack`, `/tree next`, `/tree add rust`, `/tree drop terraform` |
+| `/boss` | A skill is nearly done and you want to prove it with a project or a timed test | `/boss docker` |
+| `/log` | You finished a lecture or chapter somewhere else (its test follows at once), or a workout | `/log os-course 14`, `/log workout 30` |
+| `/notes` | You want notes for a topic, or one PDF for a skill | `/notes docker`, `/notes pdf docker` |
+| `/gate` | Anything about the GATE exam: status, plan, triage, recording a mock, reviewing one | `/gate`, `/gate triage`, `/gate mock CS 54.33` |
+| `/cp` | Competitive programming: your standing, a practice set, contests, upsolving, the weekly plan | `/cp`, `/cp set`, `/cp contest`, `/cp upsolve` |
+| `/coach` | You want an honest look at how you have actually been working, or a new day shape | `/coach`, `/coach week`, `/coach schedule` |
+| `/bridge` | You study from a course site, playlist or book and want its lectures in your plan | `/bridge`, `/bridge status` |
+| `/remind` | You want notifications when something is due, even with Claude Code closed | `/remind 09:00,21:00`, `/remind off` |
+| `/sync` | You want your progress saved to your own repository, or brought in from another computer | `/sync`, `/sync pull`, `/sync setup` |
+| `/update-framework` | A newer version of the framework is out | `/update-framework` |
+
+**Plain words work everywhere**: "teach me Docker", "what should I do
+today?", "I finished lecture 14", "quiz me on Git", "I already know
+Linux", "Fastify instead of Express", "how did my week go?", "that key is
+wrong". More in [daily use](docs/daily-use.md).
+
+### Views you can run yourself, for free
+
+These commands only show things; they change nothing in your record and
+use none of your Claude plan. Run them from the framework folder in any
+terminal (Windows: `python engine/calamity.py ...` or
+`py -3 engine/calamity.py ...`).
+
+| Command | Shows |
+|---|---|
+| `python3 engine/calamity.py today` | Today's finish line: reviews due, new topics left, lectures |
+| `python3 engine/calamity.py next` | The single next thing to do, and why |
+| `python3 engine/calamity.py dash` | The main dashboard (`dash roadmap`, `dash queue`, `dash week`, `dash gate`, `dash cp`, `dash all`; add `--width 60` for a narrow window, `--ascii` if symbols look broken) |
+| `python3 engine/calamity.py tree path mern-stack` | The route to a goal, in layers you can learn side by side |
+| `python3 engine/calamity.py tree show git-gh` | One skill in full: topics, prerequisites, what it unlocks |
+| `python3 engine/calamity.py tree suggest` | What you could start next |
+| `python3 engine/calamity.py tree list --track cp` | Every skill of a track with its status |
+| `python3 engine/calamity.py find docker` | Search skills, topics, lectures and notes |
+| `python3 engine/calamity.py stats week` | The last days: time, reviews, new topics, accuracy (`stats errors`, `stats flags` for the rest) |
+| `python3 engine/calamity.py gate status` | Countdown, phase, coverage per subject (`gate triage`, `gate mocks`, `gate errors`) |
+| `python3 engine/calamity.py cf rating` | Rating, pace against your target, next milestone (`cf analyse`, `cf recommend`, `cf upsolve`, `cf contests`; after a `cf sync`) |
+| `python3 engine/calamity.py notes status` | Which notes exist and which need writing |
+| `python3 engine/calamity.py profile show` | Your settings |
+| `python3 engine/calamity.py doctor` | A health check that says what to fix |
+
+### Every engine command
+
+Claude runs these for you, and any command prints its options with
+`--help` (for example `python3 engine/calamity.py ask --help`). The full
+reference, with every option, is
+[`framework/rules/engine.md`](framework/rules/engine.md).
+
+<details>
+<summary>All engine commands, one line each</summary>
 
 | Command | What it does |
 |---|---|
-| `/study [skill]` | A session: recall first, then one small chunk at a time, each tested at once |
-| `/recall` | Only the questions that are due, as fast as you can answer |
-| `/today` | Today's finish line and the next thing to do |
-| `/dash [progress \| roadmap \| queue \| gate \| cp \| week \| all]` | Progress, roadmap, revision queue, GATE and Codeforces boards, the week |
-| `/tree [show \| path \| next \| add \| drop ...]` | What a skill needs, the route to a goal, what to learn next; add, swap or drop skills |
-| `/boss [skill]` | The project or timed test that proves a skill |
-| `/log <source> <lecture>` | Record a lecture watched elsewhere (its test follows), or a workout |
-| `/notes [skill]` | Notes per topic, LaTeX sections, one PDF per skill |
-| `/gate` | The GATE companion |
-| `/cp` | The competitive-programming coach |
-| `/coach` | A review of how you have actually been working, and your schedule |
-| `/bridge` | Connect a course site, playlist or book so its lectures enter the plan |
-| `/remind` | Operating-system reminders that fire only when something is due |
-| `/sync` | Commit and push your progress to your own repository |
-| `/onboard` | First run, a new track, or a second laptop (`/onboard machine`) |
-| `/update-framework` | A newer version of the framework, without touching your data |
+| **Studying** | |
+| `brief` | Where you stand, for the start of a session (the session-start hook runs it) |
+| `today`, `next` | Today's finish line; the single next action |
+| `ask` | Serves one checked question without its key, and starts its timer |
+| `answer` | Records your answer; prints right or wrong, the key and the solution |
+| `mistake` | Records why a wrong answer went wrong (concept, method, memory, careless, misread, time, syntax, guess) |
+| `quick` | Records a spoken check; it schedules the topic but never counts as proof |
+| `covered` | Marks a topic as taught, ready for its first test |
+| `weave` | Earlier topics worth building into the next exercise |
+| **Skills** | |
+| `enroll`, `pause`, `resume`, `unenroll` | Start, pause, restart or stop a skill; progress is always kept |
+| `placement` | Records a placement test: what you already know skips teaching |
+| `boss` | The project or timed test that proves a skill: `boss status`, `boss record` |
+| `test` | Timed mixed tests from checked questions: `test build`, `test show`, `test finish` |
+| `tree` | The skill tree: `tree list`, `tree show`, `tree path`, `tree suggest`, `tree add`, `tree set`, `tree drop`, `tree restore`, `tree check` |
+| `find` | Searches skills, topics, lectures and notes |
+| `syllabus` | A skill's syllabus: `syllabus template`, `syllabus path`, `syllabus check` |
+| `rename` | Carries progress over when a topic or skill is renamed |
+| **Questions** | |
+| `item` | The question bank: `item needs`, `item draft`, `item import`, `item show` (never the key before you answer), `item verify` (the blind check), `item list`, `item reject`, `item dispute`, `item restore` |
+| **Courses and lectures** | |
+| `source` | Study sources: `source add`, `source import`, `source status`, `source check` |
+| `log` | Marks a lecture or chapter as done, by id, number or part of its title |
+| **GATE** | |
+| `gate` | `gate status`, `gate triage`, `gate enroll`, `gate mock`, `gate mocks`, `gate errors`, `gate weight`, `gate weights` |
+| **Codeforces** | |
+| `cf` | `cf link`, `cf sync`, `cf status`, `cf rating`, `cf analyse`, `cf recommend`, `cf assign`, `cf credit`, `cf mark`, `cf upsolve`, `cf contests` |
+| **Notes** | |
+| `notes` | `notes status`, `notes fragment`, `notes section`, `notes stamp`, `notes assemble`, `notes pdf` |
+| **You and your habits** | |
+| `profile` | Your settings: `profile show`, `profile get`, `profile set`, `profile unset` |
+| `stats` | How you work: `stats week`, `stats hours`, `stats patterns`, `stats errors`, `stats flags` |
+| `observe`, `observations` | Records and lists what helps you learn |
+| `workout` | Logs a workout |
+| `dash` | Dashboards: `dash progress`, `dash roadmap`, `dash queue`, `dash gate`, `dash cp`, `dash week`, `dash all` |
+| **This computer** | |
+| `setup` | Prepares this computer; `--hook` and `--statusline` add the optional extras, `--remove-hook` and `--remove-statusline` take them out |
+| `statusline` | The one line shown at the bottom of Claude Code |
+| `remind` | Reminders: `remind check` (is anything due?), `remind render` (writes the scheduler files) |
+| `doctor`, `rebuild`, `selftest`, `version` | Health check; rebuild everything from the log; the engine's own tests; versions |
 
-Or just talk: "teach me Docker", "what should I do today?", "I finished
-lecture 14", "quiz me", "I already know Git", "Fastify instead of Express",
-"how did my week go?". More in [daily use](docs/daily-use.md).
+</details>
+
+### Using it efficiently
+
+Every message to Claude uses part of your plan, and each one re-reads the
+conversation so far, so later messages in a long session cost more than
+early ones. In a measured test session, a call cost about 22,000 tokens at
+the start and over 45,000 later on. So:
+
+- **Look things up yourself.** `today`, `next`, `dash` and the other views
+  above answer instantly and are free.
+- **Keep sessions short and focused**: one skill, up to the finish line,
+  then end the session. Start a fresh one tomorrow rather than continuing a
+  very long one.
+- **Use `/recall` on busy days**: reviews only, no teaching, no new
+  questions to write.
+- **Study one skill per session** (`/study docker`): only that skill's
+  questions are written and checked.
+- **Say several things at once**: "my name is Sam, I want the MERN stack,
+  I sleep at midnight" is one message, not three.
+- **Install the session brief** (`setup --hook`): Claude then starts each
+  session knowing where you stand, without running anything to find out.
 
 ## The three tools
 
@@ -411,8 +551,8 @@ and removable with one command.
 | Extra | Install | Remove |
 |---|---|---|
 | **Session brief**: Claude reads where you stand as each session starts | `python3 engine/calamity.py setup --hook` | `python3 engine/calamity.py setup --remove-hook` |
-| **Status line**: the day's numbers at the bottom of Claude Code, such as `CAL · due 3 · new 2/6 · GATE 117d` | `python3 engine/calamity.py setup --statusline` | `python3 engine/calamity.py setup --remove-statusline` |
-| **Reminders**: notifications from your operating system, only when something is due, never in your sleep window | `/remind`, which runs `remind render --times 09:00,21:00` and shows you the install command | the remove command `remind render` prints |
+| **Status line**: the day's numbers at the bottom of Claude Code, such as `CAL · due 29 · new 0/6 · GATE 117d` (from a pretend learner) | `python3 engine/calamity.py setup --statusline` | `python3 engine/calamity.py setup --remove-statusline` |
+| **Reminders**: notifications from your operating system, only when something is due, never in your sleep window | `/remind 09:00,21:00`: Claude saves the times (`profile set reminders.times 09:00,21:00`), runs `remind render`, and shows you the install command | `/remind off`, or the remove command `remind render` prints |
 | **PDF notes**: one PDF per skill from your notes | install Tectonic, TeX Live or MiKTeX; then `/notes pdf <skill>` | uninstall the TeX engine |
 
 `setup --hook` and `setup --statusline` write `.claude/settings.local.json`;
@@ -453,8 +593,9 @@ python3 engine/calamity.py profile set cfg.new_per_day 6
 **Updating.** `/update-framework` fetches the newer version, shows you what
 changed (versions, which areas, and any change to permissions or scripts in
 full), merges it when you agree, and runs `selftest`, `doctor`,
-`tree check` and `rebuild`. Your `learner/` folder is never touched by an
-update.
+`tree check` and `rebuild`. Your record in `learner/` is never changed by
+an update. It needs your progress saved to your own repository first
+(`/sync`), so that nothing can be lost in the merge.
 
 **Removing**, from inside the folder (on Windows with `python` or `py -3`):
 

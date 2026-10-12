@@ -110,7 +110,7 @@ python3 engine/calamity.py setup --statusline
 ```
 
 shows the day's numbers at the bottom of Claude Code, for example
-`CAL · due 3 · new 2/6 · GATE 117d`. Remove it with
+`CAL · due 29 · new 0/6 · GATE 117d` (from a pretend learner). Remove it with
 `python3 engine/calamity.py setup --remove-statusline`.
 
 ## When you miss days
