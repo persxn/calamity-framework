@@ -55,6 +55,9 @@ class AskAnswer(Case):
         self.assertIn("covered shell/pipes", nxt)
         self.assertIn("NEXT: new", sb.run("ask"))          # not taught yet: nothing is served
         self.assertIn("covered: shell/pipes", sb.run("covered", "shell/pipes"))
+        again = sb.run("next")                              # taught (perhaps in an earlier session): test, do not reteach
+        self.assertIn("do: ask --topic shell/pipes   (taught already, not tested yet", again)
+        self.assertNotIn("teach one small chunk", again)
         need = sb.run("ask", expect=4)                      # taught, but the bank is empty
         self.assertTrue(need.startswith("NEED_ITEM"))
         self.assertIn("topic: shell/pipes | Pipes", need)

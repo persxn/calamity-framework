@@ -39,9 +39,10 @@ with the command the brief names after `engine:`.
    skill; reviews still come from everywhere) and do what it says:
    - `review`: ask and record, as in step 3.
    - `new`: teach one small chunk, run `python3 engine/calamity.py covered <key>`, then
-     `python3 engine/calamity.py ask --topic <key>` and record the answer. In a skill studied
-     from a course or playlist the lecture is the teaching: test at once and
-     teach only what the test exposes.
+     `python3 engine/calamity.py ask --topic <key>` and record the answer. A topic that was
+     taught already (in an earlier session, or by a lecture of the learner's
+     course) is tested at once; teach only what the answer exposes. `next`
+     says which.
    - `watch`: name the next lecture. When the learner returns, run
      `python3 engine/calamity.py log <source> <item>`.
    - `boss`: run the boss skill. `wind-down`, `sleep`, `done`: stop adding

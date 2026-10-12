@@ -392,6 +392,9 @@ def next_text(repo: Repo, tree, state, when, action: dict) -> str:
         lines.append("why: %s" % action["why"])
         if action.get("led"):
             lines.append("do: ask --topic %s   (the lecture is logged; test it, teach only what the test exposes)" % key)
+        elif action.get("covered"):
+            lines.append("do: ask --topic %s   (taught already, not tested yet: test it now; teach again only what "
+                         "the answer exposes)" % key)
         else:
             lines.append("do: teach one small chunk, run: covered %s , then: ask --topic %s" % (key, key))
     elif kind == "watch":
