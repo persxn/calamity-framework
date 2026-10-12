@@ -100,8 +100,14 @@ again, or record `--result fail --err <kind>` and then explain.
 counted: `--hints N`. **A woven exercise that fails**: add
 `--blame <key>` naming the topic that broke.
 
-Between questions say little. No summaries of what was just covered, no
-praise for ordinary answers, no previews of the next topic.
+**After every answer**, before anything else: say whether it was right, in
+one line. When it was wrong, show the key and the solution as the engine
+printed them, find the cause (one question, unless the learner already
+said it), record it with `mistake`, and repair the gap in a few lines.
+Only then go on to the next topic.
+
+Otherwise say little between questions: no summaries of what was just
+covered, no praise for ordinary answers, no previews of the next topic.
 
 ## 4. Close
 

@@ -72,8 +72,9 @@ it schedules the topic but never counts as evidence.
   `--result pass|fail --evidence "what was run and what happened"`.
 - Hints come in three steps: restate what is asked; point to the idea; give
   the first step. Count them (`--hints N`). A hinted answer counts as hard.
-- When an answer is wrong, show the solution the engine prints, find out
-  with the learner why it went wrong, and record the kind of mistake:
+- Tell the learner the result of every answer at once. When it is wrong,
+  show the key and solution the engine prints, find out with the learner
+  why it went wrong, and record the kind of mistake:
   `python3 engine/calamity.py mistake <item> <kind>`, where the kind is `concept`, `method`,
   `memory`, `careless`, `misread`, `time`, `syntax` or `guess`. (For hands-on
   items, which you judge, pass `--err <kind>` with the result.) Repair the
