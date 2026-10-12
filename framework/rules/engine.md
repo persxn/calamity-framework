@@ -64,7 +64,7 @@ cannot show them.
 | `item needs [--skill S] [--n N]` | The examiner's work list: upcoming topics with no unseen verified item, each with difficulty, format, objectives and topics to embed. |
 | `item draft --file F [--by examiner]` | Store one draft (a JSON object). |
 | `item import --file F [--by examiner] [--official]` | Store a list of drafts. `--official` marks official-paper items as verified by provenance. |
-| `item show ITEM [--check] [--reveal]` | The item without its key. `--check` adds the check and rubric of a hands-on item. `--reveal` adds key and solution, only for an item the learner has already answered (never for a draft, an unanswered item or one that is waiting for an answer). |
+| `item show ITEM [ITEM ...] [--check] [--reveal]` | The item (or several) without its key. `--check` adds the check and rubric of a hands-on item. `--reveal` adds key and solution, only for an item the learner has already answered (never for a draft, an unanswered item or one that is waiting for an answer). |
 | `item verify ITEM --answer "..." --by checker` | Blind verification of an auto-graded item: the independent answer must match the sealed key. |
 | `item verify ITEM --ran --evidence "..." --by checker` | Verification of a hands-on item: its check was run against a reference solution. `--fail` rejects it. |
 | `item reject ITEM --reason`, `item dispute ITEM --reason`, `item restore ITEM` | Withdraw an item; put a verified item on hold; reinstate a disputed one. |
@@ -115,7 +115,7 @@ cannot show them.
 
 | Command | What it does |
 |---|---|
-| `profile show`, `profile get KEY`, `profile set KEY VALUE [--text]`, `profile unset KEY` | The learner profile. Comma-separated values become lists; `--text` stores free text. |
+| `profile show`, `profile get KEY`, `profile set KEY VALUE [--text]`, `profile unset KEY` | The learner profile. The keys below are checked (times, dates, numbers); lists take comma-separated values; `name`, `teach.style` and `gate.target_source` are stored as written, and `--text` does the same for any key; `none` unsets a key. Free notes about the learner go in the text below the keys in `learner/profile.md`. |
 | `observe "..." [--tag teaching\|coach] [--pattern ID] [--skill S] [--topic K]`, `observations [--tag T] [--n N]` | Record and read what has been learnt about how this learner works. |
 | `workout MINUTES [--note]` | Log a workout. |
 | `stats [flags\|week\|hours\|patterns\|errors] [--days N] [--track T]` | Teaching observations; the last days; accuracy by part of day; behaviour patterns; error log. |

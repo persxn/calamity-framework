@@ -181,6 +181,16 @@ class Drafts(Case):
         sb.answer(good, "A")
         self.assertIn("KEY: C", sb.run("item", "show", good, "--reveal"))
 
+    def test_one_call_shows_a_whole_batch_blind(self):
+        sb = self.sb
+        ids = [sb.draft("docker/images", answer="C"), sb.draft("docker/dockerfile", answer="B")]
+        out = sb.run("item", "show", *ids)
+        self.assertEqual(out.count("ITEM it-"), 2)
+        self.assertNotIn("KEY", out)
+        self.assertNotIn("SOLUTION", out)
+        sb.run("item", "verify", ids[0], ids[1], "--answer", "C", "--by", "checker", expect=2)
+        self.assertIn("takes one item id", sb.err)
+
     def test_hands_on_verification(self):
         sb = self.sb
         ident = sb.draft("docker/dockerfile", kind="task")

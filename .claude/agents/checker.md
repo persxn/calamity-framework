@@ -13,9 +13,9 @@ item you pass will be trusted, so pass nothing you have not settled.
 
 ## For each item id
 
-1. Read it blind:
+1. Read it blind (one call can show the whole batch):
 
-       python3 engine/calamity.py item show <item>
+       python3 engine/calamity.py item show <item> [<item> ...]
 
    Do not look for its key anywhere: not in `learner/items/`, not in
    `.calamity/tmp/`, not in the conversation that called you.

@@ -104,6 +104,24 @@ class Settings(Case):
             sb.run("profile", "set", *words, expect=2)
         self.assertEqual(Repo(sb.root).prof("sleep.start"), "23:30")   # a refused value changes nothing
 
+    def test_text_flag_anywhere_none_unsets_and_unknown_keys_are_flagged(self):
+        sb = self.sb
+        # the onboard skill writes `profile set teach.style --text "..."`: the flag may stand anywhere
+        for args in (["teach.style", "--text", "Examples, then rules."], ["--text", "teach.style", "Examples, then rules."],
+                     ["teach.style", "Examples, then rules.", "--text"]):
+            sb.run("profile", "set", *args)
+            self.assertEqual(Repo(sb.root).prof("teach.style"), "Examples, then rules.", args)
+        sb.run("profile", "--text", "set", "gate.target_source", "rank 1000, about N marks")
+        self.assertEqual(Repo(sb.root).prof("gate.target_source"), "rank 1000, about N marks")
+        sb.run("profile", "set", "reminders.times", "09:00,21:00")
+        self.assertEqual(sb.run("profile", "set", "reminders.times", "none").strip(), "unset: reminders.times")
+        self.assertIsNone(Repo(sb.root).prof("reminders.times"))
+        sb.run("profile", "set", "name", "None")
+        self.assertEqual(Repo(sb.root).prof("name"), "None")                # a name stays a name
+        out = sb.run("profile", "set", "gate.target", "a good score")
+        self.assertIn("note: the engine does not read 'gate.target'", out)
+        self.assertNotIn("note:", sb.run("profile", "set", "gate.target_marks.DA", "70"))
+
 
 class Writes(unittest.TestCase):
     def setUp(self):

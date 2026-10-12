@@ -296,6 +296,15 @@ def cmd_item(c, a):
         return 0, table(rows, ["item", "type", "topic", "status", "source", "shown", "correct"], aligns="lllllrr")
     if not a.item:
         raise CalError("name the item id")
+    if a.action == "show" and len(a.item) > 1:  # one call for a checker's whole batch
+        blocks = []
+        for ident in a.item:
+            one = argparse.Namespace(**dict(vars(a), item=[ident]))
+            blocks.append(cmd_item(c, one)[1])
+        return 0, "\n\n".join(blocks)
+    if len(a.item) > 1:
+        raise CalError("item %s takes one item id" % a.action)
+    a.item = a.item[0]
     item = items.load(repo, a.item)
     st = c.state.items.get(a.item)
     status = st.status if st else "unknown"
@@ -754,6 +763,11 @@ def cmd_statusline(c, a):
 
 def cmd_profile(c, a):
     repo = c.repo
+    # `--text` may stand anywhere after the action; argparse leaves it among the words in some places
+    tokens = ([a.key] if a.key else []) + list(a.value or [])
+    words = [w for w in tokens if w != "--text"]
+    a.text = a.text or len(words) != len(tokens)
+    a.key, a.value = (words[0], words[1:]) if words else (None, [])
     if a.action == "show":
         meta = repo.profile()
         if not meta:
@@ -771,7 +785,13 @@ def cmd_profile(c, a):
         raise CalError("usage: profile set <key> <value>")
     value = profile_rules.parse(a.key, a.value, a.text, repo.config_defaults())
     repo.set_profile(a.key, value)
-    return 0, "%s: %s" % (a.key, fm.dump_value(value))
+    if value is None:
+        return 0, "unset: %s" % a.key
+    line = "%s: %s" % (a.key, fm.dump_value(value))
+    if not profile_rules.known(a.key):
+        line += ("\nnote: the engine does not read %r. Free notes about the learner belong in the text below the "
+                 "keys in learner/profile.md; the keys it reads are listed in framework/rules/engine.md." % a.key)
+    return 0, line
 
 
 def cmd_setup(c, a):
@@ -936,7 +956,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     sp = add("item", cmd_item, "Item bank: needs, draft, import, show (blind), verify, list, reject, dispute, restore.")
     sp.add_argument("action", choices=("needs", "draft", "show", "verify", "reject", "dispute", "restore", "list", "import"))
-    sp.add_argument("item", nargs="?")
+    sp.add_argument("item", nargs="*", help="item id (show takes several)")
     sp.add_argument("--file")
     sp.add_argument("--stdin", action="store_true")
     sp.add_argument("--by")
@@ -1072,8 +1092,8 @@ def build_parser() -> argparse.ArgumentParser:
     sp = add("profile", cmd_profile, "Learner profile: show, get, set, unset.")
     sp.add_argument("action", choices=("show", "get", "set", "unset"))
     sp.add_argument("key", nargs="?")
-    sp.add_argument("value", nargs="*")
-    sp.add_argument("--text", action="store_true", help="store the value as one piece of text")
+    sp.add_argument("value", nargs=argparse.REMAINDER, help="the value (the rest of the line)")
+    sp.add_argument("--text", action="store_true", help="store the value as one piece of text (allowed anywhere)")
     sp = add("setup", cmd_setup, "Prepare this machine (machine id, folders, optional hook and status line).")
     sp.add_argument("--machine")
     sp.add_argument("--hook", action="store_true", help="install the session-start hook in .claude/settings.local.json")

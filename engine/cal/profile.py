@@ -101,12 +101,27 @@ def _plain(x):
     return int(x) if float(x).is_integer() else x
 
 
+# Keys the engine reads (besides cfg.<setting>), as documented in framework/rules/engine.md.
+KNOWN_KEYS = ("name", "onboarded", "tracks", "goals", "focus", "mode.default", "teach.style", "sleep.start",
+              "sleep.end", "workout.minutes", "daily.target_hours", "reminders.times", "gate.year", "gate.papers",
+              "gate.registered", "gate.target_rank", "gate.target_source", "cp.handle", "cp.target_rating",
+              "cp.target_date", "cp.language")
+KNOWN_PREFIXES = ("cfg.", "gate.target_marks.", "gate.exam_date.")
+
+
+def known(key: str) -> bool:
+    return key in KNOWN_KEYS or key.startswith(KNOWN_PREFIXES)
+
+
 def parse(key: str, words, text: bool, defaults: dict):
-    """The value `profile set KEY WORDS...` stores. Raises CalError for a value the engine cannot use."""
+    """The value `profile set KEY WORDS...` stores, or None for "none" (which unsets the key).
+    Raises CalError for a value the engine cannot use."""
     words = [str(w) for w in words]
     joined = " ".join(words).strip()
     if not joined:
         raise CalError("usage: profile set <key> <value>")
+    if not text and key not in TEXT_KEYS and not key.startswith("cfg.") and joined.lower() in ("none", "null"):
+        return None  # "no reminders", "no focus": the same as unsetting the key
     if key.startswith("cfg."):
         return coerce_cfg(key[4:], fm.parse_value(joined), defaults)
     if text or key in TEXT_KEYS:

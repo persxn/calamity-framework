@@ -27,6 +27,11 @@ and run `python3 engine/calamity.py selftest` after any engine change.
   `python engine/calamity.py <command>` or `py -3 engine/calamity.py <command>`.
   The brief names the one that works on this machine. Run it from the
   repository root.
+- Run each engine command as its own call, exactly in that form from the
+  repository root: no `cd`, loops, pipes, `&&`, redirections or absolute
+  paths. That form is pre-approved in `.claude/settings.json`; any other
+  form stops to ask the learner for permission. Read files with the Read
+  tool, not `cat` or `grep`.
 - `python3 engine/calamity.py <command> --help` documents a command;
   `framework/rules/engine.md` lists them all. If the engine reports an error,
   read it and fix the cause; do not work around the engine.
