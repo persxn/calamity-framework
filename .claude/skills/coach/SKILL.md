@@ -1,6 +1,6 @@
 ---
 name: coach
-description: Review how the learner has actually been working and adjust the schedule - the week's hours, sessions and accuracy by time of day, behaviour patterns, the day shape in learner/schedule.md. Use for a weekly review, when the learner asks for a schedule or a routine, says the plan is not working, feels behind or overloaded, or wants to change sleep, workout or daily hours.
+description: "Review how the learner has actually been working and adjust the day shape in learner/schedule.md. Use for a weekly review, a schedule or routine, when the plan is not working or they feel behind or overloaded, or to change sleep, workout or daily hours."
 argument-hint: "[week | schedule | patterns]"
 effort: high
 ---

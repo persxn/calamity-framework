@@ -1,6 +1,6 @@
 ---
 name: gate-strategist
-description: Plans GATE preparation backwards from the exam date and the learner's target - hours available against hours needed, subject order by marks per hour, what could be cut, the mock calendar, the marks target with its sources, and test-series options when asked. Use for a first plan after GATE onboarding, a re-plan every two weeks or after any mock, and for target or test-series research.
+description: "Plans GATE preparation back from the exam date: hours available against needed, subject order by marks per hour, possible cuts, mock calendar, the marks target with sources, test series when asked. Use after GATE onboarding, every two weeks or after a mock, and for target research."
 model: inherit
 effort: high
 disallowedTools: Agent

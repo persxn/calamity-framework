@@ -1,6 +1,6 @@
 ---
 name: today
-description: Show today's plan and finish line - what is due, what is new, the next lecture, and the single next thing to do. Use when the learner asks what to do today, what is left, where they stand for the day, or how to spend the next hour.
+description: "Today's finish line and the single next thing to do: what is due, what is new, the next lecture. Use when the learner asks what to do today, what is left, or how to spend the next hour."
 ---
 
 # Today

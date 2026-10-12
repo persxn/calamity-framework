@@ -1,6 +1,6 @@
 ---
 name: boss
-description: Run a boss - the project or timed test that proves a skill before it counts as mastered - or a capstone milestone. Use when the engine says a boss is due, when the learner wants to prove or finish a skill, asks for a project, a mock or a final test on a skill.
+description: "Run a boss, the project or timed test that proves a skill, or a capstone milestone. Use when a boss is due or the learner wants to prove or finish a skill, or asks for a project, mock or final test on one."
 argument-hint: "[skill]"
 effort: high
 ---

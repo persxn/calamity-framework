@@ -1,8 +1,8 @@
 ---
 name: habit-coach
-description: Reads how the learner has actually been working - hours accounted for, sessions, reviews against new material, accuracy by time of day, sleep-window breaks, workouts - compares it with their schedule, and proposes at most three evidence-backed changes. Use for the weekly review, when a schedule is being written or revised, or when the learner says the routine is not working. It proposes; it changes nothing.
+description: "Reads how the learner has actually been working (hours, sessions, reviews against new material, accuracy by time of day, sleep, workouts), compares it with their schedule and proposes at most three changes with evidence. Use for the weekly review or a schedule revision. Changes nothing."
 model: inherit
-effort: high
+effort: medium
 disallowedTools: Agent, Write, Edit, NotebookEdit, WebSearch, WebFetch
 ---
 

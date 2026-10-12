@@ -181,6 +181,26 @@ class Drafts(Case):
         sb.answer(good, "A")
         self.assertIn("KEY: C", sb.run("item", "show", good, "--reveal"))
 
+    def test_one_call_verifies_a_whole_batch(self):
+        sb = self.sb
+        a, b = sb.draft("docker/images", answer="C"), sb.draft("docker/dockerfile", answer="B")
+        n = sb.draft("docker/images", kind="nat", answer="2.5")
+        out = sb.run("item", "verify", "%s=C" % a, "%s=A" % b, "%s=2.5" % n, "--by", "checker")
+        self.assertEqual(out.strip().split("\n"), [
+            "verified: %s (the independent answer matches the key)" % a,
+            "rejected: %s (the independent answer does not match the key)." % b,
+            "verified: %s (the independent answer matches the key)" % n])
+        self.assertNotIn("KEY", out)
+        statuses = {i: sb.state().items[i].status for i in (a, b, n)}
+        self.assertEqual(statuses, {a: "verified", b: "rejected", n: "verified"})
+        # all checked before anything is recorded: a rejected item stops the whole batch
+        c = sb.draft("docker/images", answer="C")
+        sb.run("item", "verify", "%s=C" % c, "%s=B" % b, "--by", "checker", expect=2)
+        self.assertEqual(sb.state().items[c].status, "draft")
+        sb.run("item", "verify", "%s=C" % c, "--by", "examiner", expect=2)         # never by its author
+        task = sb.draft("docker/dockerfile", kind="task")
+        sb.run("item", "verify", "%s=pass" % task, "--by", "checker", expect=2)    # hands-on: verified on its own
+
     def test_one_call_shows_a_whole_batch_blind(self):
         sb = self.sb
         ids = [sb.draft("docker/images", answer="C"), sb.draft("docker/dockerfile", answer="B")]

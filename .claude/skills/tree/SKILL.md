@@ -1,6 +1,6 @@
 ---
 name: tree
-description: Explore or change the skill tree - show the roadmap, a skill's prerequisites, the route to a goal and what to learn next; add a new skill, swap an alternative, drop or restore a skill, set a goal, skip something already known. Use when the learner asks what to learn next, what a skill needs, wants a skill the tree lacks, or wants the path adjusted.
+description: "Explore or change the skill tree: roadmap, prerequisites, the route to a goal, what to learn next; add, swap, drop or restore a skill, set a goal, skip what is known. Use when the learner asks what to learn next or what a skill needs, or wants their path changed."
 argument-hint: "[show <skill> | path <goal> | next | add <skill> | drop <skill> | goal <skill>]"
 effort: high
 ---

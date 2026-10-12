@@ -104,6 +104,17 @@ class Settings(Case):
             sb.run("profile", "set", *words, expect=2)
         self.assertEqual(Repo(sb.root).prof("sleep.start"), "23:30")   # a refused value changes nothing
 
+    def test_several_keys_in_one_call_all_or_nothing(self):
+        sb = self.sb
+        out = sb.run("profile", "set", "name=Robin", "tracks=gate-da,cp", "teach.style=examples first, then rules",
+                     "sleep.start=00:30", "cfg.new_per_day=6")
+        self.assertIn("teach.style: \"examples first, then rules\"", out)
+        repo = Repo(sb.root)
+        self.assertEqual((repo.prof("name"), repo.prof("tracks"), repo.cfg("new_per_day")), ("Robin", ["gate-da", "cp"], 6))
+        sb.run("profile", "set", "name=Kim", "sleep.end=late", expect=2)  # one bad value: nothing is written
+        self.assertEqual(Repo(sb.root).prof("name"), "Robin")
+        sb.run("profile", "set", "name=Kim", "oops", expect=2)
+
     def test_text_flag_anywhere_none_unsets_and_unknown_keys_are_flagged(self):
         sb = self.sb
         # the onboard skill writes `profile set teach.style --text "..."`: the flag may stand anywhere

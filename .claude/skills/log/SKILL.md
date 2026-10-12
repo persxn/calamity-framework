@@ -1,6 +1,6 @@
 ---
 name: log
-description: Record study done outside this session - a lecture or chapter watched from a connected course or playlist, or a workout - so that it enters the plan and gets tested. Use when the learner says they watched, finished or completed a lecture, video, chapter or class, did a workout, or wants to undo a log entry.
+description: "Record study done outside the session: a lecture or chapter from a connected course or playlist, or a workout, so it enters the plan and gets tested. Use when the learner says they watched or finished a lecture, video, chapter or class, worked out, or wants to undo a log entry."
 argument-hint: "<source> <lecture id, number or title> | workout <minutes>"
 ---
 

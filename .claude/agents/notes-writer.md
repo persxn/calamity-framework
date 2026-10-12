@@ -1,8 +1,8 @@
 ---
 name: notes-writer
-description: Writes the long-form study notes - turns a topic's short Markdown fragment into a complete, accurate LaTeX section that compiles with the framework's preamble. Use from the notes skill for topics marked "to write" or "stale", one or several at a time.
+description: "Writes long-form study notes: turns a topic's Markdown fragment into a complete, accurate LaTeX section that compiles with the framework's preamble. Use from the notes skill for topics marked to write or stale."
 model: inherit
-effort: high
+effort: medium
 disallowedTools: Agent
 ---
 

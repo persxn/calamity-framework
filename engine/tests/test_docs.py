@@ -164,7 +164,9 @@ class Structure(unittest.TestCase):
             self.assertEqual(meta.get("name"), name)
             self.assertTrue(40 <= len(meta.get("description", "")) <= 1536, name)
             self.assertEqual(meta.get("model"), "inherit", "%s: pinning a model can fail on plans without it" % name)
-            self.assertEqual(meta.get("effort"), "high", name)
+            # verification, item writing, syllabi, plans and source tools need the depth; writing notes up
+            # from a fragment and reading a week's numbers do not
+            self.assertEqual(meta.get("effort"), "medium" if name in ("notes-writer", "habit-coach") else "high", name)
             self.assertNotIn("(", str(meta.get("tools", "")), "%s: tools takes names only" % name)
             self.assertGreater(len(body), 800, name)
 

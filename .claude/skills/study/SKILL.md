@@ -1,110 +1,94 @@
 ---
 name: study
-description: Run a study session with the Calamity loop - surprise recall first, then one small chunk at a time, each tested at once, with earlier skills woven into the exercises. Use when the learner wants to study, learn, continue, practise or be taught a skill or topic, or simply says "let's start".
+description: "A study session: surprise recall first, then one small chunk at a time, each tested at once, earlier skills woven in. Use when the learner wants to study, learn, continue, practise or be taught a skill or topic, or says \"let's start\"."
 argument-hint: "[skill or topic]"
 ---
 
 # Study session
 
-The engine decides what comes next. You teach, ask, judge and record. The
-method is in `framework/method.md` (already in context); this is the
-procedure.
+The engine decides what comes next; you teach, ask, judge and record. How
+to ask and judge is in `framework/method.md` (already in context); this is
+the procedure. Commands are shown for Linux and macOS; on Windows use the
+command the brief names after `engine:`.
 
-## 0. What are we studying?
+## 0. Open
 
-- No argument: whatever the engine says is next, across all enrolled skills.
-- An argument: resolve it with `python3 engine/calamity.py find <words>` if
-  it is not an exact id.
-  - Not enrolled yet: `python3 engine/calamity.py enroll <skill>`. If it is
+- `NOT ONBOARDED` in the brief: run the onboard skill instead.
+- Inside the sleep window: say so once; reviews only if the learner insists.
+- An argument names what to study. Resolve it with
+  `python3 engine/calamity.py find <words>` if it is not an exact id.
+  - Not enrolled: `python3 engine/calamity.py enroll <skill>`. If it is
     locked, show the prerequisites the engine lists and the route
-    (`tree path <skill>`); use `--force` only if the learner asks to go
-    ahead anyway.
-  - "no syllabus yet": delegate to the `curriculum-architect` agent
-    ("write the syllabus for `<skill>` for this learner"), then
+    (`tree path <skill>`); `--force` only if the learner wants it anyway.
+  - "no syllabus yet": delegate to the `curriculum-architect` agent ("write
+    the syllabus for `<skill>` for this learner"), then
     `python3 engine/calamity.py syllabus check <skill>`.
   - They say they already know it: a placement test, not a debate
     (`framework/rules/syllabus.md`).
 
-## 1. Stock the item bank (in the background)
+## 1. Stock the item bank, in the background
 
     python3 engine/calamity.py item needs --skill <skill>
 
-(omit `--skill` for a session across everything). If it lists topics:
-
-1. Give the whole printed list to the `examiner` agent: "Draft one item for
-   each topic in this work list and store them." It returns item ids.
-2. Give those ids to the `checker` agent: "Verify these items blind." It
-   returns which were verified and which rejected.
-3. For a rejected item, ask the examiner for a fresh draft on that topic.
-
-Run them in the background and start step 2 with whatever is already
-verified. Never write an item yourself and never verify one in this
-conversation.
+(without `--skill` for a session across everything). If it lists topics,
+ask the `examiner` agent to stock them ("stock the item bank for
+`<skill>`"; it reads the details itself), then give the ids it returns to
+the `checker` agent to verify blind. For an item the checker rejects, ask
+the examiner for a fresh one. Start step 2 meanwhile with what is already
+verified. Never write an item yourself and never verify one here.
 
 ## 2. Surprise recall
 
-Take the first topics under "Due now" in the brief (it says how many). For
-each, without saying which skill it is from:
+As many times as the brief says ("Surprise-recall candidates"):
 
-    python3 engine/calamity.py ask --topic <key>
+    python3 engine/calamity.py ask --due
 
-Show the question exactly as printed (the text between the first two lines
-of dashes; the line above it names the topic and stays with you), wait for
-the answer, then:
-
-    python3 engine/calamity.py answer <item> --answer "<what they said>"
-
-Show the result and the solution the engine prints. If the answer was
-wrong, find out why with one question, record the kind of mistake with
-`python3 engine/calamity.py mistake <item> <kind>`, repair the gap in a few
-lines, and go on. Nothing due: skip this step.
+Ask without saying which skill a question comes from and without warming
+the learner up. Nothing due: skip this step.
 
 ## 3. The main block
 
 Repeat until the finish line, the sleep guard, or the learner stops:
 
-    python3 engine/calamity.py next --skill <skill>
+    python3 engine/calamity.py ask --skill <skill>
 
-(plain `next` in a session across everything).
+(plain `ask` in a session across everything). It serves the next question,
+a review or a topic already taught, or prints what comes instead:
 
-| The engine says | Do |
+| It prints | Do |
 |---|---|
-| `review` | `ask --topic <key>`, then `answer`, as in step 2. |
-| `new` (taught here) | Teach one chunk: the idea in a few sentences, one worked example, one thing for the learner to do. Then `python3 engine/calamity.py covered <key>`, then `ask --topic <key>` and record the answer. |
-| `new` (lecture logged) | The lecture was the teaching. `ask --topic <key>` at once; teach only what a wrong answer exposes. |
-| `watch` | Name the next lecture. When the learner has watched it, `python3 engine/calamity.py log <source> <item>`. If they would rather carry on with another skill now, `next --skill <skill>` stays inside it. |
-| `boss` | Run the boss skill for that skill. |
-| `wind-down`, `sleep` | No new material. Offer remaining reviews, then close. |
-| `done` | The finish line is reached. Close, or continue only if the learner asks. |
-| `enroll`, `onboard` | Help them pick a skill (`tree suggest`), or run the onboard skill. |
+| an item | Ask and record it (below). |
+| `NEXT: new` | Teach one chunk: the idea in a few sentences, one worked example, one thing for the learner to do. Then `python3 engine/calamity.py ask --topic <key> --taught`, which records the teaching and serves the question. |
+| `NEXT: watch` | Name the next lecture. When the learner has watched it, `python3 engine/calamity.py log <source> <item>`; its test follows. If they would rather carry on with another skill, `ask --skill <other>`. |
+| `NEXT: boss` | Run the boss skill for that skill. |
+| `NEXT: wind-down`, `sleep`, `done` | No new material. Offer what reviews remain, then close. |
+| `NEXT: enroll`, `onboard` | Help them pick a skill (`tree suggest`), or run the onboard skill. |
 
-**`NEED_ITEM` (exit code 4)**: no verified item exists for that topic.
-Send the printed block to the examiner, the new id to the checker, then
-`ask` again. If the learner should not wait, take another topic meanwhile
-or record an oral check: `python3 engine/calamity.py quick <key> pass|fail`
-(it schedules the topic but is not evidence).
-
-**Hands-on items** (code, task, open): the learner does the work in
-`learner/work/<skill>/...`. When they say they are done:
-
-    python3 engine/calamity.py item show <item> --check
-
-Run that check for real, then record:
-
-    python3 engine/calamity.py answer <item> --result pass --evidence "what was run and what happened"
-
+**Asking and recording.** Show the question exactly as the engine prints
+it, between the dashes. Record the reply with
+`python3 engine/calamity.py answer <item> --answer "<what they said>"`.
+For a hands-on item (code, task, open) the learner works in
+`learner/work/<skill>/...`; when they are done, get the check with
+`python3 engine/calamity.py item show <item> --check`, run it for real,
+and record `--result pass|fail --evidence "what was run and what happened"`.
 If it fails, say what the check showed, not how to fix it; let them try
-again, or record `--result fail --err <kind>` and then explain.
-
-**Hints**: three steps (restate, point to the idea, first step), each
-counted: `--hints N`. **A woven exercise that fails**: add
-`--blame <key>` naming the topic that broke.
+again, or record the failure with `--err <kind>` and then explain.
 
 **After every answer**, before anything else: say whether it was right, in
 one line. When it was wrong, show the key and the solution as the engine
 printed them, find the cause (one question, unless the learner already
 said it), record it with `mistake`, and repair the gap in a few lines.
-Only then go on to the next topic.
+Only then go on.
+
+**`NEED_ITEM`** (exit code 4): no verified item for that topic yet. Give
+the topic to the examiner, the new id to the checker, then ask again. If
+the learner should not wait, take another topic meanwhile, or record an
+oral check, which schedules the topic but is not evidence:
+`python3 engine/calamity.py quick <key> pass|fail`.
+
+**Hints**: three steps (restate, point to the idea, first step), each
+counted with `--hints N`. **A woven exercise that fails**: add
+`--blame <key>` for the topic that broke.
 
 Otherwise say little between questions: no summaries of what was just
 covered, no praise for ordinary answers, no previews of the next topic.

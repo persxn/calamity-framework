@@ -1,6 +1,6 @@
 ---
 name: notes
-description: Turn what the learner has studied into notes they keep - a short Markdown fragment per topic after each session, a full LaTeX section per topic on request, and one PDF per skill. Use when the learner asks to save notes, write up a topic, build or update study material, or make a PDF of a skill.
+description: "Turn what was studied into notes: a Markdown fragment per topic after a session, a LaTeX section on request, a PDF per skill. Use when the learner asks to save notes, write up a topic, update study material or make a PDF."
 argument-hint: "[skill | skill/topic | pdf <skill>]"
 ---
 

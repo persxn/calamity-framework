@@ -166,7 +166,7 @@ def cmd_next(c, a):
 
 def cmd_ask(c, a):
     return session.ask(c.repo, c.tree, c.state, c.when, topic=a.topic, item_id=a.id, skill=a.skill, test=a.test,
-                       show_check=a.check, due_only=a.due)
+                       show_check=a.check, due_only=a.due, taught=a.taught)
 
 
 def cmd_answer(c, a):
@@ -246,7 +246,7 @@ def cmd_test(c, a):
 def cmd_item(c, a):
     repo, tree = c.repo, c.tree
     if a.action == "needs":
-        return 0, session.needs_text(repo, tree, c.state, c.when, a.skill, a.n)
+        return 0, session.needs_text(repo, tree, c.state, c.when, a.skill, a.n, full=a.full)
     if a.action == "draft":
         item = items.create(repo, tree, _read_json(a), created_by=a.by or "examiner")
         _discard_draft_file(repo, a)
@@ -302,6 +302,31 @@ def cmd_item(c, a):
             one = argparse.Namespace(**dict(vars(a), item=[ident]))
             blocks.append(cmd_item(c, one)[1])
         return 0, "\n\n".join(blocks)
+    if a.action == "verify" and any("=" in word for word in a.item):  # a checker's whole batch in one call
+        if a.answer is not None or a.ran or a.fail:
+            raise CalError("give either <item>=<answer> pairs or one item with --answer / --ran")
+        pairs = []
+        for word in a.item:
+            ident, sep, answer = word.partition("=")
+            if not sep or not answer.strip():
+                raise CalError("in a batch every word is <item>=<answer>; got %r" % word)
+            pairs.append((ident.strip(), answer.strip()))
+        if len({ident for ident, _ in pairs}) != len(pairs):
+            raise CalError("an item appears twice in the batch")
+        for ident, _ in pairs:  # every item is checked before anything is recorded
+            item = items.load(repo, ident)
+            st = c.state.items.get(ident)
+            if item["type"] not in items.AUTO_TYPES:
+                raise CalError("%s is a %s item: verify it on its own with --ran --evidence" % (ident, item["type"]))
+            if st is not None and st.status == "rejected":
+                raise CalError("item %s was rejected; write a new draft instead (nothing was recorded)" % ident)
+            if (a.by or "").strip() == item.get("created_by"):
+                raise CalError("an item cannot be verified by its own author (%s)" % a.by)
+        lines = []
+        for ident, answer in pairs:
+            one = argparse.Namespace(**dict(vars(a), item=[ident], answer=answer))
+            lines.append(cmd_item(c, one)[1].split("\n")[0])
+        return 0, "\n".join(lines)
     if len(a.item) > 1:
         raise CalError("item %s takes one item id" % a.action)
     a.item = a.item[0]
@@ -781,6 +806,21 @@ def cmd_profile(c, a):
     if a.action == "unset":
         repo.set_profile(a.key, None)
         return 0, "unset: %s" % a.key
+    if "=" in a.key:  # several at once: profile set name=Robin tracks=gate-da "teach.style=examples first"
+        changes, lines = {}, []
+        for word in [a.key] + list(a.value):
+            key, sep, raw = word.partition("=")
+            key = key.strip()
+            if not sep or not key:
+                raise CalError("with key=value, every word is key=value (quote a value with spaces); got %r" % word)
+            changes[key] = profile_rules.parse(key, [raw], a.text, repo.config_defaults())  # all checked first
+        repo.set_profile_many(changes)
+        for key, value in changes.items():
+            lines.append("unset: %s" % key if value is None else "%s: %s" % (key, fm.dump_value(value)))
+            if value is not None and not profile_rules.known(key):
+                lines.append("note: the engine does not read %r; free notes belong below the keys in "
+                             "learner/profile.md" % key)
+        return 0, "\n".join(lines)
     if not a.value:
         raise CalError("usage: profile set <key> <value>")
     value = profile_rules.parse(a.key, a.value, a.text, repo.config_defaults())
@@ -899,6 +939,7 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("--test")
     sp.add_argument("--check", action="store_true", help="also print the check/rubric of a hands-on item")
     sp.add_argument("--due", action="store_true", help="serve a review only: never new material")
+    sp.add_argument("--taught", action="store_true", help="with --topic: record that it was just taught, then serve")
     sp = add("answer", cmd_answer, "Record the learner's answer to the open item.")
     sp.add_argument("item")
     sp.add_argument("--answer", help="the learner's answer (mcq/msq/nat/short)")
@@ -973,6 +1014,7 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("--topic")
     sp.add_argument("--status", choices=("draft", "verified", "rejected", "disputed"))
     sp.add_argument("--n", type=_positive, default=6, help="needs: how many topics to list")
+    sp.add_argument("--full", action="store_true", help="needs: with objectives, difficulty, format and topics to weave")
     sp.add_argument("--void", action="store_true", help="dispute: also cancel the last answer recorded against the item")
 
     sp = add("tree", cmd_tree, "The skill tree: list, show, path, suggest, check, add, set, drop, restore.")

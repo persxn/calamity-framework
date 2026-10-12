@@ -1,6 +1,6 @@
 ---
 name: cp
-description: The competitive programming coach - Codeforces sync and analysis, practice sets just above the learner's rating, contest preparation and review, upsolving, rating targets, and teaching C++, the STL, data structures and algorithms. Use for anything about Codeforces, contests, rating, problem practice or DSA for competitive programming.
+description: "The competitive programming coach: Codeforces sync and analysis, practice sets above the learner's rating, contests and their review, upsolving, rating targets, C++ and algorithms. Use for anything about Codeforces, contests, rating, problem practice or DSA for contests."
 argument-hint: "[status | plan | set [skill] | contest | review | upsolve | learn <skill>]"
 effort: high
 ---

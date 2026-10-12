@@ -105,8 +105,11 @@ def unseen_stock(state, key: str) -> int:
     return sum(1 for it in items.candidates(state, key) if it.n_shown == 0)
 
 
-def needs_text(repo: Repo, tree, state, when, skill: str | None = None, n: int = 6) -> str:
-    """The upcoming topics that have no unseen verified item: the examiner's work list."""
+def needs_text(repo: Repo, tree, state, when, skill: str | None = None, n: int = 6, full: bool = False) -> str:
+    """The upcoming topics that have no unseen verified item: the examiner's work list.
+
+    The tutor only needs to know whether there is work and for which topics; the examiner reads
+    the details (objectives, difficulty, format, topics to weave in) with `full`."""
     if skill:
         tree.get(skill)
     rows, seen = [], set()
@@ -128,22 +131,32 @@ def needs_text(repo: Repo, tree, state, when, skill: str | None = None, n: int =
         return "ITEMS: stocked\nEvery topic coming up%s has an unseen verified item." % (
             (" in %s" % skill) if skill else "")
     out = ["ITEMS NEEDED: %d topic(s)%s (showing %d)" % (len(rows), (" in %s" % skill) if skill else "", min(n, len(rows)))]
+    if not full:
+        out.extend("  %s (%s)" % (key, purpose) for key, purpose in rows[:n])
+        out.append("Ask the examiner agent to stock them: it reads the details with `item needs --full%s` and "
+                   "returns item ids for the checker agent." % ((" --skill %s" % skill) if skill else ""))
+        return "\n".join(out)
     for key, purpose in rows[:n]:
         out.append("")
         out.extend(need_item_text(repo, tree, state, key, when, purpose).split("\n")[1:-1])
     out.append("")
-    out.append("Hand this list to the examiner agent (one draft per topic, stored with: item import --file <path> "
-               "--by examiner), then give the new ids to the checker agent.")
+    out.append("Draft one item per topic, store them with: item import --file <path> --by examiner, and return "
+               "the new ids for the checker agent.")
     return "\n".join(out)
 
 
 def ask(repo: Repo, tree, state, when, topic: str | None = None, item_id: str | None = None,
-        skill: str | None = None, test: str | None = None, show_check: bool = False, due_only: bool = False):
+        skill: str | None = None, test: str | None = None, show_check: bool = False, due_only: bool = False,
+        taught: bool = False):
     """Serve one item. Returns (exit_code, text).
 
-    `due_only` serves a review and nothing else: when the next thing to do is new material, a
-    lecture or the end of the day, that is printed instead.
+    With no topic or id it serves whatever `next` would: a review, or a new topic that was taught
+    already; anything else (a topic to teach, a lecture, the end of the day) is printed instead.
+    `due_only` serves a review and nothing else. `taught` (with a topic) first records that the
+    topic was just taught, as `covered` does, so teaching and testing take one call.
     """
+    if taught and not topic:
+        raise CalError("--taught goes with --topic: the topic that was just taught")
     purpose = "review"
     if item_id:
         item = items.load(repo, item_id)
@@ -154,6 +167,9 @@ def ask(repo: Repo, tree, state, when, topic: str | None = None, item_id: str | 
     else:
         if topic:
             key = tree.topic(topic).key
+            ts = state.topics.get(key)
+            if taught and (ts is None or (ts.covered_ts is None and ts.card is None)):
+                repo.append("covered", topic=key, by="tutor")
         else:
             action = plan.next_action(repo, tree, state, when, skill=skill)
             if action["action"] not in ("review", "new") or (due_only and action["action"] != "review"):
@@ -178,8 +194,7 @@ def ask(repo: Repo, tree, state, when, topic: str | None = None, item_id: str | 
             raise CalError("item %s is not part of test %s" % (item["id"], test))
     repo.append("shown", when=when, item=item["id"], topic=item["topics"][0], test=test)
     text = items.blind_text(item, tree, with_check=show_check)
-    text += ("\n---\nfor the learner: the question only, as it stands between the first two lines of dashes "
-             "(the line above it names the topic, which would be a hint)")
+    text += "\n---\nshow the learner only the text between the dashes (the line above them names the topic)"
     if item["type"] in items.AUTO_TYPES:
         text += "\nrecord with: answer %s --answer <%s>   [--hints N]" % (
             item["id"], {"mcq": "letter", "msq": "letters", "nat": "number", "short": "text"}[item["type"]])

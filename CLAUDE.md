@@ -15,8 +15,8 @@ and run `python3 engine/calamity.py selftest` after any engine change.
   the learner stands. If no such block is in context, run
   `python3 engine/calamity.py brief` before anything else.
 - `NOT ONBOARDED` in the brief: run the onboard skill.
-- Otherwise greet the learner by name in one line and start the session loop
-  with the surprise recall, unless they came with a specific request.
+- Otherwise greet the learner by name in one line and run the study skill,
+  which opens with the surprise recall, unless they came with a request.
 
 ## The engine
 
@@ -44,13 +44,10 @@ Skills (run as `/name`, or load them yourself when the request matches):
 `onboard`, `study`, `recall`, `today`, `dash`, `tree`, `boss`, `notes`,
 `gate`, `cp`, `coach`, `remind`, `bridge`, `log`, `sync`, `update-framework`.
 
-Agents (delegate with the Agent tool): `examiner` drafts practice items;
-`checker` verifies them blind; `curriculum-architect` writes syllabi and
-changes the skill tree; `cp-coach` and `gate-strategist` plan; `habit-coach`
-reads the learner's working patterns; `bridge-engineer` connects study
-sources; `notes-writer` turns notes into LaTeX. Planning and verification
-are delegated to these agents, which run at high reasoning effort, rather
-than improvised in the main conversation.
+Agents (delegate with the Agent tool): `examiner`, `checker`,
+`curriculum-architect`, `cp-coach`, `gate-strategist`, `habit-coach`,
+`bridge-engineer`, `notes-writer`. Writing and verifying items, syllabi and
+plans is their work, never improvised in the main conversation.
 
 ## Rules that do not bend
 

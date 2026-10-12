@@ -320,15 +320,21 @@ class Repo:
         self.memo = {}
 
     def set_profile(self, key: str, value) -> None:
-        if not re.match(r"^[A-Za-z0-9_][A-Za-z0-9_.\-]*$", key):
-            raise CalError("bad profile key %r" % key)
+        self.set_profile_many({key: value})
+
+    def set_profile_many(self, changes: dict) -> None:
+        """Set (or, with None, remove) several profile keys in one write."""
+        for key in changes:
+            if not re.match(r"^[A-Za-z0-9_][A-Za-z0-9_.\-]*$", key):
+                raise CalError("bad profile key %r" % key)
         with self.lock():
             self._profile = None  # read it again under the lock: another command may just have changed it
             meta = dict(self.profile())
-            if value is None:
-                meta.pop(key, None)
-            else:
-                meta[key] = value
+            for key, value in changes.items():
+                if value is None:
+                    meta.pop(key, None)
+                else:
+                    meta[key] = value
             self.save_profile(meta)
 
     def lock(self):

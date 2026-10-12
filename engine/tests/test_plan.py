@@ -90,21 +90,22 @@ class FinishLine(Case):
         sb.run("enroll", "shell")
         first = sb.item("shell/pipes")
         needs = sb.run("item", "needs")
-        self.assertIn("topic: shell/perms | Permissions", needs)                      # it looks past the topic that is next
-        self.assertNotIn("topic: shell/pipes", needs)
+        self.assertIn("  shell/perms (new)", needs)                                   # it looks past the topic that is next
+        self.assertNotIn("  shell/pipes (", needs)
         sb.do("shell/pipes")
         needs = sb.run("item", "needs")
-        self.assertIn("topic: shell/perms | Permissions", needs)                      # the next new topic has no item
-        self.assertNotIn("topic: shell/pipes", needs)                                 # not due today
+        self.assertIn("  shell/perms (new)", needs)                                   # the next new topic has no item
+        self.assertNotIn("  shell/pipes (", needs)                                 # not due today
         spare = sb.draft("shell/perms")
-        self.assertIn("topic: shell/perms", sb.run("item", "needs"))                  # a draft is not stock
+        self.assertIn("  shell/perms (new)", sb.run("item", "needs"))                 # a draft is not stock
         sb.run("item", "verify", spare, "--answer", "B", "--by", "checker")
         self.assertIn("ITEMS: stocked", sb.run("item", "needs"))
         sb.advance(days=3)
         needs = sb.run("item", "needs", "--skill", "shell", "--n", "5")
-        self.assertIn("topic: shell/pipes | Pipes", needs)                            # due, and its only item was seen
-        self.assertIn("purpose: review", needs)
-        self.assertIn("bank for this topic: 1 verified", needs)
+        self.assertIn("  shell/pipes (review)", needs)                                # due, and its only item was seen
+        full = sb.run("item", "needs", "--skill", "shell", "--full")
+        self.assertIn("purpose: review", full)
+        self.assertIn("bank for this topic: 1 verified", full)
         self.assertEqual(sb.ask("shell/pipes"), first)                                # reuse rather than stall
         sb.run("item", "needs", "--skill", "ghost", expect=2)
 

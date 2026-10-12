@@ -1,6 +1,6 @@
 ---
 name: bridge-engineer
-description: Builds the one-off tool that connects a learner's study source by a route its terms allow - a parser for an official export file, a client for a documented API with the learner's own key, a formatter for pasted progress pages, or a read-only script the learner runs in their own browser. Use from the bridge skill once the route is chosen and code is actually needed. It never touches a site that disallows automated access.
+description: "Builds the one-off tool that connects a study source by a route its terms allow: an export parser, a client for a documented API with the learner's own key, a paste formatter, or a read-only script for the learner's own browser. Use from the bridge skill once code is needed. Never touches a site that disallows automated access."
 model: inherit
 effort: high
 disallowedTools: Agent

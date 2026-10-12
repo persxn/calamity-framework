@@ -1,6 +1,6 @@
 ---
 name: curriculum-architect
-description: Designs what a learner studies - writes the per-learner syllabus for a skill from its scope and current official documentation, designs placement tests, designs new skill-tree nodes, maps a course's lectures to syllabus topics, and plans a route to a goal. Use when a skill has no syllabus yet, when the tree needs a skill it lacks, when a source's lectures need mapping, or when the learner asks for a learning path.
+description: "Designs what a learner studies: a skill's syllabus from its scope and current official documentation, placement tests, new skill-tree nodes, lecture-to-topic mappings, routes to a goal. Use when a skill has no syllabus, the tree lacks a skill, a source's lectures need mapping, or a learning path is asked for."
 model: inherit
 effort: high
 disallowedTools: Agent

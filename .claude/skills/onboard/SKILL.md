@@ -1,6 +1,6 @@
 ---
 name: onboard
-description: First-run setup for a new learner, a new track or a new machine. Use when the session brief says NOT ONBOARDED, when the learner wants to add GATE, competitive programming, the developer path or AI to what they study, or when this laptop has not been set up yet.
+description: "First-run setup for a new learner, a new track or a new machine. Use when the brief says NOT ONBOARDED, when the learner adds GATE, competitive programming, the developer path or AI, or on a laptop not set up yet."
 argument-hint: "[machine | gate | cp | 10x | ai]"
 effort: high
 ---
@@ -47,9 +47,13 @@ otherwise plain text), and record each answer as you get it.
 | How many productive hours a day are you aiming for, workout included? Do you work out, and for how long? | `profile set daily.target_hours 12`, `profile set workout.minutes 60` |
 | Do you want reminders on this laptop, and at what times? | `profile set reminders.times 09:00,14:00,21:00` (set them up with the remind skill) |
 
-Every command is `python3 engine/calamity.py profile set ...`. Do not
-suggest answers to personal questions, and do not carry a number over from
-another learner or from an example in these files.
+Record each group of answers in one call, `key=value` pairs, quoting a
+pair with spaces:
+
+    python3 engine/calamity.py profile set name=Robin tracks=gate-da mode.default=mastery "teach.style=examples first"
+
+Do not suggest answers to personal questions, and do not carry a number
+over from another learner or from an example in these files.
 
 ## 3. Each track they chose
 

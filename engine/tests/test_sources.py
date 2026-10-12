@@ -158,7 +158,7 @@ class Sources(Case):
             sb.item(topic)
         self.assertIn("new 0/5", sb.run("today"))             # three behind lectures, two in the shell: not the full 8
         needs = sb.run("item", "needs")
-        self.assertIn("topic: gate.cs.os/paging", needs)      # the bank is stocked for lectures still to be watched
+        self.assertIn("  gate.cs.os/paging (new)", needs)     # the bank is stocked for lectures still to be watched
         self.assertNotIn("topic: gate.cs.os/scheduling", needs)
         sb.run("log", "course", "os-02")
         self.assertIn("topic: gate.cs.os/scheduling", sb.run("next"))

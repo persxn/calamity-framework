@@ -25,7 +25,7 @@ folder once they are stored.
 | `brief` | The session-start summary. `--hook` is for the SessionStart hook. |
 | `today` | Today's plan: finish line, what is due, what is new, next lecture. |
 | `next [--skill S] [--only]` | The single next action: `onboard`, `enroll`, `sleep`, `review`, `new`, `watch`, `wind-down`, `boss` or `done`. `--skill` draws new material from one skill; `--only` also limits reviews to it. |
-| `ask [--topic K \| --id ITEM \| --skill S] [--due] [--test T] [--check]` | Serve one verified item without its key and start its timer. With no argument it serves whatever `next` says; `--due` serves a review only and otherwise prints the next action. |
+| `ask [--topic K [--taught] \| --id ITEM \| --skill S] [--due] [--test T] [--check]` | Serve one verified item without its key and start its timer. With no argument it serves whatever `next` says (a review, or a topic taught already) and otherwise prints the next action; `--due` serves a review only. `--taught` first records that the topic was just taught, as `covered` does. |
 | `answer ITEM --answer "..."` | Record an answer to a multiple-choice (`B`), multiple-select (`A,C`), numeric (`0.42`, `3/8`) or short-text item. The engine grades it and prints the key and solution. |
 | `answer ITEM --result pass\|fail --evidence "..."` | Record a hands-on item (code, task, open) after its check was run. |
 | | Options for both: `--hints N`, `--err KIND` (when wrong), `--blame K[,K]` (woven items), `--note "..."`, `--seconds N`, `--kind new\|review\|weave\|boss\|placement`. Only `--kind placement` changes anything: in a placement test a miss on a topic never studied schedules nothing, and a right answer does not count as today's new material. |
@@ -61,11 +61,11 @@ cannot show them.
 
 | Command | What it does |
 |---|---|
-| `item needs [--skill S] [--n N]` | The examiner's work list: upcoming topics with no unseen verified item, each with difficulty, format, objectives and topics to embed. |
+| `item needs [--skill S] [--n N] [--full]` | The examiner's work list: upcoming topics with no unseen verified item. `--full` adds each topic's difficulty, format, objectives and topics to embed. |
 | `item draft --file F [--by examiner]` | Store one draft (a JSON object). |
 | `item import --file F [--by examiner] [--official]` | Store a list of drafts. `--official` marks official-paper items as verified by provenance. |
 | `item show ITEM [ITEM ...] [--check] [--reveal]` | The item (or several) without its key. `--check` adds the check and rubric of a hands-on item. `--reveal` adds key and solution, only for an item the learner has already answered (never for a draft, an unanswered item or one that is waiting for an answer). |
-| `item verify ITEM --answer "..." --by checker` | Blind verification of an auto-graded item: the independent answer must match the sealed key. |
+| `item verify ITEM --answer "..." --by checker`, `item verify ITEM=ANSWER [ITEM=ANSWER ...] --by checker` | Blind verification of auto-graded items, one or a whole batch: each independent answer must match the sealed key. In a batch every item is checked before anything is recorded. |
 | `item verify ITEM --ran --evidence "..." --by checker` | Verification of a hands-on item: its check was run against a reference solution. `--fail` rejects it. |
 | `item reject ITEM --reason`, `item dispute ITEM --reason`, `item restore ITEM` | Withdraw an item; put a verified item on hold; reinstate a disputed one. |
 | `item list [--skill S] [--topic K] [--status draft\|verified\|rejected\|disputed]` | The bank. |
@@ -115,7 +115,7 @@ cannot show them.
 
 | Command | What it does |
 |---|---|
-| `profile show`, `profile get KEY`, `profile set KEY VALUE [--text]`, `profile unset KEY` | The learner profile. The keys below are checked (times, dates, numbers); lists take comma-separated values; `name`, `teach.style` and `gate.target_source` are stored as written, and `--text` does the same for any key; `none` unsets a key. Free notes about the learner go in the text below the keys in `learner/profile.md`. |
+| `profile show`, `profile get KEY`, `profile set KEY VALUE [--text]`, `profile set KEY=VALUE [KEY=VALUE ...]`, `profile unset KEY` | The learner profile; several keys can be set in one call, all or none. The keys below are checked (times, dates, numbers); lists take comma-separated values; `name`, `teach.style` and `gate.target_source` are stored as written, and `--text` does the same for any key; `none` unsets a key. Free notes about the learner go in the text below the keys in `learner/profile.md`. |
 | `observe "..." [--tag teaching\|coach] [--pattern ID] [--skill S] [--topic K]`, `observations [--tag T] [--n N]` | Record and read what has been learnt about how this learner works. |
 | `workout MINUTES [--note]` | Log a workout. |
 | `stats [flags\|week\|hours\|patterns\|errors] [--days N] [--track T]` | Teaching observations; the last days; accuracy by part of day; behaviour patterns; error log. |

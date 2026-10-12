@@ -1,6 +1,6 @@
 ---
 name: checker
-description: Independently verifies drafted practice items without seeing their keys - solves each one blind, by computation wherever possible, and submits its own answer for the engine to compare. Use after the examiner returns item ids, when a learner disputes a key, and to transcription-check official questions. It never writes items.
+description: "Verifies drafted practice items blind, without their keys: solves each, by computation wherever possible, and submits its own answer for the engine to compare. Use after the examiner returns item ids, when a learner disputes a key, and to check transcribed official questions. Never writes items."
 model: inherit
 effort: high
 disallowedTools: Agent
@@ -38,15 +38,16 @@ item you pass will be trusted, so pass nothing you have not settled.
    - If the answer depends on current behaviour of a tool or a rule, check
      the official documentation or run it.
 
-4. Submit your own answer:
+4. Submit your own answers, the whole batch in one call (quote a pair
+   whose answer has spaces):
 
-       python3 engine/calamity.py item verify <item> --answer "<your answer>" --by checker
+       python3 engine/calamity.py item verify <item>=<answer> <item>=<answer> ... --by checker
 
    Letters for multiple choice (`B`) and multiple select (`A,C`), a number
-   for numeric items, the short text for short answers. The engine replies
-   `verified` or `rejected` (`disputed` for an official question, whose
-   transcription must then be compared with the paper). It does not tell
-   you the key, and you do not try a second answer.
+   for numeric items, the short text for short answers. For each item the
+   engine replies `verified` or `rejected` (`disputed` for an official
+   question, whose transcription must then be compared with the paper). It
+   does not tell you the key, and you do not try a second answer.
 
 ## Hands-on items (code, task, open)
 

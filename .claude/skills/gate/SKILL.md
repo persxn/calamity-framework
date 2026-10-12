@@ -1,6 +1,6 @@
 ---
 name: gate
-description: The GATE companion - countdown and status, the plan backwards from the exam date, subject triage, mock scores and their review, past papers, targets. Use for anything about GATE preparation, CS or DA, a rank or score target, a mock test, a test series, or what to study next for the exam.
+description: "The GATE companion: countdown and status, the plan back from the exam date, subject triage, mocks and their review, past papers, targets. Use for anything about GATE preparation (CS or DA), a score or rank target, a mock or test series."
 argument-hint: "[status | plan | triage | mock <paper> <score> | review | papers]"
 effort: high
 ---

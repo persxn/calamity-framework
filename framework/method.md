@@ -21,41 +21,18 @@ companion and the competitive-programming coach. It rests on five habits.
 
 ## The session loop
 
-The engine decides what is next; you teach, ask, judge and record. Commands
-are shown for Linux and macOS; on Windows replace `python3 engine/calamity.py`
-with the command the brief names after `engine:`.
-
-1. **Open.** Read the brief. `NOT ONBOARDED` means run the onboard skill.
-   Inside the sleep window, say so; do reviews only if the learner insists.
-2. **Stock the bank.** `python3 engine/calamity.py item needs` lists upcoming topics with no
-   unseen verified item. Send that list to the `examiner` agent, then the
-   new item ids to the `checker` agent, in the background, and carry on.
-3. **Surprise recall.** Take the first "Due now" topics from the brief (the
-   brief says how many). For each: `python3 engine/calamity.py ask --topic <key>`, show the
-   question exactly as printed, wait, then record the reply with
-   `python3 engine/calamity.py answer <item> --answer "<their answer>"`. Do not announce which
-   skill a question comes from and do not warm the learner up first.
-4. **Main block.** Repeat `python3 engine/calamity.py next` (add `--skill <id>` to stay on one
-   skill; reviews still come from everywhere) and do what it says:
-   - `review`: ask and record, as in step 3.
-   - `new`: teach one small chunk, run `python3 engine/calamity.py covered <key>`, then
-     `python3 engine/calamity.py ask --topic <key>` and record the answer. A topic that was
-     taught already (in an earlier session, or by a lecture of the learner's
-     course) is tested at once; teach only what the answer exposes. `next`
-     says which.
-   - `watch`: name the next lecture. When the learner returns, run
-     `python3 engine/calamity.py log <source> <item>`.
-   - `boss`: run the boss skill. `wind-down`, `sleep`, `done`: stop adding
-     new material and close.
-5. **Close.** `python3 engine/calamity.py today` shows the finish line. Save a notes fragment
-   for each topic taught (notes skill), record anything learnt about how
-   this learner learns (`python3 engine/calamity.py observe "..."`), and mention that progress
-   can be synced (sync skill). Never commit or push unasked.
+The engine decides what is next; you teach, ask, judge and record. The
+study skill is the procedure: open with the brief, have the `examiner` and
+`checker` agents stock the item bank in the background, ask the surprise
+recall (`python3 engine/calamity.py ask --due`, as many times as the brief
+says), then repeat `python3 engine/calamity.py ask` and do what it says until the finish line,
+and close with `python3 engine/calamity.py today`, notes and what was observed. Never commit or
+push unasked. On Windows use the engine command the brief names.
 
 Exit code 4 with a `NEED_ITEM` block means the bank has nothing verified
-for that topic: have the examiner and checker make one, then ask again. When
-a session cannot wait, `python3 engine/calamity.py quick <key> pass|fail` records an oral check;
-it schedules the topic but never counts as evidence.
+for that topic: have the examiner and checker make one, then ask again.
+When a session cannot wait, `python3 engine/calamity.py quick <key> pass|fail` records an
+oral check; it schedules the topic but never counts as evidence.
 
 ## Asking and judging
 

@@ -1,6 +1,6 @@
 ---
 name: cp-coach
-description: The competitive programming coach's planning brain - reads the learner's Codeforces record, finds the real weaknesses, and writes or revises the training plan (band, focus tags, weekly load, contests, skills to learn next) toward their rating target. Use for a first plan after linking a handle, a plan review every week or two, after a run of contests, or when the rating has stalled.
+description: "Plans competitive programming: reads the learner's Codeforces record, finds the real weaknesses, and writes or revises the training plan toward their rating target. Use for a first plan after linking a handle, every week or two, after a run of contests, or when the rating has stalled."
 model: inherit
 effort: high
 disallowedTools: Agent

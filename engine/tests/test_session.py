@@ -347,10 +347,26 @@ class Weaving(Case):
         need = sb.run("ask", "--topic", "java/classes", expect=4)
         self.assertIn("embed (earlier topics", need)
         self.assertIn("docker/", need)
-        needs = sb.run("item", "needs", "--skill", "java")
+        needs = sb.run("item", "needs", "--skill", "java")          # what the tutor reads: the list only
         self.assertIn("ITEMS NEEDED", needs)
-        self.assertIn("topic: java/classes | Classes", needs)
-        self.assertIn("embed", needs)
+        self.assertIn("  java/classes (new)", needs)
+        self.assertNotIn("objectives:", needs)
+        self.assertIn("item needs --full --skill java", needs)
+        full = sb.run("item", "needs", "--skill", "java", "--full")  # what the examiner reads
+        self.assertIn("topic: java/classes | Classes", full)
+        self.assertIn("embed", full)
+        self.assertIn("objectives:", full)
+
+    def test_teaching_and_testing_in_one_call(self):
+        sb = self.sb
+        ident = sb.item("shell/perms")
+        sb.run("ask", "--taught", expect=2)                               # only with the topic that was taught
+        out = sb.run("ask", "--topic", "shell/perms", "--taught")
+        self.assertIn("ITEM " + ident, out)
+        self.assertIn("show the learner only the text between the dashes", out)
+        ts = sb.state().topics["shell/perms"]
+        self.assertIsNotNone(ts.covered_ts)
+        self.assertEqual(ts.covered_by, "tutor")
 
     def test_one_answer_credits_every_woven_topic(self):
         sb = self.sb
