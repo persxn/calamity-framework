@@ -9,8 +9,9 @@ Two pretend learners, each in a temporary copy of the framework (never in this c
   lecture by lecture, Codeforces from recorded test data (no network), workouts and mocks.
 
 Everything shown in the documents comes from these files, unchanged, and is labelled there as
-coming from a pretend learner. The simulation is seeded, so a run gives the same learner each
-time (dates move with the clock it is given, not with today's date).
+coming from a pretend learner. The simulation is seeded, so runs are alike, but not identical:
+item ids are random and the scheduler spreads due dates by a hash of each event's id, so the
+numbers differ a little from run to run. Dates come from the simulated clock, not from today.
 """
 import argparse
 import json
@@ -39,6 +40,8 @@ SYLLABI = {
                ("rebase", "Rebase and history"), ("remotes", "Remotes and pull requests"), ("undo", "Undoing things")],
     "html-css": [("semantic-html", "Semantic HTML"), ("box-model", "The box model"), ("flexbox", "Flexbox"),
                  ("grid", "Grid"), ("responsive", "Responsive layout")],
+    "typescript": [("types-basics", "Basic types and inference"), ("interfaces", "Interfaces and type aliases"),
+                   ("generics", "Generics"), ("narrowing", "Narrowing and unions"), ("tsconfig", "The compiler and tsconfig")],
     "javascript": [("values-types", "Values and types"), ("functions-closures", "Functions and closures"),
                    ("arrays-objects", "Arrays and objects"), ("async", "Promises and async/await"),
                    ("modules", "Modules"), ("dom-events", "The DOM and events")],
@@ -168,7 +171,8 @@ def main():
     sb.env["CALAMITY_CF_FIXTURES"] = FIX
 
     # ---------------------------------------------------------------- six weeks
-    enrol_plan = {3: "linux-shell", 9: "git-gh", 16: "html-css", 22: "javascript", 6: "cp.cpp", 26: "cp.stl"}
+    enrol_plan = {3: "linux-shell", 9: "git-gh", 16: "html-css", 22: "javascript", 6: "cp.cpp", 26: "cp.stl",
+                  38: "typescript"}
     for day in range(42):
         if day in enrol_plan:
             run("enroll", enrol_plan[day], "--force")
@@ -204,9 +208,9 @@ def main():
                 break
         if rng.random() < 0.7:
             run("workout", str(rng.choice([30, 45, 45, 60])))
-        if day == 20:
+        if day == 19:
             run("gate", "mock", "CS", "38.67", "--source", "sectional mix 1", "--sections", "GA=9,DM=7.33,DL=5")
-        if day == 34:
+        if day == 33:
             run("gate", "mock", "CS", "47.33", "--source", "sectional mix 2", "--sections", "GA=10.67,DM=9,DL=6.33")
         sb.at((start.replace(hour=9, minute=10)).isoformat()).advance(days=1, minutes=rng.randint(-40, 90))
 
@@ -222,7 +226,7 @@ def main():
     run("profile", "set", "cp.target_rating", "1800")
     run("profile", "set", "cp.target_date", "2027-08-31")
 
-    sb.advance(hours=1)
+    sb.at(sb.clock.replace(hour=19, minute=40).isoformat())   # the views as they stand on an evening
     views = {
         "brief": ["brief"], "today": ["today"], "next": ["next"], "dash": ["dash", "--width", "78"],
         "roadmap": ["dash", "roadmap", "--track", "10x", "--width", "78"], "queue": ["dash", "queue", "--width", "78"],

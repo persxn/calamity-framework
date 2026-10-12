@@ -288,7 +288,8 @@ def phase(repo: Repo, days) -> str:
 
 
 def projection(repo: Repo, tree, state, paper: str) -> float:
-    """Marks backed by verified practice: sum of weight x share tested x accuracy. A floor, not a forecast."""
+    """Marks backed by verified practice: sum of weight x share tested x accuracy on practice questions.
+    It measures coverage, not the exam: practice is untimed and topic by topic, so a full mock scores lower."""
     total = 0.0
     for node in gate_nodes(repo, tree, paper):
         marks, _ = weight(state, node)
@@ -337,7 +338,8 @@ def status_text(repo: Repo, tree, state, when) -> str:
     out.append("")
     out.append(table(rows, ["subject", "paper", "marks", "covered", "tested", "solid", "accuracy", "enrolled"],
                      aligns="llrrrrrl"))
-    out.append("* prior weight. 'backed by practice' counts only verified answers; a full mock is the real measure.")
+    out.append("* prior weight. 'backed by practice' = weight x share of topics tested x accuracy on verified practice:"
+               " a measure of coverage, not a forecast. A timed full mock is the real measure.")
     return "\n".join(out)
 
 

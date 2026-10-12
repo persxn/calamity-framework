@@ -27,8 +27,11 @@ AGENTS = ("bridge-engineer", "checker", "cp-coach", "curriculum-architect", "exa
 
 
 def documents():
-    paths = [os.path.join(REPO, "CLAUDE.md"), os.path.join(REPO, "README.md"), os.path.join(REPO, "learner", "README.md"),
-             os.path.join(REPO, "tools", "README.md")]
+    paths = [os.path.join(REPO, name) for name in ("CLAUDE.md", "README.md", "CONTRIBUTING.md", "SECURITY.md",
+                                                   "CHANGELOG.md")]
+    paths += [os.path.join(REPO, "learner", "README.md"), os.path.join(REPO, "tools", "README.md")]
+    docs = os.path.join(REPO, "docs")
+    paths += [os.path.join(docs, name) for name in sorted(os.listdir(docs)) if name.endswith(".md")]
     for folder, _, files in os.walk(os.path.join(REPO, "framework")):
         if os.sep + "tree" + os.sep in folder + os.sep:
             continue  # skill-tree files mention commands only in prose
@@ -36,6 +39,13 @@ def documents():
     paths += [os.path.join(REPO, ".claude", "skills", name, "SKILL.md") for name in SKILLS]
     paths += [os.path.join(REPO, ".claude", "agents", name + ".md") for name in AGENTS]
     return paths
+
+
+def github_anchor(heading):
+    """The id GitHub gives a Markdown heading."""
+    text = re.sub(r"[`*_]", "", heading.strip().lower())
+    text = re.sub(r"[^\w\- ]", "", text)
+    return text.replace(" ", "-")
 
 
 def commands():
@@ -218,6 +228,40 @@ class Structure(unittest.TestCase):
                 self.assertIn(topic, shipped[skill], "%s names a missing topic: %s/%s" % (where, skill, topic))
                 seen += 1
         self.assertGreaterEqual(seen, 4)    # the check is really looking at something
+
+    def test_relative_links_resolve(self):
+        """Every relative link in a document points at a file that exists, and at a heading that exists."""
+        link = re.compile(r"\[[^\]]*\]\(([^)\s]+)\)")
+        seen = 0
+        for path in documents():
+            with open(path, "r", encoding="utf-8") as fh:
+                text = fh.read()
+            text = re.sub(r"(?ms)^```.*?^```", "", text)          # code blocks hold no links
+            for target in link.findall(text):
+                if re.match(r"^[a-z]+:", target):
+                    continue                                      # https:, mailto:
+                rel, _, anchor = target.partition("#")
+                where = os.path.relpath(path, REPO)
+                full = os.path.normpath(os.path.join(os.path.dirname(path), rel)) if rel else path
+                self.assertTrue(os.path.exists(full), "%s links to a missing file: %s" % (where, target))
+                if anchor and full.endswith(".md"):
+                    with open(full, "r", encoding="utf-8") as fh:
+                        heads = [github_anchor(h) for h in re.findall(r"(?m)^#{1,6} (.+)$", fh.read())]
+                    self.assertIn(anchor, heads, "%s links to a missing heading: %s" % (where, target))
+                seen += 1
+        self.assertGreater(seen, 60)
+
+    def test_documents_are_listed_in_the_map(self):
+        with open(os.path.join(REPO, "framework", "MAP.md"), "r", encoding="utf-8") as fh:
+            text = fh.read()
+        for path in documents():
+            rel = os.path.relpath(path, REPO).replace(os.sep, "/")
+            if rel.startswith(("docs/", "framework/")) or rel.endswith("SKILL.md") or rel.startswith(".claude/"):
+                continue
+            folder, _, name = rel.rpartition("/")
+            listed = rel in text or (folder and re.search(r"(?m)^%s/.*\n\s+%s\s" % (re.escape(folder), re.escape(name)), text))
+            self.assertTrue(listed, "framework/MAP.md does not list %s" % rel)
+        self.assertIn("docs/", text)
 
     def test_map_lists_every_rule_book(self):
         with open(os.path.join(REPO, "framework", "MAP.md"), "r", encoding="utf-8") as fh:

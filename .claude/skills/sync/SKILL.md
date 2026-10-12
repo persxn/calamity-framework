@@ -21,7 +21,8 @@ Check what is there:
   `git init`, then commit the framework as it stands before any study log
   (`git add -A`, `git commit -m "Calamity framework <version>"`), then add
   the learner's repository as below.
-- **`origin` is the framework's public repository**: the learner's study
+- **`origin` is the framework's public repository**
+  (`https://github.com/persxn/calamity-framework.git`): the learner's study
   log must not be pushed there. Help them create their own repository
   (private unless they want their progress public) and point `origin` at
   it, keeping the framework as `upstream` for updates:

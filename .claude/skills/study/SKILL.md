@@ -61,6 +61,7 @@ a review or a topic already taught, or prints what comes instead:
 | `NEXT: new` | Teach one chunk: the idea in a few sentences, one worked example, one thing for the learner to do. Then `python3 engine/calamity.py ask --topic <key> --taught`, which records the teaching and serves the question. |
 | `NEXT: watch` | Name the next lecture. When the learner has watched it, `python3 engine/calamity.py log <source> <item>`; its test follows. If they would rather carry on with another skill, `ask --skill <other>`. |
 | `NEXT: boss` | Run the boss skill for that skill. |
+| `NEXT: syllabus` | Delegate to the `curriculum-architect` agent ("write the syllabus for `<skill>` for this learner"), then `python3 engine/calamity.py syllabus check <skill>`. |
 | `NEXT: wind-down`, `sleep`, `done` | No new material. Offer what reviews remain, then close. |
 | `NEXT: enroll`, `onboard` | Help them pick a skill (`tree suggest`), or run the onboard skill. |
 

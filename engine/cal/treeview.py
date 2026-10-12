@@ -228,7 +228,14 @@ def suggest(repo: Repo, tree, state, n: int = 5) -> list:
 def suggest_text(repo: Repo, tree, state, n: int = 5, ascii_only: bool = False) -> str:
     picks = suggest(repo, tree, state, n)
     if not picks:
-        return "Nothing new is open to start. Finish an active skill, or add one: tree add ..."
+        lines = ["Nothing else is open to start yet."]
+        for skill_id in state.enrolled_skills()[:4]:
+            waiting = [d.id for d in tree.dependents(skill_id) if state.skill_status(d.id) == "locked"]
+            if waiting:
+                lines.append("  %s unlocks %s%s once it is ready" % (
+                    skill_id, ", ".join(waiting[:6]), " ..." if len(waiting) > 6 else ""))
+        lines.append("Carry on with what is enrolled (the route to a goal: tree path <skill>), or add a skill: tree add ...")
+        return "\n".join(lines)
     out = ["Open to start, best first:"]
     for node, why in picks:
         hours = (", about %dh" % node.est_hours) if node.est_hours else ""

@@ -38,6 +38,8 @@ verifies it, and the one that verifies never sees the key.
 
    The engine compares that answer with the sealed key. A match makes the
    item `verified`. A mismatch rejects it; the checker is not told the key.
+   A whole batch goes in one call:
+   `item verify <item>=<answer> <item>=<answer> ... --by checker`.
 
 3. **Hands-on items** (code, task, open) have a check instead of a key. The
    checker reads it with `item show <item> --check`, builds a reference

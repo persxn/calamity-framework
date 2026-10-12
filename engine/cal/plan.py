@@ -344,6 +344,11 @@ def next_action(repo: Repo, tree, state, when, skill: str | None = None, only: b
         return {"action": "boss", "skill": t["boss_ready"][0], "today": t}
     if cands and not quota_open:
         return {"action": "done", "today": t, "extra": cands[0]["key"]}
+    # an enrolled skill with no topics yet gives nothing to study until its syllabus is written
+    bare = [s for s in state.enrolled_skills() if not tree.nodes[s].topics and tree.nodes[s].kind != "milestone"
+            and (not skill or s == skill)]
+    if bare and not cands:
+        return {"action": "syllabus", "skill": bare[0], "today": t}
     return {"action": "done", "today": t}
 
 
@@ -417,15 +422,30 @@ def next_text(repo: Repo, tree, state, when, action: dict) -> str:
         lines.append("NEXT: wind-down")
         lines.append("New material is paused: the sleep window starts at %s (in %s). Reviews are done."
                      % (s["start"], fmt_minutes(s["minutes_to_sleep"])))
+    elif kind == "syllabus":
+        node = tree.nodes[action["skill"]]
+        lines.append("NEXT: syllabus")
+        lines.append("skill: %s | %s has no syllabus yet, so it has nothing to teach" % (node.id, node.title))
+        lines.append("do: have the curriculum-architect agent write learner/syllabus/%s.md for this learner, "
+                     "then: syllabus check %s" % (node.id, node.id))
     elif kind == "boss":
         lines.append("NEXT: boss")
         lines.append("skill: %s | every topic is solid; the boss test or project is due" % action["skill"])
         lines.append("do: boss status %s" % action["skill"])
     else:
         lines.append("NEXT: done")
-        lines.append("Today's finish line is reached." if t and t["finished"] else "Nothing is due right now.")
+        if t and t["finished"]:
+            lines.append("Today's finish line is reached.")
+        elif t and t["reviews_left"]:
+            later = t["reviews_left"]
+            lines.append("Nothing is due right now; %d more review%s come%s due later today (dash queue shows when)."
+                         % (later, "" if later == 1 else "s", "s" if later == 1 else ""))
+        else:
+            lines.append("Nothing is due right now.")
         if action.get("extra"):
             lines.append("optional: more new material is unlocked (%s), but today's quota is done" % action["extra"])
+        elif t and not t["candidates"] and state.enrolled_skills():
+            lines.append("The enrolled skills have no new topic left to start: see what is open next with: tree suggest")
     if t:
         lines.append(today_line(t))
     return "\n".join(lines)

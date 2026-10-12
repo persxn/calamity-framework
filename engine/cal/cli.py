@@ -1104,7 +1104,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     sp = add("notes", cmd_notes, "Study notes: status, fragment, section, stamp, assemble, pdf.")
     sp.add_argument("action", choices=("status", "fragment", "section", "stamp", "assemble", "pdf"))
-    sp.add_argument("target", nargs="?")
+    sp.add_argument("target", nargs="?", help="a skill, or <skill>/<topic> for fragment and section")
 
     sp = add("stats", cmd_stats, "How the learner works: week, hours, patterns, errors, flags.")
     sp.add_argument("action", nargs="?", default="flags", choices=("flags", "week", "hours", "patterns", "errors"))
@@ -1137,20 +1137,21 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("value", nargs=argparse.REMAINDER, help="the value (the rest of the line)")
     sp.add_argument("--text", action="store_true", help="store the value as one piece of text (allowed anywhere)")
     sp = add("setup", cmd_setup, "Prepare this machine (machine id, folders, optional hook and status line).")
-    sp.add_argument("--machine")
+    sp.add_argument("--machine", help="a name for this computer (default: from its host name)")
     sp.add_argument("--hook", action="store_true", help="install the session-start hook in .claude/settings.local.json")
-    sp.add_argument("--remove-hook", dest="remove_hook", action="store_true")
+    sp.add_argument("--remove-hook", dest="remove_hook", action="store_true", help="take the session-start hook out again")
     sp.add_argument("--statusline", action="store_true", help="show the finish line in Claude Code's status line")
-    sp.add_argument("--remove-statusline", dest="remove_statusline", action="store_true")
+    sp.add_argument("--remove-statusline", dest="remove_statusline", action="store_true",
+                    help="take the status line out again")
     add("doctor", cmd_doctor, "Check that everything is in order.")
     add("rebuild", cmd_rebuild, "Replay the event log and rewrite learner/PROGRESS.md.")
     add("selftest", cmd_selftest, "Run the engine's own tests.")
     add("version", cmd_version, "Print versions.")
     sp = add("remind", cmd_remind, "Reminders: check what is due, or render scheduler files.")
     sp.add_argument("action", choices=("check", "render"))
-    sp.add_argument("--always", action="store_true")
-    sp.add_argument("--times")
-    sp.add_argument("--os", choices=("linux", "darwin", "windows"))
+    sp.add_argument("--always", action="store_true", help="check: say something even when nothing is due")
+    sp.add_argument("--times", help="render: times of day, e.g. 09:00,14:00,21:00 (default: reminders.times)")
+    sp.add_argument("--os", choices=("linux", "darwin", "windows"), help="render: for another system than this one")
     return p
 
 

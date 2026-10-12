@@ -24,7 +24,7 @@ folder once they are stored.
 |---|---|
 | `brief` | The session-start summary. `--hook` is for the SessionStart hook. |
 | `today` | Today's plan: finish line, what is due, what is new, next lecture. |
-| `next [--skill S] [--only]` | The single next action: `onboard`, `enroll`, `sleep`, `review`, `new`, `watch`, `wind-down`, `boss` or `done`. `--skill` draws new material from one skill; `--only` also limits reviews to it. |
+| `next [--skill S] [--only]` | The single next action: `onboard`, `enroll`, `sleep`, `review`, `new`, `watch`, `wind-down`, `boss`, `syllabus` (an enrolled skill has no topics yet) or `done`. `--skill` draws new material from one skill; `--only` also limits reviews to it. |
 | `ask [--topic K [--taught] \| --id ITEM \| --skill S] [--due] [--test T] [--check]` | Serve one verified item without its key and start its timer. With no argument it serves whatever `next` says (a review, or a topic taught already) and otherwise prints the next action; `--due` serves a review only. `--taught` first records that the topic was just taught, as `covered` does. |
 | `answer ITEM --answer "..."` | Record an answer to a multiple-choice (`B`), multiple-select (`A,C`), numeric (`0.42`, `3/8`) or short-text item. The engine grades it and prints the key and solution. |
 | `answer ITEM --result pass\|fail --evidence "..."` | Record a hands-on item (code, task, open) after its check was run. |

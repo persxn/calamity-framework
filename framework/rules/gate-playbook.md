@@ -64,8 +64,10 @@ it cannot be converted to marks by a formula. The strategist:
 
 From then on `gate status` shows two numbers against the target: the last
 mock, and "backed by practice" (subject weight x share of topics tested x
-accuracy on verified answers), which is a floor, not a forecast. `gate mocks`
-shows the trend across mocks.
+accuracy on verified answers). The second measures coverage, not the exam:
+practice is untimed and one topic at a time, so a full mock usually scores
+well below it. Never present it as a predicted score. `gate mocks` shows
+the trend across mocks.
 
 ## Planning backwards
 

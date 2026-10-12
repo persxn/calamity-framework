@@ -16,10 +16,11 @@ shipped files instead of editing them.
    if it does, run the sync skill first.
 
 2. **Where updates come from.** `git remote -v`. The framework should be
-   the remote named `upstream`. If it is missing, ask the learner for the
-   address (or use the argument) and add it:
+   the remote named `upstream`. If it is missing, add the framework's own
+   repository, unless the learner names another (or passes one as the
+   argument):
 
-       git remote add upstream <address>
+       git remote add upstream https://github.com/persxn/calamity-framework.git
 
 3. **Look before merging.**
 

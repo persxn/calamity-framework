@@ -29,7 +29,11 @@ evidence. Stop as soon as the question is answered.
 
 ```
 CLAUDE.md                  what loads every session (imports framework/method.md)
-README.md                  for people: install, first run, daily use
+README.md                  for people: what it is, installation, first session, daily use
+docs/                      guides for people: setup per system, daily use, the three tools, troubleshooting
+CONTRIBUTING.md            for contributors: checks and rules; SECURITY.md: what runs where, reporting
+CHANGELOG.md               what changed in each version (framework/VERSION); LICENSE: MIT
+.github/workflows/         continuous integration: tests on Linux, macOS and Windows
 .claude/
   settings.json            permissions shared by everyone who clones the repo
   settings.local.json      this machine only (session-start hook); never committed
@@ -39,7 +43,8 @@ engine/
   calamity.py              entry point of the CLI
   cal/                     the engine (Python standard library only)
   tests/                   run with: python3 engine/calamity.py selftest
-tools/                     development checks: end-to-end run, fuzzer, sample output, timing (tools/README.md)
+tools/                     development checks: end-to-end run, fuzzer, sample output, timing
+  README.md                what each tool checks and how to run it
 framework/                 shipped with the framework; the same for every learner
   method.md                the method (always in context)
   MAP.md                   this file
@@ -51,6 +56,7 @@ framework/                 shipped with the framework; the same for every learne
   gate/<year>.md           what the organisers published for that year
   notes/preamble.tex       LaTeX preamble for study notes
 learner/                   everything about one learner; this is what they sync
+  README.md                what each folder holds (ships with the framework)
   profile.md               answers from onboarding (keys) and free notes about the learner
   schedule.md              the current day shape, written with the learner (coach skill)
   PROGRESS.md              generated snapshot of progress (never edited by hand)

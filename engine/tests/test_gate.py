@@ -1,10 +1,11 @@
 import json
+import os
 import unittest
 from datetime import datetime, timedelta
 
-from tests.helpers import Case, Sandbox, write
+from tests.helpers import REPO, Case, Sandbox, write
 
-from cal import gateinfo
+from cal import fm, gateinfo
 from cal.store import Repo
 
 
@@ -48,7 +49,8 @@ class GateFacts(unittest.TestCase):
         status = sb.run("gate", "status")
         self.assertIn("CS: 118 days to 2027-02-06 (first exam day; paper date not set)", status)
         self.assertIn("foundation phase", status)
-        self.assertIn("checked 2026-10-11", status)
+        checked = fm.load(os.path.join(REPO, "framework", "gate", "2027.md"))[0]["checked"]
+        self.assertIn("checked %s" % checked, status)                                 # the date the facts were read
         self.assertIn("gate.general-aptitude", status)
         self.assertIn("15.0 ", status)                                                 # official weight: no star
         self.assertIn("8.0*", status)                                                  # a prior weight is starred

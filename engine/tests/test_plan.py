@@ -109,6 +109,42 @@ class FinishLine(Case):
         self.assertEqual(sb.ask("shell/pipes"), first)                                # reuse rather than stall
         sb.run("item", "needs", "--skill", "ghost", expect=2)
 
+    def test_done_says_what_comes_later_today_and_what_to_start(self):
+        sb = Sandbox()
+        self.addCleanup(sb.close)
+        sb.onboard(tracks="dev")
+        sb.run("enroll", "shell")
+        sb.at("2026-03-02T20:00:00+05:30")
+        sb.run("covered", "shell/pipes")
+        sb.item("shell/pipes")
+        sb.do("shell/pipes", hints="1")                 # hard: due again in about a day, tomorrow evening
+        sb.run("profile", "set", "cfg.new_per_day", "0")
+        sb.at("2026-03-03T10:00:00+05:30")
+        nxt = sb.run("next")
+        self.assertIn("NEXT: done", nxt)
+        self.assertIn("Nothing is due right now; 1 more review comes due later today", nxt)
+        sb.run("profile", "unset", "cfg.new_per_day")
+        sb.item("shell/perms")
+        sb.run("covered", "shell/perms")
+        sb.do("shell/perms")                            # every topic of the only enrolled skill has started
+        self.assertIn("no new topic left to start: see what is open next with: tree suggest", sb.run("next"))
+
+    def test_a_skill_without_a_syllabus_is_named_not_skipped(self):
+        sb = Sandbox()
+        self.addCleanup(sb.close)
+        sb.onboard(tracks="dev")
+        sb.run("enroll", "python")                       # a developer skill ships a scope, not topics
+        nxt = sb.run("next")
+        self.assertIn("NEXT: syllabus", nxt)
+        self.assertIn("curriculum-architect agent write learner/syllabus/python.md", nxt)
+        self.assertIn("NEXT: syllabus", sb.run("ask"))
+        self.assertIn("next: syllabus python", sb.run("today"))
+        suggest = sb.run("tree", "suggest")
+        self.assertNotIn("Nothing new is open", suggest)
+        write(sb.path("learner", "syllabus", "python.md"),
+              "---\nskill: python\n---\n\n# Topics\n\n## basics | Basics\nlevel: 1\n- run a script\n")
+        self.assertIn("NEXT: new", sb.run("next"))
+
     def study_next(self, n):
         """Follow `next` for n new topics; return the topics in the order they came."""
         sb, order = self.sb, []
