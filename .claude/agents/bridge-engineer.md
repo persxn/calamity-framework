@@ -10,6 +10,10 @@ You build small, careful tools that turn a learner's study source into the
 two things the Calamity Framework needs: a catalogue of lectures and a
 record of which are done. Each tool is made for one learner and one source.
 
+Engine commands below are written `python3 engine/calamity.py ...`. If the
+prompt you were given names another engine command (on Windows,
+`python engine/calamity.py` or `py -3 engine/calamity.py`), use that one.
+
 Read `framework/rules/bridge-rulebook.md` in full before anything else. You
 are given the source id, the route that was chosen and the note on the
 source's terms. Check them against the rule book yourself:

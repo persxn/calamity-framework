@@ -52,6 +52,12 @@ class TopicState:
         self.slow = 0           # correct answers that took far longer than expected
 
 
+def restorable(it) -> bool:
+    """A disputed item may be verified again only if it was verified before the dispute, or is an
+    official or imported item put on hold because a checker's answer did not match its key."""
+    return bool(it.verify and it.verify.get("ok")) or it.src in ("official", "imported")
+
+
 class SkillState:
     __slots__ = ("enrolled", "mode", "paused", "enrolled_ts", "known", "known_ts", "boss_ok",
                  "boss_tries", "boss_ts", "last_ts", "unenrolled")
@@ -318,10 +324,12 @@ class State:
             events, seen_ids, seen_keys = order_and_dedup(loaded, set(), set())
             for e in events:
                 if e["t"] == "rename":
-                    if e.get("what") == "skill":
-                        self._alias_skill[str(e.get("old"))] = str(e.get("new"))
-                    else:
-                        self._alias_topic[str(e.get("old"))] = str(e.get("new"))
+                    # The later rename wins: renaming back to a name makes it live again (a->b, b->a).
+                    alias = self._alias_skill if e.get("what") == "skill" else self._alias_topic
+                    old, new = str(e.get("old")), str(e.get("new"))
+                    alias.pop(new, None)
+                    if old != new:
+                        alias[old] = new
             self._voided = {str(e.get("attempt")) for e in events if e["t"] == "void"}
             # The kind of a mistake is often worked out after the answer was recorded (`mistake`):
             # the latest classification of an attempt replaces whatever the attempt itself carried.
@@ -355,8 +363,8 @@ class State:
                 return  # a line still being written, or line ends the replay reads differently
         try:
             state = snapshot.encode_state(self)
-        except snapshot.Uncacheable:
-            return
+        except (snapshot.Uncacheable, TypeError, ValueError):
+            return  # something JSON cannot carry back unchanged: no snapshot, replay in full next time
         snapshot.save(self.repo, {
             "format": snapshot.FORMAT, "key": key,
             "files": {name: list(snapshot.consumed(raw)) for name, raw in files},
@@ -524,11 +532,13 @@ class State:
 
     def _on_item_dispute(self, e, dt):
         it = self.item(e["item"])
-        it.status, it.reason = "disputed", e.get("reason")
+        if it.status == "verified":   # a draft or a rejected item is not disputed (older logs may say so)
+            it.status, it.reason = "disputed", e.get("reason")
 
     def _on_item_restore(self, e, dt):
         it = self.item(e["item"])
-        it.status, it.reason = "verified", None
+        if it.status == "disputed" and restorable(it):
+            it.status, it.reason = "verified", None
 
     def _on_placement(self, e, dt):
         skill_id = self.canon_skill(e["skill"])

@@ -7,13 +7,15 @@ disable-model-invocation: true
 
 # Update the framework
 
-The framework lives in `engine/`, `framework/`, `.claude/`, `CLAUDE.md` and
-`README.md`. Everything under `learner/` is the learner's and is never
-changed by an update: their syllabi, tree changes and settings override the
-shipped files instead of editing them.
+The framework lives in `engine/`, `framework/`, `.claude/`, `docs/`,
+`tools/`, `CLAUDE.md` and `README.md`, plus `learner/README.md`. The
+learner's record (everything else under `learner/`) is never changed by an
+update: their syllabi, tree changes and settings override the shipped files
+instead of editing them.
 
-1. **A clean start.** `git status --short` must show nothing uncommitted;
-   if it does, run the sync skill first.
+1. **A clean start.** `git status --short` must show nothing uncommitted.
+   If it does, say so and ask whether to save their progress to their own
+   repository first with the sync skill; do not run it unasked.
 
 2. **Where updates come from.** `git remote -v`. The framework should be
    the remote named `upstream`. If it is missing, add the framework's own
@@ -25,8 +27,9 @@ shipped files instead of editing them.
 3. **Look before merging.**
 
        git fetch upstream --tags
-       cat framework/VERSION
        git show upstream/main:framework/VERSION
+
+   (Read the local `framework/VERSION` with the Read tool.)
        git merge-base HEAD upstream/main
 
    If `git merge-base` prints nothing, this copy began as a downloaded
@@ -39,9 +42,11 @@ shipped files instead of editing them.
    If there is no tag `v<version>`, stop and tell the learner: the update
    then has to be done by hand. Then:
 
-       git diff --stat HEAD...upstream/main -- engine framework .claude CLAUDE.md
+       git diff --stat HEAD...upstream/main
 
-   (Use the framework's default branch if it is not `main`.) Tell the
+   (Use the framework's default branch if it is not `main`.) If anything
+   under `learner/` other than `learner/README.md` would change, stop and
+   tell the learner: an update must never touch their record. Tell the
    learner what changes: versions, which areas, and anything in
    `.claude/settings.json` (permissions) or the engine that they should
    know about before accepting. Read the diff of `.claude/settings.json`

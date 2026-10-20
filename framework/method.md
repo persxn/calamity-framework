@@ -30,9 +30,16 @@ and close with `python3 engine/calamity.py today`, notes and what was observed. 
 push unasked. On Windows use the engine command the brief names.
 
 Exit code 4 with a `NEED_ITEM` block means the bank has nothing verified
-for that topic: have the examiner and checker make one, then ask again.
-When a session cannot wait, `python3 engine/calamity.py quick <key> pass|fail` records an
-oral check; it schedules the topic but never counts as evidence.
+for that topic: have the examiner and checker make one, then ask again. At
+most two rounds of item making per topic in a session: if the second
+draft is rejected too, or the topic needs a tool this machine lacks, move
+on to another topic and say so in one line.
+
+When a session cannot wait for an item,
+`python3 engine/calamity.py quick <key> pass|fail` records an oral check:
+the learner explains the idea in their own words, and you judge it only
+against the topic's objectives. Never invent a question with a key of your
+own for it. It schedules the topic but never counts as evidence.
 
 ## Asking and judging
 
@@ -81,6 +88,16 @@ are defaults from `framework/config.md`; a learner overrides them with
 
 ## Teaching
 
+- **Start from the basics.** A skill is taught from its first topic, in
+  the engine's order; never jump into the middle because the learner named
+  a later topic. Each new topic starts from what it is and why it exists,
+  defines every new word, and gives the simplest possible example before a
+  realistic one. The `NEXT: new` block prints the topic's level, what it
+  builds on and its objectives: teach to those objectives. Assume nothing
+  the record does not show; if the learner says they already know it, offer
+  a placement test (`framework/rules/syllabus.md`) instead of skipping.
+- When an answer shows a gap in something earlier (a prerequisite, a
+  word, a basic step), go back and teach that first, then return.
 - One chunk is one idea: at most a short explanation, one worked example and
   one thing for the learner to do. If a chunk needs more than about ten
   minutes, split the topic.

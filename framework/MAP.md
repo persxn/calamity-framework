@@ -28,7 +28,7 @@ evidence. Stop as soon as the question is answered.
 ## Layout
 
 ```
-CLAUDE.md                  what loads every session (imports framework/method.md)
+CLAUDE.md                  what loads every session: the role, the rules that never bend
 README.md                  for people: what it is, installation, first session, daily use
 docs/                      guides for people: setup per system, daily use, the three tools, troubleshooting
 CONTRIBUTING.md            for contributors: checks and rules; SECURITY.md: what runs where, reporting
@@ -40,13 +40,14 @@ CHANGELOG.md               what changed in each version (framework/VERSION); LIC
   skills/<name>/SKILL.md   the slash commands
   agents/<name>.md         the specialist agents
 engine/
+  CLAUDE.md                guidance for maintainers; loads only when a session works in engine/
   calamity.py              entry point of the CLI
   cal/                     the engine (Python standard library only)
   tests/                   run with: python3 engine/calamity.py selftest
 tools/                     development checks: end-to-end run, fuzzer, sample output, timing
   README.md                what each tool checks and how to run it
 framework/                 shipped with the framework; the same for every learner
-  method.md                the method (always in context)
+  method.md                the method: read by the study, recall, boss, gate and cp skills
   MAP.md                   this file
   config.md                default numbers; a learner overrides with cfg.<key> in the profile
   VERSION

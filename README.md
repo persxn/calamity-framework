@@ -212,14 +212,15 @@ answered today: 0 (0 correct) · active about 1 min
 due now (29): gate.cs.programming-ds/trees, html-css/grid, gate.cs.operating-systems/cpu-scheduling, gate.cs.operating-systems/file-systems, gate.cs.programming-ds/c-programming, typescript/interfaces, gate.cs.programming-ds/recursion, gate.cs.discrete-math/sets-relations ...
 new, in order: gate.cs.programming-ds/binary-search-trees, gate.cs.programming-ds/binary-heaps, gate.cs.programming-ds/graphs, gate.cs.calculus/limits-continuity, gate.cs.calculus/differentiability, gate.cs.calculus/maxima-minima
 next: review gate.cs.programming-ds/trees
+settings: reviews next; suggested /model sonnet, /effort medium (a suggestion, not measured)
 ```
 
 ## Requirements
 
 | You need | Check it with | Notes |
 |---|---|---|
-| [Claude Code](https://code.claude.com/docs/en/setup) and a plan that includes it | `claude --version` | A Pro, Max, Team, Enterprise or Console account; the free claude.ai plan does not include Claude Code. macOS 13+, Windows 10 1809+, Ubuntu 20.04+ or Debian 10+, 4 GB RAM. |
-| Python 3.9 or newer | `python3 --version` (Windows: `py -3 --version`) | Standard library only: nothing to `pip install`. |
+| [Claude Code](https://code.claude.com/docs/en/setup) 2.1.139 or newer, and a plan that includes it | `claude --version` | A Pro, Max, Team, Enterprise or Console account; the free claude.ai plan does not include Claude Code. Claude Code itself runs on macOS 13+, Windows 10 1809+, Ubuntu 20.04+, Debian 10+ or Alpine 3.19+, 4 GB RAM (read 2026-10-20). 2.1.139 added the hook form the session-start hook uses. |
+| Python 3.9 or newer | `python3 --version` (Windows: `py -3 --version`) | Standard library only: nothing to `pip install`. On Linux that means Ubuntu 22.04+ or Debian 11+ for the system Python (older releases ship Python 3.8 or 3.7). |
 | git | `git --version` | To clone the framework and keep your progress in a repository of your own. On Windows, Git for Windows. |
 | Optional: a TeX engine | `tectonic --version` or `pdflatex --version` | Only for PDF notes: Tectonic, TeX Live or MiKTeX. |
 
@@ -435,7 +436,7 @@ reference, with every option, is
 | **This computer** | |
 | `setup` | Prepares this computer; `--hook` and `--statusline` add the optional extras, `--remove-hook` and `--remove-statusline` take them out |
 | `statusline` | The one line shown at the bottom of Claude Code |
-| `remind` | Reminders: `remind check` (is anything due?), `remind render` (writes the scheduler files) |
+| `remind` | Reminders: `remind check` (is anything due?), `remind render` (writes the scheduler files), `remind remove` (how to take them out) |
 | `doctor`, `rebuild`, `selftest`, `version` | Health check; rebuild everything from the log; the engine's own tests; versions |
 
 </details>
@@ -458,6 +459,37 @@ the start and over 45,000 later on. So:
   questions are written and checked.
 - **Say several things at once**: "my name is Sam, I want the MERN stack,
   I sleep at midnight" is one message, not three.
+- **End the session at the finish line.** `today` says so in one line
+  when the day's finish line is reached or a long block is behind you.
+
+### Choosing a model
+
+Only you can change the model (`/model`) and the effort (`/effort`); the
+framework cannot. So the engine prints one line, at no cost, when the kind
+of work changes: in the session brief, in `today` and `next`, and in the
+status line. For example:
+
+```
+settings: reviews next; suggested /model sonnet, /effort medium (a suggestion, not measured)
+```
+
+These are suggestions, not measurements: only Claude Code's default model
+was used in testing, and no models were compared. The starting table, in
+`framework/config.md`:
+
+| Next block | Suggested |
+|---|---|
+| Reviews, the surprise recall, lectures, notes | `sonnet`, `medium` effort |
+| Writing and checking questions, syllabi, GATE and CP plans, boss tests | `opus`, `high` effort |
+| Teaching a new topic | your usual setting |
+
+The examiner and checker agents run on your session's model, so the line
+suggests the stronger setting while the question bank is being stocked
+(at the start of `/study`) and the lighter one for the reviews after it.
+Change the table with `profile set cfg.advice.light "haiku low"` (any
+alias `/model` accepts, then an effort level), and turn the line off with
+`profile set cfg.advice false`. Which models your plan includes is for
+your plan to say, not this framework.
 - **Install the session brief** (`setup --hook`): Claude then starts each
   session knowing where you stand, without running anything to find out.
 
@@ -504,7 +536,7 @@ question by question. It never promises a rank. See [GATE](docs/gate.md).
 `cf link <handle>` and `cf sync` read your public Codeforces record
 through the official API: no password. `cf analyse` finds your weakest
 tags against what your rating calls for, `cf recommend` picks unsolved
-problems 100 to 300 above your rating with the tags hidden, solved problems
+problems about 100 to 300 above your rating (the band is rounded outward to hundreds) with the tags hidden, solved problems
 count as evidence for the skills they exercise, and the `cp-coach` agent
 plans your weeks against your target and says plainly whether the pace
 fits. During a rated contest it gives no help of any kind. See
@@ -526,8 +558,9 @@ fits. During a rated contest it gives no help of any kind. See
   Claude app or claude.ai/code with Claude Code's
   [Remote Control](https://code.claude.com/docs/en/remote-control):
   `/remote-control` in the session. Your computer must stay on, with
-  `claude` running; it needs a Pro, Max, Team or Enterprise plan (read
-  2026-10-12).
+  `claude` running; it needs a Pro, Max, Team or Enterprise plan, and on
+  Team and Enterprise an Owner must first enable the Remote Control toggle
+  (read 2026-10-20).
 
 What it never does:
 
@@ -552,7 +585,7 @@ and removable with one command.
 |---|---|---|
 | **Session brief**: Claude reads where you stand as each session starts | `python3 engine/calamity.py setup --hook` | `python3 engine/calamity.py setup --remove-hook` |
 | **Status line**: the day's numbers at the bottom of Claude Code, such as `CAL · due 29 · new 0/6 · GATE 117d` (from a pretend learner) | `python3 engine/calamity.py setup --statusline` | `python3 engine/calamity.py setup --remove-statusline` |
-| **Reminders**: notifications from your operating system, only when something is due, never in your sleep window | `/remind 09:00,21:00`: Claude saves the times (`profile set reminders.times 09:00,21:00`), runs `remind render`, and shows you the install command | `/remind off`, or the remove command `remind render` prints |
+| **Reminders**: notifications from your operating system, only when something is due, never in your sleep window | `/remind 09:00,21:00`: Claude saves the times (`profile set reminders.times 09:00,21:00`), runs `remind render`, and shows you the install command | `/remind off`, or the command `remind remove` prints |
 | **PDF notes**: one PDF per skill from your notes | install Tectonic, TeX Live or MiKTeX; then `/notes pdf <skill>` | uninstall the TeX engine |
 
 `setup --hook` and `setup --statusline` write `.claude/settings.local.json`;
@@ -605,11 +638,11 @@ an update. It needs your progress saved to your own repository first
    python3 engine/calamity.py setup --remove-hook --remove-statusline
    ```
 
-2. If you installed reminders, remove them with the command `remind render`
-   printed (run it again to see it):
+2. If you installed reminders, print the command that removes them (it
+   needs no times) and run it:
 
    ```bash
-   python3 engine/calamity.py remind render
+   python3 engine/calamity.py remind remove
    ```
 
 3. Keep your progress if you want it: push it with `/sync`, or copy the
@@ -683,7 +716,7 @@ flowchart LR
 
 | Folder | What it holds |
 |---|---|
-| `CLAUDE.md`, `framework/method.md` | What Claude reads every session: its role and the method |
+| `CLAUDE.md`, `framework/method.md` | What Claude reads every session (its role and the rules), and the method, which the study skills read when they run |
 | `.claude/skills/`, `.claude/agents/` | The slash commands and the specialist agents |
 | `framework/` | The skill tree, the rule books, the defaults, the exam facts; `framework/MAP.md` indexes everything |
 | `engine/` | The engine and its tests |

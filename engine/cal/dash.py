@@ -17,7 +17,7 @@ def _rule(width: int, ascii_only: bool) -> str:
 
 
 def header(repo: Repo, tree, state, when, width: int, ascii_only: bool) -> list:
-    name = repo.prof("name", "")
+    name = repo.prof_text("name")
     title = "CALAMITY" + ((" · " + name) if name else "") + " · " + when.strftime("%a %d %b %H:%M")
     lines = [title]
     if not repo.onboarded():
@@ -25,8 +25,9 @@ def header(repo: Repo, tree, state, when, width: int, ascii_only: bool) -> list:
         return lines
     t = plan.today(repo, tree, state, when)
     n = t["n"]
-    rev = (n["due_done"] / float(n["due_total"])) if n["due_total"] else 1.0
-    new = (n["new_done"] / float(t["new_target"])) if t["new_target"] else 1.0
+    # 0/0 is nothing scheduled, not a full day's work done: show an empty bar
+    rev = (n["due_done"] / float(n["due_total"])) if n["due_total"] else 0.0
+    new = (n["new_done"] / float(t["new_target"])) if t["new_target"] else 0.0
     lines.append("reviews %s %d/%d   new %s %d/%d%s" % (
         bar(rev, 10, ascii_only), n["due_done"], n["due_total"], bar(new, 10, ascii_only), n["new_done"], t["new_target"],
         ("   lectures %d/%d" % (t["lectures_done"], t["lecture_target"])) if t["lecture_target"] else ""))
@@ -195,7 +196,7 @@ def week(repo: Repo, tree, state, when, days: int = 7) -> str:
     return stats.week_text(repo, state, when, days) + "\n\n" + stats.hours_text(repo, state, when)
 
 
-def statusline(repo: Repo, tree, state, when) -> str:
+def statusline(repo: Repo, tree, state, when, current=None) -> str:
     if not repo.onboarded():
         return "CAL · not onboarded"
     t = plan.today(repo, tree, state, when)
@@ -210,4 +211,10 @@ def statusline(repo: Repo, tree, state, when) -> str:
     days = [d for d in days if d is not None and d >= 0]
     if days:
         parts.append("GATE %dd" % min(days))
+    if not t["finished"]:
+        from . import advise
+
+        hint = advise.short(repo, plan.next_action(repo, tree, state, when)["action"], current)
+        if hint:
+            parts.append(hint)
     return " · ".join(parts)

@@ -210,7 +210,7 @@ def validate_draft(data, tree) -> dict:
         if isinstance(data.get("difficulty"), bool):
             raise TypeError
         difficulty = int(data.get("difficulty", 2))
-    except (TypeError, ValueError):
+    except (TypeError, ValueError, OverflowError):
         raise CalError("difficulty must be 1..5")
     if not 1 <= difficulty <= 5:
         raise CalError("difficulty must be 1..5")
@@ -227,7 +227,7 @@ def validate_draft(data, tree) -> dict:
         if isinstance(expect, bool):
             raise TypeError
         expect = int(expect)
-    except (TypeError, ValueError):
+    except (TypeError, ValueError, OverflowError):
         raise CalError("expect_s must be a number of seconds")
     if expect <= 0:
         raise CalError("expect_s must be positive")
@@ -279,6 +279,8 @@ def validate_draft(data, tree) -> dict:
     source = data.get("source") or {}
     if isinstance(source, str):
         source = {"kind": source}
+    if not isinstance(source, dict):
+        raise CalError("source must be a kind (generated, official, ...) or {kind, ref, url}")
     src_kind = source.get("kind") or "generated"
     if src_kind not in SOURCE_KINDS:
         raise CalError("source.kind must be one of %s" % ", ".join(SOURCE_KINDS))

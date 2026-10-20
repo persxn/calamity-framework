@@ -24,10 +24,12 @@ def year_data(repo: Repo, year=None) -> dict:
         data = {}
         for base in (os.path.join(repo.framework, "gate"), os.path.join(repo.learner, "gate")):
             path = os.path.join(base, "%s.md" % year)
-            if os.path.isfile(path):
+            raw = repo.read_bytes(path)
+            if raw is not None:
                 try:
-                    meta, _ = fm.load(path)
-                except CalError:
+                    meta, _ = fm.load(repo.rel(path), raw)
+                except CalError as exc:
+                    repo.note_file_problem("%s (its exam facts are ignored)" % exc)
                     continue
                 data.update({k: v for k, v in meta.items() if v is not None})
         cache[year] = data

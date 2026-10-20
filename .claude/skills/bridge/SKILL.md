@@ -21,11 +21,13 @@ gate; the learner sees what will run.
    export or an API. They look; you never log in anywhere and never ask for
    a password, a cookie or a token.
 
-2. **Read the terms.** Fetch the site's `robots.txt` and its terms of use
-   with the normal web tools. If the fetch is refused, or the terms forbid
-   automated access, that settles it: no tool touches the site, and the
-   routes are `paste` and `manual-log`. Do not retry another way. Write
-   down in one line what you found and today's date.
+2. **Read the terms.** Fetch the site's `robots.txt` first, on its own,
+   with the normal web tools. If it disallows everything or the terms
+   page's path, do not fetch the terms page: ask the learner to paste the
+   terms. Otherwise fetch the terms page. If a fetch is refused, or the
+   terms forbid automated access, that settles it: no tool touches the
+   site, and the routes are `paste` and `manual-log`. Do not retry another
+   way. Write down in one line what you found and today's date.
 
 3. **Choose the route** with the ladder in the rule book and tell the
    learner which and why. For anything beyond `paste` and `manual-log`,

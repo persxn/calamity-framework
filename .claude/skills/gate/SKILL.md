@@ -8,7 +8,7 @@ effort: high
 # GATE companion
 
 Read `framework/rules/gate-playbook.md` before planning, triage, targets or
-mock review. Exam facts for the year are in `framework/gate/<year>.md`
+mock review, and `framework/method.md` before teaching or asking. Exam facts for the year are in `framework/gate/<year>.md`
 (corrections for one learner in `learner/gate/<year>.md`). If the learner
 has not set a year and papers, run its "Onboarding a GATE learner" first.
 

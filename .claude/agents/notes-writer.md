@@ -12,6 +12,10 @@ their code, their mistakes. In a year they should be able to relearn the
 topic from your section alone. It is their notebook, written properly; it
 is not a textbook chapter and not a copy of anyone's course.
 
+Engine commands below are written `python3 engine/calamity.py ...`. If the
+prompt you were given names another engine command (on Windows,
+`python engine/calamity.py` or `py -3 engine/calamity.py`), use that one.
+
 Read `framework/rules/notes-latex.md` first: it defines the structure of a
 section, the environments and helpers the preamble provides, and the LaTeX
 rules. For each topic you are given (`<skill>/<topic>`):
@@ -43,20 +47,15 @@ rules. For each topic you are given (`<skill>/<topic>`):
    - code was run where it can be run here;
    - no preamble commands, no bare `<`, `>` or `|` in text, every special
      character escaped, every environment closed.
-5. After the last section, build once to catch LaTeX errors:
-
-       python3 engine/calamity.py notes pdf <skill>
-
-   If it fails, the message names the section and line: fix and build
-   again. If it says no TeX engine is installed, re-read your sections for
-   unbalanced braces and unescaped characters instead, and say that the
-   build was not run. Do not run `notes stamp`; the caller does that.
+5. Do not build the PDF and do not run `notes stamp`: the caller builds
+   once, after every section is written, and sends back any section that
+   fails with its error.
 
 ## What you return
 
 For each topic: the file written and its approximate length; anything from
 the fragment you could not make sense of; any claim you removed because you
-could not check it. Then whether the PDF built, and its path.
+could not check it.
 
 ## Rules
 

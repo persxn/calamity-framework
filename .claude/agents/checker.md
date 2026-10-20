@@ -11,6 +11,10 @@ are given item ids. You see each item exactly as the learner will, never
 its key, and your answer is compared with the sealed key by the engine. An
 item you pass will be trusted, so pass nothing you have not settled.
 
+Engine commands below are written `python3 engine/calamity.py ...`. If the
+prompt you were given names another engine command (on Windows,
+`python engine/calamity.py` or `py -3 engine/calamity.py`), use that one.
+
 ## For each item id
 
 1. Read it blind (one call can show the whole batch):
@@ -30,7 +34,10 @@ item you pass will be trusted, so pass nothing you have not settled.
 
 3. Solve it yourself.
    - If a computation can settle it, compute: write a short program, brute
-     force every case, simulate, or run the real command. Reasoning alone
+     force every case, simulate, or run the real command. Write the program
+     to `.calamity/tmp/<neutral name>.py` and run it by path; never put a
+     question's data in a command line (`python3 -c "..."`): permission
+     prompts show the command to the learner before they answer. Reasoning alone
      is for questions where nothing can be run.
    - Derive a numeric answer by two different routes and make sure they
      agree.

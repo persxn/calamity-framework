@@ -23,7 +23,9 @@ def call(sb, *args, stdin=None, env=None):
     full.update(env or {})
     proc = subprocess.run([sys.executable, SCRIPT] + list(args), input=stdin, stdout=subprocess.PIPE,
                           stderr=subprocess.PIPE, env=full, cwd=sb.root, timeout=120)
-    return proc.returncode, proc.stdout.decode("utf-8"), proc.stderr.decode("utf-8")
+    # A text-mode child on Windows writes "\r\n"; compare text, not line endings.
+    return (proc.returncode, proc.stdout.decode("utf-8").replace("\r\n", "\n"),
+            proc.stderr.decode("utf-8").replace("\r\n", "\n"))
 
 
 class DamagedData(Case):

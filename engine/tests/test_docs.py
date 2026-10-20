@@ -29,6 +29,7 @@ AGENTS = ("bridge-engineer", "checker", "cp-coach", "curriculum-architect", "exa
 def documents():
     paths = [os.path.join(REPO, name) for name in ("CLAUDE.md", "README.md", "CONTRIBUTING.md", "SECURITY.md",
                                                    "CHANGELOG.md")]
+    paths += [os.path.join(REPO, "engine", "CLAUDE.md")]
     paths += [os.path.join(REPO, "learner", "README.md"), os.path.join(REPO, "tools", "README.md")]
     docs = os.path.join(REPO, "docs")
     paths += [os.path.join(docs, name) for name in sorted(os.listdir(docs)) if name.endswith(".md")]
@@ -185,10 +186,21 @@ class Structure(unittest.TestCase):
             text = fh.read()
         for name in SKILLS + AGENTS:
             self.assertIn("`%s`" % name, text, "CLAUDE.md does not mention %s" % name)
-        self.assertIn("@framework/method.md", text)
-        self.assertLess(text.count("\n"), 120)
+        # The method loads on demand (the skills that need it read it), not into every session.
+        self.assertNotIn("@framework/method.md", text)
+        self.assertLess(len(text), 5200, "CLAUDE.md loads into every session: keep it short")
         with open(os.path.join(REPO, "framework", "method.md"), "r", encoding="utf-8") as fh:
             self.assertLess(fh.read().count("\n"), 160)
+
+    def test_skills_and_agents_name_the_rule_books_they_need(self):
+        for name in ("study", "recall", "boss", "gate", "cp"):
+            with open(os.path.join(REPO, ".claude", "skills", name, "SKILL.md"), "r", encoding="utf-8") as fh:
+                self.assertIn("framework/method.md", fh.read(), "the %s skill must read the method" % name)
+        for path in documents():
+            with open(path, "r", encoding="utf-8") as fh:
+                text = fh.read()
+            for rel in set(re.findall(r"framework/(?:rules/[a-z-]+|method)\.md", text)):
+                self.assertTrue(os.path.isfile(os.path.join(REPO, *rel.split("/"))), "%s names %s" % (path, rel))
 
     def test_agents_named_in_documents_exist(self):
         agents = set(AGENTS)

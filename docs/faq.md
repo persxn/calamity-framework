@@ -91,8 +91,8 @@ It never stores passwords or cookies and never copies course content. See
 ## How do I update it?
 
 `/update-framework`. It shows you what changed (including any change to
-permissions or hooks) before merging, and never touches your `learner/`
-folder.
+permissions or hooks) before merging. Your record in `learner/` is never
+changed; save your progress to your own repository first (`/sync`).
 
 ## How do I remove it?
 

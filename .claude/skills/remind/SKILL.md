@@ -43,8 +43,11 @@ entries.
 
 ## Remove
 
-Run the remove command that `remind render` printed (run `remind render`
-again to see it), with the learner's agreement.
+    python3 engine/calamity.py remind remove
+
+prints the command that removes this folder's reminders (no times needed;
+other clones' reminders are left alone). Run it with the learner's
+agreement.
 
 ## Notes
 
@@ -55,5 +58,8 @@ again to see it), with the learner's agreement.
   `.calamity/reminders/` with the execution policy bypassed for that script
   only. Tell the learner before installing.
 - If the repository is moved to another folder, render and install again:
-  the scheduler entries hold absolute paths.
+  the scheduler entries hold absolute paths and a tag of the folder.
+- macOS: if the folder is under Documents, Desktop, Downloads or iCloud
+  Drive, privacy protection may stop launchd from running the script; say
+  so before installing.
 - A second laptop needs its own setup.

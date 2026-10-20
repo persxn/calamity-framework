@@ -49,6 +49,12 @@ cp.band_lookahead: 200       # with a linked handle, a topic banded more than th
 
 # --- coach
 coach.cooldown_days: 3       # a behaviour pattern is not raised again for this long
+
+# --- model and effort suggestions: judgement, not measured (README, "Choosing a model")
+advice: true                 # print a suggested /model and /effort when the kind of work changes
+advice.light: sonnet medium  # reviews, the surprise recall, lectures, notes, habit work
+advice.heavy: opus high      # writing and checking items, syllabi, GATE and CP plans, boss tests
+advice.teach: ""             # teaching a new topic: empty keeps the learner's usual setting
 ---
 
 # Defaults

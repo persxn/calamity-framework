@@ -54,7 +54,8 @@ it cannot be converted to marks by a formula. The strategist:
    was obtained;
 2. takes the highest of those, adds a margin, and proposes it as the target
    in marks;
-3. records it with its basis:
+3. returns it with its basis, as commands the tutor runs once the learner
+   agrees (the strategist itself changes no settings):
 
        python3 engine/calamity.py profile set gate.target_marks.CS 72
        python3 engine/calamity.py profile set gate.target_source --text "rank 1000 needed about N marks in 2024-2026 (sources: ...); +5 margin; read 2026-10-11"

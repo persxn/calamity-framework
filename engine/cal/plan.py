@@ -358,6 +358,38 @@ def next_action(repo: Repo, tree, state, when, skill: str | None = None, only: b
     return {"action": "done", "today": t}
 
 
+def _begun(state, key: str) -> bool:
+    ts = state.topics.get(key)
+    return ts is not None and (ts.card is not None or ts.covered_ts is not None)
+
+
+def unmet_needs(tree, state, topic) -> list:
+    """Topics this one builds on that the learner has not studied yet."""
+    keys = [need if "/" in need else "%s/%s" % (topic.skill, need) for need in topic.needs]
+    return [k for k in keys if tree.has_topic(k) and not _begun(state, k)]
+
+
+def teaching_lines(tree, state, topic) -> list:
+    """What the tutor needs to teach a topic from the right starting point, without reading the
+    syllabus: its level, what it builds on, its objectives, and where to start."""
+    node = tree.nodes.get(topic.skill)
+    first = node is not None and not any(_begun(state, t.key) for t in node.topics)
+    lines = ["level: %d of 5%s" % (topic.level, (" · the first topic of %s for this learner" % topic.skill) if first else "")]
+    if topic.needs:
+        lines.append("builds on: %s" % ", ".join(topic.needs))
+    goals = [ln.strip()[2:].strip() for ln in topic.body.split("\n") if ln.strip().startswith(("- ", "* "))]
+    if goals:
+        text = "; ".join(goals[:4])
+        lines.append("objectives: %s" % (text if len(text) <= 300 else text[:297].rstrip() + "..."))
+    if first or topic.level <= 1:
+        lines.append("start from zero: what it is and why it exists, every new word defined, the simplest possible "
+                     "example before a realistic one; assume nothing this learner has not shown here")
+    else:
+        lines.append("start from what it builds on (one line linking back), then the new idea; if the learner "
+                     "looks lost, step back to the basics before testing")
+    return lines
+
+
 def action_label(action: dict) -> str:
     """The next action in a few words: 'review docker/images', 'watch course os-04', 'done'."""
     label = action["action"]
@@ -407,6 +439,7 @@ def next_text(repo: Repo, tree, state, when, action: dict) -> str:
             lines.append("do: ask --topic %s   (taught already, not tested yet: test it now; teach again only what "
                          "the answer exposes)" % key)
         else:
+            lines.extend(teaching_lines(tree, state, topic))
             lines.append("do: teach one small chunk, then: ask --topic %s --taught   (records the teaching and serves "
                          "the question)" % key)
     elif kind == "watch":
@@ -453,6 +486,11 @@ def next_text(repo: Repo, tree, state, when, action: dict) -> str:
             lines.append("optional: more new material is unlocked (%s), but today's quota is done" % action["extra"])
         elif t and not t["candidates"] and state.enrolled_skills():
             lines.append("The enrolled skills have no new topic left to start: see what is open next with: tree suggest")
+    from . import advise
+
+    hint = advise.line(repo, kind)
+    if hint:
+        lines.append(hint)
     if t:
         lines.append(today_line(t))
     return "\n".join(lines)
@@ -515,7 +553,7 @@ def weave_text(repo: Repo, tree, state, when, skill_id: str, n: int | None = Non
 # ---------------------------------------------------------------- brief
 
 
-def brief(repo: Repo, tree, state, when, engine_cmd: str = "") -> str:
+def brief(repo: Repo, tree, state, when, engine_cmd: str = "", current=None) -> str:
     """The session-start summary. Facts only; instructions live in CLAUDE.md."""
     out = ["=== CALAMITY BRIEF ==="]
     stamp = when.strftime("%a %Y-%m-%d %H:%M %z")
@@ -527,7 +565,7 @@ def brief(repo: Repo, tree, state, when, engine_cmd: str = "") -> str:
         out.append("=== END BRIEF ===")
         return "\n".join(out)
 
-    name = repo.prof("name", "the learner")
+    name = repo.prof_text("name", "the learner")
     tracks = ", ".join(csv_list(repo.prof("tracks"))) or "none chosen"
     out.append("Learner: %s · tracks: %s · default mode: %s" % (name, tracks, repo.prof("mode.default", "mastery")))
     style = repo.prof("teach.style")
@@ -578,7 +616,19 @@ def brief(repo: Repo, tree, state, when, engine_cmd: str = "") -> str:
     else:
         out.append("Active skills: none enrolled.")
 
-    out.append("Next action: %s" % action_label(next_action(repo, tree, state, when)))
+    action = next_action(repo, tree, state, when)
+    out.append("Next action: %s" % action_label(action))
+    from . import advise
+
+    if advise.enabled(repo):
+        from .session import needed_topics
+
+        # Agents inherit the session's model: when the bank needs stocking, that comes first.
+        stock = bool(needed_topics(repo, tree, state, when, n=4))
+        hint = advise.line(repo, "stock" if stock else action["action"], current,
+                           then=action["action"] if stock else None)
+        if hint:
+            out.append(hint[0].upper() + hint[1:])
 
     from . import stats
 
@@ -602,6 +652,8 @@ def brief(repo: Repo, tree, state, when, engine_cmd: str = "") -> str:
         out.append("Data notes: %d event line(s) could not be read (see doctor)." % len(repo.event_errors))
     if repo.config_errors:
         out.append("Data notes: %d configuration override(s) ignored (see doctor)." % len(repo.config_errors))
+    for problem in repo.file_problems[:2]:
+        out.append("Data notes: %s." % problem.rstrip("."))
     tree_errors, _ = tree.check()
     if tree_errors:
         out.append("Data notes: the skill tree has %d error(s) (see tree check)." % len(tree_errors))

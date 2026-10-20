@@ -32,3 +32,6 @@ Rules:
   `python3 engine/calamity.py rebuild`.
 - If the Codeforces board says nothing is cached on this machine, run
   `python3 engine/calamity.py cf sync` first.
+- The first time the learner uses this in a session, add one line: every
+  view here runs in a terminal at no cost (the same command; see "Free
+  views" in `docs/daily-use.md`).

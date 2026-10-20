@@ -2,7 +2,7 @@
 
 All notable changes to the Calamity Framework. The version is in
 `framework/VERSION`; learners update with `/update-framework`, which never
-touches their data.
+changes their record in `learner/`.
 
 ## 1.0.0 (2026-10-12)
 
@@ -56,6 +56,33 @@ The first public release.
   pages.
 - Optional session-start hook, status line and operating-system reminders,
   installed only when asked and removable with one command.
+
+### Review fixes and additions before release
+
+- Teaching starts from the basics: `NEXT: new` prints the topic's level,
+  what it builds on, its objectives and where to start (from zero for a
+  skill's first topic); `ask --taught` notes topics taught out of order;
+  the method, the study skill and the syllabus rules say so.
+- A suggested `/model` and `/effort` for the next block, one line from the
+  engine at no model cost (brief, `today`, `next`, `item needs`, status
+  line); judgement, not measured; `cfg.advice.*` overrides, `cfg.advice
+  false` turns it off.
+- Fewer tokens: `CLAUDE.md` no longer imports the method (the study,
+  recall, boss, gate and cp skills read it); maintainer notes in
+  `engine/CLAUDE.md`; `/today` makes one call; Codeforces sync once per
+  session; the PDF is built once; `today` suggests a fresh session at the
+  finish line.
+- Engine: a torn character in a log line costs that line only; dispute and
+  restore follow an item's history; renamed topics answer and rename back
+  correctly; bad ids, offset-less times, damaged snapshots, non-UTF-8
+  learner files and odd profile values give messages, not tracebacks; the
+  snapshot key matches the bytes replayed; the write lock gives up after 15
+  seconds on every system; the examiner never verifies.
+- Reminders: `remind remove` (no times needed), a per-clone tag, Windows
+  tasks that run on battery and catch up, PowerShell scripts with a BOM,
+  ASCII-only `.cmd` files, `mkdir -p ~/Library/LaunchAgents` on macOS.
+- Windows: the engine command is test-run before it is named; the status
+  line uses short paths when a path has spaces.
 
 ### Development
 

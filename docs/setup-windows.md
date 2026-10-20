@@ -17,7 +17,7 @@ Microsoft Store instead of Python.
 | A Claude account with Claude Code | `claude --version` (after step 2) | Claude Code needs a Pro, Max, Team, Enterprise or Console account; the free claude.ai plan does not include it. |
 | Windows 10 1809 or newer | `winver` | 4 GB RAM or more. |
 | Python 3.9 or newer | `py -3 --version` or `python --version` | Nothing else to install: the engine uses the standard library only. |
-| Git for Windows | `git --version` | To clone the framework and keep your progress in a repository of your own. It also gives Claude Code its Bash tool; without it, Claude Code uses PowerShell, which works as well. |
+| Git for Windows | `git --version` | To clone the framework and keep your progress in a repository of your own. It also gives Claude Code its Bash tool; without it, Claude Code falls back to its PowerShell tool. The engine commands are pre-approved for both, but Windows sessions have not been tried yet. |
 | Optional: a TeX engine | `pdflatex --version` (MiKTeX) | Only for PDF notes. |
 
 Install what is missing, in PowerShell:

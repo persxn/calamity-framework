@@ -105,13 +105,8 @@ def unseen_stock(state, key: str) -> int:
     return sum(1 for it in items.candidates(state, key) if it.n_shown == 0)
 
 
-def needs_text(repo: Repo, tree, state, when, skill: str | None = None, n: int = 6, full: bool = False) -> str:
-    """The upcoming topics that have no unseen verified item: the examiner's work list.
-
-    The tutor only needs to know whether there is work and for which topics; the examiner reads
-    the details (objectives, difficulty, format, topics to weave in) with `full`."""
-    if skill:
-        tree.get(skill)
+def needed_topics(repo: Repo, tree, state, when, skill: str | None = None, n: int = 6) -> list:
+    """[(topic key, 'review'|'new')] coming up that have no unseen verified item."""
     rows, seen = [], set()
 
     def add(key, purpose):
@@ -127,14 +122,30 @@ def needs_text(repo: Repo, tree, state, when, skill: str | None = None, n: int =
             add(key, "review")
     for cand in plan.new_candidates(repo, tree, state, when, skill=skill, limit=max(n, 4) + 4, lookahead=True):
         add(cand["key"], "new")
+    return rows
+
+
+def needs_text(repo: Repo, tree, state, when, skill: str | None = None, n: int = 6, full: bool = False) -> str:
+    """The upcoming topics that have no unseen verified item: the examiner's work list.
+
+    The tutor only needs to know whether there is work and for which topics; the examiner reads
+    the details (objectives, difficulty, format, topics to weave in) with `full`."""
+    if skill:
+        tree.get(skill)
+    rows = needed_topics(repo, tree, state, when, skill, n)
     if not rows:
         return "ITEMS: stocked\nEvery topic coming up%s has an unseen verified item." % (
             (" in %s" % skill) if skill else "")
     out = ["ITEMS NEEDED: %d topic(s)%s (showing %d)" % (len(rows), (" in %s" % skill) if skill else "", min(n, len(rows)))]
     if not full:
+        from . import advise
+
         out.extend("  %s (%s)" % (key, purpose) for key, purpose in rows[:n])
         out.append("Ask the examiner agent to stock them: it reads the details with `item needs --full%s` and "
                    "returns item ids for the checker agent." % ((" --skill %s" % skill) if skill else ""))
+        hint = advise.line(repo, "stock", then="review")
+        if hint:
+            out.append(hint)
         return "\n".join(out)
     for key, purpose in rows[:n]:
         out.append("")
@@ -157,19 +168,24 @@ def ask(repo: Repo, tree, state, when, topic: str | None = None, item_id: str | 
     """
     if taught and not topic:
         raise CalError("--taught goes with --topic: the topic that was just taught")
-    purpose = "review"
+    purpose, warn = "review", None
     if item_id:
         item = items.load(repo, item_id)
         st = state.items.get(item_id)
         if st is None or st.status != "verified":
             raise CalError("item %s is %s; only verified items can be asked" % (item_id, st.status if st else "unknown"))
-        key = item["topics"][0]
+        key = (st.topics or [state.canon(item["topics"][0])])[0]
     else:
         if topic:
             key = tree.topic(topic).key
             ts = state.topics.get(key)
             if taught and (ts is None or (ts.covered_ts is None and ts.card is None)):
                 repo.append("covered", topic=key, by="tutor")
+                missing = plan.unmet_needs(tree, state, tree.topic(key))
+                if missing:
+                    warn = ("note: %s builds on %s, not studied yet. If the learner could not follow, teach "
+                            "that first (next --skill %s) rather than testing this." % (key, ", ".join(missing),
+                                                                                     key.split("/", 1)[0]))
         else:
             action = plan.next_action(repo, tree, state, when, skill=skill)
             if due_only and action["action"] != "review":
@@ -195,7 +211,9 @@ def ask(repo: Repo, tree, state, when, topic: str | None = None, item_id: str | 
             raise CalError("test %s is already finished" % test)
         if item["id"] not in t["items"]:
             raise CalError("item %s is not part of test %s" % (item["id"], test))
-    repo.append("shown", when=when, item=item["id"], topic=item["topics"][0], test=test)
+    shown = state.items.get(item["id"])
+    repo.append("shown", when=when, item=item["id"], topic=(shown.topics if shown and shown.topics
+                                                             else [state.canon(item["topics"][0])])[0], test=test)
     text = items.blind_text(item, tree, with_check=show_check)
     text += "\n---\nshow the learner only the text between the dashes (the line above them names the topic)"
     if item["type"] in items.AUTO_TYPES:
@@ -206,6 +224,8 @@ def ask(repo: Repo, tree, state, when, topic: str | None = None, item_id: str | 
                  "   [--hints N] [--err %s]" % (item["id"], "|".join(ERROR_TAGS)))
         if not show_check:
             text += "\njudge it with: item show %s --check" % item["id"]
+    if warn:
+        text += "\n" + warn
     return 0, text
 
 
@@ -297,7 +317,9 @@ def answer(repo: Repo, tree, state, when, item_id: str, raw=None, result: str | 
         raise CalError("item %s is %s; only verified items can be answered" % (item_id, st.status if st else "unknown"))
     if not st.open:
         raise CalError("item %s is not open. Serve it first with: ask --id %s" % (item_id, item_id))
-    for key in item["topics"]:
+    # The topics as replay knows them, so an item written before a `rename topic` still counts.
+    topics = list(st.topics) or [state.canon(k) for k in item["topics"]]
+    for key in topics:
         if not tree.has_topic(key):
             raise CalError("item %s refers to topic %s, which is no longer in the syllabus" % (item_id, key))
     if err and err not in ERROR_TAGS:
@@ -319,7 +341,7 @@ def answer(repo: Repo, tree, state, when, item_id: str, raw=None, result: str | 
     if seconds is None and st.shown_ts is not None:
         elapsed = (when - st.shown_ts).total_seconds()
         seconds = int(elapsed) if 0 <= elapsed <= 7200 else None
-    primary = item["topics"][0]
+    primary = topics[0]
     ts = state.topics.get(primary)
     studied = ts is not None and ts.card is not None
     # "Easy" needs a record to stand on: a topic already answered correctly, or a placement test,
@@ -332,7 +354,7 @@ def answer(repo: Repo, tree, state, when, item_id: str, raw=None, result: str | 
         test = None
     marks = items.marks_for(item, ok)
     credit = _record(
-        repo, tree, state, when, primary, item["topics"], ok, grade, hints, blame,
+        repo, tree, state, when, primary, topics, ok, grade, hints, blame,
         item=item_id, secs=seconds, exp=item.get("expect_s"), slow=slow or None, err=(err if not ok else None),
         note=note, verified=True, marks=marks, test=test, after_reveal=after_reveal or None,
         ans=shown_answer, evidence=evidence, kind=kind,

@@ -107,8 +107,15 @@ def file_lock(path: str, wait: float = LOCK_WAIT):
         else:
             import fcntl
 
-            fcntl.flock(fh.fileno(), fcntl.LOCK_EX)
-            locked = True
+            while not locked:
+                try:
+                    fcntl.flock(fh.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+                    locked = True
+                except OSError:
+                    if time.monotonic() > deadline:
+                        raise CalError("another Calamity command is still writing (lock: %s). Try again; if "
+                                       "nothing else is running, delete that file." % path)
+                    time.sleep(0.02)
         yield
     finally:
         if locked and os.name == "nt":
@@ -122,9 +129,26 @@ def file_lock(path: str, wait: float = LOCK_WAIT):
         fh.close()  # closing the file also releases a flock
 
 
+BAD_UTF8 = "\x00not utf-8"  # stands in for a line that is not UTF-8 (see log_text)
+
+
 def log_text(raw: bytes) -> str:
-    """The text of a log file as Python's text mode reads it (UTF-8, universal newlines)."""
-    return raw.decode("utf-8").replace("\r\n", "\n").replace("\r", "\n")
+    """The text of a log file as Python's text mode reads it (UTF-8, universal newlines).
+
+    A line that is not valid UTF-8 (a write cut off in the middle of a character) is replaced by
+    BAD_UTF8, which parse_event_text reports for that line alone: the rest of the file still counts.
+    """
+    try:
+        text = raw.decode("utf-8")
+    except UnicodeDecodeError:
+        lines = []
+        for line in raw.split(b"\n"):
+            try:
+                lines.append(line.decode("utf-8"))
+            except UnicodeDecodeError:
+                lines.append(BAD_UTF8)
+        text = "\n".join(lines)
+    return text.replace("\r\n", "\n").replace("\r", "\n")
 
 
 def parse_event_text(name: str, text: str, first_line: int = 1):
@@ -134,6 +158,9 @@ def parse_event_text(name: str, text: str, first_line: int = 1):
     for n, raw in enumerate(text.split("\n"), first_line):
         raw = raw.strip()
         if not raw:
+            continue
+        if raw == BAD_UTF8:
+            problems.append((name, n, "not valid UTF-8 (a write was cut off?); this line is skipped"))
             continue
         if raw.startswith(("<<<<<<<", "=======", ">>>>>>>")):
             problems.append((name, n, "git conflict marker (resolve by keeping both sides)"))
@@ -146,9 +173,9 @@ def parse_event_text(name: str, text: str, first_line: int = 1):
         problem = check_event(event)
         if problem is None:
             try:
-                event["_dt"] = parse_ts(event["ts"])
-            except (ValueError, TypeError):
-                problem = "'ts' is not a timestamp"
+                event["_dt"] = parse_ts(event["ts"], naive_ok=False)
+            except (ValueError, TypeError) as exc:
+                problem = "'ts' is not a timestamp with a UTC offset" if "offset" in str(exc) else "'ts' is not a timestamp"
         if problem is not None:
             problems.append((name, n, "not a valid event (%s)" % problem))
             continue
@@ -194,7 +221,13 @@ def check_event(event) -> str | None:
             return "'%s' is not a string" % field
     if "q" in event and (not isinstance(event["q"], int) or isinstance(event["q"], bool)):
         return "'q' is not an integer"
+    for field in ID_FIELDS:
+        if field in event and not isinstance(event[field], str):
+            return "'%s' is not a string" % field
     return None
+
+
+ID_FIELDS = ("item", "topic", "skill", "attempt", "test", "problem")  # always text when the engine writes them
 
 
 def read_text(path: str) -> str:
@@ -232,6 +265,9 @@ class Repo:
         self._events = None
         self.event_errors = []
         self.config_errors = []
+        self.file_problems = []  # learner files that could not be read as they are (doctor, brief)
+        self.profile_problem = None
+        self._raw = {}  # bytes of the files read during this command, so the snapshot key matches them
         self.memo = {}  # files parsed during this command (sources, exam facts); cleared by invalidate()
 
     # ------------------------------------------------------------ paths
@@ -259,12 +295,29 @@ class Repo:
 
     # ------------------------------------------------------------ config
 
+    def read_bytes(self, path: str):
+        """A file's bytes, read once per command (None if it does not exist). The snapshot key is
+        hashed from these same bytes, so a file changed by another command halfway through this one
+        cannot give the snapshot a key that does not match what was replayed."""
+        if path not in self._raw:
+            try:
+                with open(path, "rb") as fh:
+                    self._raw[path] = fh.read()
+            except OSError:
+                self._raw[path] = None
+        return self._raw[path]
+
+    def note_file_problem(self, text: str) -> None:
+        if text not in self.file_problems:
+            self.file_problems.append(text)
+
     def config_defaults(self) -> dict:
         """framework/config.md as shipped, before the learner's overrides."""
         path = os.path.join(self.framework, "config.md")
-        if not os.path.isfile(path):
+        raw = self.read_bytes(path)
+        if raw is None:
             return {}
-        meta, _ = fm.load(path)
+        meta, _ = fm.load(path, raw)
         return meta
 
     def config(self) -> dict:
@@ -293,11 +346,27 @@ class Repo:
 
     def profile(self) -> dict:
         if self._profile is None:
-            if os.path.isfile(self.profile_path):
-                self._profile, self._profile_body = fm.load(self.profile_path)
-            else:
+            self._raw.pop(self.profile_path, None)
+            raw = self.read_bytes(self.profile_path)
+            self.profile_problem = None
+            if raw is None:
                 self._profile, self._profile_body = {}, ""
+            else:
+                try:
+                    fm.decode(raw, self.rel(self.profile_path))
+                except CalError as exc:
+                    # Read it as well as it can be read, say so, and never write over it (save_profile).
+                    self.profile_problem = str(exc)
+                    self.note_file_problem(self.profile_problem)
+                self._profile, self._profile_body = fm.load(self.profile_path, raw, lenient=True)
         return self._profile
+
+    def prof_text(self, key: str, default: str = "") -> str:
+        """A profile value meant as text (a name), whatever the file holds: never a list or a flag."""
+        value = self.prof(key)
+        if isinstance(value, bool) or value is None or isinstance(value, (list, dict)):
+            return default
+        return str(value)
 
     def prof(self, key: str, default=None):
         value = self.profile().get(key, default)
@@ -308,6 +377,9 @@ class Repo:
 
     def save_profile(self, meta: dict) -> None:
         self.profile()
+        if self.profile_problem:
+            raise CalError("%s. Nothing was changed: the engine does not write over a file it cannot read "
+                           "exactly." % self.profile_problem)
         body = self._profile_body or (
             "# Notes about this learner\n\n"
             "Free-form notes on what helps this learner. The tutor reads this file;\n"
@@ -315,7 +387,9 @@ class Repo:
         )
         ordered = dict(sorted(meta.items()))
         os.makedirs(self.learner, exist_ok=True)
-        write_text(self.profile_path, fm.dump(ordered, body).rstrip("\n") + "\n")
+        text = fm.dump(ordered, body).rstrip("\n") + "\n"
+        write_text(self.profile_path, text)
+        self._raw[self.profile_path] = text.encode("utf-8")
         self._profile, self._profile_body, self._config = ordered, body, None
         self.memo = {}
 
@@ -449,6 +523,7 @@ class Repo:
         self._events = None
         self._profile = None
         self._config = None
+        self._raw = {}
         self.memo = {}
 
     # ------------------------------------------------------------ misc

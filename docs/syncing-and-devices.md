@@ -67,8 +67,9 @@ computer from the Claude app (iOS, Android) or from claude.ai/code in a
 browser. Start it with `/remote-control` in a running session, or start a
 session with `claude --remote-control`. Your computer must stay on, with
 that `claude` process running: the session, and the engine, run there. It
-needs a Pro, Max, Team or Enterprise plan (not an API key). Facts from
-https://code.claude.com/docs/en/remote-control, read 2026-10-12.
+needs a Pro, Max, Team or Enterprise plan (not an API key); on Team and
+Enterprise, an Owner must first enable the Remote Control toggle. Facts
+from https://code.claude.com/docs/en/remote-control, read 2026-10-20.
 
 On a narrow screen, dashboards fit better with `--width 60`: ask for
 "the dashboard, narrow".

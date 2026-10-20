@@ -77,7 +77,7 @@ synced 10h ago
 
 ## Practice sets
 
-`cf recommend` picks unsolved problems rated 100 to 300 above your rating,
+`cf recommend` picks unsolved problems rated about 100 to 300 above your rating (rounded outward to hundreds),
 weighted toward your weak tags, with the tags **hidden**: recognising the
 technique is part of the practice.
 

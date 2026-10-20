@@ -8,7 +8,8 @@ effort: high
 # Boss
 
 A boss comes up when every topic of a skill is solid. Passing it is the
-last step to mastery, and it is what unlocks a capstone.
+last step to mastery, and it is what unlocks a capstone. How to ask and
+judge is in `framework/method.md`; read it if it is not in context yet.
 
     python3 engine/calamity.py boss status            # which are due
     python3 engine/calamity.py boss status <skill>    # one specification
@@ -50,7 +51,9 @@ A timed mixed test of the skill stands in.
   agent, the new ids to the `checker` agent, then build again.
 - Exam conditions: no hints, no feedback between questions. For each item
   in order: `python3 engine/calamity.py ask --id <item> --test <test>`,
-  then `python3 engine/calamity.py answer <item> --answer "..."`. A skipped
+  then `python3 engine/calamity.py answer <item> --answer "..."`; for a
+  code, task or open item, run its check (`item show <item> --check`) and
+  record `answer <item> --result pass|fail --evidence "..."`. A skipped
   question is simply not answered.
 - When they finish or time is up: `python3 engine/calamity.py test finish <test>`.
   It prints the score (with GATE marking where it applies) and the

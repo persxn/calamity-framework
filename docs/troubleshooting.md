@@ -41,9 +41,10 @@ Windows use `python engine/calamity.py doctor` or `py -3 engine/calamity.py doct
 | Symptom | Cause and fix |
 |---|---|
 | `doctor` FAIL: event lines could not be read | A line in `learner/events/` is damaged (an editor, a merge conflict marker). The engine skips it and reports where it is. If it came from a merge, keep both sides of the conflict: every line is one event. |
-| A merge conflict in `learner/PROGRESS.md` | It is a generated snapshot: take either side, then `python3 engine/calamity.py rebuild` rewrites it. |
+| `learner/PROGRESS.md` looks garbled after a merge | Git merges it line by line (`merge=union`), so both sides end up in it. It is a generated snapshot: `python3 engine/calamity.py rebuild` rewrites it. |
 | Two laptops disagree | Sync both (commit, pull, push), then `rebuild` on each: replay gives both the same state. |
-| "another Calamity command is still writing" | Another engine command (often a background agent) held the write lock for over 15 seconds. Try again; if nothing else is running, delete `.calamity/write.lock`. |
+| "another Calamity command is still writing" | Another engine command (often a background agent) held the write lock for over 15 seconds, on any system. Try again; if nothing else is running, delete `.calamity/write.lock`. |
+| A "not UTF-8 text" note for `learner/profile.md` | An editor saved it in another encoding (Windows Notepad's ANSI, for example). The engine reads what it can and changes nothing in that file until it is saved again as UTF-8. |
 | A file "in use" on Windows | An antivirus scan, a sync client or a viewer holds it. The engine retries for a few seconds, then names the file; close the program and run the command again. |
 
 ## Codeforces
@@ -69,6 +70,9 @@ Windows use `python engine/calamity.py doctor` or `py -3 engine/calamity.py doct
 |---|---|
 | No notification on Linux | Install `notify-send` (`libnotify-bin` on Debian or Ubuntu). Check the entry with `crontab -l`. |
 | Reminders stopped after moving the folder | The scheduler holds absolute paths: run `/remind` again in the new place. |
+| No notification on macOS | Check the LaunchAgent with `launchctl list` (its label starts `com.calamity.remind.`). If the folder is under Documents, Desktop, Downloads or iCloud Drive, macOS privacy protection may stop launchd from running the script: a clone elsewhere (for example `~/calamity`) avoids that. |
+| No notification on Windows | Open Task Scheduler: the tasks are named `Calamity Remind <tag> <time>` in the top folder. Run `install.cmd` again after `remind render`; it replaces this folder's tasks. Untested on a real machine so far. |
+| Taking reminders out | `python3 engine/calamity.py remind remove` prints the command for this computer; it needs no times and touches only this folder's reminders. |
 | What would a reminder say now? | `python3 engine/calamity.py remind check --always` |
 
 ## Still stuck

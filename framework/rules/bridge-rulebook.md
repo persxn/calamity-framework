@@ -52,9 +52,11 @@ watch them being watched.
 1. **Ask.** What is the source, its address, and what does the learner's
    account show about progress? Does the site offer an export or an API?
    (They look in their account; you do not log in anywhere.)
-2. **Read the terms.** Fetch the site's robots.txt and terms page with the
-   normal web tools. Record in one line what they allow and the date. If the
-   fetch itself is refused, record that, and treat every automated route as
+2. **Read the terms.** Fetch the site's robots.txt first, on its own, with
+   the normal web tools. If it disallows everything or the terms page's
+   path, do not fetch the terms page: ask the learner to paste it. Otherwise
+   fetch the terms page. Record in one line what they allow and the date. If
+   a fetch is refused, record that, and treat every automated route as
    closed.
 3. **Choose the route** from the ladder and tell the learner why.
 4. **Register the source:**

@@ -22,10 +22,17 @@ folder once they are stored.
 
 | Command | What it does |
 |---|---|
-| `brief` | The session-start summary. `--hook` is for the SessionStart hook. |
-| `today` | Today's plan: finish line, what is due, what is new, next lecture. |
+| `brief` | The session-start summary. `--hook` is for the SessionStart hook (it reads the model and effort Claude Code passes, when it passes them). |
+| `today` | Today's plan: finish line, what is due, what is new, next lecture, the next action, a `settings:` line and, at the finish line or after a long block, a `session:` line suggesting a fresh session. |
 | `next [--skill S] [--only]` | The single next action: `onboard`, `enroll`, `sleep`, `review`, `new`, `watch`, `wind-down`, `boss`, `syllabus` (an enrolled skill has no topics yet) or `done`. `--skill` draws new material from one skill; `--only` also limits reviews to it. |
-| `ask [--topic K [--taught] \| --id ITEM \| --skill S] [--due] [--test T] [--check]` | Serve one verified item without its key and start its timer. With no argument it serves whatever `next` says (a review, or a topic taught already) and otherwise prints the next action; `--due` serves a review only. `--taught` first records that the topic was just taught, as `covered` does. |
+| `ask [--topic K [--taught] \| --id ITEM \| --skill S] [--due] [--test T] [--check]` | Serve one verified item without its key and start its timer. With no argument it serves whatever `next` says (a review, or a topic taught already) and otherwise prints the next action; `--due` serves a review only. `--taught` first records that the topic was just taught, as `covered` does, and adds a `note:` when topics it builds on were never studied. |
+
+`NEXT: new` for a topic to teach also prints its `level`, what it `builds
+on`, its `objectives` and where to start (from zero for a skill's first
+topic or a level-1 topic). `next`, `today`, `item needs` and the brief end
+with a `settings:` line: the suggested `/model` and `/effort` for the next
+block, from `advice.*` in `framework/config.md` (a suggestion, not
+measured; `cfg.advice false` turns it off).
 | `answer ITEM --answer "..."` | Record an answer to a multiple-choice (`B`), multiple-select (`A,C`), numeric (`0.42`, `3/8`) or short-text item. The engine grades it and prints the key and solution. |
 | `answer ITEM --result pass\|fail --evidence "..."` | Record a hands-on item (code, task, open) after its check was run. |
 | | Options for both: `--hints N`, `--err KIND` (when wrong), `--blame K[,K]` (woven items), `--note "..."`, `--seconds N`, `--kind new\|review\|weave\|boss\|placement`. Only `--kind placement` changes anything: in a placement test a miss on a topic never studied schedules nothing, and a right answer does not count as today's new material. |
@@ -63,11 +70,11 @@ cannot show them.
 |---|---|
 | `item needs [--skill S] [--n N] [--full]` | The examiner's work list: upcoming topics with no unseen verified item. `--full` adds each topic's difficulty, format, objectives and topics to embed. |
 | `item draft --file F [--by examiner]` | Store one draft (a JSON object). |
-| `item import --file F [--by examiner] [--official]` | Store a list of drafts. `--official` stores official-paper items with their official keys; like any draft, each needs the checker's blind answer. |
+| `item import --file F [--by examiner] [--official]` | Store a list of drafts (the author is `examiner` unless `--by` says otherwise; the examiner never verifies). `--official` stores official-paper items with their official keys; like any draft, each needs the checker's blind answer. |
 | `item show ITEM [ITEM ...] [--check] [--reveal]` | The item (or several) without its key. `--check` adds the check and rubric of a hands-on item. `--reveal` adds key and solution, only for an item the learner has already answered (never for a draft, an unanswered item or one that is waiting for an answer). |
 | `item verify ITEM --answer "..." --by checker`, `item verify ITEM=ANSWER [ITEM=ANSWER ...] --by checker` | Blind verification of auto-graded items, one or a whole batch: each independent answer must match the sealed key. In a batch every item is checked before anything is recorded. |
 | `item verify ITEM --ran --evidence "..." --by checker` | Verification of a hands-on item: its check was run against a reference solution. `--fail` rejects it. |
-| `item reject ITEM --reason`, `item dispute ITEM --reason`, `item restore ITEM` | Withdraw an item; put a verified item on hold; reinstate a disputed one. |
+| `item reject ITEM --reason`, `item dispute ITEM --reason`, `item restore ITEM` | Withdraw an item; put a verified item on hold (only a verified item can be disputed); reinstate a disputed item that had been verified, or an official or imported item held because a checker's answer did not match. |
 | `item list [--skill S] [--topic K] [--status draft\|verified\|rejected\|disputed]` | The bank. |
 
 ## Study sources
@@ -120,8 +127,8 @@ cannot show them.
 | `workout MINUTES [--note]` | Log a workout. |
 | `stats [flags\|week\|hours\|patterns\|errors] [--days N] [--track T]` | Teaching observations; the last days; accuracy by part of day; behaviour patterns; error log. |
 | `dash [progress\|roadmap\|queue\|gate\|cp\|week\|all] [--track T] [--all-tracks] [--width N] [--ascii]` | Dashboards as plain text. |
-| `statusline` | One line for the Claude Code status line. |
-| `remind check [--always]`, `remind render --times 09:00,20:30 [--os linux\|darwin\|windows]` | Is anything due (for a scheduler); write scheduler files and print how to install them. Nothing is installed by the engine. |
+| `statusline [--stdin]` | One line for the Claude Code status line. With `--stdin` (as `setup --statusline` writes it) it reads the session data Claude Code passes and adds `try <model>·<effort>` when the suggested setting differs from the current one. |
+| `remind check [--always]`, `remind render --times 09:00,20:30 [--os linux\|darwin\|windows]`, `remind remove [--os ...]` | Is anything due (for a scheduler); write scheduler files and print how to install and remove them; print the removal command again (no times needed). Files and task names carry a tag of this clone. Nothing is installed by the engine. |
 | `setup [--machine NAME] [--hook] [--statusline] [--remove-hook] [--remove-statusline]` | Prepare this machine. `--hook` writes the session-start hook and `--statusline` the status line to `.claude/settings.local.json`; the `--remove-` flags take them out again. |
 | `doctor`, `rebuild`, `selftest`, `version` | Health check (it also checks the replay snapshot against a full replay); replay the whole log and rewrite `learner/PROGRESS.md`; run the engine's tests; versions. |
 
@@ -133,7 +140,9 @@ cannot show them.
 `gate.registered`, `gate.target_rank`, `gate.target_marks.<PAPER>`,
 `gate.target_source`, `gate.exam_date.<PAPER>`, `cp.handle`,
 `cp.target_rating`, `cp.target_date`, `cp.language`, and `cfg.<key>` to
-override any default in `framework/config.md`.
+override any default in `framework/config.md` (for example
+`cfg.advice false` to turn off the model suggestions, or
+`cfg.advice.heavy "opus xhigh"`).
 
 - `tracks`: the tracks the learner follows, for example `10x,cp,gate-cs,gate-da`.
 - `goals`: skill ids the learner is heading for, for example `mern-stack,cp.rating-1800`.

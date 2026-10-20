@@ -72,7 +72,11 @@ wait for what it uses without the whole skill depending on the other.
 ## Fitting the learner
 
 - A novice gets finer steps at the start; an experienced learner gets the
-  basics merged into fewer topics and more depth later.
+  basics merged into fewer topics and more depth later. With no evidence
+  either way, write for a novice: the first topic starts from zero at
+  `level: 1`, and no topic assumes a word or step that no earlier topic or
+  mastered prerequisite taught. A placement test, not the syllabus, is how
+  basics get skipped.
 - Emphasise what their goal needs. Someone heading for `mern-stack` learns
   MongoDB through its Node driver; someone heading for data work does not.
 - Use their stated preferences (examples first, theory first, the language

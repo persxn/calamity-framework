@@ -22,7 +22,7 @@ flowchart LR
 
 | Path | What it is |
 |---|---|
-| `CLAUDE.md` | What Claude reads at the start of every session; it imports `framework/method.md`, the method. |
+| `CLAUDE.md` | What Claude reads at the start of every session: the role and the rules that never bend. The method, `framework/method.md`, is read by the study, recall, boss, gate and cp skills when they run, so it costs nothing in a session that does not use it. `engine/CLAUDE.md` is for maintainers and loads only when a session works in `engine/`. |
 | `.claude/skills/` | The sixteen slash commands, each a short procedure. |
 | `.claude/agents/` | Eight specialist agents with their own instructions and context. |
 | `.claude/settings.json` | Permissions: the engine and edits under `learner/` are pre-approved; editing the framework asks first; reading item files and editing the log are denied. |

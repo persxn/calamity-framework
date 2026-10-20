@@ -189,9 +189,24 @@ def parse(text: str, where: str = ""):
     return meta, body
 
 
-def load(path):
-    with open(path, "r", encoding="utf-8") as fh:
-        return parse(fh.read(), where=str(path))
+def decode(raw: bytes, where: str = "", lenient: bool = False) -> str:
+    """UTF-8 text with universal newlines. Text in another encoding (a Windows editor saving
+    cp1252) raises CalError naming the file, or with `lenient` is read with replacement characters."""
+    try:
+        text = raw.decode("utf-8")
+    except UnicodeDecodeError as exc:
+        if not lenient:
+            raise CalError("%s is not UTF-8 text (byte %d); open it in an editor and save it as UTF-8"
+                           % (where or "a file", exc.start))
+        text = raw.decode("utf-8", errors="replace")
+    return text.replace("\r\n", "\n").replace("\r", "\n")
+
+
+def load(path, raw: bytes | None = None, lenient: bool = False):
+    if raw is None:
+        with open(path, "rb") as fh:
+            raw = fh.read()
+    return parse(decode(raw, str(path), lenient), where=str(path))
 
 
 # ------------------------------------------------------------------ dumping

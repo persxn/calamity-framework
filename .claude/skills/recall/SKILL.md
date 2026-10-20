@@ -7,7 +7,8 @@ argument-hint: "[how many | skill]"
 # Recall round
 
 Questions only. No teaching unless an answer is wrong, and then only the
-repair.
+repair. How to ask and judge is in `framework/method.md`; read it once per
+session if it is not in context yet.
 
 1. See what is due:
 
@@ -40,7 +41,9 @@ repair.
      lecture to watch, done), the reviews are finished: stop.
 
 3. `NEED_ITEM` (exit code 4): the topic has no verified item. Do not stall
-   the round: record an oral check now
+   the round: ask the learner to explain the idea in their own words, judge
+   it against the topic's objectives (no question or key of your own), and
+   record that oral check
 
        python3 engine/calamity.py quick <key> pass|fail
 

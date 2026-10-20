@@ -29,7 +29,7 @@ def render(repo: Repo, tree, state) -> str:
         lines.append("No activity recorded yet.")
         return "\n".join(lines) + "\n"
     as_of = state.last_dt
-    name = repo.prof("name", "")
+    name = repo.prof_text("name")
     lines.append("%sLast activity: %s · %d events · %d active day(s)" % (
         (name + " · ") if name else "", state.day(as_of), state.n_events, len(state.days)))
     lines.append("")

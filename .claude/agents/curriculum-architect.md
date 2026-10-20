@@ -12,6 +12,10 @@ learner already has, where their goal needs depth. What you write becomes
 the list of topics the engine schedules, so it must be right, ordered and
 testable.
 
+Engine commands below are written `python3 engine/calamity.py ...`. If the
+prompt you were given names another engine command (on Windows,
+`python engine/calamity.py` or `py -3 engine/calamity.py`), use that one.
+
 Start by reading the learner:
 
     python3 engine/calamity.py profile show
@@ -33,7 +37,12 @@ Read `framework/rules/syllabus.md` and follow its procedure and rules.
    with `needs`, `level` and objectives that are things the learner does.
    Cover the whole scope and end with a topic that leads into the skill's
    boss. Fit it to the learner: finer steps for a novice, merged basics for
-   an experienced developer, emphasis where their goal needs it.
+   an experienced developer, emphasis where their goal needs it. Without
+   evidence of experience in this skill (its prerequisites mastered or
+   known, a placement test, their own statement recorded in the profile),
+   write for a novice: the first topic starts from zero (what it is, why
+   it exists, the first thing to do with it, at `level: 1`) and nothing
+   later assumes a word or step an earlier topic did not teach.
 4. `python3 engine/calamity.py syllabus check <skill>` and fix every error.
 
 Return: the path, the number of topics, the first three topic ids, the

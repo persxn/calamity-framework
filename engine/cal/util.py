@@ -21,8 +21,10 @@ class CalError(Exception):
 # ---------------------------------------------------------------- time
 
 
-def parse_ts(text: str) -> datetime:
-    """Parse an ISO-8601 timestamp. Naive values are taken as local time."""
+def parse_ts(text: str, naive_ok: bool = True) -> datetime:
+    """Parse an ISO-8601 timestamp. Naive values are taken as local time, or refused with
+    `naive_ok=False` (event times: the engine always writes an offset, and replay must not
+    depend on the machine's time zone)."""
     s = str(text).strip()
     if s.endswith("Z") or s.endswith("z"):
         s = s[:-1] + "+00:00"
@@ -30,6 +32,8 @@ def parse_ts(text: str) -> datetime:
         s += "T00:00:00"
     dt = datetime.fromisoformat(s)
     if dt.tzinfo is None:
+        if not naive_ok:
+            raise ValueError("no UTC offset")
         dt = dt.astimezone()
     return dt
 

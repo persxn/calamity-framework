@@ -6,10 +6,11 @@ argument-hint: "[skill or topic]"
 
 # Study session
 
-The engine decides what comes next; you teach, ask, judge and record. How
-to ask and judge is in `framework/method.md` (already in context); this is
-the procedure. Commands are shown for Linux and macOS; on Windows use the
-command the brief names after `engine:`.
+The engine decides what comes next; you teach, ask, judge and record. Read
+`framework/method.md` once at the start of the session: it says how to
+teach, ask and judge; this is the procedure. Commands are shown for Linux
+and macOS; on Windows use the command the brief names after `engine:`, and
+name that command in every prompt you give an agent.
 
 ## 0. Open
 
@@ -25,6 +26,10 @@ command the brief names after `engine:`.
     `python3 engine/calamity.py syllabus check <skill>`.
   - They say they already know it: a placement test, not a debate
     (`framework/rules/syllabus.md`).
+  - They name a topic further along: study its skill from where the
+    engine says (`ask --skill <skill>`), not from that topic. If its
+    earlier topics are new to them, say in one line that you will start
+    there so the named topic makes sense.
 
 ## 1. Stock the item bank, in the background
 
@@ -34,8 +39,13 @@ command the brief names after `engine:`.
 ask the `examiner` agent to stock them ("stock the item bank for
 `<skill>`"; it reads the details itself), then give the ids it returns to
 the `checker` agent to verify blind. For an item the checker rejects, ask
-the examiner for a fresh one. Start step 2 meanwhile with what is already
-verified. Never write an item yourself and never verify one here.
+the examiner for a fresh one, at most twice per topic; then leave that
+topic and say so. Start step 2 meanwhile with what is already verified.
+Never write an item yourself and never verify one here.
+
+The agents run on this session's model. If the output ends with a
+`settings:` line, pass it on in one line (the stronger setting while items
+are written, the lighter one for reviews); the learner decides.
 
 ## 2. Surprise recall
 
@@ -58,7 +68,7 @@ a review or a topic already taught, or prints what comes instead:
 | It prints | Do |
 |---|---|
 | an item | Ask and record it (below). |
-| `NEXT: new` | Teach one chunk: the idea in a few sentences, one worked example, one thing for the learner to do. Then `python3 engine/calamity.py ask --topic <key> --taught`, which records the teaching and serves the question. |
+| `NEXT: new` | Teach one chunk from where the block says to start (its `start from` line, `level`, `builds on` and `objectives`): what the idea is and why it exists, each new word defined, the simplest example, then one worked example and one thing for the learner to do. Then `python3 engine/calamity.py ask --topic <key> --taught`, which records the teaching and serves the question. If it adds a `note:` that earlier topics were never studied, go back to them first. |
 | `NEXT: watch` | Name the next lecture. When the learner has watched it, `python3 engine/calamity.py log <source> <item>`; its test follows. If they would rather carry on with another skill, `ask --skill <other>`. |
 | `NEXT: boss` | Run the boss skill for that skill. |
 | `NEXT: syllabus` | Delegate to the `curriculum-architect` agent ("write the syllabus for `<skill>` for this learner"), then `python3 engine/calamity.py syllabus check <skill>`. |
@@ -82,9 +92,11 @@ said it), record it with `mistake`, and repair the gap in a few lines.
 Only then go on.
 
 **`NEED_ITEM`** (exit code 4): no verified item for that topic yet. Give
-the topic to the examiner, the new id to the checker, then ask again. If
-the learner should not wait, take another topic meanwhile, or record an
-oral check, which schedules the topic but is not evidence:
+the topic to the examiner, the new id to the checker, then ask again (at
+most two rounds; then move on and say so). If the learner should not wait,
+take another topic meanwhile, or record an oral check (they explain the
+idea in their own words, judged against the objectives; no question or key
+of your own), which schedules the topic but is not evidence:
 `python3 engine/calamity.py quick <key> pass|fail`.
 
 **Hints**: three steps (restate, point to the idea, first step), each
@@ -98,7 +110,9 @@ covered, no praise for ordinary answers, no previews of the next topic.
 
     python3 engine/calamity.py today
 
-- Say where the finish line stands in one line.
+- Say where the finish line stands in one line. If `today` prints a
+  `session:` line, pass it on once: a fresh session for the next block
+  costs less per question. Never nag.
 - For each topic taught today, save a notes fragment (notes skill, step 1).
 - If you learnt something about how this learner learns, record it:
   `python3 engine/calamity.py observe "..." --skill <skill>`.

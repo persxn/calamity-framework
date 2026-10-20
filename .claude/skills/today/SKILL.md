@@ -6,9 +6,9 @@ description: "Today's finish line and the single next thing to do: what is due, 
 # Today
 
     python3 engine/calamity.py today
-    python3 engine/calamity.py next
 
-Answer in a few lines, numbers first:
+It ends with a `next:` line, so `next` is not needed as well. Answer in a
+few lines, numbers first:
 
 1. The finish line: reviews done of due, new topics done of the day's
    quota, lectures if they keep a lecture quota, and what is still to go.
@@ -26,4 +26,9 @@ minutes"), order it as the engine does: failed topics, due reviews, then
 new material, and say roughly how far that time goes.
 
 Do not pad it. No motivation speech, no recap of yesterday unless asked.
-Offer to start (`/study` or `/recall`).
+Offer to start (`/study` or `/recall`). Pass on a `settings:` or
+`session:` line in one line if `today` prints one.
+
+The first time the learner uses this in a session, add one line: the same
+view costs nothing in a terminal (`python3 engine/calamity.py today`,
+`dash`, `dash queue`; see "Free views" in `docs/daily-use.md`).

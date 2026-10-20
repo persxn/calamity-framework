@@ -93,7 +93,11 @@ python3 engine/calamity.py remind render
 
 `remind render` writes the files under `.calamity/reminders/` and prints
 two commands: one that installs the reminders and one that removes them
-(crontab on Linux, a LaunchAgent on macOS, Task Scheduler on Windows). The
+(crontab on Linux, a LaunchAgent on macOS, Task Scheduler on Windows).
+`remind remove` prints the removal command again at any time, without
+times. Each clone gets its own tag, so two copies of the framework on one
+computer never touch each other's reminders. On Windows the tasks run on
+battery too and catch up a time missed while the computer was off. The
 engine installs nothing itself: Claude shows you the command and runs it
 when you agree. To see what a reminder would say right now:
 
@@ -110,8 +114,48 @@ python3 engine/calamity.py setup --statusline
 ```
 
 shows the day's numbers at the bottom of Claude Code, for example
-`CAL · due 29 · new 0/6 · GATE 117d` (from a pretend learner). Remove it with
+`CAL · due 29 · new 0/6 · GATE 117d · try sonnet·medium` (from a pretend
+learner). The last part is the suggested model and effort for the next
+block; it disappears when your current setting already fits (see
+[Choosing a model](#choosing-a-model)). Remove the status line with
 `python3 engine/calamity.py setup --remove-statusline`.
+
+## Choosing a model
+
+Only you can change the model (`/model`) and the effort (`/effort`). The
+engine prints one line, at no cost, when the kind of work changes: in the
+brief, in `today` and `next`, and in the status line. These are
+suggestions, not measurements: only Claude Code's default model was used
+in testing, and no models were compared.
+
+| Next block | Suggested |
+|---|---|
+| Reviews, the surprise recall, lectures, notes | `sonnet`, `medium` effort |
+| Writing and checking questions, syllabi, GATE and CP plans, boss tests | `opus`, `high` effort |
+| Teaching a new topic | your usual setting |
+
+The examiner and checker run on your session's model, so while `/study`
+stocks the question bank the line suggests the stronger setting, then the
+lighter one for reviews. Change a row with
+`python3 engine/calamity.py profile set cfg.advice.light "haiku low"`;
+turn the line off with `python3 engine/calamity.py profile set cfg.advice false`.
+
+## Free views
+
+These only show things: they change nothing in your record and use none of
+your Claude plan. Run them in a terminal in the framework folder (Windows:
+`python engine/calamity.py ...` or `py -3 engine/calamity.py ...`).
+
+| Command | Shows |
+|---|---|
+| `python3 engine/calamity.py today` | Today's finish line and the next action |
+| `python3 engine/calamity.py next` | The single next thing to do, and why |
+| `python3 engine/calamity.py dash` | The main dashboard (`dash queue`, `dash roadmap`, `dash week`, `dash gate`, `dash cp`) |
+| `python3 engine/calamity.py tree suggest` | What you could start next |
+| `python3 engine/calamity.py stats week` | The last days: time, reviews, new topics, accuracy |
+| `python3 engine/calamity.py doctor` | A health check that says what to fix |
+
+The full list is in the README, "Views you can run yourself, for free".
 
 ## When you miss days
 

@@ -22,26 +22,50 @@ def _script(repo: Repo) -> str:
     return os.path.join(repo.root, "engine", "calamity.py")
 
 
-def engine_cmd(repo: Repo) -> str:
-    """How to call the engine on this machine, as typed from the repository root."""
+def _machine_json(repo: Repo) -> dict:
     try:
         with open(os.path.join(repo.local, "machine.json"), "r", encoding="utf-8") as fh:
-            cmd = json.load(fh).get("cmd")
-        if cmd:
-            return cmd
+            data = json.load(fh)
+        return data if isinstance(data, dict) else {}
     except (OSError, ValueError):
-        pass
-    return guess_cmd()
+        return {}
+
+
+def engine_cmd(repo: Repo) -> str:
+    """How to call the engine on this machine, as typed from the repository root. Worked out once
+    and kept in .calamity/machine.json, next to the machine id."""
+    cmd = _machine_json(repo).get("cmd")
+    if isinstance(cmd, str) and cmd:
+        return cmd
+    cmd = guess_cmd()
+    try:
+        ident = repo.machine()
+        write_text(os.path.join(repo.local, "machine.json"), json.dumps({"id": ident, "cmd": cmd}) + "\n")
+    except (OSError, CalError):
+        pass  # not cached: worked out again next time
+    return cmd
+
+
+def _works(argv) -> bool:
+    """Whether a Python command really runs here and is 3.9 or newer (a Microsoft Store alias with no
+    Python behind it does not)."""
+    import subprocess
+
+    try:
+        proc = subprocess.run(argv + ["-c", "import sys; print(sys.version_info >= (3, 9))"],
+                              stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, stdin=subprocess.DEVNULL,
+                              timeout=15)
+    except (OSError, subprocess.SubprocessError):
+        return False
+    return proc.returncode == 0 and proc.stdout.strip() == b"True"
 
 
 def guess_cmd() -> str:
     if platform.system().lower().startswith("win"):
-        found = shutil.which("python")
-        try:
-            same = bool(found) and os.path.samefile(found, sys.executable)
-        except OSError:
-            same = False
-        return ("python" if same else "py -3") + " engine/calamity.py"
+        for name, argv in (("python", ["python"]), ("py -3", ["py", "-3"])):
+            if shutil.which(argv[0]) and _works(argv):
+                return name + " engine/calamity.py"
+        return "py -3 engine/calamity.py"   # neither answered: the launcher is the documented default
     return "python3 engine/calamity.py"
 
 
@@ -107,14 +131,30 @@ def remove_hook(repo: Repo) -> str:
     return "session-start hook removed"
 
 
+def _short_path(path: str) -> str:
+    """The 8.3 short form of a Windows path (no spaces), when the file system keeps one."""
+    try:
+        import ctypes
+
+        buf = ctypes.create_unicode_buffer(1024)
+        n = ctypes.windll.kernel32.GetShortPathNameW(path, buf, len(buf))
+        if 0 < n < len(buf):
+            return buf.value
+    except (AttributeError, OSError, ValueError):
+        pass
+    return path
+
+
 def install_statusline(repo: Repo) -> str:
-    python = sys.executable.replace("\\", "/")
-    script = _script(repo).replace("\\", "/")
+    python, script = sys.executable, _script(repo)
     windows = platform.system().lower().startswith("win")
+    if windows:
+        python, script = (_short_path(p) if " " in p else p for p in (python, script))
+    python, script = python.replace("\\", "/"), script.replace("\\", "/")
     if windows and (" " in python or " " in script):
         raise CalError("the status line cannot be set up automatically when the Python or repository path "
-                       "contains spaces on Windows")
-    command = "%s %s statusline" % ((python, script) if windows else (shlex.quote(python), shlex.quote(script)))
+                       "contains spaces on Windows and the drive keeps no short (8.3) name for it")
+    command = "%s %s statusline --stdin" % ((python, script) if windows else (shlex.quote(python), shlex.quote(script)))
     path = _settings_path(repo)
     data = _load_settings(path)
     data["statusLine"] = {"type": "command", "command": command}
@@ -127,7 +167,7 @@ def _our_statusline(data: dict):
     entry = data.get("statusLine")
     if isinstance(entry, dict):
         command = str(entry.get("command", ""))
-        if "calamity.py" in command and command.rstrip().endswith("statusline"):
+        if "calamity.py" in command and command.rstrip().endswith(("statusline", "statusline --stdin")):
             return entry
     return None
 
@@ -205,7 +245,10 @@ def setup(repo: Repo, machine: str | None = None, hook: bool = False, statusline
         state = hook_state(repo)
         lines.append("session-start hook: %s%s" % (state, "" if state == "ok" else " (install with: setup --hook)"))
     if statusline:
-        lines.append(install_statusline(repo))
+        try:
+            lines.append(install_statusline(repo))
+        except CalError as exc:  # the hook above is written either way: say so before the refusal
+            lines.append("status line NOT written: %s" % exc)
     lines.append("learner folders ready under learner/")
     return "\n".join(lines)
 
@@ -245,6 +288,8 @@ def doctor(repo: Repo):
     if repo.config_errors:
         add("WARN", "configuration overrides: %d ignored" % len(repo.config_errors),
             repo.config_errors[0] + "; fix it with profile set cfg.<key> <value> or profile unset cfg.<key>")
+    for problem in repo.file_problems:
+        add("WARN", "learner file not readable as it is", problem)
     files = repo.event_files()
     add("FAIL" if repo.event_errors else "OK", "event log: %d events in %d file(s)" % (state.n_events, len(files)),
         "; ".join(repo.event_errors[:3]))

@@ -19,7 +19,7 @@ import sys
 
 from . import fm, items, plan, session, sources, tree as tree_mod
 from . import profile as profile_rules
-from .state import State
+from .state import State, restorable as state_restorable
 from .store import Repo, read_text
 from .tree import Tree
 from .util import CalError, csv_list, now, term_width, to_ascii, utf8_stdio
@@ -111,7 +111,7 @@ def cmd_brief(c, a):
 
     if a.hook:
         try:
-            src = "manual"
+            src, data = "manual", None
             if not sys.stdin.isatty():
                 src = "startup"
                 try:  # what Claude Code says about the session; anything unexpected is not a reason to fail
@@ -122,7 +122,9 @@ def cmd_brief(c, a):
                     pass
             if c.repo.onboarded():
                 c.repo.append("session", when=c.when, src=src)
-            return 0, plan.brief(c.repo, c.tree, c.state, c.when, machine.engine_cmd(c.repo))
+            # The hook input may name the model and effort (optional fields): the advice line uses them.
+            return 0, plan.brief(c.repo, c.tree, c.state, c.when, machine.engine_cmd(c.repo),
+                                 current=data if isinstance(data, dict) else None)
         except Exception as exc:  # a hook must never break the session
             return 0, ("=== CALAMITY BRIEF ===\nThe brief could not be built (%s: %s).\n"
                        "Run the doctor command to see what is wrong.\n=== END BRIEF ===" % (exc.__class__.__name__, exc))
@@ -147,13 +149,23 @@ def cmd_today(c, a):
         lines.append("next lecture: %s %s | %s" % (src.id, it.id, it.title))
     if t["boss_ready"]:
         lines.append("boss due: %s" % ", ".join(t["boss_ready"]))
+    action = plan.next_action(c.repo, c.tree, c.state, c.when)
     s = t["sleep"]
     if s["set"]:
         if s["inside"]:
             lines.append("inside the sleep window (%s-%s)" % (s["start"], s["end"]))
         elif s["in_guard"]:
             lines.append("new material is paused until tomorrow: sleep window starts at %s" % s["start"])
-    lines.append("next: " + plan.action_label(plan.next_action(c.repo, c.tree, c.state, c.when)))
+    lines.append("next: " + plan.action_label(action))
+    from . import advise
+
+    hint = advise.line(c.repo, action["action"])
+    if hint:
+        lines.append(hint)
+    if t["finished"] or n["active_min"] >= 120:
+        # every call re-reads the whole conversation, so a long one costs more per question
+        lines.append("session: %s; a fresh session for the next block costs less per question than a long one"
+                     % ("the finish line is reached" if t["finished"] else "a long block is behind you"))
     return 0, "\n".join(lines)
 
 
@@ -269,7 +281,7 @@ def cmd_item(c, a):
                                "(nothing was stored)" % (n, len(data)))
         made = []
         for draft in data:
-            item = items.create(repo, tree, draft, created_by=a.by or "import")
+            item = items.create(repo, tree, draft, created_by=a.by or "examiner")
             made.append(item["id"])
         _discard_draft_file(repo, a)
         # Official questions go through the same blind check as any other: until the checker's answer
@@ -322,8 +334,8 @@ def cmd_item(c, a):
                 raise CalError("item %s was rejected; write a new draft instead (nothing was recorded)" % ident)
             if st is not None and st.status == "verified":
                 raise CalError("item %s is verified already (nothing was recorded)" % ident)
-            if (a.by or "").strip() == item.get("created_by"):
-                raise CalError("an item cannot be verified by its own author (%s)" % a.by)
+            if (a.by or "").strip() in (item.get("created_by"), "examiner"):
+                raise CalError("an item cannot be verified by its own author or by the examiner (%s)" % a.by)
         lines = []
         for ident, answer in pairs:
             one = argparse.Namespace(**dict(vars(a), item=[ident], answer=answer))
@@ -352,8 +364,9 @@ def cmd_item(c, a):
         by = (a.by or "").strip()
         if not by:
             raise CalError("--by is required: who checked it (for example: checker)")
-        if by == item.get("created_by"):
-            raise CalError("an item cannot be verified by its own author (%s)" % by)
+        if by == item.get("created_by") or by == "examiner":
+            raise CalError("an item cannot be verified by its own author or by the examiner (%s): the "
+                           "checker verifies" % by)
         if status == "rejected":
             raise CalError("item %s was rejected; write a new draft instead" % a.item)
         if status == "verified":
@@ -386,6 +399,9 @@ def cmd_item(c, a):
             raise CalError("--reason is required")
         if a.void and a.action != "dispute":
             raise CalError("--void goes with: item dispute")
+        if a.action == "dispute" and status != "verified":
+            raise CalError("only a verified item can be disputed (this one is %s)%s" % (
+                status, "; reject it instead" if status == "draft" else ""))
         repo.append("item_" + a.action, item=a.item, reason=a.reason.strip())
         line = "%s: %s (it will not be asked again)" % ("rejected" if a.action == "reject" else "disputed", a.item)
         if a.void:
@@ -398,6 +414,9 @@ def cmd_item(c, a):
     if a.action == "restore":
         if status != "disputed":
             raise CalError("only a disputed item can be restored (this one is %s)" % status)
+        if not state_restorable(st):
+            raise CalError("%s was never verified: it cannot be restored. Have the checker verify a fresh "
+                           "draft instead" % a.item)
         repo.append("item_restore", item=a.item)
         return 0, "restored: %s is verified again" % a.item
     raise CalError("unknown item action")
@@ -775,11 +794,19 @@ def cmd_statusline(c, a):
     from . import dash
 
     try:
-        key = "%s|%s" % (_inputs_stamp(c.repo), c.when.strftime("%Y-%m-%dT%H:%M%z"))
+        from . import advise
+
+        current = None
+        if getattr(a, "stdin", False):
+            try:  # Claude Code passes the session's model and effort on stdin (setup writes --stdin)
+                current = json.loads(decode_text(_stdin_bytes()) or "{}")
+            except (ValueError, OSError, AttributeError):
+                current = None
+        key = "%s|%s|%s" % (_inputs_stamp(c.repo), c.when.strftime("%Y-%m-%dT%H:%M%z"), advise.current_text(current))
         kept = c.repo.read_json_cache("statusline.json")
         if isinstance(kept, dict) and kept.get("key") == key and isinstance(kept.get("text"), str):
             return 0, kept["text"]
-        text = dash.statusline(c.repo, c.tree, c.state, c.when)
+        text = dash.statusline(c.repo, c.tree, c.state, c.when, current)
         try:
             c.repo.write_json_cache("statusline.json", {"key": key, "text": text})
         except OSError:
@@ -898,6 +925,8 @@ def cmd_remind(c, a):
 
     if a.action == "check":
         return remind.check(c.repo, c.tree, c.state, c.when, a.always)
+    if a.action == "remove":
+        return 0, remind.remove(c.repo, a.os)
     return 0, remind.render(c.repo, a.times, a.os)
 
 
@@ -1135,7 +1164,9 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("--ascii", action="store_true")
     sp.add_argument("--track")
     sp.add_argument("--all-tracks", dest="all_tracks", action="store_true")
-    add("statusline", cmd_statusline, "One line for the Claude Code status line.")
+    sp = add("statusline", cmd_statusline, "One line for the Claude Code status line.")
+    sp.add_argument("--stdin", action="store_true",
+                    help="read the session data Claude Code passes (its model and effort) from standard input")
 
     sp = add("profile", cmd_profile, "Learner profile: show, get, set, unset.")
     sp.add_argument("action", choices=("show", "get", "set", "unset"))
@@ -1153,8 +1184,8 @@ def build_parser() -> argparse.ArgumentParser:
     add("rebuild", cmd_rebuild, "Replay the event log and rewrite learner/PROGRESS.md.")
     add("selftest", cmd_selftest, "Run the engine's own tests.")
     add("version", cmd_version, "Print versions.")
-    sp = add("remind", cmd_remind, "Reminders: check what is due, or render scheduler files.")
-    sp.add_argument("action", choices=("check", "render"))
+    sp = add("remind", cmd_remind, "Reminders: check what is due, render scheduler files, or print how to remove them.")
+    sp.add_argument("action", choices=("check", "render", "remove"))
     sp.add_argument("--always", action="store_true", help="check: say something even when nothing is due")
     sp.add_argument("--times", help="render: times of day, e.g. 09:00,14:00,21:00 (default: reminders.times)")
     sp.add_argument("--os", choices=("linux", "darwin", "windows"), help="render: for another system than this one")

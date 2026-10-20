@@ -110,9 +110,10 @@ series, GA 11.33, OS 5.67". Then, within a day, go through each wrong or
 guessed question with Claude: find its topic, name the kind of error, and
 bring the topic back into review. `gate errors` then shows where the marks
 leak; careless and misread errors are fixed by exam habits, not by more
-theory.
+theory. Every recorded mock, for the same pretend learner:
 
 ```
+$ python3 engine/calamity.py gate mocks
 date        paper  marks/100  vs target  source           sections
 ----------  -----  ---------  ---------  ---------------  -----------------------
 2026-09-19  CS         38.67      -31.3  sectional mix 1  GA 9, DM 7.33, DL 5

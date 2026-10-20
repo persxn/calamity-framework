@@ -8,6 +8,9 @@ import unittest
 
 from tests.helpers import ENGINE, Case, write
 
+from cal import remind
+from cal.store import Repo
+
 SHIM = """import os, sys
 sys.path.insert(0, %r)
 os.environ.setdefault("CALAMITY_ROOT", %r)
@@ -92,11 +95,10 @@ class Setup(Case):
     def test_statusline(self):
         sb = self.sb
         self.shim()
-        if os.name == "nt" and (" " in sys.executable or " " in sb.root):
-            sb.run("setup", "--statusline", expect=2)                  # refused rather than written wrongly
-            self.assertIn("contains spaces", sb.err)
+        out = sb.run("setup", "--statusline")
+        if "NOT written" in out:                    # Windows, a path with spaces and no short name
+            self.assertIn("contains spaces", out)  # refused rather than written wrongly, after the rest
             return
-        sb.run("setup", "--statusline")
         command = self.settings()["statusLine"]
         self.assertEqual(command["type"], "command")
         self.assertIn("statusline", command["command"])
@@ -191,7 +193,8 @@ class Reminders(Case):
         self.assertEqual(len(cron), 2)
         self.assertTrue(cron[0].startswith("0 9 * * * /bin/sh '"))
         self.assertTrue(cron[1].startswith("30 20 * * * /bin/sh '"))
-        self.assertTrue(all(line.endswith("# calamity-remind") for line in cron))
+        tag = remind.clone_tag(Repo(sb.root))
+        self.assertTrue(all(line.endswith("# calamity-remind-%s" % tag) for line in cron))   # this clone only
         script = os.path.join(folder, "notify.sh")
         with open(script, "r", encoding="utf-8") as fh:
             text = fh.read()
@@ -215,9 +218,10 @@ class Reminders(Case):
         sb = self.sb
         out = sb.run("remind", "render", "--times", "07:15", "--os", "darwin")
         self.assertIn("launchctl load", out)
-        with open(sb.path(".calamity", "reminders", "com.calamity.remind.plist"), "rb") as fh:
+        label = "com.calamity.remind.%s" % remind.clone_tag(Repo(sb.root))
+        with open(sb.path(".calamity", "reminders", label + ".plist"), "rb") as fh:
             plist = plistlib.load(fh)
-        self.assertEqual(plist["Label"], "com.calamity.remind")
+        self.assertEqual(plist["Label"], label)
         self.assertEqual(plist["StartCalendarInterval"], [{"Hour": 7, "Minute": 15}])
         self.assertEqual(plist["ProgramArguments"][0], "/bin/sh")
         self.assertTrue(plist["ProgramArguments"][1].endswith("notify.sh"))
@@ -228,21 +232,23 @@ class Reminders(Case):
         self.assertIn("install.cmd", out)
         folder = sb.path(".calamity", "reminders")
         with open(os.path.join(folder, "install.cmd"), "rb") as fh:
-            install = fh.read().decode("utf-8")
-        self.assertIn("\r\n", install)
-        self.assertEqual(install.count("schtasks /Create"), 2)
-        self.assertIn("/SC DAILY /ST 21:45", install)
-        self.assertIn('/TN "Calamity\\Remind-2145"', install)
+            self.assertIn(b"\r\n", fh.read())
+        with open(os.path.join(folder, "install.ps1"), "r", encoding="utf-8-sig") as fh:
+            install = fh.read()
+        self.assertEqual(install.count("'09:00'") + install.count("'21:45'"), 2)
+        self.assertIn("Register-ScheduledTask", install)
+        prefix = "Calamity Remind %s" % remind.clone_tag(Repo(sb.root))
+        self.assertIn("$prefix = '%s'" % prefix, install)
         self.assertIn("notify.ps1", install)
-        # installing again with other times must not leave the old tasks behind: both scripts clear
-        # the whole \\Calamity\\ task folder first, whatever times were installed before
-        clear = "Get-ScheduledTask -TaskPath '\\Calamity\\' -ErrorAction SilentlyContinue | Unregister-ScheduledTask"
-        self.assertLess(install.index(clear), install.index("schtasks /Create"))
-        with open(os.path.join(folder, "remove.cmd"), "rb") as fh:
-            remove = fh.read().decode("utf-8")
+        # installing again with other times must not leave the old tasks behind: both scripts first
+        # remove this clone's tasks, whatever times were installed before, and nobody else's
+        clear = 'Where-Object { $_.TaskName -like "$prefix *" } | Unregister-ScheduledTask'
+        self.assertLess(install.index(clear), install.index("Register-ScheduledTask "))
+        with open(os.path.join(folder, "remove.ps1"), "r", encoding="utf-8-sig") as fh:
+            remove = fh.read()
         self.assertIn(clear, remove)
-        self.assertNotIn("schtasks /Create", remove)
-        with open(os.path.join(folder, "notify.ps1"), "r", encoding="utf-8") as fh:
+        self.assertNotIn("Register-ScheduledTask ", remove)
+        with open(os.path.join(folder, "notify.ps1"), "r", encoding="utf-8-sig") as fh:
             ps1 = fh.read()
         self.assertIn("remind check", ps1)
         self.assertIn(sys.executable.replace('"', ""), ps1)

@@ -18,8 +18,10 @@ Claude records each one as you give it.
 Claude runs `doctor` and tells you what it found. Then it offers to run
 `setup --hook`, which does two things on this computer only:
 
-- gives the machine a name, kept in `.calamity/machine.json`, so that each
-  laptop writes its own log file and two laptops never edit the same file;
+- records the machine's name and the Python command that works here in
+  `.calamity/machine.json` (the very first engine command, even `doctor`,
+  already gave the machine its name), so that each laptop writes its own
+  log file and two laptops never edit the same file;
 - installs the **session-start hook** in `.claude/settings.local.json`. From
   the next session on, Claude Code runs the engine as each session starts
   and Claude reads a short brief of where you stand before you type

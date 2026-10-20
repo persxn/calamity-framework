@@ -10,8 +10,8 @@ its official setup page (https://code.claude.com/docs/en/setup) on
 | Need | Check it with | Notes |
 |---|---|---|
 | A Claude account with Claude Code | `claude --version` (after step 2) | Claude Code needs a Pro, Max, Team, Enterprise or Console account; the free claude.ai plan does not include it. |
-| A supported system | `cat /etc/os-release` | Ubuntu 20.04+, Debian 10+, Alpine 3.19+ (other distributions usually work), 4 GB RAM or more. |
-| Python 3.9 or newer | `python3 --version` | Nothing else to install: the engine uses the standard library only. |
+| A supported system | `cat /etc/os-release` | For the framework: Ubuntu 22.04+ or Debian 11+, whose `python3` is 3.9 or newer. Claude Code itself lists Ubuntu 20.04+, Debian 10+ and Alpine 3.19+, with apt, dnf (Fedora, RHEL) and apk packages (read 2026-10-20). 4 GB RAM or more. |
+| Python 3.9 or newer | `python3 --version` | Nothing else to install: the engine uses the standard library only. A separately installed `python3.9` is not covered by the pre-approved commands, which use `python3`. |
 | git | `git --version` | To clone the framework, and later to keep your progress in a repository of your own. |
 | Optional: a TeX engine | `tectonic --version`, `pdflatex --version` | Only for PDF notes. |
 | Optional: `notify-send` | `command -v notify-send` | Only for desktop reminders. |

@@ -11,6 +11,10 @@ the same: given the days left and the hours they have, what order of work
 gets the most marks, and is the target within reach of that work? Reason it
 through with their numbers. Do not reassure and do not alarm; report.
 
+Engine commands below are written `python3 engine/calamity.py ...`. If the
+prompt you were given names another engine command (on Windows,
+`python engine/calamity.py` or `py -3 engine/calamity.py`), use that one.
+
 Read `framework/rules/gate-playbook.md` first. Then gather:
 
     python3 engine/calamity.py gate status
@@ -70,7 +74,10 @@ propose settings, list them as commands for the tutor to run
 
 ## Test-series research (only when asked)
 
-Look at what is offered now for the learner's paper. Report, with sources
+Look at what is offered now for the learner's paper. Before fetching any
+provider's pages, fetch its robots.txt on its own; if it disallows the
+pages you need, do not fetch them: work from what the learner pastes, or
+leave that provider out and say why. Report, with sources
 and today's date: how closely each follows the official pattern, the
 quality of its solutions, its analytics, its schedule against the plan, its
 price. Do not rank from memory and do not present any provider's claims as
@@ -79,7 +86,7 @@ fact. Say which criteria matter most for this learner and let them choose.
 ## Rules
 
 - Never predict or promise a rank. Never call a target safe or hopeless.
-- Every outside number carries its source and date, or the word estimate.
+- Every outside number carries its source and date, and the word estimate.
 - You do not drop subjects, change settings or record mocks: you return
   proposals and the tutor acts on the learner's decision.
 - Do not fetch the learner's course site. Progress comes from

@@ -57,11 +57,15 @@ def inputs_key(repo: Repo, tree) -> str:
             files += [os.path.join(folder, n) for n in sorted(os.listdir(folder)) if n.endswith(".md")]
     for name in files:
         h.update(name.encode("utf-8", "replace") + b"\0")
-        try:
-            with open(name, "rb") as fh:
-                h.update(hashlib.sha256(fh.read()).digest())
-        except OSError:
-            h.update(b"-")
+        if name.startswith(engine + os.sep):
+            try:
+                with open(name, "rb") as fh:
+                    raw = fh.read()
+            except OSError:
+                raw = None
+        else:
+            raw = repo.read_bytes(name)  # the bytes replay reads too, not a newer copy
+        h.update(b"-" if raw is None else hashlib.sha256(raw).digest())
     for node in sorted(tree.nodes.values(), key=lambda n: n.id):
         h.update(("%s|%s|%s\n" % (node.id, node.track, node.paper)).encode("utf-8"))
     return h.hexdigest()
@@ -108,11 +112,14 @@ def load(repo: Repo, key: str, files):
         return None, "a log file is gone"
     tails = []
     for name, raw in files:
-        size, sha, lines = seen.get(name, (0, hashlib.sha1(b"").hexdigest(), 0))
-        if len(raw) < size or hashlib.sha1(raw[:size]).hexdigest() != sha:
-            return None, "a log file changed"
-        if size < len(raw):
-            tails.append((name, raw[size:], lines + 1))
+        try:
+            size, sha, lines = seen.get(name, (0, hashlib.sha1(b"").hexdigest(), 0))
+            if len(raw) < size or hashlib.sha1(raw[:size]).hexdigest() != sha:
+                return None, "a log file changed"
+            if size < len(raw):
+                tails.append((name, raw[size:], int(lines) + 1))
+        except (TypeError, ValueError, AttributeError):
+            return None, "snapshot damaged"
     return data, tails
 
 
