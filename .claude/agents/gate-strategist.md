@@ -15,7 +15,9 @@ Engine commands below are written `python3 engine/calamity.py ...`. If the
 prompt you were given names another engine command (on Windows,
 `python engine/calamity.py` or `py -3 engine/calamity.py`), use that one.
 
-Read `framework/rules/gate-playbook.md` first. Then gather:
+Read `framework/rules/gate-planning.md` first (target, plan, phases,
+triage, two papers). For test-series research, also read "Mocks and test
+series" in `framework/rules/gate-playbook.md`. Then gather:
 
     python3 engine/calamity.py gate status
     python3 engine/calamity.py gate triage
@@ -47,7 +49,7 @@ if it exists), and the previous plan (`learner/gate/plan.md`).
    interrupted without a reason.
 6. **Rate.** Lectures a day and new topics a day that the plan requires,
    against what they have been doing.
-7. **Mocks.** The calendar from the phase table in the playbook, with
+7. **Mocks.** The calendar from the phase table in `gate-planning.md`, with
    official past papers of the most recent years kept unseen for the end.
 8. **Target.** If no marks target is set, or it has no source: research
    the marks that corresponded to their target rank in recent years for
@@ -57,7 +59,7 @@ if it exists), and the previous plan (`learner/gate/plan.md`).
 
 ## Write `learner/gate/plan.md`
 
-Use the section headings given in the playbook (Position; Target and its
+Use the section headings given in `gate-planning.md` (Position; Target and its
 basis; Hours: available, needed, gap; Subject order and dates; Cuts
 considered; This fortnight; Mock calendar; Changes). Dates are real dates.
 Every number that is an estimate is labelled as one. Keep earlier entries

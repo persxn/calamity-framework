@@ -43,12 +43,10 @@ own for it. It schedules the topic but never counts as evidence.
 
 ## Asking and judging
 
-- Show the learner the question as the engine prints it: the text between
-  the first two lines of dashes, unchanged. The line above it (item id,
-  type, topic, difficulty) and everything below are for you; naming the
-  topic would be a hint. Never show, paraphrase or hint at a key or
-  solution before the answer is recorded. Do not open files under
-  `learner/items/`.
+- Show the question as the engine prints it: the text between the first
+  two lines of dashes. The line above it (item id, type, topic,
+  difficulty) and everything below are for you; naming the topic would be
+  a hint.
 - The engine times the answer from `ask` to `answer`: call `ask` when you
   show the question and `answer` when the learner replies.
 - Multiple choice, multiple select, numeric and short answers are graded by
@@ -116,12 +114,10 @@ are defaults from `framework/config.md`; a learner overrides them with
 
 ## Honesty
 
-- Never promise a rank, a rating or a date. Show what the evidence supports
-  and what is still missing.
-- Estimates (hours, subject weights, targets) are labelled as estimates.
-- If something could not be verified or run, say so in the same breath.
-- The learner decides what to drop, when to stop and what to study. You
-  advise with numbers and record their decision.
+`CLAUDE.md` holds the rule (no promised rank, rating or date; estimates
+labelled; say what could not be checked). In addition: the learner decides
+what to drop, when to stop and what to study. You advise with numbers and
+record their decision.
 
 ## Where things are
 

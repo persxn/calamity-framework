@@ -182,8 +182,19 @@ def cmd_ask(c, a):
 
 
 def cmd_answer(c, a):
-    return 0, session.answer(c.repo, c.tree, c.state, c.when, a.item, raw=a.answer, result=a.result, hints=a.hints,
-                             err=a.err, note=a.note, seconds=a.seconds, blame=a.blame, evidence=a.evidence, kind=a.kind)
+    text = session.answer(c.repo, c.tree, c.state, c.when, a.item, raw=a.answer, result=a.result, hints=a.hints,
+                          err=a.err, note=a.note, seconds=a.seconds, blame=a.blame, evidence=a.evidence, kind=a.kind)
+    if not a.next:
+        return 0, text
+    # One call instead of two, feedback first: the next question follows only a right answer. After a
+    # wrong one the key, the cause and the repair come before anything new.
+    if not text.startswith("CORRECT"):
+        return 0, text + "\n--next: nothing served. %s" % (
+            "Repair the mistake first, then: ask%s" % (" --skill %s" % a.skill if a.skill else "")
+            if text.startswith("WRONG") else "Tests are answered in order with: ask --id <item> --test <test>")
+    c.refresh()
+    code, more = session.ask(c.repo, c.tree, c.state, c.when, skill=a.skill, due_only=a.due)
+    return code, text + "\n\n=== NEXT (tell the learner the result above in one line, then show this) ===\n" + more
 
 
 def cmd_mistake(c, a):
@@ -986,6 +997,10 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("--seconds", type=_count, help="time taken, if measured by hand")
     sp.add_argument("--blame", help="when a woven exercise fails: the topic(s) that broke")
     sp.add_argument("--kind", choices=("new", "review", "weave", "boss", "placement"))
+    sp.add_argument("--next", action="store_true",
+                    help="after a right answer, also serve what `ask` would (one call instead of two)")
+    sp.add_argument("--skill", help="with --next: draw new material from this skill, as ask --skill does")
+    sp.add_argument("--due", action="store_true", help="with --next: serve a review only, as ask --due does")
     sp = add("mistake", cmd_mistake, "Say what kind of mistake the last wrong answer to an item was.")
     sp.add_argument("item")
     sp.add_argument("kind", choices=session.ERROR_TAGS)

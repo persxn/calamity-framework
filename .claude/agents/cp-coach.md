@@ -15,7 +15,8 @@ Engine commands below are written `python3 engine/calamity.py ...`. If the
 prompt you were given names another engine command (on Windows,
 `python engine/calamity.py` or `py -3 engine/calamity.py`), use that one.
 
-Read `framework/rules/cp-playbook.md` first. Then gather the record:
+Read `framework/rules/cp-planning.md` first (levels, the week, the
+analysis, the pace). Then gather the record:
 
     python3 engine/calamity.py cf status
     python3 engine/calamity.py cf rating
@@ -95,7 +96,7 @@ A summary of at most ten lines: the diagnosis, the band, the focus, the
 week's numbers, the pace against the target, and the date of the next
 review. Plus any placement the record supports
 (`placement <skill> --result known --note "..."` commands for the tutor to
-run), following the rule in the playbook.
+run), following the placement rule in `framework/rules/cp-onboarding.md`.
 
 ## Rules
 

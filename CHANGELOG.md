@@ -71,7 +71,9 @@ The first public release.
   recall, boss, gate and cp skills read it); maintainer notes in
   `engine/CLAUDE.md`; `/today` makes one call; Codeforces sync once per
   session; the PDF is built once; `today` suggests a fresh session at the
-  finish line.
+  finish line; `answer --next` records a right answer and serves the next
+  question in one call; the CP and GATE playbooks are split into
+  onboarding, planning and daily files, each read only when needed.
 - Engine: a torn character in a log line costs that line only; dispute and
   restore follow an item's history; renamed topics answer and rename back
   correctly; bad ids, offset-less times, damaged snapshots, non-UTF-8

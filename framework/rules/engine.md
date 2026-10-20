@@ -35,6 +35,7 @@ block, from `advice.*` in `framework/config.md` (a suggestion, not
 measured; `cfg.advice false` turns it off).
 | `answer ITEM --answer "..."` | Record an answer to a multiple-choice (`B`), multiple-select (`A,C`), numeric (`0.42`, `3/8`) or short-text item. The engine grades it and prints the key and solution. |
 | `answer ITEM --result pass\|fail --evidence "..."` | Record a hands-on item (code, task, open) after its check was run. |
+| `answer ITEM ... --next [--skill S] [--due]` | After a right answer, also serve what `ask [--skill S] [--due]` would, below the feedback, in the same call. After a wrong answer it serves nothing: the key, the cause and the repair come first. |
 | | Options for both: `--hints N`, `--err KIND` (when wrong), `--blame K[,K]` (woven items), `--note "..."`, `--seconds N`, `--kind new\|review\|weave\|boss\|placement`. Only `--kind placement` changes anything: in a placement test a miss on a topic never studied schedules nothing, and a right answer does not count as today's new material. |
 | `mistake ITEM KIND [--note "..."]` | Say what kind of mistake the last wrong answer to an item was, once the cause is clear: `concept`, `method`, `memory`, `careless`, `misread`, `time`, `syntax` or `guess`. It replaces whatever was recorded with the answer. |
 | `quick K pass\|fail [--err KIND] [--hints N] [--note]` | An oral check. Schedules the topic; never counts as mastery evidence. A `fail` is refused for a topic that was never taught or answered: there is nothing to bring back yet. |

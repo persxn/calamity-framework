@@ -104,6 +104,10 @@ these or any new track name.
 | `framework/rules/tree-editing.md` | adding, changing, dropping or restoring a skill; slots and weaving |
 | `framework/rules/scheduler.md` | the day plan, the finish line, the schedule file, behaviour patterns, reminders |
 | `framework/rules/bridge-rulebook.md` | connecting a course site, a playlist or any other study source |
-| `framework/rules/gate-playbook.md` | anything about GATE: onboarding, phases, triage, mocks, targets |
-| `framework/rules/cp-playbook.md` | anything about competitive programming and Codeforces |
+| `framework/rules/gate-onboarding.md` | setting up a GATE learner |
+| `framework/rules/gate-planning.md` | GATE targets, the plan, phases, triage, two papers |
+| `framework/rules/gate-playbook.md` | the GATE daily loop, mocks and test series, past papers |
+| `framework/rules/cp-onboarding.md` | setting up a Codeforces learner, placement from the record |
+| `framework/rules/cp-planning.md` | CP levels, the week, reading `cf analyse`, pace |
+| `framework/rules/cp-playbook.md` | a CP coaching turn: one problem, contests, teaching |
 | `framework/rules/notes-latex.md` | writing notes fragments, LaTeX sections and PDFs |

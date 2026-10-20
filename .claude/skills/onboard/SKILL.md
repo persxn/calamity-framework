@@ -64,11 +64,11 @@ over from another learner or from an example in these files.
   has a choice (language, framework), ask which they prefer and enrol that
   one. Read `framework/rules/tree-editing.md` if they want skills added or
   removed.
-- **Competitive programming (`cp`)**: follow "Onboarding" in
-  `framework/rules/cp-playbook.md` (handle, `cf link`, `cf sync`, target),
+- **Competitive programming (`cp`)**: follow
+  `framework/rules/cp-onboarding.md` (handle, `cf link`, `cf sync`, target),
   then delegate the first plan to the `cp-coach` agent.
-- **GATE**: follow "Onboarding a GATE learner" in
-  `framework/rules/gate-playbook.md` (year, papers, registration, target,
+- **GATE**: follow
+  `framework/rules/gate-onboarding.md` (year, papers, registration, target,
   source), connect their course or playlist with the bridge skill, run
   `python3 engine/calamity.py gate enroll`, then delegate the first plan to
   the `gate-strategist` agent.

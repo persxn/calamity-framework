@@ -150,4 +150,5 @@ studied or reviewed twice. Shared ground comes first.
   that was not transcribed from an official paper you supplied.
 - Drop a subject for you: it shows the numbers, and you decide.
 
-The full playbook is in `framework/rules/gate-playbook.md`.
+The rules Claude follows are in `framework/rules/gate-onboarding.md`,
+`framework/rules/gate-planning.md` and `framework/rules/gate-playbook.md`.

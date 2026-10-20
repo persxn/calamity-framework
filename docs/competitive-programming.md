@@ -157,4 +157,5 @@ A skill can be marked known from your record alone when Codeforces has
 already tested it: its band is at least 200 below your rating and you have
 solved fifteen or more problems with its tags at that band or above.
 
-The full playbook is in `framework/rules/cp-playbook.md`.
+The rules Claude follows are in `framework/rules/cp-onboarding.md`,
+`framework/rules/cp-planning.md` and `framework/rules/cp-playbook.md`.

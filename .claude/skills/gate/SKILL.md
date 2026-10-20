@@ -7,10 +7,13 @@ effort: high
 
 # GATE companion
 
-Read `framework/rules/gate-playbook.md` before planning, triage, targets or
-mock review, and `framework/method.md` before teaching or asking. Exam facts for the year are in `framework/gate/<year>.md`
-(corrections for one learner in `learner/gate/<year>.md`). If the learner
-has not set a year and papers, run its "Onboarding a GATE learner" first.
+Read only the rule book the request needs: `framework/rules/gate-playbook.md`
+for the daily loop, mocks and past papers; `framework/rules/gate-planning.md`
+before planning, triage, targets or talking about the target;
+`framework/method.md` before teaching or asking. Exam facts for the year are
+in `framework/gate/<year>.md` (corrections for one learner in
+`learner/gate/<year>.md`). If the learner has not set a year and papers,
+follow `framework/rules/gate-onboarding.md` first.
 
 | They want | Do |
 |---|---|
@@ -23,7 +26,7 @@ has not set a year and papers, run its "Onboarding a GATE learner" first.
 | to see mock history | `python3 engine/calamity.py gate mocks` |
 | where marks leak | `python3 engine/calamity.py gate errors` |
 | to add past papers | "Past questions" in the playbook, then `item import --official`, the new ids to the `checker` agent, and `gate weights --apply` |
-| a target in marks | "The target" in the playbook; the strategist researches it and records the source |
+| a target in marks | "The target" in `framework/rules/gate-planning.md`; the strategist researches it and records the source |
 | to drop or pause a subject | show `gate triage`, state the cost in marks, then `pause <subject>` if they decide |
 
 Print engine output unchanged in a code block, then the two or three lines

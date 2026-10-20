@@ -30,9 +30,12 @@ session if it is not in context yet.
      lines of dashes, and nothing else. The line above it names the topic;
      do not show it or say which skill the question belongs to before the
      answer.
-   - Record the reply: `python3 engine/calamity.py answer <item> --answer "..."`,
-     or `--result pass|fail --evidence "..."` for a hands-on item after
-     running its check (`item show <item> --check`).
+   - Record the reply: `python3 engine/calamity.py answer <item> --answer "..." --next --due`,
+     or `--result pass|fail --evidence "..." --next --due` for a hands-on
+     item after running its check (`item show <item> --check`). After a
+     right answer this also serves the next review in the same call (below
+     `=== NEXT`): give the result in one line, then that question. After a
+     wrong answer it serves nothing.
    - Wrong: show the solution the engine prints, record the kind of
      mistake (`python3 engine/calamity.py mistake <item> <kind>`), give the
      one-paragraph repair, move on. The engine brings the topic back in a

@@ -77,7 +77,12 @@ a review or a topic already taught, or prints what comes instead:
 
 **Asking and recording.** Show the question exactly as the engine prints
 it, between the dashes. Record the reply with
-`python3 engine/calamity.py answer <item> --answer "<what they said>"`.
+`python3 engine/calamity.py answer <item> --answer "<what they said>" --next --skill <skill>`
+(without `--skill` in a session across everything). After a right answer
+`--next` also serves the next question in the same call: say the result in
+one line, then show the question below `=== NEXT`, treating it as the
+output of `ask`. After a wrong answer it serves nothing; repair first,
+then `ask`.
 For a hands-on item (code, task, open) the learner works in
 `learner/work/<skill>/...`; when they are done, get the check with
 `python3 engine/calamity.py item show <item> --check`, run it for real,

@@ -2,6 +2,7 @@
 effort suggestion, and teaching from the basics. Each test names the finding it covers."""
 import json
 import os
+import re
 from datetime import timedelta
 
 from tests.helpers import Case, read, write
@@ -232,3 +233,26 @@ class Basics(Case):
         sb.item("shell/perms")
         out = sb.run("ask", "--topic", "shell/perms", "--taught")
         self.assertIn("note: shell/perms builds on shell/pipes, not studied yet", out)
+
+
+class AnswerNext(Case):
+    def test_a_right_answer_serves_the_next_question_and_a_wrong_one_does_not(self):
+        sb = self.sb
+        sb.onboard()
+        sb.run("enroll", "shell")
+        sb.item("shell/pipes")
+        sb.item("shell/perms")
+        sb.run("covered", "shell/pipes", "shell/perms")    # both taught: the next new topic is tested at once
+        served = sb.ask("shell/pipes")
+        sb.advance(seconds=30)
+        out = sb.run("answer", served, "--answer", "B", "--next", "--skill", "shell")
+        self.assertTrue(out.startswith("CORRECT"))
+        self.assertLess(out.index("next:"), out.index("=== NEXT"))      # feedback first
+        self.assertIn("=== NEXT", out)
+        nxt = re.search(r"=== NEXT.*?ITEM (it-[a-z0-9]{10})", out, re.S)
+        self.assertIsNotNone(nxt, out)
+        sb.advance(seconds=30)
+        wrong = sb.run("answer", nxt.group(1), "--answer", "A", "--next")
+        self.assertTrue(wrong.startswith("WRONG"))
+        self.assertIn("--next: nothing served", wrong)
+        self.assertNotIn("=== NEXT", wrong)
