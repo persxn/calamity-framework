@@ -85,6 +85,10 @@ The first public release.
   ASCII-only `.cmd` files, `mkdir -p ~/Library/LaunchAgents` on macOS.
 - Windows: the engine command is test-run before it is named; the status
   line uses short paths when a path has spaces.
+- `setup --alias` (Linux and macOS, bash or zsh): typing `calamity` in a
+  terminal goes to the framework's folder and starts
+  `claude --dangerously-skip-permissions`; onboarding offers it, `doctor`
+  checks it, `setup --remove-alias` takes it out.
 
 ### Development
 

@@ -881,14 +881,16 @@ def cmd_profile(c, a):
 def cmd_setup(c, a):
     from . import machine
 
-    if a.remove_hook or a.remove_statusline:
+    if a.remove_hook or a.remove_statusline or a.remove_alias:
         done = []
         if a.remove_hook:
             done.append(machine.remove_hook(c.repo))
         if a.remove_statusline:
             done.append(machine.remove_statusline(c.repo))
+        if a.remove_alias:
+            done.append(machine.remove_alias(c.repo))
         return 0, "\n".join(done)
-    return 0, machine.setup(c.repo, a.machine, a.hook, a.statusline)
+    return 0, machine.setup(c.repo, a.machine, a.hook, a.statusline, a.alias)
 
 
 def cmd_doctor(c, a):
@@ -1188,13 +1190,16 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("key", nargs="?")
     sp.add_argument("value", nargs=argparse.REMAINDER, help="the value (the rest of the line)")
     sp.add_argument("--text", action="store_true", help="store the value as one piece of text (allowed anywhere)")
-    sp = add("setup", cmd_setup, "Prepare this machine (machine id, folders, optional hook and status line).")
+    sp = add("setup", cmd_setup, "Prepare this machine (machine id, folders, optional hook, status line and alias).")
     sp.add_argument("--machine", help="a name for this computer (default: from its host name)")
     sp.add_argument("--hook", action="store_true", help="install the session-start hook in .claude/settings.local.json")
     sp.add_argument("--remove-hook", dest="remove_hook", action="store_true", help="take the session-start hook out again")
     sp.add_argument("--statusline", action="store_true", help="show the finish line in Claude Code's status line")
     sp.add_argument("--remove-statusline", dest="remove_statusline", action="store_true",
                     help="take the status line out again")
+    sp.add_argument("--alias", action="store_true",
+                    help="add a `calamity` shell alias: cd here and run claude --dangerously-skip-permissions")
+    sp.add_argument("--remove-alias", dest="remove_alias", action="store_true", help="take the alias out again")
     add("doctor", cmd_doctor, "Check that everything is in order.")
     add("rebuild", cmd_rebuild, "Replay the event log and rewrite learner/PROGRESS.md.")
     add("selftest", cmd_selftest, "Run the engine's own tests.")

@@ -8,7 +8,7 @@ import unittest
 
 from tests.helpers import ENGINE, Case, write
 
-from cal import remind
+from cal import machine, remind
 from cal.store import Repo
 
 SHIM = """import os, sys
@@ -128,6 +128,54 @@ class Setup(Case):
         self.assertIn("new 1/1", sb.run("statusline"))                  # a setting: worked out again
         write(kept, "{broken")
         self.assertIn("new 1/1", sb.run("statusline"))                  # a damaged file is ignored
+
+    @unittest.skipIf(sys.platform.startswith("win"), "the alias is for bash and zsh")
+    def test_alias(self):
+        sb = self.sb
+        home = sb.path("home")
+        sb.env.update({"HOME": home, "SHELL": "/bin/zsh", "ZDOTDIR": ""})
+        dotfiles = sb.path("dotfiles", "zshrc")                        # a dotfile manager's symbolic link
+        write(dotfiles, "export EDITOR=vim")
+        os.chmod(dotfiles, 0o640)
+        os.makedirs(home)
+        os.symlink(dotfiles, os.path.join(home, ".zshrc"))
+        self.assertIn("not installed (optional: setup --alias)", sb.run("doctor", expect=None))
+        self.assertIn("alias written to ~/.zshrc", sb.run("setup", "--alias"))
+        sb.run("setup", "--alias")                                     # installing again does not duplicate it
+        self.assertTrue(os.path.islink(os.path.join(home, ".zshrc")))
+        self.assertEqual(os.stat(dotfiles).st_mode & 0o777, 0o640)
+        with open(dotfiles, "r", encoding="utf-8") as fh:
+            text = fh.read()
+        self.assertTrue(text.startswith("export EDITOR=vim\n# >>> calamity alias >>>\nalias calamity="))
+        self.assertEqual(text.count("alias calamity="), 1)
+        self.assertIn("claude --dangerously-skip-permissions", text)
+        self.assertRegex(sb.run("doctor", expect=None), r"OK +shell alias +installed \(~/\.zshrc\)")
+
+        moved = text.replace(sb.root, sb.root + "-old")                # the folder was moved or copied
+        write(dotfiles, moved)
+        self.assertIn("points at a different copy", sb.run("doctor", expect=None))
+        sb.run("setup", "--alias")
+        with open(dotfiles, "r", encoding="utf-8") as fh:
+            self.assertEqual(fh.read(), text)
+
+        self.assertIn("alias removed from ~/.zshrc", sb.run("setup", "--remove-alias"))
+        with open(dotfiles, "r", encoding="utf-8") as fh:
+            self.assertEqual(fh.read(), "export EDITOR=vim\n")
+        self.assertIn("no Calamity alias was installed", sb.run("setup", "--remove-alias"))
+
+        sb.env["SHELL"] = "/usr/bin/fish"
+        self.assertIn("alias NOT written: the alias is written for bash and zsh", sb.run("setup", "--alias"))
+        self.assertIn("not available for this shell", sb.run("doctor", expect=None))
+
+    @unittest.skipIf(not shutil.which("bash"), "needs bash")
+    def test_alias_changes_folder_and_starts_claude(self):
+        class Odd:
+            root = os.path.join(self.sb.root, "it's a folder with spaces")
+        os.makedirs(Odd.root)
+        script = "shopt -s expand_aliases\nclaude() { printf '%%s|%%s' \"$PWD\" \"$*\"; }\n%s\ncalamity\n" \
+                 % machine.alias_line(Odd)
+        proc = subprocess.run(["bash", "-c", script], stdout=subprocess.PIPE, cwd=self.sb.root, timeout=30)
+        self.assertEqual(proc.stdout.decode("utf-8"), "%s|--dangerously-skip-permissions" % Odd.root)
 
     def test_doctor(self):
         sb = self.sb

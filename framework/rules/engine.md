@@ -130,7 +130,7 @@ cannot show them.
 | `dash [progress\|roadmap\|queue\|gate\|cp\|week\|all] [--track T] [--all-tracks] [--width N] [--ascii]` | Dashboards as plain text. |
 | `statusline [--stdin]` | One line for the Claude Code status line. With `--stdin` (as `setup --statusline` writes it) it reads the session data Claude Code passes and adds `try <model>·<effort>` when the suggested setting differs from the current one. |
 | `remind check [--always]`, `remind render --times 09:00,20:30 [--os linux\|darwin\|windows]`, `remind remove [--os ...]` | Is anything due (for a scheduler); write scheduler files and print how to install and remove them; print the removal command again (no times needed). Files and task names carry a tag of this clone. Nothing is installed by the engine. |
-| `setup [--machine NAME] [--hook] [--statusline] [--remove-hook] [--remove-statusline]` | Prepare this machine. `--hook` writes the session-start hook and `--statusline` the status line to `.claude/settings.local.json`; the `--remove-` flags take them out again. |
+| `setup [--machine NAME] [--hook] [--statusline] [--alias] [--remove-hook] [--remove-statusline] [--remove-alias]` | Prepare this machine. `--hook` writes the session-start hook and `--statusline` the status line to `.claude/settings.local.json`; `--alias` adds a `calamity` alias to `~/.zshrc` or `~/.bashrc` (`~/.bash_profile` on macOS) that changes to this folder and runs `claude --dangerously-skip-permissions`; the `--remove-` flags take them out again. |
 | `doctor`, `rebuild`, `selftest`, `version` | Health check (it also checks the replay snapshot against a full replay); replay the whole log and rewrite `learner/PROGRESS.md`; run the engine's tests; versions. |
 
 ## Profile keys

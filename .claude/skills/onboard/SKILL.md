@@ -26,7 +26,12 @@ command does and run it (they will be asked to approve it):
 It writes a machine id under `.calamity/` and a session-start hook into
 `.claude/settings.local.json`. Neither is ever committed. The hook prints
 the session brief when a session opens; it takes effect from the next
-session. Offer the status line (`setup --statusline`) as optional. If
+session. Offer the status line (`setup --statusline`) as optional. On
+Linux and macOS, also offer the `calamity` command (`setup --alias`): an
+alias in their shell's start-up file that goes to this folder and starts
+`claude --dangerously-skip-permissions`. Say plainly that sessions opened
+that way ask no permission questions at all, and install it only if they
+say yes. If
 `doctor` reports a failure, fix it before going on. On Windows run the same
 commands with `python engine/calamity.py` or `py -3 engine/calamity.py`;
 `setup` prints the form that works on this machine.

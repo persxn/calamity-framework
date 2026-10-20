@@ -379,7 +379,7 @@ class Sandbox:
     def __init__(self, mini=True, start=START):
         self.root = tempfile.mkdtemp(prefix="calamity-test-")
         self.clock = datetime.fromisoformat(start)
-        self.env = {}
+        self.env = {"SHELL": ""}  # no shell start-up file: setup and doctor never read or write the real one
         self.code = 0
         self.err = ""
         if mini:

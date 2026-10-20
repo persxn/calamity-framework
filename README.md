@@ -434,7 +434,7 @@ reference, with every option, is
 | `workout` | Logs a workout |
 | `dash` | Dashboards: `dash progress`, `dash roadmap`, `dash queue`, `dash gate`, `dash cp`, `dash week`, `dash all` |
 | **This computer** | |
-| `setup` | Prepares this computer; `--hook` and `--statusline` add the optional extras, `--remove-hook` and `--remove-statusline` take them out |
+| `setup` | Prepares this computer; `--hook`, `--statusline` and `--alias` add the optional extras, `--remove-hook`, `--remove-statusline` and `--remove-alias` take them out |
 | `statusline` | The one line shown at the bottom of Claude Code |
 | `remind` | Reminders: `remind check` (is anything due?), `remind render` (writes the scheduler files), `remind remove` (how to take them out) |
 | `doctor`, `rebuild`, `selftest`, `version` | Health check; rebuild everything from the log; the engine's own tests; versions |
@@ -585,10 +585,13 @@ and removable with one command.
 |---|---|---|
 | **Session brief**: Claude reads where you stand as each session starts | `python3 engine/calamity.py setup --hook` | `python3 engine/calamity.py setup --remove-hook` |
 | **Status line**: the day's numbers at the bottom of Claude Code, such as `CAL · due 29 · new 0/6 · GATE 117d` (from a pretend learner) | `python3 engine/calamity.py setup --statusline` | `python3 engine/calamity.py setup --remove-statusline` |
+| **`calamity` command** (Linux and macOS, bash or zsh): typing `calamity` in any terminal goes to this folder and starts `claude --dangerously-skip-permissions`, so Claude Code asks no permission questions at all in that session | `python3 engine/calamity.py setup --alias` | `python3 engine/calamity.py setup --remove-alias` |
 | **Reminders**: notifications from your operating system, only when something is due, never in your sleep window | `/remind 09:00,21:00`: Claude saves the times (`profile set reminders.times 09:00,21:00`), runs `remind render`, and shows you the install command | `/remind off`, or the command `remind remove` prints |
 | **PDF notes**: one PDF per skill from your notes | install Tectonic, TeX Live or MiKTeX; then `/notes pdf <skill>` | uninstall the TeX engine |
 
 `setup --hook` and `setup --statusline` write `.claude/settings.local.json`;
+`setup --alias` adds a marked block to `~/.zshrc` or `~/.bashrc` (open a
+new terminal for it to take effect);
 reminders use crontab on Linux, a LaunchAgent on macOS and Task Scheduler
 on Windows. See [daily use](docs/daily-use.md#reminders) and
 [notes and PDFs](docs/notes-and-pdfs.md).
@@ -632,10 +635,10 @@ an update. It needs your progress saved to your own repository first
 
 **Removing**, from inside the folder (on Windows with `python` or `py -3`):
 
-1. Take out the hook and the status line:
+1. Take out the hook, the status line and the alias:
 
    ```bash
-   python3 engine/calamity.py setup --remove-hook --remove-statusline
+   python3 engine/calamity.py setup --remove-hook --remove-statusline --remove-alias
    ```
 
 2. If you installed reminders, print the command that removes them (it

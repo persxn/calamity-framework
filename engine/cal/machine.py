@@ -2,7 +2,8 @@
 
 `setup` prepares this machine: a machine id, the learner folders and, when
 asked, the session-start hook in .claude/settings.local.json (a file that is
-never committed). `doctor` reports what is and is not in order.
+never committed) and a `calamity` alias in the shell's start-up file.
+`doctor` reports what is and is not in order.
 """
 from __future__ import annotations
 
@@ -232,7 +233,99 @@ def hook_state(repo: Repo) -> str:
     return "missing"
 
 
-def setup(repo: Repo, machine: str | None = None, hook: bool = False, statusline: bool = False) -> str:
+# ---------------------------------------------------------------- shell alias
+
+ALIAS_START = "# >>> calamity alias >>>"
+ALIAS_END = "# <<< calamity alias <<<"
+
+
+def rc_file() -> str | None:
+    """The start-up file of the learner's shell that the alias belongs in, or None where there is no
+    such file to write (Windows, or a shell other than bash or zsh)."""
+    if platform.system().lower().startswith("win"):
+        return None
+    shell = os.path.basename(os.environ.get("SHELL", ""))
+    home = os.path.expanduser("~")
+    if shell == "zsh":
+        return os.path.join(os.environ.get("ZDOTDIR") or home, ".zshrc")
+    if shell == "bash":  # a macOS terminal opens a login shell, which reads .bash_profile instead
+        return os.path.join(home, ".bash_profile" if platform.system() == "Darwin" else ".bashrc")
+    return None
+
+
+def _shown(path: str) -> str:
+    home = os.path.expanduser("~")
+    return "~" + path[len(home):] if path.startswith(home + os.sep) else path
+
+
+def alias_line(repo: Repo) -> str:
+    """`calamity` in a terminal: go to this repository and open Claude Code there without permission prompts."""
+    return "alias calamity=%s" % shlex.quote("cd -- %s && claude --dangerously-skip-permissions" % shlex.quote(repo.root))
+
+
+def _without_alias(text: str):
+    """The text with our block taken out, and the block's lines (None when there was none)."""
+    lines = text.splitlines(True)
+    try:
+        start = next(i for i, line in enumerate(lines) if line.rstrip("\r\n") == ALIAS_START)
+        end = next(i for i in range(start, len(lines)) if lines[i].rstrip("\r\n") == ALIAS_END)
+    except StopIteration:
+        return text, None
+    return "".join(lines[:start] + lines[end + 1:]), [line.rstrip("\r\n") for line in lines[start + 1:end]]
+
+
+def _write_rc(path: str, text: str) -> None:
+    """Write a shell start-up file in place of the old one: through a symbolic link (dotfile managers
+    keep them), keeping its permissions."""
+    real = os.path.realpath(path)
+    try:
+        mode = os.stat(real).st_mode & 0o7777
+    except OSError:
+        mode = 0o644
+    write_text(real, text)
+    os.chmod(real, mode)
+
+
+def install_alias(repo: Repo) -> str:
+    rc = rc_file()
+    if rc is None:
+        raise CalError("the alias is written for bash and zsh on Linux and macOS only; this shell is %s"
+                       % (os.path.basename(os.environ.get("SHELL", "")) or "unknown"))
+    text, _ = _without_alias(read_text(rc) if os.path.isfile(rc) else "")
+    if text and not text.endswith("\n"):
+        text += "\n"
+    _write_rc(rc, text + "%s\n%s\n%s\n" % (ALIAS_START, alias_line(repo), ALIAS_END))
+    return ("alias written to %s: `calamity` opens Claude Code in this folder with permission prompts off "
+            "(takes effect in a new terminal)" % _shown(rc))
+
+
+def remove_alias(repo: Repo) -> str:
+    rc = rc_file()
+    if rc is None or not os.path.isfile(rc):
+        return "no Calamity alias was installed"
+    text, block = _without_alias(read_text(rc))
+    if block is None:
+        return "no Calamity alias was installed"
+    _write_rc(rc, text)
+    return "alias removed from %s (open a new terminal, or run: unalias calamity)" % _shown(rc)
+
+
+def alias_state(repo: Repo) -> str:
+    """'ok', 'missing', 'unsupported' (no bash or zsh) or what is wrong with ours."""
+    rc = rc_file()
+    if rc is None:
+        return "unsupported"
+    try:
+        _, block = _without_alias(read_text(rc) if os.path.isfile(rc) else "")
+    except (OSError, UnicodeDecodeError):
+        return "%s cannot be read" % _shown(rc)
+    if block is None:
+        return "missing"
+    return "ok" if block == [alias_line(repo)] else "alias points at a different copy of the repository"
+
+
+def setup(repo: Repo, machine: str | None = None, hook: bool = False, statusline: bool = False,
+          alias: bool = False) -> str:
     repo.ensure_dirs()
     ident = repo.set_machine(machine) if machine else repo.machine()
     cmd = guess_cmd()
@@ -249,6 +342,11 @@ def setup(repo: Repo, machine: str | None = None, hook: bool = False, statusline
             lines.append(install_statusline(repo))
         except CalError as exc:  # the hook above is written either way: say so before the refusal
             lines.append("status line NOT written: %s" % exc)
+    if alias:
+        try:
+            lines.append(install_alias(repo))
+        except CalError as exc:
+            lines.append("alias NOT written: %s" % exc)
     lines.append("learner folders ready under learner/")
     return "\n".join(lines)
 
@@ -341,6 +439,13 @@ def doctor(repo: Repo):
             else "another status line is configured")
     else:
         add("WARN", "status line", "%s (setup --statusline writes it again, setup --remove-statusline removes it)" % state_s)
+    state_a = alias_state(repo)
+    if state_a in ("ok", "missing", "unsupported"):
+        add("OK", "shell alias", {"ok": "installed (%s)" % _shown(rc_file() or ""),
+                                  "missing": "not installed (optional: setup --alias)",
+                                  "unsupported": "not available for this shell"}[state_a])
+    else:
+        add("WARN", "shell alias", "%s (setup --alias writes it again, setup --remove-alias removes it)" % state_a)
 
     attrs = os.path.join(repo.root, ".gitattributes")
     has_union = os.path.isfile(attrs) and "merge=union" in read_text(attrs)

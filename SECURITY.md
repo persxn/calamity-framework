@@ -37,6 +37,12 @@ Knowing the design makes it easier to see what would be a vulnerability.
   status line and the reminders are installed only by `setup --hook`,
   `setup --statusline` and a scheduler command the learner approves. The
   repository itself ships no hook.
+- **The `calamity` alias** is written only by `setup --alias`, outside
+  the repository: a marked block in
+  `~/.zshrc` or `~/.bashrc` (`~/.bash_profile` on macOS), taken out again
+  by `setup --remove-alias`. It starts Claude Code with
+  `--dangerously-skip-permissions`, so sessions opened with it ask no
+  permission questions: the `ask` rules above stop nothing there.
 - **Study sources** are connected only by routes their terms allow. Tools
   generated for a source live in `learner/bridges/<source>/`, are explained
   before they first run, and never store credentials.
