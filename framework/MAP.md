@@ -101,7 +101,7 @@ these or any new track name.
 | `framework/rules/verification.md` | making, checking or disputing an item; judging hands-on work; recording a boss |
 | `framework/rules/items.md` | writing an item draft (format, types, quality bar) |
 | `framework/rules/syllabus.md` | writing a learner's syllabus for a skill; placement tests; renaming topics |
-| `framework/rules/tree-editing.md` | adding, changing, dropping or restoring a skill; slots and weaving |
+| `framework/rules/tree-editing.md` | adding, changing, dropping or restoring a skill; the four skill-file shapes; slots and weaving |
 | `framework/rules/scheduler.md` | the day plan, the finish line, the schedule file, behaviour patterns, reminders |
 | `framework/rules/bridge-rulebook.md` | connecting a course site, a playlist or any other study source |
 | `framework/rules/gate-onboarding.md` | setting up a GATE learner |

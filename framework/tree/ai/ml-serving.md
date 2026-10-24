@@ -2,7 +2,7 @@
 id: ml-serving
 title: Serving and operating models
 track: ai
-group: ml
+group: infra
 prereqs: [classical-ml, fastapi, docker]
 tags: [ai, ml, runnable]
 aliases: [mlops, model serving, model deployment, experiment tracking]

@@ -2,13 +2,13 @@
 id: ollama
 title: Local models with Ollama
 track: ai
-group: llm
+group: inference
 prereqs: [llm-basics, linux-shell]
 tags: [ai, llm, runnable]
 weaves_into: [llm]
 aliases: [local llm, gguf, quantization, modelfile]
 est_hours: 12
-order: 20
+order: 10
 summary: "Run open models on your own machine: pulling, configuring, serving and measuring them."
 ---
 

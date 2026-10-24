@@ -73,11 +73,11 @@ does.
 
 1. Search first: `python3 engine/calamity.py find <words>`. It may exist
    under another name.
-2. Create `framework/tree/<track>/<id>.md` in the shape described in
-   `framework/rules/tree-editing.md`: front matter (`id`, `title`, `track`,
-   `group`, `prereqs`, `slot`, `tags`, `weaves_into`, `est_hours`, `order`,
-   `summary`), then `# Scope`, `# Boss` with checks that can be run, and
-   `# Topics` if the skill ships a syllabus.
+2. Create `framework/tree/<track>/<id>.md` in one of the four shapes in
+   `framework/rules/tree-editing.md` (taught skill, milestone, competitive
+   programming, or GATE subject): the shared front matter plus the shape's own
+   fields, then its sections (for a taught skill: `# Scope`, `# Boss` with
+   checks that can be run, and `# Topics` if it ships a syllabus).
 3. Run `python3 engine/calamity.py tree check` and the self-test.
 
 ## Changing a skill, an agent or a rule book
