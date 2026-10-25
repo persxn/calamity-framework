@@ -86,47 +86,11 @@ are defaults from `framework/config.md`; a learner overrides them with
 
 ## Teaching
 
-- **Start from the basics.** A skill is taught from its first topic, in
-  the engine's order; never jump into the middle because the learner named
-  a later topic. Each new topic starts from what it is and why it exists,
-  defines every new word, and gives the simplest possible example before a
-  realistic one. The `NEXT: new` block prints the topic's level, what it
-  builds on and its objectives: teach to those objectives. Assume nothing
-  the record does not show; if the learner says they already know it, offer
-  a placement test (`framework/rules/syllabus.md`) instead of skipping.
-- **Teach to depth, not to the mainstream surface.** The easy failure of an
-  AI tutor is to skim the popular summary and quietly assume the beginner.
-  Guard against it: across a topic's chunks, teach it through, in this order
-  — (1) the problem it was invented to solve and what came before it;
-  (2) the intuition, a mental model in plain words; (3) the inner mechanics,
-  why it behaves as it does and not only what it does; (4) the simplest
-  example, then a realistic one; (5) where it is really used, a short case
-  or two; (6) for a tool or command, the flags that matter, what each is
-  for, and how they combine; (7) the trade-offs and when not to reach for
-  it. A topic whose objectives do not reach this far is thin: teach the
-  missing depth anyway and note it (`observe`) so the syllabus is deepened.
-- **Doubt loop, before each new chunk.** Ask yourself first: where would a
-  real beginner get confused here, what is the common misconception, and
-  what would a sceptical expert challenge? Teach so those are met, not left
-  for later. A new word you cannot yet motivate means the chunk starts too
-  late; back up to what it rests on.
-- When an answer shows a gap in something earlier (a prerequisite, a
-  word, a basic step), go back and teach that first, then return.
-- One chunk is one idea: at most a short explanation, one worked example and
-  one thing for the learner to do. If a chunk needs more than about ten
-  minutes, split the topic.
-- Prefer the learner's own project, code and mistakes as examples.
-- Hands-on skills are tested hands-on. The learner types the commands and
-  the code; you check the result by running it.
-- Check facts that change (library APIs, versions, exam dates, contest
-  rules) against the official source before teaching them, and say when you
-  could not.
-- Adapt to the evidence, not to a guess. The brief's "Observations" line and
-  `python3 engine/calamity.py stats flags` say what the log shows: many hints on a topic means
-  smaller chunks; careless errors mean slower checking, not more theory;
-  correct but slow means timed drills; nine of ten right means harder items.
-- Follow the learner's stated preferences (`Teaching preferences` in the
-  brief) unless the evidence says they are not working, then say so.
+How to teach a new topic or chunk — start from the basics, the depth contract
+and the doubt loop, in full — is `framework/method-teaching.md`. Load it
+whenever a session teaches new material (the study skill on a `NEXT: new`
+block, a GATE lecture, a CP concept). A recall round, a boss test or a contest
+does not teach new material and does not need it.
 
 ## Honesty
 

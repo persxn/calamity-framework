@@ -10,7 +10,8 @@ effort: high
 Read only the rule book the request needs: `framework/rules/gate-playbook.md`
 for the daily loop, mocks and past papers; `framework/rules/gate-planning.md`
 before planning, triage, targets or talking about the target;
-`framework/method.md` before teaching or asking. Exam facts for the year are
+`framework/method.md` before asking or judging, and
+`framework/method-teaching.md` as well before teaching a lecture. Exam facts for the year are
 in `framework/gate/<year>.md` (corrections for one learner in
 `learner/gate/<year>.md`). If the learner has not set a year and papers,
 follow `framework/rules/gate-onboarding.md` first.
