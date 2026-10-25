@@ -88,7 +88,7 @@ learner can study from a year later without the session.
 The one thing to remember, in two or three sentences.
 \end{keyidea}
 
-Explanation from first principles: what problem this solves, how it works, when to use it.
+Explanation to the one depth bar (framework/method-teaching.md): the problem this solves and what came before, the mental model, the inner mechanics (why it behaves so, not only what it does), and when to use it and when not.
 
 \subsection{How it works}
 ...

@@ -68,6 +68,8 @@ learner/                   everything about one learner; this is what they sync
   tree/<skill>.md          skills this learner added, changed or dropped
   sources/<id>.md          a course, playlist or book: its lectures and the topics they cover
   notes/<skill>/           notes: <topic>.md fragments, tex/ sections, main.tex, the PDF
+  mastery/<topic>/         deep coaching: curriculum.md, recall.md, log.md and book/ (mastery-coach/-textbook)
+  mastery/projects/<slug>/ build-it-yourself: brief, teardown/design, skill-map, build-path, log
   work/<skill>/            exercise and project workspaces
   cp/                      competitive programming: plan.md, solutions/, reviews/
   gate/                    plan.md, <year>.md corrections, mock reviews

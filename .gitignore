@@ -28,6 +28,10 @@ learner/notes/**/*.fdb_latexmk
 learner/notes/**/*.synctex.gz
 learner/notes/**/*.xdv
 
+# Mastery study books: build products only (tex sources, figures/build PDFs,
+# book-state.md and the coach's markdown state are all kept and synced)
+learner/mastery/**/book/build/
+
 # Exercise workspaces: dependencies and build output
 learner/work/**/node_modules/
 learner/work/**/dist/

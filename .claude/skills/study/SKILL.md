@@ -70,7 +70,7 @@ a review or a topic already taught, or prints what comes instead:
 | It prints | Do |
 |---|---|
 | an item | Ask and record it (below). |
-| `NEXT: new` | Teach one chunk from where the block says to start (its `start from` line, `level`, `builds on` and `objectives`): what the idea is and why it exists, each new word defined, the simplest example, then one worked example and one thing for the learner to do, teaching to the depth contract in `framework/method-teaching.md` (motivation and history, inner mechanics, a real use-case, and — for a tool — the key flags and how they combine). Then `python3 engine/calamity.py ask --topic <key> --taught`, which records the teaching and serves the question. If it adds a `note:` that earlier topics were never studied, go back to them first. |
+| `NEXT: new` | Teach the topic from where the block says to start (its `start from` line, `level`, `builds on` and `objectives`), **to the full depth contract in `framework/method-teaching.md`** — the same bar as the `mastery-coach` skill, never the popular one-paragraph summary. That almost always takes **several short chunks**, not one: why it exists and what came before, the mental model in plain words, the inner mechanics (why it behaves so, not only what it does), the simplest example then a real one, where it is used, and — for a tool — the flags that matter and the trade-offs. Define every new word. Check understanding between chunks and don't push past a shaky answer. Only once the topic is taught through, run `python3 engine/calamity.py ask --topic <key> --taught`, which records the teaching and serves the question; then save its notes fragment at once (notes skill, step 1) so the taught content is logged for the textbook, not left in chat. If `ask` adds a `note:` that earlier topics were never studied, go back to them first. |
 | `NEXT: watch` | Name the next lecture. When the learner has watched it, `python3 engine/calamity.py log <source> <item>`; its test follows. If they would rather carry on with another skill, `ask --skill <other>`. |
 | `NEXT: boss` | Run the boss skill for that skill. |
 | `NEXT: syllabus` | Delegate to the `curriculum-architect` agent ("write the syllabus for `<skill>` for this learner"), then `python3 engine/calamity.py syllabus check <skill>`. |
@@ -110,8 +110,9 @@ of your own), which schedules the topic but is not evidence:
 counted with `--hints N`. **A woven exercise that fails**: add
 `--blame <key>` for the topic that broke.
 
-Otherwise say little between questions: no summaries of what was just
-covered, no praise for ordinary answers, no previews of the next topic.
+Otherwise, between questions — not while teaching a new topic, which gets
+its full depth — say little: no summaries of what was just covered, no
+praise for ordinary answers, no previews of the next topic.
 
 ## 4. Close
 

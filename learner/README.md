@@ -15,6 +15,7 @@ repository is the framework and is the same for everyone.
 | `tree/` | skills you added, changed or dropped | the engine (`tree add`, `set`, `drop`) and your tutor |
 | `sources/` | your courses, playlists and books, and what each lecture covers | the bridge skill |
 | `notes/` | your study notes: fragments, LaTeX sections, PDFs | your tutor and you |
+| `mastery/` | deep-coaching progress and study books, per topic (`mastery-coach`, `mastery-textbook`) | your coach and you |
 | `work/` | your exercises and projects | you |
 | `cp/` | competitive programming: plan, contest reviews, solutions | you and the coach |
 | `gate/` | GATE plan, mock reviews, corrections to exam facts | you and the strategist |

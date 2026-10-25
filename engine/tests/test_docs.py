@@ -24,6 +24,13 @@ SKILLS = ("boss", "bridge", "coach", "cp", "dash", "gate", "log", "notes", "onbo
           "sync", "today", "tree", "update-framework")
 AGENTS = ("bridge-engineer", "checker", "cp-coach", "curriculum-architect", "examiner", "gate-strategist",
           "habit-coach", "notes-writer")
+# Companion skills that ship with the framework but run their own loop and state, outside the engine's
+# event log and the examiner/checker pipeline. They are not in SKILLS (the engine's self-test set), but
+# they are still the framework's, so they are held to the same doc standard: valid front matter, and every
+# engine command and framework link they quote must exist. A learner's own added skills are not checked.
+ADDED_SKILLS = ("mastery-coach", "mastery-textbook", "build-it-yourself")
+ADDED_SKILL_DOCS = (("mastery-coach", "SKILL.md"), ("mastery-coach", os.path.join("references", "state-format.md")),
+                    ("mastery-textbook", "SKILL.md"), ("build-it-yourself", "SKILL.md"))
 
 
 def documents():
@@ -39,6 +46,7 @@ def documents():
         paths += [os.path.join(folder, name) for name in sorted(files) if name.endswith(".md")]
     paths += [os.path.join(REPO, ".claude", "skills", name, "SKILL.md") for name in SKILLS]
     paths += [os.path.join(REPO, ".claude", "agents", name + ".md") for name in AGENTS]
+    paths += [os.path.join(REPO, ".claude", "skills", skill, *rel.split(os.sep)) for skill, rel in ADDED_SKILL_DOCS]
     return paths
 
 
@@ -154,11 +162,13 @@ class Structure(unittest.TestCase):
         return sorted(n[:-3] for n in os.listdir(base) if n.endswith(".md"))
 
     def test_every_shipped_skill_and_agent_is_there(self):
-        self.assertEqual(sorted(set(SKILLS) - set(self.names("skills", skill=True))), [])
+        present = set(self.names("skills", skill=True))
+        self.assertEqual(sorted(set(SKILLS) - present), [])
+        self.assertEqual(sorted(set(ADDED_SKILLS) - present), [])
         self.assertEqual(sorted(set(AGENTS) - set(self.names("agents"))), [])
 
     def test_skills_and_agents_have_valid_front_matter(self):
-        skills, agents = SKILLS, AGENTS
+        skills, agents = SKILLS + ADDED_SKILLS, AGENTS
         builtin = {"review", "plan", "focus", "stats", "status", "run", "verify", "android", "ios", "design", "checkup",
                    "insights", "new", "reset", "stop", "help", "clear", "compact", "config", "init", "memory", "model",
                    "agents", "permissions", "login", "logout", "doctor", "cost", "resume", "export", "hooks", "mcp"}
@@ -184,7 +194,7 @@ class Structure(unittest.TestCase):
     def test_claude_md_names_every_skill_and_agent(self):
         with open(os.path.join(REPO, "CLAUDE.md"), "r", encoding="utf-8") as fh:
             text = fh.read()
-        for name in SKILLS + AGENTS:
+        for name in SKILLS + AGENTS + ADDED_SKILLS:
             self.assertIn("`%s`" % name, text, "CLAUDE.md does not mention %s" % name)
         # The method loads on demand (the skills that need it read it), not into every session.
         self.assertNotIn("@framework/method.md", text)

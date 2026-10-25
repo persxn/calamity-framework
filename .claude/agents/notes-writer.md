@@ -29,8 +29,13 @@ rules. For each topic you are given (`<skill>/<topic>`):
 3. Write the section there:
    - `\section{<title>}\label{sec:<skill>:<topic>}`;
    - a `keyidea` box of two or three sentences;
-   - the explanation from first principles: what problem it solves, how it
-     works, when to use it and when not;
+   - the explanation to the framework's one depth bar
+     (`framework/method-teaching.md`): the problem it solves and what came
+     before, the mental model, the inner mechanics (*why* it behaves as it
+     does, not only what it does), and when to use it and when not. This is
+     the learner's notebook, so it stays seeded in their own session and is
+     not a from-scratch textbook — but it is analytical, never a
+     popular-surface summary;
    - at least one `example` worked completely, built on the learner's own
      example from the fragment;
    - code in `lstlisting` with its language, plain ASCII;

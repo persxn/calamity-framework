@@ -16,11 +16,17 @@ The book shares mastery-coach's philosophy:
 - **Vocabulary, scale, outages, the AI era.** These appear as recurring features of the book, not afterthoughts.
 - **Interview-grade exercises.** Answerable from the book up to that point, with worked solutions.
 
+The two run hand in hand: mastery-coach hands you each unit once it has taught it and records every question it asked in `recall.md`; you turn that unit into a chapter and those questions into exercises, then write back which chapter covers which unit. Nothing taught or asked is left only in chat.
+
 ## Where the book lives
 
-1. **Adopt existing state first.** If the repo has a learner-state store (mastery-coach's `.mastery/`, or a framework such as the Calamity Framework with its own notes or learner directory), put the book where that store keeps study material and follow its conventions.
+1. **Adopt existing state first, inside the part that gets synced.** If the repo is a learning framework (such as the Calamity Framework) or already has mastery-coach state, put the book **beside that state, under the synced store**. In Calamity that is `learner/mastery/<topic-slug>/book/`: only `learner/` is carried by `/sync` to the learner's own repository and their other machines, so this is what keeps the book backed up. Do **not** put it under `learner/notes/` — that store is the engine's, and its `.gitignore` drops `main.tex` and the PDF because they are rebuilt from fragments; the book's `main.tex` is hand-authored and must be kept.
 2. **Otherwise** use `.mastery/topics/<topic-slug>/book/`.
-3. Read the topic's `curriculum.md`, `log.md`, `glossary.md` and `recall.md` if they exist. They tell you what has been taught, in what order, with what terms, and what the learner got wrong. Learner misses become *Common misconception* boxes and extra exercises, written generally, never naming the learner.
+3. **Read the record of what was taught — from whichever path taught it.**
+   - Taught through `mastery-coach`: read the topic's `curriculum.md`, `log.md`, `glossary.md` and `recall.md`. They tell you what was taught, in what order, with what terms and misses, and (in `log.md`) the actual models, examples and traces used — reproduce those faithfully. **Pull every question in `recall.md` into the chapter it belongs to**, as a graded exercise with its recorded answer worked out in the solutions.
+   - Taught on the engine's `/study` path (a tracked skill, no `mastery-coach` state): build from the engine's own record instead — the notes fragment and any LaTeX section under `learner/notes/<skill>/`, the syllabus, and the **verified item bank** (its questions become the exercises, already blind-checked). Read the topic's objectives with `python3 engine/calamity.py tree show <skill>`.
+
+   Either way, the book is one deluxe tier above the per-skill notes: same depth bar (`framework/method-teaching.md`), fuller treatment. Learner misses become *Common misconception* boxes and extra exercises, written generally, never naming the learner.
 
 By default the book never gets ahead of the learner: it covers units that are done. If the learner explicitly asks for the whole book up front, write it in curriculum order instead.
 
@@ -50,7 +56,7 @@ A chapter usually covers one curriculum unit, or a few small related ones. Work 
    - **B. Visual**: open the page images and inspect every page of the new chapter, and at least every page the report lists as holding a figure or table. Check that figures are present, legible, unclipped and near where they're referenced; tables fit and align; listings don't overflow; boxes and headings break sensibly across pages.
    - **C. Quality**: score the chapter against the rubric and `benchmark.md`. Is it truly polished enough to sit beside the best-selling guide on this topic? If a reviewer subagent is available, use one that has seen only the rendered pages, the rubric and the benchmark, not your drafting context, so the work isn't grading itself.
 8. **Revise until it passes**: zero build errors, a visually clean layout, and every rubric dimension at 4 or above. Rebuild after each round of fixes.
-9. **Deliver.** Update `book-state.md` (with a changelog line) and the learner state. Send the learner the PDF with one line on what's new. Mention that the `.tex` sources are theirs to edit.
+9. **Deliver.** Update `book-state.md` (with a changelog line) and write a line back into the coach's `log.md` saying which chapter now covers which unit, so the two stay in step. Send the learner the PDF with one line on what's new. Mention that the `.tex` sources are theirs to edit. The whole book lives under `learner/mastery/` (in Calamity), so `/sync` already backs it up.
 
 When a later unit changes how an earlier idea should be explained, for example a better mental model or a corrected simplification, revise the earlier chapter too, and note it in the changelog.
 

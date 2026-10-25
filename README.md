@@ -349,6 +349,9 @@ terminal.
 | `/boss` | A skill is nearly done and you want to prove it with a project or a timed test | `/boss docker` |
 | `/log` | You finished a lecture or chapter somewhere else (its test follows at once), or a workout | `/log os-course 14`, `/log workout 30` |
 | `/notes` | You want notes for a topic, or one PDF for a skill | `/notes docker`, `/notes pdf docker` |
+| `/mastery-coach` | You (or someone you are teaching) want to learn or be quizzed on any topic deeply, from first principles — including topics the tree does not track | `/mastery-coach`, "teach me DBMS properly" |
+| `/mastery-textbook` | You want a polished LaTeX study book (PDF) grown from what `/mastery-coach` taught, with every topic and question written up | `/mastery-textbook`, "add this to my notes" |
+| `/build-it-yourself` | You want to learn a project by rebuilding an existing app/repo or designing your own, then ship it — you write all the code, it coaches and teaches | `/build-it-yourself`, "how was this app built?" |
 | `/gate` | Anything about the GATE exam: status, plan, triage, recording a mock, reviewing one | `/gate`, `/gate triage`, `/gate mock CS 54.33` |
 | `/cp` | Competitive programming: your standing, a practice set, contests, upsolving, the weekly plan | `/cp`, `/cp set`, `/cp contest`, `/cp upsolve` |
 | `/coach` | You want an honest look at how you have actually been working, or a new day shape | `/coach`, `/coach week`, `/coach schedule` |
