@@ -385,10 +385,30 @@ def _prompt(stdscr, label, prefill=""):
     return res
 
 
+def _put(stdscr, y, x, text, attr):
+    h, w = stdscr.getmaxyx()
+    if 0 <= y < h and 0 <= x < w and text:
+        try:
+            stdscr.addnstr(y, x, text, max(0, w - 1 - x), attr)
+        except curses.error:
+            pass
+
+
+def _put_right(stdscr, y, text, attr, pad=2):
+    _, w = stdscr.getmaxyx()
+    _put(stdscr, y, max(0, w - pad - len(text)), text, attr)
+
+
+def _meter(done, total, width=7):
+    if total <= 0:
+        return ""
+    f = max(0, min(width, round(width * done / total)))
+    return "▓" * f + "░" * (width - f)
+
+
 def _build(state):
-    """Return (lines, selectables): each line is (segments, sel_id)."""
-    date = state["date"]
-    store = state["store"]
+    """Return (lines, selectables, meta): each body line is (segments, sel_id)."""
+    date, store = state["date"], state["store"]
     blocks, ov = day_blocks(date, store)
     goals = store["goals"].get(date.isoformat(), [])
     is_today = date == dt.date.today()
@@ -404,26 +424,24 @@ def _build(state):
             sels.append(ref)
         lines.append((segs, sid))
 
-    shifted = bool(ov and ov.get("blocks"))
-    shape = "weekend · reset" if date.weekday() >= 5 else "weekday"
-    if shifted:
-        shape = (ov.get("label") or "shifted day") + " · override"
-    add([("timetable · " + date.strftime("%A %-d %B"), CP["steel"] | curses.A_BOLD),
-         ("   " + shape, CP["amber"] if shifted else CP["sub"])])
-    note = ov.get("note") if ov else None
-    add([("note  ", CP["sub"]),
-         (note, CP["amber"]) if note else ("— press n to log an exam / event", CP["dim"])])
-    add([("", 0)])
-
     if not blocks:
         add([("no routine in schedule.md for this day", CP["dim"])])
     for i, b in enumerate(blocks):
         is_cur = i == cur
-        tcol = CP["amber"] if is_cur else CP["sub"]
-        ncol = (CP["amber"] if is_cur else CP["ice"]) | (curses.A_BOLD if is_cur else 0)
-        glyph = "■" if is_cur else "·"
-        add([(f"{b['start']}  ", tcol), (f"{glyph} ", tcol), (b["name"], ncol)],
-            ref=("slot", b))
+        try:
+            past = is_today and to_min(b["start"]) < to_min(b["end"]) <= now_min
+        except ValueError:
+            past = False
+        if is_cur:
+            node, ncol, tcol = "●", CP["amber"] | curses.A_BOLD, CP["amber"]
+        elif past:
+            node, ncol, tcol = "·", CP["dim"], CP["dim"]
+        else:
+            node, ncol, tcol = "○", CP["ice"], CP["sub"]
+        segs = [(node + "  ", tcol), (b["start"] + "  ", tcol), (b["name"], ncol)]
+        if is_cur:
+            segs.append(("   now " + dt.datetime.now().strftime("%H:%M"), CP["amber"]))
+        add(segs, ref=("slot", b))
         for g in [x for x in goals if x.get("block") == b["name"]]:
             box = "✓" if g.get("done") else "○"
             bc = CP["green"] if g.get("done") else CP["sub"]
@@ -432,34 +450,35 @@ def _build(state):
 
     gen = [g for g in goals if not g.get("block")]
     add([("", 0)])
-    add([("unscheduled goals", CP["steel"] | curses.A_BOLD)])
+    add([("unscheduled", CP["steel"] | curses.A_BOLD)])
     if not gen:
-        add([("  press A to add one not tied to a slot", CP["dim"])])
+        add([("   press A to add a goal not tied to a slot", CP["dim"])])
     for g in gen:
         box = "✓" if g.get("done") else "○"
         bc = CP["green"] if g.get("done") else CP["sub"]
         tc = CP["dim"] if g.get("done") else CP["ice"]
-        add([("  " + box + "  ", bc), (g["text"], tc)], ref=("goal", g))
+        add([("   " + box + "  ", bc), (g["text"], tc)], ref=("goal", g))
 
-    return lines, sels
+    shifted = bool(ov and ov.get("blocks"))
+    shape = "weekend · reset" if date.weekday() >= 5 else "weekday"
+    if shifted:
+        shape = (ov.get("label") or "shifted day") + " · override"
+    meta = {"note": ov.get("note") if ov else None, "shape": shape, "shifted": shifted,
+            "done": sum(1 for g in goals if g.get("done")), "total": len(goals)}
+    return lines, sels, meta
 
 
 def _draw(stdscr, state):
-    lines, sels = _build(state)
+    lines, sels, meta = _build(state)
     state["sels"] = sels
-    if sels:
-        state["sel"] = max(0, min(state["sel"], len(sels) - 1))
-    else:
-        state["sel"] = 0
+    state["sel"] = max(0, min(state["sel"], len(sels) - 1)) if sels else 0
 
-    sel_line = None
-    for li, (_, sid) in enumerate(lines):
-        if sid is not None and sid == state["sel"]:
-            sel_line = li
-            break
+    sel_line = next((li for li, (_, sid) in enumerate(lines)
+                     if sid is not None and sid == state["sel"]), None)
 
     h, w = stdscr.getmaxyx()
-    body_h = max(1, h - 2)
+    top_rows, bot_rows = 4, 3                 # header: blank/title/note/rule — footer: rule/engine/keys
+    body_h = max(1, h - top_rows - bot_rows)
     top = state["top"]
     if sel_line is not None:
         if sel_line < top:
@@ -470,37 +489,43 @@ def _draw(stdscr, state):
     state["top"] = top
 
     stdscr.erase()
+
+    # header: title · date (left), shape badge (right); note + goals meter; a rule
+    _put(stdscr, 1, 2, "timetable", CP["steel"] | curses.A_BOLD)
+    _put(stdscr, 1, 12, "· " + state["date"].strftime("%A %-d %B").lower(), CP["sub"])
+    _put_right(stdscr, 1, meta["shape"], CP["amber"] if meta["shifted"] else CP["sub"])
+    note = meta["note"]
+    _put(stdscr, 2, 2, "✎  " + (note or "no note — press n to log an exam / event"),
+         CP["amber"] if note else CP["dim"])
+    if meta["total"]:
+        _put_right(stdscr, 2, f"{_meter(meta['done'], meta['total'])}  "
+                   f"{meta['done']}/{meta['total']}", CP["sub"])
+    _put(stdscr, 3, 2, "─" * (w - 4), CP["dim"])
+
+    # body (scrolls); the selected row gets a soft amber bar and bold text
     for row in range(body_h):
         li = top + row
         if li >= len(lines):
             break
+        y = top_rows + row
         segs, sid = lines[li]
         selected = sid is not None and sid == state["sel"]
         if selected:
-            try:
-                stdscr.addnstr(row, 0, " " * (w - 1), w - 1, CP["ice"] | curses.A_REVERSE)
-                stdscr.addnstr(row, 0, "▸", 1, CP["amber"] | curses.A_BOLD | curses.A_REVERSE)
-            except curses.error:
-                pass
-        x = 2
+            _put(stdscr, y, 0, "▌", CP["amber"] | curses.A_BOLD)
+        x = 3
         for text, attr in segs:
             if not text:
                 continue
-            a = attr | (curses.A_REVERSE if selected else 0)
-            try:
-                stdscr.addnstr(row, x, text, max(0, w - 1 - x), a)
-            except curses.error:
-                pass
+            _put(stdscr, y, x, text, attr | (curses.A_BOLD if selected else 0))
             x += len(text)
 
-    hints = ("↑↓ move   ←→ day   ⏎/a goal   A unsched   space done   "
-             "e edit   d del   n note   t today   ? keys   q quit")
-    try:
-        if state.get("engine"):
-            stdscr.addnstr(h - 2, 2, "engine  " + state["engine"], w - 3, CP["dim"])
-        stdscr.addnstr(h - 1, 0, hints, w - 1, CP["sub"])
-    except curses.error:
-        pass
+    # footer: a rule, the engine line, the keys
+    _put(stdscr, h - 3, 2, "─" * (w - 4), CP["dim"])
+    if state.get("engine"):
+        _put(stdscr, h - 2, 2, "· " + state["engine"], CP["dim"])
+    _put(stdscr, h - 1, 2,
+         "↑↓ move   ← → day   ⏎/a goal   A add   space done   "
+         "e edit   d del   n note   t today   ? keys   q quit", CP["sub"])
     stdscr.refresh()
 
 
