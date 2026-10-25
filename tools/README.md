@@ -13,6 +13,16 @@ folder and removes it afterwards. Standard library only, like the engine.
 
 On Windows use `python` or `py -3` instead of `python3`.
 
+## Companion tool
+
+`tools/timetable.py` is not a check — it's a small learner-facing viewer of the
+daily routine. It reads the day shape from `learner/schedule.md` and keeps
+per-day goals and date-specific overrides in `learner/timetable.json` (so they
+sync with the rest of the learner's progress). `timetable help` lists its
+commands; `timetable` alone shows today. On its first interactive run it copies
+itself to `/var/x` and adds a `timetable` alias to `~/.zshrc`. It finds the
+repository through `CALAMITY_REPO` (default `~/calamity-framework`).
+
 Continuous integration runs the unit tests (`python3 engine/calamity.py selftest`)
 on Linux, macOS and Windows with every supported Python, and `tools/e2e.py`
 and a short `tools/fuzz.py` on each system. Run a longer fuzz before a
