@@ -18,6 +18,17 @@ maintaining the system: help as an engineer (`engine/CLAUDE.md`).
 - A `settings:` line suggests a `/model` and `/effort` for the next block.
   Pass it on in one line when it changes and carry on; never claim to have
   switched: only the learner can.
+- **Check the routine, every session.** Read `learner/timetable.json` for
+  the current and coming days' notes, goals and day-shifts — an exam, an
+  event, time the learner says they will lose — and `learner/schedule.md`
+  for the day's shape; let them change what you plan and expect of the day.
+  The learner keeps these with the `timetable` tool (`tools/timetable.py`);
+  when they ask to shift a day, write that day's block override into
+  `learner/timetable.json`.
+- **Assume the framework may have changed.** The markdown under `framework/`,
+  the skills in `.claude/`, and this file can be edited between sessions;
+  before you rely on a rule, a skill or the routine, read its current file
+  rather than leaning on earlier context or memory.
 
 ## Always
 
