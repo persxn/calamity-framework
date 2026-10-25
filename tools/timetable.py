@@ -1,24 +1,30 @@
 #!/usr/bin/env python3
-"""timetable — see today's routine, set goals, read per-date shifts.
+"""timetable — an interactive day planner over your Calamity routine.
 
-The routine comes from learner/schedule.md (the single source of truth the
-coach maintains): a weekday shape and a weekend shape. Goals you set and
-date-specific shifts live in learner/timetable.json, so they sync with the
-rest of your progress and Claude can read/edit them.
+Run `timetable` in a terminal and it opens a curses TUI: move through the
+day's time-slots, attach goals to a slot, add unscheduled goals, tick them
+off, and leave a note on any day (an exam, an event, time you'll lose) so
+Claude can see it. Arrow left/right moves between days.
 
-  timetable                 today's routine + goals (default)
-  timetable <date>          any day: a date, today/tomorrow/yesterday,
-                            a weekday (mon..sun), or +N / -N days
+The routine comes from learner/schedule.md (the source of truth the coach
+maintains); goals, notes and date-specific shifts live in
+learner/timetable.json, so they sync with the rest of your progress.
+
+Keys in the TUI:
+  ↑ ↓ / j k   move between slots and goals
+  ← → / h l   previous / next day        t / T   today / jump to a date
+  ⏎ or a      slot → add a goal to it; goal → toggle done
+  A           add an unscheduled goal     space   toggle a goal done
+  e / d       edit / delete a goal        n       set the day's note
+  ?           key help                    q       quit (saves as you go)
+
+Without a terminal (a pipe, or Claude running it) it prints the day instead.
+Scripting commands still work:
+  timetable print [date]    print a day (date, today/tomorrow, mon..sun, +N)
   timetable week            the next 7 days at a glance
-  timetable goal "text"     add a goal (today), optionally --at / --block / --date
-  timetable goals [date]    list goals with their numbers
-  timetable done N          tick goal N off  (undone N / drop N also)
-  timetable note <date> "…" a one-line note on a day
-  timetable path            where the files live
-  timetable help
-
-Shifting a whole day's blocks is Claude's job: ask it, and it writes the
-override into learner/timetable.json. This tool shows it.
+  timetable goal "text"     add a goal   (--at HH:MM / --block "name" / --date)
+  timetable goals [date] · done N · undone N · drop N · note <date> "…"
+  timetable path · help
 
 First interactive run copies itself to /var/x and adds the `timetable` alias
 to ~/.zshrc (needs sudo once for /var/x); after that just type `timetable`.
@@ -39,7 +45,7 @@ ZSHRC = os.path.join(HOME, ".zshrc")
 INSTALL_PATH = "/var/x"          # where first run copies itself; the alias target
 WIDTH = 64
 
-# ── fog palette (truecolor), matching the desktop widgets ────────────────────
+# ── fog palette (truecolor), for the static print output ─────────────────────
 ICE = (230, 234, 240)      # primary text / values
 STEEL = (159, 180, 212)    # headers / accent
 SUB = (168, 178, 192)      # secondary text
@@ -191,7 +197,6 @@ def engine_line():
         return ""
 
 
-# ── rendering ────────────────────────────────────────────────────────────────
 def current_index(blocks, now_min):
     for i, b in enumerate(blocks):
         try:
@@ -214,6 +219,7 @@ def goal_tag(g):
     return ""
 
 
+# ── static rendering (the non-tty fallback and `print`) ──────────────────────
 def render(date, store):
     blocks, ov = day_blocks(date, store)
     is_today = date == dt.date.today()
@@ -241,6 +247,7 @@ def render(date, store):
 
     if not blocks:
         print("  " + c("no routine found in schedule.md for this day", OVERLAY))
+    goals = store["goals"].get(date.isoformat(), [])
     for i, b in enumerate(blocks):
         is_cur = i == cur
         try:
@@ -250,9 +257,8 @@ def render(date, store):
         mark = c("▸", AMBER, bold=True) if is_cur else " "
         glyph = c("■", AMBER) if is_cur else c("·", OVERLAY)
         if is_cur:
-            tcol, ncol = AMBER, ICE
-            name = c(b["name"], ncol, bold=True)
-            tstr = c(b["start"], tcol, bold=True)
+            name = c(b["name"], ICE, bold=True)
+            tstr = c(b["start"], AMBER, bold=True)
         elif past:
             name = c(b["name"], OVERLAY)
             tstr = c(b["start"], OVERLAY)
@@ -260,28 +266,27 @@ def render(date, store):
             name = c(b["name"], ICE)
             tstr = c(b["start"], SUB)
         print(f"  {mark} {tstr}  {glyph}  {name}")
+        for g in [x for x in goals if x.get("block") == b["name"]]:
+            box = c("✓", GREEN) if g.get("done") else c("○", SUB)
+            txt = c(g["text"], OVERLAY) if g.get("done") else c(g["text"], ICE)
+            print(f"        {box} {txt}")
 
-    # goals
-    goals = store["goals"].get(date.isoformat(), [])
     print("  " + rule())
-    head = "goals today" if is_today else "goals " + date.isoformat()
+    head = "goals" if is_today else "goals " + date.isoformat()
     print("  " + c(head, STEEL, bold=True))
+    gen = [g for g in goals if not g.get("block")]
     if not goals:
-        print("  " + c("none yet — timetable goal \"...\"", OVERLAY))
-    for i, g in enumerate(goals, 1):
-        done = g.get("done")
-        box = c("✓", GREEN) if done else c("○", SUB)
-        num = c(f"{i}", OVERLAY)
-        txt = c(g["text"], OVERLAY) if done else c(g["text"], ICE)
-        tag = c(" " + goal_tag(g), OVERLAY) if goal_tag(g) else ""
-        print(f"   {box} {num}  {txt}{tag}")
+        print("  " + c("none yet", OVERLAY))
+    for g in gen:
+        box = c("✓", GREEN) if g.get("done") else c("○", SUB)
+        txt = c(g["text"], OVERLAY) if g.get("done") else c(g["text"], ICE)
+        print(f"   {box} {txt}")
 
-    # footer
     print("  " + rule())
     el = engine_line() if is_today else ""
     if el:
         print("  " + c("engine  " + el, OVERLAY))
-    print("  " + c("goal  timetable goal \"…\"", SUB) + c("    ·    shift a day  ask Claude", OVERLAY))
+    print("  " + c("plan  timetable", SUB) + c("    ·    shift a day  ask Claude", OVERLAY))
     print()
 
 
@@ -299,16 +304,350 @@ def render_week(store):
         shape = "weekend" if d.weekday() >= 5 else "weekday"
         if shifted:
             shape = (ov.get("label") or "shifted")
+        note = (ov or {}).get("note")
         tag = "today" if n == 0 else d.strftime("%a")
         label = f"{tag:<5} {d.isoformat()}"
         gtxt = f"{done}/{len(goals)} goals" if goals else "—"
         line = f"  {c(label, ICE if n == 0 else SUB)}  {c(shape, AMBER if shifted else OVERLAY):<10}  {c(gtxt, SUB)}"
+        if note:
+            line += c("   » " + note[:28], AMBER)
         print(line)
     print("  " + rule())
     print()
 
 
-# ── arg helpers ──────────────────────────────────────────────────────────────
+# ── interactive TUI (curses) ─────────────────────────────────────────────────
+# Terminal colours approximate the fog palette — truecolor isn't portable in
+# curses, so we map to the nearest xterm-256 indices (or the 8 base colours).
+curses = None
+CP = {}
+
+
+def _init_colors():
+    try:
+        curses.start_color()
+        curses.use_default_colors()
+        bg = -1
+    except curses.error:
+        bg = 0
+    if curses.COLORS >= 256:
+        spec = {"steel": 110, "amber": 179, "sub": 246, "dim": 240, "green": 108, "ice": 253}
+    else:
+        spec = {"steel": curses.COLOR_CYAN, "amber": curses.COLOR_YELLOW,
+                "sub": curses.COLOR_WHITE, "dim": curses.COLOR_BLUE,
+                "green": curses.COLOR_GREEN, "ice": curses.COLOR_WHITE}
+    for i, (name, fg) in enumerate(spec.items(), 1):
+        try:
+            curses.init_pair(i, fg, bg)
+            CP[name] = curses.color_pair(i)
+        except curses.error:
+            CP[name] = 0
+
+
+def _prompt(stdscr, label, prefill=""):
+    """A one-line editable field on the bottom row. Enter submits, Esc cancels."""
+    curses.curs_set(1)
+    buf = list(prefill)
+    res = None
+    while True:
+        h, w = stdscr.getmaxyx()
+        stdscr.move(h - 1, 0)
+        stdscr.clrtoeol()
+        shown = (label + "".join(buf))
+        if len(shown) > w - 2:
+            shown = shown[-(w - 2):]
+        try:
+            stdscr.addnstr(h - 1, 0, shown, w - 1, CP.get("amber", 0))
+        except curses.error:
+            pass
+        stdscr.refresh()
+        try:
+            ch = stdscr.get_wch()
+        except curses.error:
+            continue
+        if isinstance(ch, str):
+            if ch in ("\n", "\r"):
+                res = "".join(buf).strip()
+                break
+            if ch == "\x1b":                       # Esc → cancel
+                res = None
+                break
+            if ch in ("\x7f", "\b"):
+                if buf:
+                    buf.pop()
+            elif ch.isprintable():
+                buf.append(ch)
+        else:                                       # special key (int)
+            if ch in (curses.KEY_BACKSPACE, 127, 8):
+                if buf:
+                    buf.pop()
+    curses.curs_set(0)
+    return res
+
+
+def _build(state):
+    """Return (lines, selectables): each line is (segments, sel_id)."""
+    date = state["date"]
+    store = state["store"]
+    blocks, ov = day_blocks(date, store)
+    goals = store["goals"].get(date.isoformat(), [])
+    is_today = date == dt.date.today()
+    now_min = dt.datetime.now().hour * 60 + dt.datetime.now().minute
+    cur = current_index(blocks, now_min) if is_today else -1
+
+    lines, sels = [], []
+
+    def add(segs, ref=None):
+        sid = None
+        if ref is not None:
+            sid = len(sels)
+            sels.append(ref)
+        lines.append((segs, sid))
+
+    shifted = bool(ov and ov.get("blocks"))
+    shape = "weekend · reset" if date.weekday() >= 5 else "weekday"
+    if shifted:
+        shape = (ov.get("label") or "shifted day") + " · override"
+    add([("timetable · " + date.strftime("%A %-d %B"), CP["steel"] | curses.A_BOLD),
+         ("   " + shape, CP["amber"] if shifted else CP["sub"])])
+    note = ov.get("note") if ov else None
+    add([("note  ", CP["sub"]),
+         (note, CP["amber"]) if note else ("— press n to log an exam / event", CP["dim"])])
+    add([("", 0)])
+
+    if not blocks:
+        add([("no routine in schedule.md for this day", CP["dim"])])
+    for i, b in enumerate(blocks):
+        is_cur = i == cur
+        tcol = CP["amber"] if is_cur else CP["sub"]
+        ncol = (CP["amber"] if is_cur else CP["ice"]) | (curses.A_BOLD if is_cur else 0)
+        glyph = "■" if is_cur else "·"
+        add([(f"{b['start']}  ", tcol), (f"{glyph} ", tcol), (b["name"], ncol)],
+            ref=("slot", b))
+        for g in [x for x in goals if x.get("block") == b["name"]]:
+            box = "✓" if g.get("done") else "○"
+            bc = CP["green"] if g.get("done") else CP["sub"]
+            tc = CP["dim"] if g.get("done") else CP["ice"]
+            add([("      " + box + "  ", bc), (g["text"], tc)], ref=("goal", g))
+
+    gen = [g for g in goals if not g.get("block")]
+    add([("", 0)])
+    add([("unscheduled goals", CP["steel"] | curses.A_BOLD)])
+    if not gen:
+        add([("  press A to add one not tied to a slot", CP["dim"])])
+    for g in gen:
+        box = "✓" if g.get("done") else "○"
+        bc = CP["green"] if g.get("done") else CP["sub"]
+        tc = CP["dim"] if g.get("done") else CP["ice"]
+        add([("  " + box + "  ", bc), (g["text"], tc)], ref=("goal", g))
+
+    return lines, sels
+
+
+def _draw(stdscr, state):
+    lines, sels = _build(state)
+    state["sels"] = sels
+    if sels:
+        state["sel"] = max(0, min(state["sel"], len(sels) - 1))
+    else:
+        state["sel"] = 0
+
+    sel_line = None
+    for li, (_, sid) in enumerate(lines):
+        if sid is not None and sid == state["sel"]:
+            sel_line = li
+            break
+
+    h, w = stdscr.getmaxyx()
+    body_h = max(1, h - 2)
+    top = state["top"]
+    if sel_line is not None:
+        if sel_line < top:
+            top = sel_line
+        elif sel_line >= top + body_h:
+            top = sel_line - body_h + 1
+    top = max(0, min(top, max(0, len(lines) - body_h)))
+    state["top"] = top
+
+    stdscr.erase()
+    for row in range(body_h):
+        li = top + row
+        if li >= len(lines):
+            break
+        segs, sid = lines[li]
+        selected = sid is not None and sid == state["sel"]
+        if selected:
+            try:
+                stdscr.addnstr(row, 0, " " * (w - 1), w - 1, CP["ice"] | curses.A_REVERSE)
+                stdscr.addnstr(row, 0, "▸", 1, CP["amber"] | curses.A_BOLD | curses.A_REVERSE)
+            except curses.error:
+                pass
+        x = 2
+        for text, attr in segs:
+            if not text:
+                continue
+            a = attr | (curses.A_REVERSE if selected else 0)
+            try:
+                stdscr.addnstr(row, x, text, max(0, w - 1 - x), a)
+            except curses.error:
+                pass
+            x += len(text)
+
+    hints = ("↑↓ move   ←→ day   ⏎/a goal   A unsched   space done   "
+             "e edit   d del   n note   t today   ? keys   q quit")
+    try:
+        if state.get("engine"):
+            stdscr.addnstr(h - 2, 2, "engine  " + state["engine"], w - 3, CP["dim"])
+        stdscr.addnstr(h - 1, 0, hints, w - 1, CP["sub"])
+    except curses.error:
+        pass
+    stdscr.refresh()
+
+
+def _help_overlay(stdscr):
+    keys = [
+        ("↑ ↓  / j k", "move between slots and goals"),
+        ("← →  / h l", "previous / next day"),
+        ("t  /  T", "jump to today  /  to a date you type"),
+        ("⏎  or  a", "slot: add a goal to it · goal: toggle done"),
+        ("A", "add an unscheduled goal for the day"),
+        ("space", "toggle the selected goal done"),
+        ("e  /  d", "edit / delete the selected goal"),
+        ("n", "set the day's note — exam, event, lost time"),
+        ("q", "quit  (everything saves as you go)"),
+    ]
+    h, w = stdscr.getmaxyx()
+    bh, bw = len(keys) + 4, min(w - 2, 60)
+    y0, x0 = max(0, (h - bh) // 2), max(0, (w - bw) // 2)
+    win = curses.newwin(bh, bw, y0, x0)
+    win.erase()
+    win.box()
+    try:
+        win.addnstr(0, 2, " keys ", bw - 4, CP["steel"] | curses.A_BOLD)
+        for i, (k, desc) in enumerate(keys, 2):
+            win.addnstr(i, 2, k, 12, CP["amber"])
+            win.addnstr(i, 15, desc, bw - 17, CP["sub"])
+    except curses.error:
+        pass
+    win.refresh()
+    win.getch()
+
+
+def _tui(stdscr, start_date):
+    curses.curs_set(0)
+    stdscr.keypad(True)
+    _init_colors()
+    state = {"date": start_date, "sel": 0, "top": 0,
+             "store": load_store(), "sels": [], "engine": engine_line()}
+
+    while True:
+        _draw(stdscr, state)
+        try:
+            k = stdscr.getch()
+        except KeyboardInterrupt:
+            break
+        sels = state["sels"]
+        sel = state["sel"]
+        ref = sels[sel] if 0 <= sel < len(sels) else None
+        store = state["store"]
+        iso = state["date"].isoformat()
+
+        if k in (ord("q"), ord("Q")):
+            break
+        elif k in (curses.KEY_DOWN, ord("j")):
+            state["sel"] = min(len(sels) - 1, sel + 1) if sels else 0
+        elif k in (curses.KEY_UP, ord("k")):
+            state["sel"] = max(0, sel - 1)
+        elif k in (curses.KEY_RIGHT, ord("l")):
+            state["date"] += dt.timedelta(days=1)
+            state["sel"] = state["top"] = 0
+        elif k in (curses.KEY_LEFT, ord("h")):
+            state["date"] -= dt.timedelta(days=1)
+            state["sel"] = state["top"] = 0
+        elif k == ord("t"):
+            state["date"] = dt.date.today()
+            state["sel"] = state["top"] = 0
+        elif k == ord("T"):
+            r = _prompt(stdscr, "jump to (YYYY-MM-DD / mon / +7): ")
+            d = parse_date(r) if r else None
+            if d:
+                state["date"] = d
+                state["sel"] = state["top"] = 0
+        elif k == ord("n"):
+            ov = store["overrides"].get(iso, {})
+            r = _prompt(stdscr, "note (exam/event; empty clears): ", prefill=ov.get("note", ""))
+            if r is not None:
+                o = store["overrides"].setdefault(iso, {})
+                if r:
+                    o["note"] = r
+                else:
+                    o.pop("note", None)
+                    if not o:
+                        store["overrides"].pop(iso, None)
+                save_store(store)
+        elif k in (10, 13, ord("a")):
+            if ref and ref[0] == "slot":
+                b = ref[1]
+                r = _prompt(stdscr, f"goal for {b['name']}: ")
+                if r:
+                    store["goals"].setdefault(iso, []).append(
+                        {"text": r, "at": b["start"], "block": b["name"], "done": False})
+                    save_store(store)
+            elif ref and ref[0] == "goal":
+                ref[1]["done"] = not ref[1].get("done")
+                save_store(store)
+        elif k == ord("A"):
+            r = _prompt(stdscr, "new unscheduled goal: ")
+            if r:
+                store["goals"].setdefault(iso, []).append(
+                    {"text": r, "at": None, "block": None, "done": False})
+                save_store(store)
+        elif k == ord(" "):
+            if ref and ref[0] == "goal":
+                ref[1]["done"] = not ref[1].get("done")
+                save_store(store)
+        elif k == ord("e"):
+            if ref and ref[0] == "goal":
+                r = _prompt(stdscr, "edit goal: ", prefill=ref[1]["text"])
+                if r:
+                    ref[1]["text"] = r
+                    save_store(store)
+        elif k in (ord("d"), curses.KEY_DC):
+            if ref and ref[0] == "goal":
+                lst = store["goals"].get(iso, [])
+                try:
+                    lst.remove(ref[1])
+                except ValueError:
+                    pass
+                if not lst:
+                    store["goals"].pop(iso, None)
+                save_store(store)
+                state["sel"] = max(0, sel - 1)
+        elif k == ord("?"):
+            _help_overlay(stdscr)
+        # KEY_RESIZE and anything else: just redraw
+
+
+def run_tui(start_date):
+    global curses
+    import curses as _curses
+    curses = _curses
+    curses.wrapper(_tui, start_date)
+
+
+def launch(date):
+    if (sys.stdout.isatty() and sys.stdin.isatty()
+            and not os.environ.get("TIMETABLE_NO_TUI")):
+        try:
+            run_tui(date)
+            return
+        except Exception as e:                     # curses unavailable / tiny term
+            print(c(f"timetable: TUI unavailable ({e}); printing instead.", AMBER),
+                  file=sys.stderr)
+    render(date, load_store())
+
+
+# ── CLI subcommands (scripting / non-tty) ────────────────────────────────────
 def pop_opt(args, name):
     if name in args:
         i = args.index(name)
@@ -437,7 +776,7 @@ HELP = __doc__
 def main():
     bootstrap()
     args = sys.argv[1:]
-    cmd = args[0] if args else "today"
+    cmd = args[0] if args else None
 
     if cmd in ("help", "-h", "--help"):
         print(HELP)
@@ -446,8 +785,6 @@ def main():
         print(f"schedule  {SCHEDULE}\nstore     {STORE}\ninstalled {INSTALL_PATH}\nrepo      {REPO}")
         return
     if cmd == "install":
-        # force the bootstrap even if non-interactive was the reason it skipped
-        os.environ.pop("TIMETABLE_NO_BOOTSTRAP", None)
         here = os.path.realpath(__file__)
         subprocess.run(["sudo", "install", "-m", "0755", here, INSTALL_PATH])
         ensure_alias()
@@ -474,12 +811,21 @@ def main():
             die(f"not a date: {args[1]}")
         render(d, load_store())
         return
+    if cmd == "print":
+        d = parse_date(args[1]) if len(args) > 1 else dt.date.today()
+        if not d:
+            die(f"not a date: {args[1]}")
+        render(d, load_store())
+        return
 
-    # otherwise: a date (today/tomorrow/mon/2026-10-28/+2 …)
+    # default: open the TUI (or print, without a terminal), at today or a date
+    if cmd is None:
+        launch(dt.date.today())
+        return
     d = parse_date(cmd)
     if d is None:
         die(f"unknown command or date: {cmd}  (try: timetable help)")
-    render(d, load_store())
+    launch(d)
 
 
 if __name__ == "__main__":

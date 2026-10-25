@@ -15,13 +15,17 @@ On Windows use `python` or `py -3` instead of `python3`.
 
 ## Companion tool
 
-`tools/timetable.py` is not a check — it's a small learner-facing viewer of the
-daily routine. It reads the day shape from `learner/schedule.md` and keeps
-per-day goals and date-specific overrides in `learner/timetable.json` (so they
-sync with the rest of the learner's progress). `timetable help` lists its
-commands; `timetable` alone shows today. On its first interactive run it copies
-itself to `/var/x` and adds a `timetable` alias to `~/.zshrc`. It finds the
-repository through `CALAMITY_REPO` (default `~/calamity-framework`).
+`tools/timetable.py` is not a check — it's a learner-facing day planner. Run
+`timetable` in a terminal and it opens a curses TUI: move through the day's
+time-slots, attach goals to a slot, add unscheduled goals, tick them off, move
+between days with ← →, and leave a note on any day (an exam, an event, time
+that will be lost) that Claude can then read. It reads the day shape from
+`learner/schedule.md` and keeps goals, notes and date-specific overrides in
+`learner/timetable.json` (so they sync with the learner's progress). Without a
+terminal it prints the day instead; `timetable help` lists the scripting
+subcommands. On its first interactive run it copies itself to `/var/x` and adds
+a `timetable` alias to `~/.zshrc`. It finds the repository through
+`CALAMITY_REPO` (default `~/calamity-framework`).
 
 Continuous integration runs the unit tests (`python3 engine/calamity.py selftest`)
 on Linux, macOS and Windows with every supported Python, and `tools/e2e.py`
