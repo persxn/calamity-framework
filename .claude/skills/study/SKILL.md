@@ -68,7 +68,7 @@ a review or a topic already taught, or prints what comes instead:
 | It prints | Do |
 |---|---|
 | an item | Ask and record it (below). |
-| `NEXT: new` | Teach one chunk from where the block says to start (its `start from` line, `level`, `builds on` and `objectives`): what the idea is and why it exists, each new word defined, the simplest example, then one worked example and one thing for the learner to do. Then `python3 engine/calamity.py ask --topic <key> --taught`, which records the teaching and serves the question. If it adds a `note:` that earlier topics were never studied, go back to them first. |
+| `NEXT: new` | Teach one chunk from where the block says to start (its `start from` line, `level`, `builds on` and `objectives`): what the idea is and why it exists, each new word defined, the simplest example, then one worked example and one thing for the learner to do, teaching to the depth contract in `framework/method.md` (motivation and history, inner mechanics, a real use-case, and — for a tool — the key flags and how they combine). Then `python3 engine/calamity.py ask --topic <key> --taught`, which records the teaching and serves the question. If it adds a `note:` that earlier topics were never studied, go back to them first. |
 | `NEXT: watch` | Name the next lecture. When the learner has watched it, `python3 engine/calamity.py log <source> <item>`; its test follows. If they would rather carry on with another skill, `ask --skill <other>`. |
 | `NEXT: boss` | Run the boss skill for that skill. |
 | `NEXT: syllabus` | Delegate to the `curriculum-architect` agent ("write the syllabus for `<skill>` for this learner"), then `python3 engine/calamity.py syllabus check <skill>`. |

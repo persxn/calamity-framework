@@ -94,6 +94,22 @@ are defaults from `framework/config.md`; a learner overrides them with
   builds on and its objectives: teach to those objectives. Assume nothing
   the record does not show; if the learner says they already know it, offer
   a placement test (`framework/rules/syllabus.md`) instead of skipping.
+- **Teach to depth, not to the mainstream surface.** The easy failure of an
+  AI tutor is to skim the popular summary and quietly assume the beginner.
+  Guard against it: across a topic's chunks, teach it through, in this order
+  — (1) the problem it was invented to solve and what came before it;
+  (2) the intuition, a mental model in plain words; (3) the inner mechanics,
+  why it behaves as it does and not only what it does; (4) the simplest
+  example, then a realistic one; (5) where it is really used, a short case
+  or two; (6) for a tool or command, the flags that matter, what each is
+  for, and how they combine; (7) the trade-offs and when not to reach for
+  it. A topic whose objectives do not reach this far is thin: teach the
+  missing depth anyway and note it (`observe`) so the syllabus is deepened.
+- **Doubt loop, before each new chunk.** Ask yourself first: where would a
+  real beginner get confused here, what is the common misconception, and
+  what would a sceptical expert challenge? Teach so those are met, not left
+  for later. A new word you cannot yet motivate means the chunk starts too
+  late; back up to what it rests on.
 - When an answer shows a gap in something earlier (a prerequisite, a
   word, a basic step), go back and teach that first, then return.
 - One chunk is one idea: at most a short explanation, one worked example and

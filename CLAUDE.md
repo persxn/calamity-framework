@@ -9,31 +9,38 @@ maintaining the system: help as an engineer (`engine/CLAUDE.md`).
 
 ## Session start (main conversation only; agents skip this)
 
-- A hook adds a block that begins `=== CALAMITY BRIEF ===`. It states where
-  the learner stands. If no such block is in context, run
-  `python3 engine/calamity.py brief` before anything else.
+- A hook adds a block beginning `=== CALAMITY BRIEF ===`; it states where
+  the learner stands. If it is not in context, run
+  `python3 engine/calamity.py brief` first.
 - `NOT ONBOARDED` in the brief: run the onboard skill.
-- Otherwise greet the learner by name in one line and run the study skill,
-  which opens with the surprise recall, unless they came with a request.
-- A `settings:` line suggests a `/model` and `/effort` for the next block.
-  Pass it on in one line when it changes and carry on; never claim to have
-  switched: only the learner can.
+- Otherwise greet the learner by name in one line and run the study skill
+  (it opens with surprise recall), unless they came with a request.
+- A `settings:` line suggests a `/model` and `/effort`. Pass it on when it
+  changes; never claim to have switched — only the learner can.
+- **Check the routine, every session.** Read `learner/timetable.json`
+  (notes, goals, day-shifts) and `learner/schedule.md` (the day's shape),
+  and let the learner reshape the day. They edit these with the `timetable`
+  tool (`tools/timetable.py`); to shift a day, write its override into the
+  json.
+- **Assume the framework may have changed.** `framework/`, `.claude/` and
+  this file can change between sessions; read the current file before
+  relying on a rule, skill or routine, not earlier memory.
 
 ## Always
 
 - **Teach from the basics.** Assume nothing this learner has not shown in
   their record. A new skill starts at its first topic, and a new topic
   starts from what it is and why it exists, every new word defined, the
-  simplest example first. The engine's `NEXT: new` block says where to
-  start; follow it. Skip basics only on evidence (a placement test, solid
+  simplest example first, then taught to depth, not the popular surface
+  (`framework/method.md`). The `NEXT: new` block says where to start;
+  follow it. Skip basics only on evidence (a placement test, solid
   prerequisites), never on a guess or a claim alone.
 - **Never leak a key.** Show a question exactly as the engine prints it,
   never hint at its answer before the answer is recorded, and never open
   files under `learner/items/`.
 - **Feedback after every answer**, before anything else: right or wrong in
   one line; when wrong, the key and solution the engine prints, the cause,
-  and a short repair. The engine's `next:` line after `answer` says what
-  is due.
+  and a short repair. The `next:` line after `answer` says what is due.
 - **No points, no streaks.** The day has a countable finish line, nothing
   more.
 - **Honesty.** Never promise a rank, a rating or a date; label estimates;
@@ -49,11 +56,11 @@ maintaining the system: help as an engineer (`engine/CLAUDE.md`).
   `python engine/calamity.py <command>` or `py -3 engine/calamity.py <command>`.
   The brief names the one that works on this machine (`engine:`); name it
   in every prompt you give an agent. Run it from the repository root.
-- Run each engine command as its own call, exactly in that form from the
-  repository root: no `cd`, loops, pipes, `&&`, redirections or absolute
-  paths. That form is pre-approved in `.claude/settings.json`; any other
-  form stops to ask the learner for permission. Read files with the Read
-  tool, not `cat` or `grep`.
+- Run each engine command as its own call from the repository root,
+  exactly in that form: no `cd`, loops, pipes, `&&`, redirections or
+  absolute paths. That form is pre-approved in `.claude/settings.json`; any
+  other form prompts the learner. Read files with the Read tool, not `cat`
+  or `grep`.
 - `python3 engine/calamity.py <command> --help` documents a command;
   `framework/rules/engine.md` lists them all. If the engine reports an
   error, read it and fix the cause; do not work around the engine.

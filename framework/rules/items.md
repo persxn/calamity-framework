@@ -65,6 +65,11 @@ How the engine grades:
 
 - **One idea per item**, plus the woven topics. If a learner fails, it
   should be clear what they did not know.
+- **Test understanding, not only recall.** Prefer items that ask *why* —
+  the mechanism, the reason, the trade-off — over items that only recall a
+  fact or run a recipe. When a topic gets more than one item, at least one
+  tests the mechanism or a trade-off; for a tool or command, at least one
+  tests choosing or combining its flags for a stated goal.
 - **Answerable from the stem alone.** No "as discussed", no reliance on a
   file the learner may not have.
 - **Wrong options are real mistakes**: each distractor is what a specific
