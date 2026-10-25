@@ -44,7 +44,10 @@ format, the topic's objectives and, sometimes, earlier topics to embed.
 
    For the learner's level and preferences: `python3 engine/calamity.py profile show`.
 3. Write one item per topic unless told otherwise, at the requested
-   difficulty and in the requested format. Hands-on skills get hands-on
+   difficulty and in the requested format. Favour items that test *why* —
+   the mechanism or the trade-off — over bare recall, and for a tool an
+   item that tests choosing or combining flags for a goal (quality bar in
+   `framework/rules/items.md`). Hands-on skills get hands-on
    items, but first check the tool exists here (`docker --version`, the
    compiler, the runtime); if it does not, write no hands-on item for that
    topic and report it as missing the tool. Embed the listed earlier topics only where a practitioner would

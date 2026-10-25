@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
+  "name": "calamity",
+  "description": "The Calamity learning ecosystem: the Calamity tutor, and room for companion plugins that share the same honest, evidence-first way of working.",
+  "owner": { "name": "Calamity Framework" },
+  "metadata": { "version": "0.1.0" },
+  "plugins": [
+    {
+      "name": "calamity",
+      "source": ".",
+      "description": "The adaptive tutor, GATE companion and competitive-programming coach, with its curriculum tree, skills and agents.",
+      "category": "learning",
+      "tags": ["learning", "tutor", "gate", "competitive-programming"]
+    }
+  ]
+}

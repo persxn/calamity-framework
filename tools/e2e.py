@@ -144,7 +144,7 @@ def main():
 
     section("fresh clone")
     out = a.cal("brief")
-    assert "NOT ONBOARDED" in out and "150 skills" in out, out
+    assert "NOT ONBOARDED" in out and "164 skills" in out, out
     print(out.strip())
     doctor = a.cal("doctor")
     assert "0 problem(s)" in doctor, doctor

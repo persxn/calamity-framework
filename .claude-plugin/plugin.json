@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin.json",
+  "name": "calamity",
+  "displayName": "Calamity Framework",
+  "version": "0.1.0",
+  "description": "An engine-backed learning system: an adaptive tutor, a GATE companion and a competitive-programming coach that teach from the basics, test at once, weave earlier skills back in, and keep an honest, evidence-based record.",
+  "author": { "name": "Calamity Framework" },
+  "keywords": ["learning", "tutor", "spaced-repetition", "gate", "competitive-programming", "study"],
+  "skills": ["./.claude/skills/"],
+  "agents": [
+    "./.claude/agents/examiner.md",
+    "./.claude/agents/checker.md",
+    "./.claude/agents/curriculum-architect.md",
+    "./.claude/agents/cp-coach.md",
+    "./.claude/agents/gate-strategist.md",
+    "./.claude/agents/habit-coach.md",
+    "./.claude/agents/bridge-engineer.md",
+    "./.claude/agents/notes-writer.md"
+  ]
+}

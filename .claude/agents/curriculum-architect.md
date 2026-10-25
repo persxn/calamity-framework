@@ -35,6 +35,12 @@ Read `framework/rules/syllabus.md` and follow its procedure and rules.
 3. Write `learner/syllabus/<skill>.md`: 8 to 25 topics, each one idea that
    can be taught and tested in 20 to 40 minutes, ordered by dependency,
    with `needs`, `level` and objectives that are things the learner does.
+   Give each topic objectives deep enough for the depth contract in
+   `framework/method.md`: across the skill, the topics must let the tutor
+   cover the motivation and history, the inner mechanics (why, not only
+   what), real use-cases, and — for a tool — the flags that matter and how
+   they combine. Objectives of the form "use X to do Y" alone are too thin;
+   add "explain why …" and "choose between …" beside them.
    Cover the whole scope and end with a topic that leads into the skill's
    boss. Fit it to the learner: finer steps for a novice, merged basics for
    an experienced developer, emphasis where their goal needs it. Without

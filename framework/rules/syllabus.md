@@ -59,6 +59,13 @@ wait for what it uses without the whole skill depending on the other.
   20 to 40 minutes. If it needs more, split it.
 - **Objectives are things the learner does**: "write", "explain why",
   "debug", "choose between". Each bullet must be testable by an item.
+- **Deep enough for the depth contract.** Across a skill, the topics must
+  let the tutor teach to the depth contract in `framework/method.md`: the
+  motivation and history, the inner mechanics (why, not only what), real
+  use-cases, and — for a tool — the flags that matter and how they combine.
+  Objectives that only say "use X to do Y" are thin; pair them with
+  "explain why …", "when would you not …" and, for a tool, "combine the
+  flags to …".
 - **Order by dependency.** List topics so that every `needs` comes earlier.
   `needs` names topic ids of the same skill only.
 - **Cover the whole scope**, and end with a topic that pulls the skill
