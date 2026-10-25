@@ -1,0 +1,9 @@
+\section*{Chapter~\ref{ch:ls}}
+
+\begin{solution}{ex:ls-a-vs-A}
+\flag{-a} lists every entry, including the special entries \cmd{.} and \cmd{..}; \flag{-A} lists the hidden files but omits those two.
+\end{solution}
+
+\begin{solution}{ex:ls-hang}
+\cmd{ls} must read every entry with \cmd{getdents64} before sorting, so nothing prints until the whole directory is read. Use \cmd{ls -U} to skip sorting, or \cmd{find . -maxdepth 1}, which streams.
+\end{solution}

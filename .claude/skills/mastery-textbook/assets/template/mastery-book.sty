@@ -1,0 +1,171 @@
+% mastery-book.sty — house style for mastery-textbook study books.
+% Works with pdflatex on a minimal TeX Live; better fonts are used when present.
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{mastery-book}[2026/10/25 Mastery study-book style]
+
+% ---------- Fonts (graceful fallbacks) ----------
+\RequirePackage[T1]{fontenc}
+\RequirePackage[utf8]{inputenc}
+\IfFileExists{mathpazo.sty}{\RequirePackage[sc]{mathpazo}\linespread{1.05}}{%
+  \IfFileExists{lmodern.sty}{\RequirePackage{lmodern}}{}}
+\IfFileExists{helvet.sty}{\RequirePackage[scaled=0.92]{helvet}}{}
+\IfFileExists{inconsolata.sty}{\RequirePackage[varqu,varl]{inconsolata}}{%
+  \IfFileExists{beramono.sty}{\RequirePackage[scaled=0.85]{beramono}}{%
+    \IfFileExists{lmodern.sty}{\renewcommand{\ttdefault}{lmtt}}{%
+      \IfFileExists{courier.sty}{\RequirePackage{courier}}{}}}}
+\RequirePackage{microtype}
+% Never merge "--" into a dash (or << into guillemets) in typewriter text: flags must print literally.
+\DisableLigatures[-,<,>,`,']{encoding=*, family=tt*}
+
+% ---------- Page and structure ----------
+\RequirePackage[a4paper,inner=28mm,outer=24mm,top=26mm,bottom=28mm,headheight=14pt]{geometry}
+\RequirePackage{amsmath,amssymb,amsthm}
+\RequirePackage{graphicx}
+\RequirePackage{xcolor}
+\RequirePackage{booktabs,tabularx,longtable,array}
+\RequirePackage{enumitem}
+\RequirePackage{caption}
+\RequirePackage{float}
+\RequirePackage{etoolbox}
+\RequirePackage{titlesec}
+\RequirePackage{fancyhdr}
+\RequirePackage[numbers,sort&compress]{natbib}
+\RequirePackage{listings}
+\RequirePackage[most]{tcolorbox}
+
+% ---------- Palette (keep in sync with SVG figures) ----------
+\definecolor{mbInk}{HTML}{1F2933}
+\definecolor{mbAccent}{HTML}{1D4E89}   % blue: definitions, key ideas
+\definecolor{mbTeal}{HTML}{0F766E}     % teal: under the hood, designer's notes
+\definecolor{mbAmber}{HTML}{B45309}    % amber: gotchas, misconceptions
+\definecolor{mbRed}{HTML}{B91C1C}      % red: outages, AI failure modes
+\definecolor{mbViolet}{HTML}{6D28D9}   % violet: interview corner
+\definecolor{mbGreen}{HTML}{15803D}    % green: try it
+\definecolor{mbSlate}{HTML}{475569}    % slate: origin, vocabulary
+\definecolor{mbPaper}{HTML}{F8FAFC}
+\definecolor{mbCodeBg}{HTML}{F3F4F6}
+
+% ---------- Headings and headers ----------
+\titleformat{\chapter}[display]
+  {\normalfont\sffamily\bfseries\color{mbInk}}
+  {\large\color{mbAccent}\MakeUppercase{\chaptertitlename}~\thechapter}
+  {6pt}{\Huge}
+  [\vspace{4pt}{\color{mbAccent}\titlerule[1.2pt]}]
+\titlespacing*{\chapter}{0pt}{-10pt}{28pt}
+\titleformat{\section}{\normalfont\sffamily\Large\bfseries\color{mbInk}}{\color{mbAccent}\thesection}{0.8em}{}
+\titleformat{\subsection}{\normalfont\sffamily\large\bfseries\color{mbInk}}{\color{mbAccent}\thesubsection}{0.8em}{}
+\titleformat{\subsubsection}{\normalfont\sffamily\normalsize\bfseries\color{mbInk}}{}{0em}{}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\sffamily\small\color{mbSlate}\nouppercase{\leftmark}}
+\fancyhead[R]{\sffamily\small\color{mbSlate}\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\fancypagestyle{plain}{\fancyhf{}\fancyfoot[C]{\sffamily\small\color{mbSlate}\thepage}\renewcommand{\headrulewidth}{0pt}}
+
+\setlist{itemsep=2pt,topsep=4pt}
+\captionsetup{font={small,sf},labelfont={bf,color=mbAccent},margin=6mm}
+\setlength{\parskip}{3pt plus 1pt}
+
+% ---------- Callout boxes ----------
+% Usage: \begin{gotcha}[optional subtitle] ... \end{gotcha}
+\newcommand{\mb@boxsubtitle}[1]{\if\relax\detokenize{#1}\relax\else\ --- #1\fi}
+\newcommand{\mb@newbox}[3]{% #1 env name, #2 label, #3 colour
+  \newtcolorbox{#1}[1][]{%
+    enhanced, breakable, colback=#3!4!white, colframe=#3,
+    boxrule=0pt, leftrule=2.5pt, arc=1pt, outer arc=1pt,
+    left=8pt, right=8pt, top=5pt, bottom=5pt,
+    before skip=10pt, after skip=10pt,
+    fonttitle=\sffamily\bfseries\small, coltitle=#3, colbacktitle=#3!4!white,
+    attach title to upper, after title={\par\smallskip},
+    title={#2\mb@boxsubtitle{##1}}}}
+\mb@newbox{origin}{Origin story}{mbSlate}
+\mb@newbox{keyidea}{Key idea}{mbAccent}
+\mb@newbox{plainwords}{In plain words}{mbAccent}
+\mb@newbox{underthehood}{Under the hood}{mbTeal}
+\mb@newbox{designnote}{Designer's note}{mbTeal}
+\mb@newbox{tryit}{Try it}{mbGreen}
+\mb@newbox{gotcha}{Gotcha}{mbAmber}
+\mb@newbox{misconception}{Common misconception}{mbAmber}
+\mb@newbox{interview}{Interview corner}{mbViolet}
+\mb@newbox{outage}{From the outage files}{mbRed}
+\mb@newbox{aiwatch}{When the AI gets it wrong}{mbRed}
+\mb@newbox{scale}{At scale}{mbSlate}
+
+% Definition: \begin{definition}{term} ... \end{definition}
+\newtcolorbox{definition}[1]{%
+  enhanced, breakable, colback=mbAccent!5!white, colframe=mbAccent,
+  boxrule=0.6pt, arc=2pt, left=8pt, right=8pt, top=5pt, bottom=5pt,
+  before skip=10pt, after skip=10pt,
+  fonttitle=\sffamily\bfseries\small, coltitle=white, colbacktitle=mbAccent,
+  title={Definition: #1}}
+
+% ---------- Inline technical text ----------
+% \cmd{ls -la --block-size=K} keeps dashes, underscores and # literal.
+% (A % sign cannot go inside; use \lstinline or a listing for that.)
+\newcommand{\cmd}[1]{\texttt{\detokenize{#1}}}
+\newcommand{\flag}[1]{\texttt{\detokenize{#1}}}
+\newcommand{\file}[1]{\texttt{\detokenize{#1}}}
+\newcommand{\term}[1]{\emph{#1}\index{#1}}
+\newcommand{\key}[1]{\fbox{\sffamily\footnotesize #1}}
+
+% ---------- Code listings ----------
+\lstdefinestyle{mbcode}{%
+  basicstyle=\ttfamily\small, columns=fullflexible, keepspaces=true,
+  backgroundcolor=\color{mbCodeBg}, frame=l, framerule=2pt, rulecolor=\color{mbSlate!50},
+  xleftmargin=10pt, framexleftmargin=6pt, aboveskip=8pt, belowskip=8pt,
+  breaklines=true, breakatwhitespace=false, showstringspaces=false, tabsize=4,
+  numbers=none, upquote=true,
+  keywordstyle=\color{mbAccent}\bfseries, commentstyle=\color{mbSlate}\itshape,
+  stringstyle=\color{mbTeal}}
+\lstdefinestyle{mbshell}{%
+  style=mbcode, language=bash, keywordstyle=\color{mbInk},
+  moredelim=[il][\color{mbGreen}\bfseries]{\$\ }, % "$ " prompt lines bold
+  literate={\$}{{\textcolor{mbGreen}{\$}}}1}
+\lstset{style=mbcode}
+\lstnewenvironment{shell}[1][]{\lstset{style=mbshell,#1}}{}
+\lstnewenvironment{code}[1][]{\lstset{style=mbcode,#1}}{}
+
+% ---------- Figures (SVG source -> PDF in figures/build) ----------
+% \svgfigure[width]{name}{caption}{label}
+% Source: figures/src/name.svg  Built: figures/build/name.pdf (by scripts/build.sh)
+\newcommand{\svgfigure}[4][0.92\linewidth]{%
+  \begin{figure}[htbp]\centering
+  \IfFileExists{figures/build/#2.pdf}{%
+    \includegraphics[width=#1]{figures/build/#2.pdf}}{%
+    \PackageWarning{mastery-book}{MISSING FIGURE #2}%
+    \fcolorbox{mbRed}{white}{\parbox{0.8\linewidth}{\centering\sffamily\color{mbRed}
+      MISSING FIGURE: \texttt{\detokenize{#2}}}}}%
+  \caption{#3}\label{#4}
+  \end{figure}}
+
+% ---------- Exercises and solutions ----------
+% Difficulty: 1 recall, 2 apply, 3 interview-grade, 4 project/design
+\newcounter{exercise}[chapter]
+\renewcommand{\theexercise}{\thechapter.\arabic{exercise}}
+\newcommand{\mb@stars}[1]{{\color{mbAmber}\ifcase#1\or$\star$\or$\star\star$\or$\star\star\star$\or$\star\star\star\star$\fi}}
+\newcommand{\mb@kind}[1]{\ifcase#1\or Recall\or Apply\or Interview\or Project\fi}
+% \begin{exercise}[difficulty]{ex:label} ... \end{exercise}   (label is required: solutions link to it)
+\newenvironment{exercise}[2][2]{%
+  \refstepcounter{exercise}\label{#2}\par\medskip\noindent
+  {\sffamily\bfseries Exercise \theexercise}\ \mb@stars{#1}\ {\sffamily\footnotesize\color{mbSlate}\mb@kind{#1}}\par\nobreak\noindent\ignorespaces}%
+  {\par}
+% In solutions/chNN.tex:  \begin{solution}{ex:label} ... \end{solution}
+\newenvironment{solution}[1]{%
+  \par\medskip\noindent{\sffamily\bfseries Solution to Exercise~\ref{#1}}\par\nobreak\noindent\ignorespaces}%
+  {\par}
+
+% Chapter-end sections
+\newcommand{\chaptersummary}{\section*{Chapter summary}\addcontentsline{toc}{section}{Chapter summary}}
+\newcommand{\chaptervocab}{\section*{Vocabulary}\addcontentsline{toc}{section}{Vocabulary}}
+\newcommand{\chapterexercises}{\section*{Exercises}\addcontentsline{toc}{section}{Exercises}}
+\newcommand{\furtherreading}{\section*{Further reading}\addcontentsline{toc}{section}{Further reading}}
+\newenvironment{vocablist}{\begin{description}[style=nextline,leftmargin=1.2em,font=\sffamily\bfseries\color{mbInk}]}{\end{description}}
+
+% ---------- Links (load last) ----------
+\RequirePackage[colorlinks=true,linkcolor=mbAccent,citecolor=mbTeal,urlcolor=mbAccent,bookmarksnumbered=true]{hyperref}
+\RequirePackage[capitalise,noabbrev]{cleveref}
+\crefname{exercise}{Exercise}{Exercises}
+\urlstyle{same}
+
+\endinput

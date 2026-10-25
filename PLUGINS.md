@@ -49,6 +49,27 @@ pipeline. So:
   progress, verified items, and anything that must show up on the roadmap,
   GATE board or recall queue. `mastery-coach` does not write engine events.
 
+## The `mastery-textbook` skill (an added skill)
+
+`.claude/skills/mastery-textbook/` is `mastery-coach`'s companion: it builds and
+grows a polished LaTeX study book (compiled to PDF) as the learner progresses —
+SVG figures, flag and comparison tables, real terminal output, graded exercises
+with worked solutions, and verified references, to the same first-principles
+standard. It ships a LaTeX template, an example chapter, reference guides, and a
+build toolchain in `scripts/` (`build.sh` converts SVGs, compiles with
+`latexmk`/`pdflatex`, renders pages, and runs `check_build.py`, a read-only
+report). The scripts touch only the book root passed as an argument and reach no
+network; a full LaTeX toolchain (`pdflatex`, `latexmk`, `pdftoppm`, an SVG
+converter) is needed to build, and the skill asks before any system install.
+
+Like `mastery-coach` it is an **added** skill (not in the engine's `SKILLS`
+set) and engine-independent: it writes a book into the learner's study-material
+store, outside the engine's event log. It **overlaps** the engine's `notes`
+skill and `notes-writer` agent (which also produce LaTeX notes and a PDF per
+skill): use `mastery-textbook` for a from-scratch, bestseller-standard book
+grown alongside `mastery-coach`; use `notes`/`notes-writer` for the
+engine-tracked per-topic notes fragments and skill PDFs.
+
 ## Known follow-ups before Calamity installs cleanly as a plugin
 
 These are not blockers for using the repository in project mode; they are what a
