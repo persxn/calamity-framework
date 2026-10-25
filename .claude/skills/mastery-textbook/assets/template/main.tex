@@ -1,0 +1,28 @@
+% Main file for a mastery study book. Replace every <<...>> placeholder.
+\documentclass[11pt,oneside]{book}
+\usepackage{mastery-book}
+
+\title{\sffamily\bfseries <<TOPIC>>\\[6pt]\Large\mdseries From First Principles to Mastery}
+\author{\sffamily <<LEARNER NAME, as they want it shown>>}
+\date{\sffamily Edition <<N>> --- <<DATE>>}
+
+\begin{document}
+\frontmatter
+\maketitle
+\include{frontmatter/preface}
+\tableofcontents
+
+\mainmatter
+% One \part per curriculum part, one \include per chapter.
+% \part{<<Part title>>}
+% \include{chapters/ch01-origin}
+
+\appendix
+\chapter{Hints and solutions}
+% \input{solutions/ch01}
+
+\backmatter
+\bibliographystyle{plainnat}
+\bibliography{refs}
+
+\end{document}

@@ -1,0 +1,91 @@
+\chapter{Listing a directory: \cmd{ls} from the inode up}
+\label{ch:ls}
+
+You have typed \cmd{ls} thousands of times. By the end of this chapter you will know what it asks the kernel for, why \cmd{ls -l} is slower than plain \cmd{ls}, and why it hangs on a directory with two million files.
+
+\begin{origin}[1971, Unix V1]
+The first Unix manual already listed \cmd{ls}. Its job was small: read a directory and print the names inside it. Everything it has grown since then is an answer to one question: \emph{what else might you want to know about those names?}
+\end{origin}
+
+\section{A directory is a file of names}
+
+\begin{plainwords}
+A directory is a list. Each line of the list holds a name and a number. The number points to the real file.
+\end{plainwords}
+
+\begin{definition}{Directory entry (dentry)}
+A record inside a directory that pairs a file name with an \term{inode number}. The inode, not the name, holds the file's metadata and the location of its data.
+\end{definition}
+
+\Cref{fig:dentry-inode} shows the three layers. Plain \cmd{ls} only needs the left box; \cmd{ls -l} must visit the middle box once per entry.
+
+\svgfigure{ch01-dentry-inode}{A directory maps names to inode numbers; the inode holds metadata and points to data blocks. Notice which layer each command has to touch.}{fig:dentry-inode}
+
+\begin{underthehood}
+Run \cmd{strace -e trace=getdents64,statx ls -l} on a small directory. You will see one \cmd{getdents64} call that returns all the names, then one \cmd{statx} call per file. That second loop is the cost of \flag{-l}.
+\end{underthehood}
+
+\begin{shell}
+$ strace -c -e trace=getdents64,statx ls -l /etc > /dev/null
+% time     seconds  usecs/call     calls    errors syscall
+------ ----------- ----------- --------- --------- ----------------
+ 91.40    0.000851           3       241           statx
+  8.60    0.000080          27         3           getdents64
+\end{shell}
+
+\section{The flags, grouped by what they change}
+
+\Cref{tab:ls-flags} groups the flags you will meet most. The full list is in the GNU manual~\cite{gnu-ls}.
+
+\begin{table}[htbp]
+\centering
+\caption{Common \cmd{ls} flags, grouped by purpose (GNU coreutils).}
+\label{tab:ls-flags}
+\begin{tabularx}{\linewidth}{@{}l l X@{}}
+\toprule
+Group & Flag & What it does \\
+\midrule
+What to show & \flag{-a} & Include entries starting with a dot, including \cmd{.} and \cmd{..} \\
+             & \flag{-A} & Like \flag{-a} but leaves out \cmd{.} and \cmd{..} \\
+Detail       & \flag{-l} & Long format: type, mode, links, owner, size, time \\
+             & \flag{-i} & Print each entry's inode number \\
+Sizes        & \flag{-h} & Human-readable sizes, powers of 1024 \\
+             & \flag{--si} & Human-readable sizes, powers of 1000 \\
+Sorting      & \flag{-t} & Newest first, by modification time \\
+             & \flag{-U} & Do not sort: directory order, fastest on huge directories \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\begin{gotcha}[Sorting needs everything first]
+\cmd{ls} cannot print the first name until it has read every name, because sorting needs the whole list. On a directory with millions of entries that looks like a hang. \flag{-U} skips the sort and streams.
+\end{gotcha}
+
+\begin{interview}
+``Why is \cmd{ls -l} slower than \cmd{ls} on a network filesystem?'' A strong answer names the extra \cmd{statx} per entry and notes that each one may be a network round-trip.
+\end{interview}
+
+\chaptersummary
+\begin{itemize}
+  \item A directory stores names and inode numbers; the inode stores everything else.
+  \item \flag{-l} costs one \cmd{statx} per entry; sorting costs reading every entry first.
+\end{itemize}
+
+\chaptervocab
+\begin{vocablist}
+  \item[Inode] The record holding a file's metadata and block locations.
+  \item[Directory entry] A name-to-inode pair stored inside a directory.
+\end{vocablist}
+
+\chapterexercises
+\begin{exercise}[1]{ex:ls-a-vs-A}
+What is the difference between \flag{-a} and \flag{-A}?
+\end{exercise}
+\begin{exercise}[3]{ex:ls-hang}
+A colleague says \cmd{ls} ``hangs'' in \file{/var/spool/queue}. Explain why in terms of system calls, and give two commands that would list the directory without hanging.
+\end{exercise}
+
+\furtherreading
+\begin{itemize}
+  \item The GNU \cmd{ls} manual~\cite{gnu-ls}: read the sorting section closely.
+\end{itemize}

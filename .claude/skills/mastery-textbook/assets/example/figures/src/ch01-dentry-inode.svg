@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 340" width="800" height="340" font-family="Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#475569"/>
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="800" height="340" fill="#FFFFFF"/>
+
+  <!-- Directory file -->
+  <text x="40" y="34" font-size="18" font-weight="bold" fill="#1F2933">Directory "docs/" (a file of entries)</text>
+  <rect x="40" y="50" width="250" height="180" rx="6" fill="#EEF2F8" stroke="#1D4E89" stroke-width="2"/>
+  <g font-size="16" fill="#1F2933">
+    <text x="58" y="84">name</text><text x="200" y="84">inode</text>
+    <line x1="52" y1="94" x2="278" y2="94" stroke="#1D4E89"/>
+    <text x="58" y="124">.</text><text x="200" y="124">1048</text>
+    <text x="58" y="154">..</text><text x="200" y="154">1001</text>
+    <text x="58" y="184">notes.md</text><text x="200" y="184">2231</text>
+    <text x="58" y="214">.env</text><text x="200" y="214">2232</text>
+  </g>
+
+  <!-- Inode table -->
+  <text x="370" y="34" font-size="18" font-weight="bold" fill="#1F2933">Inode 2231 (metadata)</text>
+  <rect x="370" y="50" width="220" height="180" rx="6" fill="#ECFDF5" stroke="#0F766E" stroke-width="2"/>
+  <g font-size="15" fill="#1F2933">
+    <text x="386" y="82">type: regular file</text>
+    <text x="386" y="108">mode: rw-r--r--</text>
+    <text x="386" y="134">owner: 1000</text>
+    <text x="386" y="160">size: 5120 bytes</text>
+    <text x="386" y="186">mtime: 2026-10-25</text>
+    <text x="386" y="212">blocks → 7710, 7711</text>
+  </g>
+
+  <!-- Data blocks -->
+  <text x="640" y="34" font-size="18" font-weight="bold" fill="#1F2933">Data blocks</text>
+  <rect x="640" y="70" width="130" height="60" rx="4" fill="#FFF7ED" stroke="#B45309" stroke-width="2"/>
+  <text x="705" y="106" font-size="16" text-anchor="middle" fill="#1F2933">block 7710</text>
+  <rect x="640" y="150" width="130" height="60" rx="4" fill="#FFF7ED" stroke="#B45309" stroke-width="2"/>
+  <text x="705" y="186" font-size="16" text-anchor="middle" fill="#1F2933">block 7711</text>
+
+  <!-- Arrows -->
+  <line x1="268" y1="179" x2="366" y2="140" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="590" y1="200" x2="636" y2="105" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="590" y1="208" x2="636" y2="180" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- Legend: what each command reads -->
+  <g font-size="15" fill="#475569">
+    <text x="40" y="272">plain ls reads only this column  (getdents64)</text>
+    <text x="370" y="272">ls -l also stats every entry  (statx)</text>
+    <text x="640" y="272">cat reads these</text>
+  </g>
+  <text x="40" y="314" font-size="15" fill="#B91C1C">The name lives in the directory, not in the inode: that is why hard links work.</text>
+</svg>
