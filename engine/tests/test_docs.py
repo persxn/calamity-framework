@@ -339,6 +339,15 @@ class Structure(unittest.TestCase):
         with open(os.path.join(REPO, "framework", "VERSION"), "r", encoding="utf-8") as fh:
             self.assertRegex(fh.read().strip(), r"^\d+\.\d+\.\d+$")
 
+    def test_plugin_versions_follow_the_framework(self):
+        """framework/VERSION is the one source: the plugin manifests carry the same number."""
+        with open(os.path.join(REPO, "framework", "VERSION"), "r", encoding="utf-8") as fh:
+            version = fh.read().strip()
+        with open(os.path.join(REPO, ".claude-plugin", "plugin.json"), "r", encoding="utf-8") as fh:
+            self.assertEqual(json.load(fh)["version"], version, ".claude-plugin/plugin.json")
+        with open(os.path.join(REPO, ".claude-plugin", "marketplace.json"), "r", encoding="utf-8") as fh:
+            self.assertEqual(json.load(fh)["metadata"]["version"], version, ".claude-plugin/marketplace.json")
+
 
 if __name__ == "__main__":
     unittest.main()

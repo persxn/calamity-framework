@@ -16,7 +16,7 @@ keeping `learner/` out of version control.
 - `.claude-plugin/marketplace.json` — a marketplace named `calamity` with one
   entry, the Calamity plugin, sourced from this repository (`"source": "."`).
 - `.claude-plugin/plugin.json` — Calamity's own manifest: its skills
-  (`.claude/skills/`) and its eight agents (`.claude/agents/`).
+  (`.claude/skills/`) and its agents (`.claude/agents/`).
 
 This is **additive and inert in normal use.** Running `claude` inside this
 repository still loads `.claude/` as project configuration exactly as before;
