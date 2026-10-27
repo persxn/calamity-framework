@@ -14,8 +14,8 @@ few lines, numbers first:
    quota, lectures if they keep a lecture quota, and what is still to go.
 2. The next action, in plain words (which topic to review, what to learn,
    which lecture to watch).
-3. If `learner/schedule.md` exists, the block of the day shape this belongs
-   to. Do not recite the whole schedule.
+3. The block of the day this belongs to: the brief's `Now:` line, or
+   `python3 engine/calamity.py day`. Do not recite the whole schedule.
 4. Only if it applies: inside the sleep window, or new material paused
    because the window is close; a boss that has come due; a pattern the
    brief marked as not yet raised today (one question, as described in

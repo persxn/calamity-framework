@@ -31,16 +31,18 @@ the two clones they are meant for.
 ## Companion tool
 
 `tools/timetable.py` is not a check — it's a learner-facing day planner. Run
-`timetable` in a terminal and it opens a curses TUI: move through the day's
+it in a terminal and it opens a curses TUI: move through the day's
 time-slots, attach goals to a slot, add unscheduled goals, tick them off, move
 between days with ← →, and leave a note on any day (an exam, an event, time
-that will be lost) that Claude can then read. It reads the day shape from
-`learner/schedule.md` and keeps goals, notes and date-specific overrides in
-`learner/timetable.json` (so they sync with the learner's progress). Without a
-terminal it prints the day instead; `timetable help` lists the scripting
-subcommands. On its first interactive run it copies itself to `/var/x` and adds
-a `timetable` alias to `~/.zshrc`. It finds the repository through
-`CALAMITY_REPO` (default `~/calamity-framework`).
+that will be lost) that Claude can then read. The blocks come from the engine
+(`python3 engine/calamity.py day <date> --json`, which reads
+`learner/schedule.md`); goals, notes and date-specific shifts live in
+`learner/timetable.json` (so they sync with the learner's progress). Without
+a terminal, or where curses is missing (Windows), it prints the day instead;
+`timetable help` lists the scripting subcommands. It works on the checkout it
+belongs to (or `CALAMITY_ROOT`). `python3 tools/timetable.py install` puts a
+`timetable` launcher in `~/.local/bin` and prints the line that puts that
+folder on the PATH for bash, zsh or fish; nothing else is installed.
 
 Continuous integration runs the unit tests (`python3 engine/calamity.py selftest`)
 on Linux, macOS and Windows with every supported Python, and `tools/e2e.py`

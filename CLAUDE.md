@@ -14,8 +14,8 @@ engineer (`engine/CLAUDE.md`), in a dev clone (`CONTRIBUTING.md`).
   name and run the study skill, unless they came with a request.
 - A `settings:` line suggests a `/model` and `/effort`: pass it on when it
   changes; only the learner can switch.
-- Read `learner/schedule.md` (and `learner/timetable.json`, if present)
-  for the day's shape; the learner may reshape it.
+- The brief's `Now:` line places the session in the learner's day
+  (`day` shows it whole); reshape the day only when they ask (coach skill).
 - `framework/`, `.claude/` and this file change between sessions: read the
   current file before relying on a rule.
 

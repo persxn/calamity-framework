@@ -583,6 +583,9 @@ def brief(repo: Repo, tree, state, when, engine_cmd: str = "", current=None) -> 
 
     t = today(repo, tree, state, when)
     out.append(today_line(t).replace("today:", "Today:", 1))
+    from . import day
+
+    out.extend(day.now_lines(repo, when))   # where the learner is in the day's shape (learner/schedule.md)
 
     due = state.due(when)
     if due:

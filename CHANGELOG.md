@@ -33,6 +33,15 @@ changes their record in `learner/`.
   unchanged.
 - `tools/timetable.py`: a terminal day planner over `learner/schedule.md`,
   with goals, notes and per-day overrides in `learner/timetable.json`.
+- The day has one format and one parser. `learner/schedule.md` keeps its
+  blocks in the front matter (`weekday`, `weekend`, optionally `mon` ...
+  `sun`). `day` shows a day with the current block, its note and goals
+  and the finish line. `day note`, `day goal` and `day done` replace hand
+  edits of `learner/timetable.json`, and the brief says which block a
+  session falls in (`Now:`). `day migrate` converts the earlier table
+  format. `tools/timetable.py` reads its blocks from the engine, works
+  on its own checkout, never runs `sudo`, and `timetable install` adds a
+  launcher in `~/.local/bin` only when asked.
 
 ### Development
 
