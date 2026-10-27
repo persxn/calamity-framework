@@ -23,8 +23,11 @@ the learner:
    lectures not logged, college, travel, illness.
 3. Put the proposals as questions, strongest evidence first. For each one
    the learner accepts, make the change now:
-   - the day shape: edit `learner/schedule.md` and add a dated line under
-     `# Changes` with the reason;
+   - the day shape: edit the blocks in `learner/schedule.md`'s front matter
+     (the format is in `framework/rules/scheduler.md`; `python3 engine/calamity.py day`
+     shows the result) and add a dated line under `# Changes` with the reason;
+   - one day only (an exam, travel, lost time):
+     `python3 engine/calamity.py day note <day> "..."`;
    - a number: `python3 engine/calamity.py profile set cfg.new_per_day 6`,
      `profile set sleep.start 02:00`, `profile set workout.minutes 45`,
      and so on.
@@ -43,8 +46,8 @@ record it with its id so it rests for a few days:
 
 ## A new or changed schedule
 
-Write `learner/schedule.md` in the shape the rule book gives: blocks in
-order, each with a purpose, sized to the total the learner states. Build
+Write `learner/schedule.md` in the shape the rule book gives: timed blocks
+in its front matter, one line each, in order, each with a purpose, sized to the total the learner states. Build
 toward a large target in steps from what the log shows they sustain. Put
 hard material where `python3 engine/calamity.py stats hours` shows their
 accuracy is highest.

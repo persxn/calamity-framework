@@ -26,11 +26,13 @@ Scripting commands still work:
   timetable goals [date] · done N · undone N · drop N · note <date> "…"
   timetable path · help
 
-First interactive run copies itself to /var/x and adds the `timetable` alias
-to ~/.zshrc (needs sudo once for /var/x); after that just type `timetable`.
+`timetable install` puts a small `timetable` launcher in ~/.local/bin
+(nothing else on the system changes) and prints the line that puts that
+folder on your PATH if it is not there yet. The blocks come from the engine
+(`python3 engine/calamity.py day <date> --json`), so the TUI, the brief and
+`day` read learner/schedule.md the same way.
 """
 import datetime as dt
-import filecmp
 import json
 import os
 import re
@@ -38,11 +40,24 @@ import subprocess
 import sys
 
 HOME = os.path.expanduser("~")
-REPO = os.environ.get("CALAMITY_REPO", os.path.join(HOME, "calamity-framework"))
+
+
+def _repo():
+    """The checkout this file belongs to; CALAMITY_ROOT (or the older CALAMITY_REPO) points elsewhere."""
+    env = os.environ.get("CALAMITY_ROOT") or os.environ.get("CALAMITY_REPO")
+    if env:
+        return os.path.abspath(env)
+    here = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+    if os.path.isfile(os.path.join(here, "engine", "calamity.py")):
+        return here
+    return os.path.join(HOME, "calamity-framework")
+
+
+REPO = _repo()
+ENGINE = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), "engine", "calamity.py")
 SCHEDULE = os.path.join(REPO, "learner", "schedule.md")
 STORE = os.path.join(REPO, "learner", "timetable.json")
-ZSHRC = os.path.join(HOME, ".zshrc")
-INSTALL_PATH = "/var/x"          # where first run copies itself; the alias target
+LAUNCHER = os.path.join(HOME, ".local", "bin", "timetable")
 WIDTH = 64
 
 # ── fog palette (truecolor), for the static print output ─────────────────────
@@ -98,47 +113,21 @@ def to_min(hhmm):
     return int(h) * 60 + int(m)
 
 
-# ── schedule.md → blocks ─────────────────────────────────────────────────────
-def _parse_table(lines):
-    blocks = []
-    for ln in lines:
-        s = ln.strip()
-        if not s.startswith("|"):
-            continue
-        cells = [x.strip() for x in s.strip("|").split("|")]
-        if len(cells) < 2 or cells[0].lower() == "time" or set(cells[0]) <= set("-: "):
-            continue
-        times = cells[0].replace("–", "-").replace("—", "-")
-        parts = [p.strip() for p in times.split("-")]
-        if len(parts) != 2 or not re.match(r"\d\d?:\d\d", parts[0]):
-            continue
-        name = re.sub(r"\*+", "", cells[1]).strip()
-        purpose = re.sub(r"\*+", "", cells[2]).strip() if len(cells) > 2 else ""
-        if purpose in ("—", "-", ""):
-            purpose = ""
-        blocks.append({"start": parts[0], "end": parts[1], "name": name, "purpose": purpose})
-    return blocks
-
-
-def base_blocks(is_weekend):
-    """Weekday / weekend blocks parsed from schedule.md."""
+# ── the day's blocks, from the engine (one parser for everything) ────────────
+def engine_day(date):
+    """The engine's view of a day (`day <date> --json`), or None when it cannot be read."""
+    env = dict(os.environ, CALAMITY_ROOT=REPO)
     try:
-        with open(SCHEDULE, encoding="utf-8") as fh:
-            text = fh.read()
-    except OSError:
-        return []
-    lines = text.splitlines()
-    heads = [(i, ln) for i, ln in enumerate(lines) if ln.startswith("## ")]
-    want = "weekend" if is_weekend else "weekday"
-    start = end = None
-    for idx, (i, ln) in enumerate(heads):
-        if ln[3:].strip().lower().startswith(want):
-            start = i
-            end = heads[idx + 1][0] if idx + 1 < len(heads) else len(lines)
-            break
-    if start is None:
-        return []
-    return _parse_table(lines[start:end])
+        out = subprocess.run([sys.executable, ENGINE, "day", date.isoformat(), "--json"], cwd=REPO, env=env,
+                             capture_output=True, text=True, encoding="utf-8", timeout=20)
+    except (OSError, subprocess.SubprocessError):
+        return None
+    if out.returncode != 0:
+        return None
+    try:
+        return json.loads(out.stdout)
+    except ValueError:
+        return None
 
 
 # ── store (goals + overrides) ────────────────────────────────────────────────
@@ -163,26 +152,19 @@ def save_store(d):
 
 
 def day_blocks(date, store):
-    """Override blocks for this date if Claude set any, else the base shape."""
+    """The day's blocks (its own, if the date was shifted, else the schedule's) and its override entry."""
     ov = store["overrides"].get(date.isoformat())
-    if ov and ov.get("blocks"):
-        out = []
-        for b in ov["blocks"]:
-            times = b.get("time", "").replace("–", "-").replace("—", "-")
-            parts = [p.strip() for p in times.split("-")]
-            if len(parts) == 2:
-                out.append({"start": parts[0], "end": parts[1],
-                            "name": re.sub(r"\*+", "", b.get("name", "")).strip(),
-                            "purpose": b.get("purpose", "")})
-        return out, ov
-    return base_blocks(date.weekday() >= 5), ov
+    data = engine_day(date) or {}
+    blocks = [{"start": b["start"], "end": b["end"], "name": b["name"], "purpose": b["purpose"]}
+              for b in data.get("blocks", [])]
+    return blocks, ov
 
 
 # ── engine footer (best-effort) ──────────────────────────────────────────────
 def engine_line():
     try:
-        out = subprocess.run(["python3", "engine/calamity.py", "statusline"],
-                             cwd=REPO, capture_output=True, text=True, timeout=6)
+        out = subprocess.run([sys.executable, ENGINE, "statusline"], cwd=REPO,
+                             env=dict(os.environ, CALAMITY_ROOT=REPO), capture_output=True, text=True, timeout=6)
         if out.returncode != 0:
             return ""
         keep = []
@@ -749,57 +731,26 @@ def die(msg):
     sys.exit(1)
 
 
-# ── self-install (first interactive run) ─────────────────────────────────────
-ALIAS_BEGIN = "# >>> timetable alias >>>"
-ALIAS_BLOCK = f"""{ALIAS_BEGIN}
-alias timetable='{INSTALL_PATH}'
-# <<< timetable alias <<<
-"""
-
-
-def ensure_alias():
-    try:
-        existing = ""
-        if os.path.exists(ZSHRC):
-            with open(ZSHRC, encoding="utf-8") as fh:
-                existing = fh.read()
-        if ALIAS_BEGIN in existing or "alias timetable=" in existing:
-            return False
-        with open(ZSHRC, "a", encoding="utf-8") as fh:
-            if existing and not existing.endswith("\n"):
-                fh.write("\n")
-            fh.write("\n" + ALIAS_BLOCK)
-        return True
-    except OSError:
-        return False
-
-
-def bootstrap():
-    # Only on a real terminal, and never when explicitly disabled (tests/pipes).
-    if os.environ.get("TIMETABLE_NO_BOOTSTRAP"):
+# ── install: a launcher on PATH, nothing else ───────────────────────────────
+def install():
+    if os.name == "nt":
+        print("On Windows, run it as:  py -3 \"%s\"  (or python instead of py -3)" % os.path.realpath(__file__))
         return
-    if not (sys.stdin.isatty() and sys.stdout.isatty()):
-        return
-    here = os.path.realpath(__file__)
-    if os.path.exists(INSTALL_PATH) and here == os.path.realpath(INSTALL_PATH):
-        return  # already running as the installed copy
-    need_copy = not os.path.exists(INSTALL_PATH) or not filecmp.cmp(here, INSTALL_PATH, shallow=False)
-    if need_copy:
-        print(c(f"timetable: installing to {INSTALL_PATH} (sudo once)…", SUB), file=sys.stderr)
-        r = subprocess.run(["sudo", "install", "-m", "0755", here, INSTALL_PATH])
-        if r.returncode != 0:
-            print(c("timetable: /var/x copy skipped (no sudo). Alias not set.", AMBER), file=sys.stderr)
-            return
-    if ensure_alias():
-        print(c(f"timetable: alias added to ~/.zshrc → {INSTALL_PATH}.  "
-                "run `source ~/.zshrc` (or open a new shell).", STEEL), file=sys.stderr)
+    os.makedirs(os.path.dirname(LAUNCHER), exist_ok=True)
+    with open(LAUNCHER, "w", encoding="utf-8") as fh:
+        fh.write('#!/bin/sh\nexec "%s" "%s" "$@"\n' % (sys.executable, os.path.realpath(__file__)))
+    os.chmod(LAUNCHER, 0o755)
+    print(c("installed: %s (runs this copy of tools/timetable.py)" % LAUNCHER, STEEL))
+    if os.path.dirname(LAUNCHER) not in os.environ.get("PATH", "").split(os.pathsep):
+        print("~/.local/bin is not on your PATH yet. Add this line to your shell's start-up file:")
+        print('  bash or zsh (~/.bashrc, ~/.zshrc):  export PATH="$HOME/.local/bin:$PATH"')
+        print("  fish:                               fish_add_path ~/.local/bin")
 
 
 HELP = __doc__
 
 
 def main():
-    bootstrap()
     args = sys.argv[1:]
     cmd = args[0] if args else None
 
@@ -807,13 +758,10 @@ def main():
         print(HELP)
         return
     if cmd == "path":
-        print(f"schedule  {SCHEDULE}\nstore     {STORE}\ninstalled {INSTALL_PATH}\nrepo      {REPO}")
+        print(f"schedule  {SCHEDULE}\nstore     {STORE}\nlauncher  {LAUNCHER}\nrepo      {REPO}")
         return
     if cmd == "install":
-        here = os.path.realpath(__file__)
-        subprocess.run(["sudo", "install", "-m", "0755", here, INSTALL_PATH])
-        ensure_alias()
-        print(c(f"installed to {INSTALL_PATH}; alias in ~/.zshrc", STEEL))
+        install()
         return
     if cmd == "week":
         render_week(load_store())

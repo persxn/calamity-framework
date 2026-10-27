@@ -69,22 +69,34 @@ not a clock: a few blocks in an order, each with a purpose, sized to the
 learner's stated total. Write it at onboarding with the learner; revise it
 only on evidence.
 
+The blocks live in the front matter, one line each,
+`"HH:MM-HH:MM | name | purpose"`: `weekday` and `weekend`, and optionally
+a day of the week with a shape of its own (`mon` ... `sun`). A block may
+run past midnight; the day rolls over at `day_start_hour`. The body is the
+learner's own view, in any form.
+
 ```markdown
 ---
 updated: 2026-10-11
 target_hours: 12
 basis: stated at onboarding; no data yet
+weekday:
+  - "09:00-09:30 | Recall | due reviews across everything, first thing"
+  - "09:30-12:30 | Deep block A | GATE lectures, each one tested straight after"
+  - "12:30-13:30 | Workout"
+  - "14:00-17:00 | Deep block B | the weakest GATE subject from triage; tests and past questions"
+  - "17:30-19:30 | Build block | the 10x skill in progress, hands-on"
+  - "20:00-21:30 | Contest hour | Codeforces set or upsolving"
+  - "21:30-21:45 | Close | finish line, notes fragments, tomorrow's first lecture named"
+weekend:
+  - "10:00-10:30 | Recall | due reviews"
+  - "10:30-13:30 | Mock or past paper | then its error review"
 ---
 
 # Day shape
 
-1. **Recall** (20-30 min, first thing): due reviews across everything.
-2. **Deep block A** (3 h): GATE lectures, each one tested straight after.
-3. **Workout** (60 min).
-4. **Deep block B** (3 h): the weakest GATE subject from triage; tests and past questions.
-5. **Build block** (2 h): the 10x skill in progress, hands-on.
-6. **Contest hour** (90 min): Codeforces set or upsolving.
-7. **Close** (15 min): finish line, notes fragments, tomorrow's first lecture named.
+Recall first, two deep GATE blocks around a workout, then building and a
+contest hour; the weekend is lighter, with a mock.
 
 # This week
 
@@ -95,6 +107,17 @@ basis: stated at onboarding; no data yet
 
 - 2026-10-11: first version, from onboarding answers.
 ```
+
+`python3 engine/calamity.py day [<day>]` prints a day's blocks with the
+current one marked, its note and goals, and the finish line; the brief's
+`Now:` line says which block a session falls in. One day that differs (an
+exam, travel, time that will be lost) gets a note,
+`python3 engine/calamity.py day note <day> "..."`, and goals are added
+with `day goal "..." [--at HH:MM]`; both live in `learner/timetable.json`,
+which `tools/timetable.py` also edits. A schedule written as tables under
+`## Weekday` and `## Weekend` headings is read too;
+`python3 engine/calamity.py day migrate` shows it in the one format and
+`--write` rewrites it.
 
 Rules for writing and changing it:
 

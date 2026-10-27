@@ -64,7 +64,8 @@ framework/                 shipped with the framework; the same for every learne
 learner/                   everything about one learner; this is what they sync
   README.md                what each folder holds (ships with the framework)
   profile.md               answers from onboarding (keys) and free notes about the learner
-  schedule.md              the current day shape, written with the learner (coach skill)
+  schedule.md              the current day shape, written with the learner (coach skill); its blocks drive `day`
+  timetable.json           per-date notes, goals and shifted days (day note, day goal, tools/timetable.py)
   PROGRESS.md              generated snapshot of progress (never edited by hand)
   events/                  the append-only log: <YYYY-MM>.<machine>.jsonl (engine only)
   items/<skill>/           practice items with sealed keys (engine only; never read)

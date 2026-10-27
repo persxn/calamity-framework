@@ -895,6 +895,36 @@ def cmd_doctor(c, a):
     return machine.doctor(c.repo)
 
 
+def cmd_day(c, a):
+    from . import day
+
+    words = list(a.words)
+    action = words.pop(0) if words and words[0] in ("note", "goal", "done", "undone", "migrate") else "show"
+    if action == "migrate":
+        return 0, day.migrate(c.repo, write=a.write)
+    if action == "note":
+        if not words:
+            raise CalError("day note <day> \"what is different that day\" (an empty note removes it)")
+        return 0, day.set_note(c.repo, day.parse_day(words[0], c.repo, c.when), " ".join(words[1:]))
+    when = day.parse_day(a.date, c.repo, c.when)
+    if action == "goal":
+        return 0, day.add_goal(c.repo, when, " ".join(words), at=a.at, block=a.block)
+    if action in ("done", "undone"):
+        if len(words) != 1 or not words[0].isdigit():
+            raise CalError("day %s <goal number> [--date <day>]" % action)
+        return 0, day.mark_goal(c.repo, when, int(words[0]), action == "done")
+    if len(words) > 1:
+        raise CalError("day [<day>]: one day at a time (today, tomorrow, +2, fri, 2026-11-03)")
+    target = day.parse_day(words[0] if words else a.date, c.repo, c.when)
+    v = day.view(c.repo, target, c.when)
+    finish = None
+    if target == day.learner_date(c.repo, c.when) and c.repo.onboarded():
+        finish = plan.today_line(plan.today(c.repo, c.tree, c.state, c.when))
+    if a.json:
+        return 0, json.dumps(dict(v, finish=finish), ensure_ascii=False, indent=1)
+    return 0, day.text(v, finish)
+
+
 def cmd_guard(c, a):
     from . import guard
 
@@ -1208,6 +1238,14 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("--alias", action="store_true",
                     help="add a `calamity` shell alias: cd here and run claude --dangerously-skip-permissions")
     sp.add_argument("--remove-alias", dest="remove_alias", action="store_true", help="take the alias out again")
+    sp = add("day", cmd_day, "The day's shape: its blocks with the current one marked, the day's note and goals, "
+                              "the finish line. Also: day note, day goal, day done, day migrate.")
+    sp.add_argument("words", nargs="*", help="[<day>] | note <day> <text> | goal <text> | done|undone <n> | migrate")
+    sp.add_argument("--date", help="goal, done, undone: the day (default today)")
+    sp.add_argument("--at", help="goal: a time of day, HH:MM")
+    sp.add_argument("--block", help="goal: the block it belongs to")
+    sp.add_argument("--json", action="store_true", help="the day as JSON (tools/timetable.py reads it)")
+    sp.add_argument("--write", action="store_true", help="migrate: rewrite learner/schedule.md (default: show it)")
     add("doctor", cmd_doctor, "Check that everything is in order.")
     sp = add("guard", cmd_guard, "The key guard Claude Code runs before each Read, Grep, Glob and shell call "
                                  "(installed by setup --hook; reads the call as JSON on stdin).")
