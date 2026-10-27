@@ -6,8 +6,9 @@ format and the quality bar for drafts.
 
 ## The draft
 
-A draft is a JSON object; a batch is a JSON list of them. Save it under
-`.calamity/tmp/` and store it with `item import --file <path> --by examiner`.
+A draft is a JSON object; a batch is a JSON list of them. Save it in the
+examiner's batch folder, `.calamity/tmp/examiner/<batch>/drafts.json`, and
+store it with `item import --file <path> --by examiner`.
 
 ```json
 {

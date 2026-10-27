@@ -23,6 +23,8 @@ Windows use `python engine/calamity.py doctor` or `py -3 engine/calamity.py doct
 | Every engine command asks for permission | The folder is not trusted yet: Claude Code ignores the rules in `.claude/settings.json` until you accept the trust prompt. Quit, start `claude` in the folder again and accept. Commands in another form (with `cd`, pipes or a full path) also ask; Claude is told to use the plain form. |
 | No brief at the start of a session | The hook is not installed on this computer. Run `/onboard machine` (or `python3 engine/calamity.py setup --hook`); until then Claude runs the brief by hand. |
 | `doctor`: "hook points at a Python that no longer exists" or "at a different copy of the repository" | Python was upgraded, or the folder was moved or copied. Run `setup --hook` again in this folder. |
+| `doctor`: "key guard ... missing" | The guard came with the framework after this computer was set up. Run `setup --hook` again; it takes effect in the next session. |
+| `doctor`: "scratch folder ... older than a day" | An agent's work was left behind, and it may hold worked answers. Run `clean tmp`. |
 | `calamity: command not found` after `setup --alias` | The alias is read when a terminal starts: open a new one. `doctor` says which file it was written to; if your shell is neither bash nor zsh, the engine says it wrote nothing. |
 | `doctor`: "alias points at a different copy of the repository" | The folder was moved or copied. Run `setup --alias` again in this folder. |
 

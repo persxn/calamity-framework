@@ -495,6 +495,8 @@ alias `/model` accepts, then an effort level), and turn the line off with
 your plan to say, not this framework.
 - **Install the session brief** (`setup --hook`): Claude then starts each
   session knowing where you stand, without running anything to find out.
+  The key guard comes with it and keeps sealed answers out of Claude's
+  searches and shell commands.
 
 ## The three tools
 
@@ -588,7 +590,7 @@ and removable with one command.
 
 | Extra | Install | Remove |
 |---|---|---|
-| **Session brief**: Claude reads where you stand as each session starts | `python3 engine/calamity.py setup --hook` | `python3 engine/calamity.py setup --remove-hook` |
+| **Session brief and key guard**: Claude reads where you stand as each session starts, and cannot search or shell its way to a sealed answer | `python3 engine/calamity.py setup --hook` | `python3 engine/calamity.py setup --remove-hook` |
 | **Status line**: the day's numbers at the bottom of Claude Code, such as `CAL · due 29 · new 0/6 · GATE 117d` (from a pretend learner) | `python3 engine/calamity.py setup --statusline` | `python3 engine/calamity.py setup --remove-statusline` |
 | **`calamity` command** (Linux and macOS, bash or zsh): typing `calamity` in any terminal goes to this folder and starts `claude --dangerously-skip-permissions`, so Claude Code asks no permission questions at all in that session | `python3 engine/calamity.py setup --alias` | `python3 engine/calamity.py setup --remove-alias` |
 | **Reminders**: notifications from your operating system, only when something is due, never in your sleep window | `/remind 09:00,21:00`: Claude saves the times (`profile set reminders.times 09:00,21:00`), runs `remind render`, and shows you the install command | `/remind off`, or the command `remind remove` prints |

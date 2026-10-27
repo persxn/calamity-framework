@@ -10,11 +10,12 @@ verifies it, and the one that verifies never sees the key.
 
 1. **Draft (examiner).** The examiner writes the item with its key and a
    solution, following `framework/rules/items.md`, saves the drafts as JSON
-   under `.calamity/tmp/` and stores them:
+   in its batch folder under `.calamity/tmp/examiner/` and stores them:
 
-       python3 engine/calamity.py item import --file .calamity/tmp/drafts.json --by examiner
+       python3 engine/calamity.py item import --file .calamity/tmp/examiner/<batch>/drafts.json --by examiner
 
-   The engine seals the key, deletes the draft file and returns item ids.
+   The engine seals the key, deletes the batch folder (drafts and the
+   computations behind them) and returns item ids.
    The examiner reports the ids and topics only: no answers, no solutions.
 
 2. **Blind check (checker).** For each id the checker reads the item as the
@@ -43,7 +44,7 @@ verifies it, and the one that verifies never sees the key.
 
 3. **Hands-on items** (code, task, open) have a check instead of a key. The
    checker reads it with `item show <item> --check`, builds a reference
-   solution in a scratch folder under `.calamity/tmp/`, runs the check for
+   solution in `.calamity/tmp/checker/<item>/`, runs the check for
    real, and also confirms that the check fails on an empty or deliberately
    wrong solution. Only then:
 

@@ -23,10 +23,11 @@ command does and run it (they will be asked to approve it):
 
     python3 engine/calamity.py setup --hook
 
-It writes a machine id under `.calamity/` and a session-start hook into
-`.claude/settings.local.json`. Neither is ever committed. The hook prints
-the session brief when a session opens; it takes effect from the next
-session. Offer the status line (`setup --statusline`) as optional. On
+It writes a machine id under `.calamity/`, and a session-start hook and
+the key guard into `.claude/settings.local.json`. Neither is ever
+committed. The hook prints the session brief when a session opens; the
+guard keeps item keys out of searches and shell commands. Both take
+effect from the next session. Offer the status line (`setup --statusline`) as optional. On
 Linux and macOS, also offer the `calamity` command (`setup --alias`): an
 alias in their shell's start-up file that goes to this folder and starts
 `claude --dangerously-skip-permissions`. Say plainly that sessions opened

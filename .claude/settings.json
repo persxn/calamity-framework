@@ -17,6 +17,10 @@
       "Edit(/learner/cp/**)",
       "Edit(/learner/gate/**)",
       "Edit(/learner/bridges/**)",
+      "Edit(/learner/mastery/**)",
+      "Edit(/learner/timetable.json)",
+      "Edit(/learner/practice/**)",
+      "Edit(/learner/career/**)",
       "Edit(/.calamity/tmp/**)"
     ],
     "ask": [
@@ -35,6 +39,8 @@
       "Read(/learner/items/**)",
       "Edit(/learner/items/**)",
       "Edit(/learner/PROGRESS.md)",
+      "Edit(/.claude/settings.json)",
+      "Edit(/.claude/settings.local.json)",
       "Read(**/.env)",
       "Read(**/.env.local)",
       "Read(**/cookies.txt)",

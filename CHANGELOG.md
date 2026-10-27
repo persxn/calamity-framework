@@ -52,6 +52,17 @@ changes their record in `learner/`.
   plugin manifests to it (they said 0.1.0). The documents no longer quote
   counts of skills or agents that drift as the tree grows, and
   `tools/e2e.py` counts the shipped skills from the tree.
+- The key seal holds beyond the Read tool: `guard tool`, a PreToolUse hook
+  that `setup --hook` installs with the session brief, refuses
+  `learner/items/` to everyone and each agent's scratch to everyone but
+  its owner, in reads, searches and shell commands. The examiner works in
+  `.calamity/tmp/examiner/<batch>/`, which `item import` deletes once
+  stored; the checker in `.calamity/tmp/checker/<item>/`, deleted once its
+  result is recorded. `doctor` checks the guard and warns about scratch
+  older than a day; `clean tmp` empties it. Permissions: the coach,
+  timetable, practice and career files can be edited without a prompt,
+  and Claude can no longer edit `.claude/settings.json` or
+  `.claude/settings.local.json` itself (deny rules hold in every mode).
 
 ## 1.0.0 (2026-10-12)
 

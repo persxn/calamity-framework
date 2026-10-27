@@ -305,6 +305,10 @@ class Structure(unittest.TestCase):
             self.assertFalse(rule.startswith("Write("), "path rules must use Edit, not Write")
         self.assertIn("Edit(/learner/events/**)", perms["deny"])
         self.assertIn("Read(/learner/items/**)", perms["deny"])
+        # Deny rules hold in every permission mode: without these, a page read in a session with prompts
+        # off could talk Claude into loosening its own permissions.
+        self.assertIn("Edit(/.claude/settings.json)", perms["deny"])
+        self.assertIn("Edit(/.claude/settings.local.json)", perms["deny"])
         self.assertFalse(any("git " in r or "curl" in r or "rm " in r for r in perms["allow"]))
 
     def test_git_files(self):

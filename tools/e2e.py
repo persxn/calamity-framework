@@ -166,6 +166,11 @@ def main():
     proc = subprocess.run([hook["command"]] + hook["args"], input=b'{"source":"startup"}', cwd=a.path,
                           stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     assert proc.returncode == 0 and proc.stdout.startswith(b"=== CALAMITY BRIEF ==="), proc.stderr
+    guard = json.loads(a.read(".claude/settings.local.json"))["hooks"]["PreToolUse"][0]["hooks"][0]
+    call = {"tool_name": "Read", "cwd": a.path, "tool_input": {"file_path": os.path.join(a.path, "learner", "items", "x.json")}}
+    proc = subprocess.run([guard["command"]] + guard["args"], input=json.dumps(call).encode("utf-8"), cwd=a.path,
+                          stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    assert proc.returncode == 0 and b'"deny"' in proc.stdout, proc.stdout + proc.stderr   # the key guard refuses
     assert a.git("status", "--porcelain").strip() == ""                           # settings.local.json is ignored too
     for key, value in (("name", "Asha"), ("tracks", "10x,cp,gate-cs,gate-da"), ("goals", "mern-stack,cp.rating-1400"),
                        ("mode.default", "mastery"), ("sleep.start", "01:00"), ("sleep.end", "08:00"),
