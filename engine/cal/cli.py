@@ -266,7 +266,8 @@ def cmd_test(c, a):
 def cmd_item(c, a):
     repo, tree = c.repo, c.tree
     if a.action == "needs":
-        return 0, session.needs_text(repo, tree, c.state, c.when, a.skill, a.n, full=a.full)
+        return 0, session.needs_text(repo, tree, c.state, c.when, a.skill, a.n, full=a.full, days=a.days or 1,
+                                     per_topic=a.per_topic)
     if a.action == "draft":
         item = items.create(repo, tree, _read_json(a), created_by=a.by or "examiner")
         _discard_draft_file(repo, a)
@@ -1027,6 +1028,14 @@ def cmd_remind(c, a):
     return 0, remind.render(c.repo, a.times, a.os)
 
 
+def cmd_stock(c, a):
+    from . import stock
+
+    if a.action == "remove":
+        return 0, stock.remove(c.repo, a.os)
+    return 0, stock.render(c.repo, a.at, model=a.model, effort=a.effort, os_name=a.os)
+
+
 # ---------------------------------------------------------------- parser
 
 
@@ -1155,6 +1164,9 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("--status", choices=("draft", "verified", "rejected", "disputed"))
     sp.add_argument("--n", type=_positive, default=6, help="needs: how many topics to list")
     sp.add_argument("--full", action="store_true", help="needs: with objectives, difficulty, format and topics to weave")
+    sp.add_argument("--days", type=_positive, help="needs: look this many learner days ahead (stocking ahead)")
+    sp.add_argument("--per-topic", type=_positive, default=1, dest="per_topic",
+                    help="needs: unseen verified items wanted per topic (an item family: 3)")
     sp.add_argument("--void", action="store_true", help="dispute: also cancel the last answer recorded against the item")
     sp.add_argument("--objectives", help="tag: the numbers of the primary topic's objectives it tests, e.g. 1,3")
     sp.add_argument("--strand", help="tag: T (theory), P (practice), I (implementation) or N (numerical)")
@@ -1322,6 +1334,12 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("action", choices=("check", "render", "remove"))
     sp.add_argument("--always", action="store_true", help="check: say something even when nothing is due")
     sp.add_argument("--times", help="render: times of day, e.g. 09:00,14:00,21:00 (default: reminders.times)")
+    sp.add_argument("--os", choices=("linux", "darwin", "windows"), help="render: for another system than this one")
+    sp = add("stock", cmd_stock, "Nightly bank stocking: render scheduler files for a headless /stock run, or remove them.")
+    sp.add_argument("action", choices=("render", "remove"))
+    sp.add_argument("--at", help="render: the time of night, e.g. 23:45 (default: stock.at in the profile)")
+    sp.add_argument("--model", default="opus", help="render: the model for the run (default opus)")
+    sp.add_argument("--effort", default="high", choices=("low", "medium", "high", "xhigh", "max"))
     sp.add_argument("--os", choices=("linux", "darwin", "windows"), help="render: for another system than this one")
     return p
 

@@ -118,7 +118,7 @@ def _plain(x):
 KNOWN_KEYS = ("name", "onboarded", "tracks", "goals", "focus", "mode.default", "teach.style", "sleep.start",
               "sleep.end", "workout.minutes", "daily.target_hours", "reminders.times", "gate.year", "gate.papers",
               "gate.registered", "gate.target_rank", "gate.target_source", "cp.handle", "cp.target_rating",
-              "cp.target_date", "cp.language", "book.format")
+              "cp.target_date", "cp.language", "book.format", "stock.at")
 KNOWN_PREFIXES = ("cfg.", "gate.target_marks.", "gate.exam_date.")
 
 
@@ -152,7 +152,7 @@ def parse(key: str, words, text: bool, defaults: dict):
                 if not re.match(r"^[A-Z]{2}$", p):
                     raise CalError("gate.papers are two-letter paper codes such as CS or DA; got %r" % p)
         return items
-    if key in ("sleep.start", "sleep.end"):
+    if key in ("sleep.start", "sleep.end", "stock.at"):
         if parse_hhmm(joined) is None:
             raise CalError("%s is a time like 23:30, got %r" % (key, joined))
         return joined
