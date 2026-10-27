@@ -112,7 +112,7 @@ class ItemState:
 
 class DayStats:
     __slots__ = ("day", "attempts", "ok", "new", "reviews", "first", "last", "active_min", "hours",
-                 "workout_min", "sessions", "src_done", "src_min", "stamps", "in_sleep")
+                 "workout_min", "sessions", "src_done", "src_min", "stamps", "in_sleep", "taught")
 
     def __init__(self, day: str):
         self.day = day
@@ -130,6 +130,7 @@ class DayStats:
         self.src_min = 0        # stated length of the lectures logged that day
         self.stamps = []
         self.in_sleep = 0
+        self.taught = []        # [topic, parts taught, minutes] for each teaching recorded with its parts
 
 
 class State:
@@ -426,6 +427,14 @@ class State:
         ts = self.topic_state(self.canon(e["topic"]))
         if ts.covered_ts is None:
             ts.covered_ts, ts.covered_by = dt, e.get("by") or "tutor"
+        if e.get("parts") or e.get("minutes"):          # teaching telemetry (ask --taught --parts --minutes)
+            self._day_stats(dt).taught.append([ts.key, list(e.get("parts") or []), e.get("minutes")])
+
+    def _on_feedback(self, e, dt):
+        said = " ".join("%s=%s" % (k, e[k]) for k in ("pace", "depth", "clarity") if e.get(k))
+        self.notes.append({"ts": dt, "text": said, "tag": "feedback", "topic": e.get("topic"),
+                           "skill": e.get("skill"), "pace": e.get("pace"), "depth": e.get("depth"),
+                           "clarity": e.get("clarity")})
 
     def _on_shown(self, e, dt):
         it = self.item(e["item"])

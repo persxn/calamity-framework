@@ -232,6 +232,20 @@ def view(repo, day: date, when) -> dict:
             "problem": problem}
 
 
+def teaching_lines(state, day: date) -> list:
+    """What was taught that day, with the parts and minutes recorded (ask --taught --parts --minutes), and
+    the learner's feedback on the teaching."""
+    ds = state.days.get(day.isoformat())
+    lines = []
+    for topic, parts, minutes in (ds.taught if ds else []):
+        lines.append("taught: %s%s%s" % (topic, (" · %d min" % minutes) if minutes else "",
+                                          (" · " + ", ".join(parts)) if parts else ""))
+    for n in state.notes:
+        if n.get("tag") == "feedback" and state.day(n["ts"]) == day.isoformat():
+            lines.append("feedback: %s%s" % (n.get("text", ""), (" on " + n["topic"]) if n.get("topic") else ""))
+    return lines
+
+
 def text(v: dict, finish: str | None = None) -> str:
     lines = ["%s %s · %s" % (v["weekday"].capitalize(), v["date"], v["source"])]
     if v["problem"]:
@@ -246,6 +260,7 @@ def text(v: dict, finish: str | None = None) -> str:
     for n, g in enumerate(v["goals"], 1):
         where = (" @%s" % g["at"]) if g.get("at") else (" [%s]" % g["block"]) if g.get("block") else ""
         lines.append("goal %d: [%s] %s%s" % (n, "x" if g.get("done") else " ", g.get("text", ""), where))
+    lines.extend(v.get("teaching") or [])
     if finish:
         lines.append(finish)
     return "\n".join(lines)

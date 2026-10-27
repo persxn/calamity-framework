@@ -34,6 +34,14 @@ collapse it into one.
   for, and how they combine; (7) the trade-offs and when not to reach for
   it. A topic whose objectives do not reach this far is thin: teach the
   missing depth anyway and note it (`observe`) so the syllabus is deepened.
+  Say what was taught when recording it: `ask --topic K --taught --parts
+  history,model,mechanics,example,usage,flags,tradeoffs,impl --minutes N`
+  (the seven parts above, plus `impl` for reading or building the
+  internals). A level-1 topic needs at least `model,example`, level 2
+  adds `mechanics`, level 3 and above add `history,usage,tradeoffs`; the
+  engine warns about a gap and never blocks. When the learner says the
+  pace or depth is off ("too fast", "go deeper", "lost me"), record it at
+  once: `feedback pace=slow|fast depth=more|less clarity=low --topic K`.
 - **Doubt loop, before each new chunk.** Ask yourself first: where would a
   real beginner get confused here, what is the common misconception, and
   what would a sceptical expert challenge? Teach so those are met, not left

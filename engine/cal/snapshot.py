@@ -26,7 +26,7 @@ from datetime import datetime
 from . import fsrs
 from .store import Repo, log_text, write_text
 
-FORMAT = 4
+FORMAT = 5
 NAME = "replay.json"
 GLOBAL_TYPES = ("rename", "void", "errtag")  # events that change how earlier events are read
 
@@ -202,7 +202,7 @@ def encode_state(state) -> dict:
     for key, ds in _keys(state.days).items():
         days[key] = [ds.day, ds.attempts, ds.ok, ds.new, ds.reviews, _t(ds.first), _t(ds.last), ds.active_min,
                      [[h, v[0], v[1]] for h, v in ds.hours.items()], ds.workout_min, ds.sessions, ds.src_done,
-                     ds.src_min, [_t(x) for x in ds.stamps], ds.in_sleep]
+                     ds.src_min, [_t(x) for x in ds.stamps], ds.in_sleep, ds.taught]
     tests = {}
     for key, test in _keys(state.tests).items():
         answers = [[k, dict(v, ts=_t(v["ts"]))] for k, v in test["answers"].items()]
@@ -259,7 +259,7 @@ def decode_state(state, data: dict) -> None:
     for key, row in data["days"].items():
         ds = DayStats(key)
         (ds.day, ds.attempts, ds.ok, ds.new, ds.reviews, first, last, ds.active_min, hours, ds.workout_min,
-         ds.sessions, ds.src_done, ds.src_min, stamps, ds.in_sleep) = row
+         ds.sessions, ds.src_done, ds.src_min, stamps, ds.in_sleep, ds.taught) = row
         ds.first, ds.last = _d(first), _d(last)
         ds.hours = {h: [n, ok] for h, n, ok in hours}
         ds.stamps = [_d(x) for x in stamps]
