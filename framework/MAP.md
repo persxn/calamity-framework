@@ -31,6 +31,8 @@ evidence. Stop as soon as the question is answered.
 CLAUDE.md                  what loads every session: the role, the rules that never bend
 README.md                  for people: what it is, installation, first session, daily use
 docs/                      guides for people: setup per system, daily use, the three tools, troubleshooting
+  maintainers/             token-baseline.md: what sessions cost, measured with tools/baseline.py
+evals/                     behaviour cases for claude plugin eval (README.md says how to run them)
 CONTRIBUTING.md            for contributors: checks and rules; SECURITY.md: what runs where, reporting
 CHANGELOG.md               what changed in each version (framework/VERSION); LICENSE: MIT
 .github/workflows/         continuous integration: tests on Linux, macOS and Windows
@@ -44,7 +46,7 @@ engine/
   calamity.py              entry point of the CLI
   cal/                     the engine (Python standard library only)
   tests/                   run with: python3 engine/calamity.py selftest
-tools/                     development checks: end-to-end run, fuzzer, sample output, timing
+tools/                     development checks: end-to-end run, fuzzer, sample output, timing, token use
   README.md                what each tool checks and how to run it
   git-hooks/               keep study records out of the framework repository (core.hooksPath)
 framework/                 shipped with the framework; the same for every learner

@@ -10,6 +10,12 @@ folder and removes it afterwards. Standard library only, like the engine.
 | `tools/fuzz.py` | Random command sequences: no command may crash, the state served through the replay snapshot must equal a full replay after every step, and each run's events must replay to the same state from shuffled files. | `python3 tools/fuzz.py --runs 20 --steps 60` |
 | `tools/demo.py` | Produces the sample output shown in the README and the guides, from pretend learners in a temporary copy of the framework. | `python3 tools/demo.py --out /tmp/calamity-samples` (a folder outside the checkout) |
 | `tools/bench.py` | Times commands on a long log, with and without the replay snapshot. | `python3 tools/bench.py <learner repository> --events 50000` |
+| `tools/tokens.py` | Token use of Claude Code sessions in a checkout, read from their transcripts: per session (the first request's context is the fixed cost of every request), per skill, per agent, and the largest tool results. Numbers and names only, never content. Read-only. | `python3 tools/tokens.py --skills` |
+| `tools/baseline.py` | Three scripted sessions (a recall round, a two-topic study block, a weekly review) with pretend learners in throwaway copies, measured with `tools/tokens.py`; `docs/maintainers/token-baseline.md` keeps the results. It runs Claude Code headless and spends plan usage, so it is run by hand, never in CI. | `python3 tools/baseline.py --model sonnet` |
+
+`evals/` holds behaviour cases for `claude plugin eval` (routing, key
+secrecy, recall first); `evals/README.md` says how to run them. Like
+`tools/baseline.py` they call the model, so they are run by hand.
 
 On Windows use `python` or `py -3` instead of `python3`.
 
