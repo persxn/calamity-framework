@@ -87,6 +87,8 @@ def _load_settings(path: str) -> dict:
 
 
 # Our two hooks: the brief at session start, and the key guard before every tool that reads (cal.guard).
+# The output style (.claude/output-styles/calamity-tutor.md) comes with them: it is how a study session teaches.
+STYLE = "Calamity Tutor"
 HOOKS = {"SessionStart": (None, ["brief", "--hook"], 30),
          "PreToolUse": ("Read|Grep|Glob|Bash|PowerShell", ["guard", "tool"], 10)}
 
@@ -114,9 +116,15 @@ def install_hook(repo: Repo) -> str:
         entry["hooks"] = [{"type": "command", "command": sys.executable, "args": [_script(repo)] + args,
                            "timeout": timeout}]
         hooks[event] = entries + [entry]
+    style = data.get("outputStyle")
+    if style in (None, "", "default", STYLE):
+        data["outputStyle"] = STYLE
+        style_line = "the %s output style" % STYLE
+    else:
+        style_line = "your own output style (%s) kept; /output-style %s switches to the tutor's" % (style, STYLE)
     write_text(path, json.dumps(data, indent=2) + "\n")
     return ("session-start hook written to .claude/settings.local.json, with the key guard that keeps item keys "
-            "out of searches and shell commands (both take effect in the next session)")
+            "out of searches and shell commands, and %s (all take effect in the next session)" % style_line)
 
 
 def remove_hook(repo: Repo) -> str:
@@ -132,12 +140,15 @@ def remove_hook(repo: Repo) -> str:
             hooks[event] = after
         else:
             hooks.pop(event, None)
+    if data.get("outputStyle") == STYLE:
+        data.pop("outputStyle")
+        removed = True
     if not removed:
         return "no Calamity hook was installed"
     if not hooks:
         data.pop("hooks", None)
     write_text(path, json.dumps(data, indent=2) + "\n")
-    return "session-start hook removed, and the key guard with it"
+    return "session-start hook removed, and the key guard and the tutor's output style with it"
 
 
 def _short_path(path: str) -> str:
@@ -448,6 +459,20 @@ def doctor(repo: Repo):
     add("OK" if state_g == "ok" else "WARN", "key guard",
         "" if state_g == "ok" else "%s; it keeps item keys out of searches and shell commands (setup --hook "
                                    "installs it)" % state_g)
+    style_file = os.path.join(repo.root, ".claude", "output-styles", "calamity-tutor.md")
+    try:
+        style = _load_settings(_settings_path(repo)).get("outputStyle")
+    except CalError:
+        style = None
+    if not os.path.isfile(style_file):
+        add("WARN", "output style", "%s is missing; study sessions teach without it" % repo.rel(style_file))
+    elif style == STYLE:
+        add("OK", "output style", STYLE)
+    elif style and style != "default":
+        add("OK", "output style", "%s, chosen here (the tutor's is %s: /output-style %s)" % (style, STYLE, STYLE))
+    else:
+        add("WARN", "output style", "not set: study sessions run without the tutor's style (setup --hook selects "
+                                    "%s)" % STYLE)
     old = scratch.stale(repo)
     add("WARN" if old else "OK", "scratch folder (.calamity/tmp)",
         ("%d file(s) older than a day, which may hold worked answers; remove them with: clean tmp" % len(old))

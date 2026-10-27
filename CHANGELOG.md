@@ -69,6 +69,16 @@ changes their record in `learner/`.
   sessions with pretend learners and measures them, and `evals/` holds
   three cases for `claude plugin eval` (routing, key secrecy, recall
   first). `docs/maintainers/token-baseline.md` records the results.
+||||||| parent of 4f12bc4 (A slim CLAUDE.md and the Calamity Tutor output style)
+- `CLAUDE.md` is down from 5,197 to about 2,200 characters. It keeps the
+  session start and the rules that never bend, which agents load too. The
+  tutor's teaching rules and the engine's command form moved to the
+  output style `.claude/output-styles/calamity-tutor.md`, which
+  `setup --hook` selects (a style the learner chose is kept). It replaces
+  Claude Code's software-engineering instructions in study sessions.
+  The skills and agents are registered in `framework/MAP.md`, and the
+  self-test checks the registry: adding a skill no longer pushes
+  `CLAUDE.md` over its size limit. `doctor` reports the output style.
 
 ## 1.0.0 (2026-10-12)
 

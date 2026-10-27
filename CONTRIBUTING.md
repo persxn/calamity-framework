@@ -2,7 +2,8 @@
 
 Thank you for helping. The framework is three things that must keep
 agreeing with one another: the engine (`engine/`), the prompts Claude reads
-(`CLAUDE.md`, `.claude/skills/`, `.claude/agents/`, `framework/rules/`)
+(`CLAUDE.md`, `.claude/output-styles/`, `.claude/skills/`, `.claude/agents/`,
+`framework/rules/`)
 and the skill tree (`framework/tree/`). The tests check that they do.
 
 ## Set up
@@ -104,7 +105,9 @@ does.
 ## Changing a skill, an agent or a rule book
 
 Keep them short: what Claude reads every session costs tokens on every
-turn. Skills and agents run each engine command on its own, in the form
+turn. `CLAUDE.md` (every session and every agent) stays under 3,000
+characters and the tutor's output style under 6,000; a new skill or agent
+goes into the registry in `framework/MAP.md`, which the self-test checks. Skills and agents run each engine command on its own, in the form
 `python3 engine/calamity.py ...` from the repository root, because that is
 the form `.claude/settings.json` pre-approves.
 

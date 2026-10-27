@@ -27,7 +27,8 @@ Claude runs `doctor` and tells you what it found. Then it offers to run
   and Claude reads a short brief of where you stand before you type
   anything. The **key guard** comes with it: before Claude reads, searches
   or runs a shell command, it checks that the call cannot reach a
-  question's sealed answer.
+  question's sealed answer. So does the **Calamity Tutor** output style,
+  which is how a study session teaches (`/output-style` shows it).
 
 Both files stay on this machine and are never committed. Claude Code asks
 for your approval before `setup` runs; you can say no and run it later.

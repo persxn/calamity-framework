@@ -47,6 +47,7 @@ def documents():
     paths += [os.path.join(REPO, ".claude", "skills", name, "SKILL.md") for name in SKILLS]
     paths += [os.path.join(REPO, ".claude", "agents", name + ".md") for name in AGENTS]
     paths += [os.path.join(REPO, ".claude", "skills", skill, *rel.split(os.sep)) for skill, rel in ADDED_SKILL_DOCS]
+    paths += [os.path.join(REPO, ".claude", "output-styles", "calamity-tutor.md")]
     return paths
 
 
@@ -191,16 +192,31 @@ class Structure(unittest.TestCase):
             self.assertNotIn("(", str(meta.get("tools", "")), "%s: tools takes names only" % name)
             self.assertGreater(len(body), 800, name)
 
-    def test_claude_md_names_every_skill_and_agent(self):
+    def test_map_registers_every_skill_and_agent(self):
+        """framework/MAP.md is the registry. CLAUDE.md loads into every session and every agent: it stays short."""
+        with open(os.path.join(REPO, "framework", "MAP.md"), "r", encoding="utf-8") as fh:
+            registry = fh.read().split("\n## Skills and agents\n", 1)[1].split("\n## ", 1)[0]
+        for name in SKILLS + AGENTS + ADDED_SKILLS:
+            self.assertRegex(registry, r"(?m)^\| `%s` \|" % re.escape(name), "framework/MAP.md does not list %s" % name)
         with open(os.path.join(REPO, "CLAUDE.md"), "r", encoding="utf-8") as fh:
             text = fh.read()
-        for name in SKILLS + AGENTS + ADDED_SKILLS:
-            self.assertIn("`%s`" % name, text, "CLAUDE.md does not mention %s" % name)
         # The method loads on demand (the skills that need it read it), not into every session.
         self.assertNotIn("@framework/method.md", text)
-        self.assertLess(len(text), 5200, "CLAUDE.md loads into every session: keep it short")
+        self.assertLess(len(text), 3000, "CLAUDE.md loads into every session and every agent: keep it short")
         with open(os.path.join(REPO, "framework", "method.md"), "r", encoding="utf-8") as fh:
             self.assertLess(fh.read().count("\n"), 160)
+
+    def test_tutor_output_style(self):
+        """The teaching rules live in the output style that setup --hook selects, not in CLAUDE.md."""
+        from cal import machine
+
+        meta, body = fm.load(os.path.join(REPO, ".claude", "output-styles", "calamity-tutor.md"))
+        self.assertEqual(meta.get("name"), machine.STYLE)        # the name setup --hook writes
+        self.assertIs(meta.get("keep-coding-instructions"), False)
+        self.assertLess(len(body), 6000, "the output style is sent with every request: keep it short")
+        for needed in ("framework/method.md", "framework/method-teaching.md", "python3 engine/calamity.py",
+                       "Feedback after every answer"):
+            self.assertIn(needed, body)
 
     def test_skills_and_agents_name_the_rule_books_they_need(self):
         for name in ("study", "recall", "boss", "gate", "cp"):

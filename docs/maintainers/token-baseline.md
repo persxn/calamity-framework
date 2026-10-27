@@ -74,3 +74,32 @@ searched the workspace, opened a sealed item file, and then said it had
 not. In a clone the deny rule and the key guard (WP-03) refuse that read.
 A plugin install needs the guard as a plugin hook, which is planned
 (WP-29).
+
+## After WP-04 (2026-10-27, same setup)
+
+`CLAUDE.md` went from 5,197 to 2,243 characters. The tutor's teaching
+rules moved to the Calamity Tutor output style (2,841 characters), which
+`setup --hook` selects.
+
+| Scenario | Requests | First request | Context | Weighted input | Behaviour |
+|---|---|---|---|---|---|
+| recall | 24 | 25.1k (−79) | 791k | 149k | 13 engine calls, 10 answers, all plain, no key early: as before |
+| study | 20 | 26.6k (−77) | 807k | 159k | 9 engine calls, 2 topics taught, 2 answers, all plain: as before |
+| review | 8 | 25.2k (−80) | 216k | 97k | 1 engine call, the habit-coach agent: as before |
+
+Totals stay within the run-to-run spread above. The recall run's higher
+weighted input is one extra cache write of about 10k tokens.
+
+What the change saves, measured on one-turn probes:
+
+| Request | Before | After | Change |
+|---|---|---|---|
+| main session, default system prompt (Sonnet or Opus) | 25.6k | 25.5k | −79 (−0.3%): the rules moved, they did not disappear |
+| main session, full system prompt (Opus, `CLAUDE_CODE_SIMPLE_SYSTEM_PROMPT=0`) | 38.3k | 37.2k | −1,123 (−2.9%): the style drops the software-engineering section |
+| an agent's request (checker, Sonnet) | 19.8k | 18.8k | −1,050 (−5.3%): agents load `CLAUDE.md`, not the style |
+
+Behaviour held, and agent requests and full-prompt sessions are cheaper.
+In the dev clone, where no style is selected, maintenance sessions no
+longer carry the tutor's rules at all. The plugin evals load neither
+`CLAUDE.md` nor a project output style, so WP-04 cannot change their
+scores; the skills they exercise did not change.
