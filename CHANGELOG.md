@@ -4,6 +4,16 @@ All notable changes to the Calamity Framework. The version is in
 `framework/VERSION`; learners update with `/update-framework`, which never
 changes their record in `learner/`.
 
+## Unreleased
+
+### Development
+
+- Continuous integration is green on every system again: the alias test no
+  longer runs on Windows, where the WSL `bash.exe` launcher defeated its
+  skip. One aggregate check, `ci-ok`, is what branch protection requires;
+  a newer push cancels the older run; pull requests run once instead of
+  twice; the actions are pinned to commit SHAs.
+
 ## 1.0.0 (2026-10-12)
 
 The first public release.

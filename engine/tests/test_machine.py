@@ -167,7 +167,8 @@ class Setup(Case):
         self.assertIn("alias NOT written: the alias is written for bash and zsh", sb.run("setup", "--alias"))
         self.assertIn("not available for this shell", sb.run("doctor", expect=None))
 
-    @unittest.skipIf(not shutil.which("bash"), "needs bash")
+    # Windows runners carry WSL's bash.exe launcher, which exists but runs no Linux; the alias is never written there.
+    @unittest.skipIf(os.name == "nt" or not shutil.which("bash"), "the alias is written for Linux and macOS")
     def test_alias_changes_folder_and_starts_claude(self):
         class Odd:
             root = os.path.join(self.sb.root, "it's a folder with spaces")
