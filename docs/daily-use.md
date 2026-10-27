@@ -23,8 +23,11 @@ count, and reaching it is the day done:
 
 - 90% of the reviews that were due today answered (a few may carry over);
 - every topic you got wrong today answered correctly again;
-- the day's new topics (`new_per_day`, 8 by default, or fewer if fewer are
-  unlocked);
+- the day's new topics: a quota that adapts (at most 8 a day on the GATE
+  pace and 6 on the mastery pace, `new_per_day_max` to change it). It
+  shrinks while the next week's reviews near your review budget
+  (`review_budget_min`, 60) or first tries on new topics go wrong, and
+  `today` prints why;
 - the day's lectures, if you set a lecture quota (`lectures_per_day`);
 - every lecture you logged, tested.
 

@@ -196,7 +196,8 @@ def new_candidates(repo: Repo, tree, state, when, skill: str | None = None, limi
 
 def today(repo: Repo, tree, state, when) -> dict:
     n = state.today_numbers(when)
-    quota = max(0, int(repo.cfg("new_per_day", 8)))
+    quota_info = state.new_quota(when)
+    quota = quota_info["quota"]
     lecture_quota = max(0, int(repo.cfg("lectures_per_day", 0)))
     cands = new_candidates(repo, tree, state, when, limit=max(quota, 1) + 4)
     # The day's target counts what today's work will open as well as what can be started now.
@@ -229,6 +230,7 @@ def today(repo: Repo, tree, state, when) -> dict:
     return {
         "n": n,
         "quota": quota,
+        "quota_info": quota_info,
         "new_target": new_target,
         "new_left": new_left,
         "tests_left": tests_left,
@@ -269,6 +271,17 @@ def finish_text(t: dict) -> str:
     if not left:
         return "finish line: nothing counted yet today"
     return "finish line: " + ", ".join(left) + " to go"
+
+
+def quota_line(q: dict) -> str:
+    """Why the day asks for this many new topics, e.g. 'new quota 5 (max 6): reviews forecast 48 min a day
+    of 60; first-try accuracy 72% over 14 days'."""
+    head = "new quota %d (max %d)" % (q["quota"], q["max"])
+    if not q["adaptive"]:
+        return head + ": fixed (quota.adaptive is off)"
+    acc = ("first-try accuracy %d%% over 14 days" % round(100 * q["acc"]) if q["acc"] is not None
+           else "first-try accuracy not counted yet (%d of 10 first tries in 14 days)" % q["n_acc"])
+    return "%s: reviews forecast %d min a day of %d; %s" % (head, round(q["forecast"]), q["budget"], acc)
 
 
 def today_line(t: dict) -> str:
@@ -633,6 +646,7 @@ def brief(repo: Repo, tree, state, when, engine_cmd: str = "", current=None) -> 
 
     t = today(repo, tree, state, when)
     out.append(today_line(t).replace("today:", "Today:", 1))
+    out.append("  " + quota_line(t["quota_info"]))
     from . import day
 
     out.extend(day.now_lines(repo, when))   # where the learner is in the day's shape (learner/schedule.md)

@@ -128,7 +128,7 @@ class Profile(Case):
 
     def test_config_override(self):
         sb = self.sb
-        self.assertEqual(Repo(sb.root).cfg("new_per_day"), 8)
+        self.assertEqual(Repo(sb.root).cfg("new_per_day"), 0)
         sb.run("profile", "set", "cfg.new_per_day", "3")
         sb.run("profile", "set", "cfg.gate.daily_hours", "7.5")
         repo = Repo(sb.root)

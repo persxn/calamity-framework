@@ -12,6 +12,8 @@ few lines, numbers first:
 
 1. The finish line: reviews done of due, new topics done of the day's
    quota, lectures if they keep a lecture quota, and what is still to go.
+   When the `new quota` line shows less than its maximum, say why in its
+   words (the review forecast, or first tries going wrong).
 2. The next action, in plain words (which topic to review, what to learn,
    which lecture to watch).
 3. The block of the day this belongs to: the brief's `Now:` line, or

@@ -22,7 +22,8 @@ _DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 
 # Ranges for configuration overrides: (lowest, highest), either end may be None.
 CFG_RANGES = {
-    "day_start_hour": (0, 12), "new_per_day": (0, 200), "lectures_per_day": (0, 100),
+    "day_start_hour": (0, 12), "new_per_day": (0, 200), "new_per_day_max": (0, 200),
+    "review_budget_min": (1, 1440), "review_secs": (5, 3600), "lectures_per_day": (0, 100),
     "sleep_guard_minutes": (0, 600), "session_gap_minutes": (1, 600),
     "retention.mastery": (0.5, 0.99), "retention.brushup": (0.5, 0.99), "gate.final_retention": (0.5, 0.99),
     "max_interval_days": (1, 36500), "relearn_minutes": (1, 1440),
@@ -37,6 +38,7 @@ CFG_RANGES = {
     "pace.mastery.wip": (1, 50), "pace.exam.wip": (1, 50), "pace.brushup.wip": (1, 50),
     "pace.mastery.consolidate_minutes": (0, 1440), "pace.exam.consolidate_minutes": (0, 1440),
     "pace.brushup.consolidate_minutes": (0, 1440),
+    "pace.mastery.new_max": (0, 200), "pace.exam.new_max": (0, 200), "pace.brushup.new_max": (0, 200),
 }
 FIXED_CFG = ("schema",)
 PACES = ("mastery", "exam", "brushup")       # the pace profiles in config.md (pace.<name>.*)

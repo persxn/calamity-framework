@@ -28,7 +28,8 @@ the learner:
      shows the result) and add a dated line under `# Changes` with the reason;
    - one day only (an exam, travel, lost time):
      `python3 engine/calamity.py day note <day> "..."`;
-   - a number: `python3 engine/calamity.py profile set cfg.new_per_day 6`,
+   - a number: `python3 engine/calamity.py profile set cfg.new_per_day_max 6`
+     (or `cfg.review_budget_min 45`: the quota adapts to it),
      `profile set sleep.start 02:00`, `profile set workout.minutes 45`,
      and so on.
 4. Record what was decided:

@@ -107,7 +107,8 @@ characters. Without the hook, Claude runs `brief` itself.
 
 ## Configuration
 
-Defaults live in `framework/config.md`: new topics a day (8), lectures a
+Defaults live in `framework/config.md`: new topics a day (at most 8 on the
+GATE pace, 6 on the mastery pace, fewer while reviews pile up), lectures a
 day (0, no quota), when a learner day starts (04:00), the target recall for
 reviews (90%), how soon a failed topic returns (10 minutes), when a topic
 counts as solid and as mastered, when a skill unlocks the next, how many
@@ -116,8 +117,8 @@ Never edit the file for yourself: override a value in your profile, and it
 is checked before it is stored.
 
 ```bash
-python3 engine/calamity.py profile set cfg.new_per_day 6
-python3 engine/calamity.py profile unset cfg.new_per_day
+python3 engine/calamity.py profile set cfg.new_per_day_max 6
+python3 engine/calamity.py profile unset cfg.new_per_day_max
 ```
 
 The profile keys the engine reads are listed in
