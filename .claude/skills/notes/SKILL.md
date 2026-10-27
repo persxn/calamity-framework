@@ -24,7 +24,10 @@ lines, from this session: the learner's example, their code as it finally
 passed, the mistakes they actually made
 (`python3 engine/calamity.py stats errors` lists them), two to four
 questions for later. Set `updated` to today. Do not pad a fragment with
-textbook material; that belongs in the section.
+textbook material; that belongs in the section. For a GATE topic, add a
+`## Formulas` section with the formulas and results worth knowing by
+heart, one line each: `gate pack <subject>` collects them into the
+subject's formula sheet.
 
 ## On request: the long-form document
 

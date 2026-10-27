@@ -243,12 +243,68 @@ def resolve_item(src: Source, token: str) -> SourceItem:
     raise CalError("%r matches several items: %s" % (token, ", ".join(it.id for it in hits[:8])))
 
 
-def log(repo: Repo, source: str, token: str, done: bool, score, method: str) -> SourceItem:
+def log(repo: Repo, source: str, token: str, done: bool, score, method: str, at=None) -> SourceItem:
+    """Log one item. `at` backdates it to when it was really watched (never later than now)."""
     src = get(repo, source)
     item = resolve_item(src, token)
-    repo.append("src_progress", source=src.id, item=item.id, done=bool(done), score=score,
+    repo.append("src_progress", when=at, source=src.id, item=item.id, done=bool(done), score=score,
                 method=method or src.route)
     return item
+
+
+def log_ticks(repo: Repo, state, source: str, ticks, when, method: str | None = None) -> tuple:
+    """Log many items with the times they were ticked, e.g. from a tracker: a JSON list of
+    {"item": id, "at": ISO time} or an object {id: ISO time | true}. Items already logged are skipped, so a
+    sync can be run again. Returns (logged items, skipped count)."""
+    from .util import parse_ts
+
+    src = get(repo, source)
+    if isinstance(ticks, dict):
+        ticks = [{"item": k, "at": v} for k, v in ticks.items()]
+    if not isinstance(ticks, list):
+        raise CalError('ticks are a JSON list of {"item": "<id>", "at": "<ISO time>"} or an object {"<id>": "<ISO time>"}')
+    logged = state.src.get(src.id, {})
+    rows = []
+    for t in ticks:
+        if not isinstance(t, dict) or "item" not in t:
+            raise CalError("each tick needs an item id")
+        item = resolve_item(src, str(t["item"]))
+        at = t.get("at")
+        stamp = parse_ts(at) if isinstance(at, str) and at.strip() else when
+        if stamp > when:
+            raise CalError("%s is ticked in the future (%s)" % (item.id, at))
+        rows.append((stamp, item))
+    out, skipped, seen = [], 0, set()
+    for stamp, item in sorted(rows, key=lambda r: r[0]):
+        if logged.get(item.id, {}).get("done") or item.id in seen:
+            skipped += 1
+            continue
+        seen.add(item.id)
+        repo.append("src_progress", when=stamp, source=src.id, item=item.id, done=True, method=method or src.route)
+        out.append(item)
+    return out, skipped
+
+
+def revise(repo: Repo, state, tree, when, n: int = 8, threshold: float = 0.85) -> list:
+    """Watched lectures whose topics are fading: [(source, item, [(topic, recall chance)])], most faded first."""
+    rows = []
+    for src in load_all(repo):
+        done = state.src.get(src.id, {})
+        for it in src.ordered():
+            if not done.get(it.id, {}).get("done"):
+                continue
+            fading = []
+            for k in it.topics:
+                key = state.canon(k)
+                ts = state.topics.get(key)
+                if ts is not None and ts.card is not None and tree.has_topic(key):
+                    r = state.retrievability(key, when)
+                    if r < threshold:
+                        fading.append((key, r))
+            if fading:
+                rows.append((src, it, sorted(fading, key=lambda f: f[1])))
+    rows.sort(key=lambda r: (-len(r[2]), min(f[1] for f in r[2])))
+    return rows[:n]
 
 
 def log_upto(repo: Repo, state, source: str, token: str, method: str) -> list:

@@ -188,6 +188,19 @@ def patterns(repo: Repo, tree, state, when) -> list:
             "question": "Shall new and hard material move out of the %s, leaving it for light review?" % worst[0],
         })
 
+    from .revision import numericals_low
+
+    low = numericals_low(repo, tree, state, when)
+    if low:
+        key, solved, goal, aim = low
+        out.append({
+            "id": "numericals-low",
+            "fact": "numericals check: %s, %d solved, aim about %d%s" % (
+                tree.topic(key).title, solved, goal, (" before %s" % aim.strftime("%d %b")) if aim else ""),
+            "question": "Done more elsewhere? Say so and it is logged (practice log); otherwise a few from "
+                        "previous papers this week?",
+        })
+
     quota = state.new_quota(when)["max"]
     heavy = [ds for _, ds in week[-3:] if ds is not None and ds.new > 2 * quota]
     if heavy and due_now >= 10:

@@ -115,6 +115,17 @@ changes their record in `learner/`.
   right revisits in a row; `next` serves revisits after due reviews and
   before new material. A set with an official key (previous GATE papers)
   credits its topics as evidence; other sets only schedule them.
+- GATE revision. `gate pass <subject> <n> --planned DATE | --done`, shown
+  in `gate status`; the gate-strategist plans at least two passes for at
+  least five subjects. `gate numericals` counts numerical questions solved
+  per topic with `[N]` objectives against `numericals.target` (10), and
+  the `numericals-low` pattern raises the one furthest behind, casually
+  and at most once in three days. `source revise` lists watched lectures
+  whose topics have faded below 85% recall. `log ... --at ISO` and `log
+  <source> --file ticks.json` keep the real tick times, and the `log`
+  skill syncs the course tracker with them. `gate pack <subject> [--pdf]`
+  writes a revision pack: a formula sheet from the notes' `## Formulas`
+  sections and an error book of recorded mistakes, with no item keys.
 
 ### Development
 

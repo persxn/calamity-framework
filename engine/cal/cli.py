@@ -660,6 +660,16 @@ def cmd_source(c, a):
         lines = ["ERROR " + e for e in errors] + ["warn  " + w for w in warnings]
         lines.append("%d source(s), %d error(s), %d warning(s)" % (len(sources.load_all(repo)), len(errors), len(warnings)))
         return (2 if errors else 0), "\n".join(lines)
+    if a.action == "revise":
+        rows = sources.revise(repo, c.state, c.tree, c.when, n=a.limit if a.limit != 40 else 8)
+        if not rows:
+            return 0, "No watched lecture has a topic below 85% recall."
+        lines = []
+        for src, it, fading in rows:
+            lines.append("revise %s %s | %s%s | %d topic%s below 85%% recall: %s" % (
+                src.id, it.id, it.title, (", %d min" % it.minutes) if it.minutes else "", len(fading),
+                "" if len(fading) == 1 else "s", ", ".join("%s %d%%" % (k, round(100 * r)) for k, r in fading)))
+        return 0, "\n".join(lines)
     if a.action == "show":
         if not a.source:
             raise CalError("name the source id: source show <id> [--section S] [--unmapped] [--topic K] [--limit N]")
@@ -668,6 +678,26 @@ def cmd_source(c, a):
 
 
 def cmd_log(c, a):
+    from .util import parse_ts
+
+    if a.file or a.stdin:
+        if a.item or a.upto or a.undo:
+            raise CalError("log <source> --file ticks.json logs the ticks in the file; give no item with it")
+        done, skipped = sources.log_ticks(c.repo, c.state, a.source, _read_json(a), c.when, a.method)
+        return 0, "logged %d lecture(s) at their tick times%s" % (
+            len(done), (", %d already logged" % skipped) if skipped else "")
+    if not a.item:
+        raise CalError("name the lecture: log <source> <item> (or --file ticks.json)")
+    at = None
+    if a.at:
+        if a.upto or a.undo:
+            raise CalError("--at goes with one lecture, not --upto or --undo")
+        try:
+            at = parse_ts(a.at)
+        except ValueError:
+            raise CalError("--at is a time such as 2026-10-27T21:30+05:30; got %r" % a.at)
+        if at > c.when:
+            raise CalError("--at is in the future")
     if a.upto:
         if a.undo:
             raise CalError("--upto cannot be combined with --undo")
@@ -677,7 +707,7 @@ def cmd_log(c, a):
         topics = sum(1 for it in done for k in it.topics if c.tree.has_topic(k))
         return 0, ("logged %d lecture(s) as watched earlier, up to %s | %s\n%d mapped topic(s) are now ready to be "
                    "tested. They do not count as today's lectures." % (len(done), done[-1].id, done[-1].title, topics))
-    item = sources.log(c.repo, a.source, a.item, not a.undo, a.score, a.method)
+    item = sources.log(c.repo, a.source, a.item, not a.undo, a.score, a.method, at=at)
     mapped = [k for k in item.topics if c.tree.has_topic(k)]
     line = "%s: %s %s | %s" % ("un-logged" if a.undo else "logged", a.source, item.id, item.title)
     if mapped and not a.undo:
@@ -703,6 +733,19 @@ def cmd_gate(c, a):
         return 0, stats.errors_text(repo, tree, state, "gate")
     if a.action == "weights":
         return 0, gate.weights_from_items(repo, tree, state, a.apply)
+    if a.action in ("pass", "numericals", "pack"):
+        from . import revision
+
+        if a.action == "numericals":
+            return 0, revision.numericals_text(repo, tree, state, a.args[0] if a.args else None)
+        if not a.args:
+            raise CalError("name the subject: gate %s <subject>%s" % (a.action, " <n> --planned DATE | --done"
+                                                                    if a.action == "pass" else ""))
+        if a.action == "pack":
+            return 0, revision.pack(repo, tree, state, a.args[0], pdf=a.pdf)
+        if len(a.args) != 2:
+            raise CalError("usage: gate pass <subject> <n> --planned DATE | --done [--date DATE]")
+        return 0, revision.set_pass(repo, tree, state, a.args[0], a.args[1], a.planned, a.done, a.date, c.when)
     if a.action == "mock":
         if len(a.args) < 2:
             raise CalError("usage: gate mock <PAPER> <score> [--max 100] --source \"...\"")
@@ -1263,7 +1306,7 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("new")
 
     sp = add("source", cmd_source, "Study sources: add, import items, status, check, show (a slice).")
-    sp.add_argument("action", choices=("add", "import", "status", "check", "show"))
+    sp.add_argument("action", choices=("add", "import", "status", "check", "show", "revise"))
     sp.add_argument("source", nargs="?")
     sp.add_argument("--title")
     sp.add_argument("--kind", default="course", choices=sources.KINDS)
@@ -1280,7 +1323,10 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("--limit", type=_positive, default=40, help="show: at most this many items")
     sp = add("log", cmd_log, "Log a lecture or chapter as done (by id, number or a piece of its title).")
     sp.add_argument("source")
-    sp.add_argument("item")
+    sp.add_argument("item", nargs="?")
+    sp.add_argument("--at", help="when it was really watched (ISO time), if not now")
+    sp.add_argument("--file", help="a JSON file of ticks with their times, e.g. from a tracker")
+    sp.add_argument("--stdin", action="store_true")
     sp.add_argument("--undo", action="store_true")
     sp.add_argument("--upto", action="store_true", help="log everything up to and including this item (catching up)")
     sp.add_argument("--score")
@@ -1288,7 +1334,11 @@ def build_parser() -> argparse.ArgumentParser:
                                          "browser-session"))
 
     sp = add("gate", cmd_gate, "GATE companion: status, triage, enroll, mock, mocks, errors, weight, weights.")
-    sp.add_argument("action", choices=("status", "triage", "enroll", "mock", "mocks", "errors", "weight", "weights"))
+    sp.add_argument("action", choices=("status", "triage", "enroll", "mock", "mocks", "errors", "weight", "weights",
+                                       "pass", "numericals", "pack"))
+    sp.add_argument("--planned", help="pass: the day the pass is planned for")
+    sp.add_argument("--done", action="store_true", help="pass: mark it done (today, or --date)")
+    sp.add_argument("--pdf", action="store_true", help="pack: also build a PDF (needs a TeX engine)")
     sp.add_argument("args", nargs="*")
     sp.add_argument("--max", type=float, default=100.0)
     sp.add_argument("--date")

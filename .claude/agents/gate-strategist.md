@@ -51,7 +51,14 @@ if it exists), and the previous plan (`learner/gate/plan.md`).
    against what they have been doing.
 7. **Mocks.** The calendar from the phase table in `gate-planning.md`, with
    official past papers of the most recent years kept unseen for the end.
-8. **Target.** If no marks target is set, or it has no source: research
+8. **Revision passes.** Plan at least two spaced passes for at least five
+   subjects (the highest marks per hour first): pass 1 when a subject's
+   lectures are done, pass 2 at least three weeks later and before the
+   final phase. Record each with
+   `python3 engine/calamity.py gate pass <subject> <n> --planned YYYY-MM-DD`
+   and put them in the plan's dates. `gate numericals` shows the topics
+   behind on numerical practice; plan their volume into the passes.
+9. **Target.** If no marks target is set, or it has no source: research
    the marks that corresponded to their target rank in recent years for
    their paper (web tools), note every source and how each figure was
    obtained, take the highest recent figure, add a margin, and propose it.

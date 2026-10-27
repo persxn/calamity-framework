@@ -62,6 +62,7 @@ gate.daily_hours: 6          # study hours a day assumed by triage
 gate.exam_clamp_days: 3      # final reviews end this many days before the exam
 gate.final_phase_days: 21    # topics not otherwise due again get one final review, spread over this phase
 gate.final_retention: 0.93
+numericals.target: 10        # numerical questions to solve per topic with [N] objectives, before the final phase
 
 # --- competitive programming
 cp.band_low: 100             # practise problems rated this far above the current rating ...

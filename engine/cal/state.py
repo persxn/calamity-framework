@@ -158,6 +158,8 @@ class State:
         self.weights = {}
         self.first_tries = []    # (datetime, right) of the first verified answer on each new topic (the quota)
         self.practice = {}       # practice set id -> {meta, map, qs: {question: record}} (practice.py)
+        self.mistakes = []       # wrong answers for the error book: {ts, topic, err, note, src, id}
+        self.passes = {}         # GATE subject -> {pass number: {"planned": date, "done": date}}
         self.review_secs = []    # seconds the latest timed reviews took (the quota's review forecast)
         self.last_dt = None
         self.n_events = 0
@@ -363,6 +365,7 @@ class State:
         self.mocks, self.notes, self.cp_assigned = [], [], []
         self.cp_marks, self.cp_credits, self.weights = {}, {}, {}
         self.first_tries, self.review_secs, self.practice = [], [], {}
+        self.mistakes, self.passes = [], {}
         self.last_dt, self.n_events, self.n_voided = None, 0, 0
         self._alias_topic, self._alias_skill, self._retag = {}, {}, {}
         self._voided, self._handler_errors = set(), []
@@ -502,6 +505,11 @@ class State:
                         if len(ts.vok_log) > 12:
                             del ts.vok_log[0]
             else:
+                if key == primary:
+                    self.mistakes.append({"ts": dt, "topic": key, "err": err_tag, "note": e.get("note"),
+                                          "src": source_id, "id": e["id"]})
+                    if len(self.mistakes) > 500:
+                        del self.mistakes[0]
                 ts.seeded = False
                 ts.fail_day = day
                 ts.errors[err_tag] = ts.errors.get(err_tag, 0) + 1
@@ -545,6 +553,19 @@ class State:
             self.tests[test]["answers"][e.get("item")] = {
                 "ok": ok, "marks": e.get("marks"), "secs": e.get("secs"), "ts": dt,
             }
+
+    def _on_errtag(self, e, dt):
+        for m in reversed(self.mistakes):
+            if m["id"] == str(e.get("attempt")):
+                m["err"] = e.get("err") or m["err"]
+                m["note"] = e.get("note") or m["note"]
+                break
+
+    def _on_gate_pass(self, e, dt):
+        rec = self.passes.setdefault(self.canon_skill(e["skill"]), {}).setdefault(str(e["n"]), {})
+        for k in ("planned", "done"):
+            if k in e:
+                rec[k] = e[k]
 
     def _on_practice_set(self, e, dt):
         rec = self.practice.setdefault(e["set"], {"meta": {}, "map": [], "qs": {}})

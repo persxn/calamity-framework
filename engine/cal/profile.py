@@ -38,6 +38,7 @@ CFG_RANGES = {
     "pace.mastery.wip": (1, 50), "pace.exam.wip": (1, 50), "pace.brushup.wip": (1, 50),
     "pace.mastery.consolidate_minutes": (0, 1440), "pace.exam.consolidate_minutes": (0, 1440),
     "pace.brushup.consolidate_minutes": (0, 1440),
+    "numericals.target": (1, 200),
     "pace.mastery.new_max": (0, 200), "pace.exam.new_max": (0, 200), "pace.brushup.new_max": (0, 200),
 }
 FIXED_CFG = ("schema",)
