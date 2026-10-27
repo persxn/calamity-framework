@@ -63,6 +63,12 @@ changes their record in `learner/`.
   timetable, practice and career files can be edited without a prompt,
   and Claude can no longer edit `.claude/settings.json` or
   `.claude/settings.local.json` itself (deny rules hold in every mode).
+- Token and behaviour baselines: `tools/tokens.py` reads Claude Code's
+  transcripts (per session, per skill, per agent, the largest tool
+  results; numbers only), `tools/baseline.py` runs three scripted
+  sessions with pretend learners and measures them, and `evals/` holds
+  three cases for `claude plugin eval` (routing, key secrecy, recall
+  first). `docs/maintainers/token-baseline.md` records the results.
 
 ## 1.0.0 (2026-10-12)
 
