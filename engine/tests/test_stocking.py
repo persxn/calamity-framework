@@ -89,7 +89,7 @@ class Nightly(Case):
         self.assertIn("'-p' '/stock' '--permission-mode' 'dontAsk'", script)
         self.assertRegex(script, r"Bash\((python3|python|py -3) engine/calamity\.py \*\)")
         self.assertNotIn("Bash(*)", script)
-        self.assertIn(".calamity/logs", script)
+        self.assertIn(os.path.join(".calamity", "logs"), script)
         cron = read(os.path.join(folder, "crontab.txt"))
         self.assertRegex(cron, r"^45 23 \* \* \* /bin/sh .*stock\.sh' # calamity-stock-[0-9a-f]{8}\n$")
         self.assertIn("calamity-stock-", sb.run("stock", "remove", "--os", "linux"))
