@@ -108,6 +108,11 @@ def parse_date(tok, base=None):
         return None
 
 
+def long_date(day):
+    """'Wednesday 28 October' on every system (strftime's %-d is not portable: Windows rejects it)."""
+    return "%s %d %s" % (day.strftime("%A"), day.day, day.strftime("%B"))
+
+
 def to_min(hhmm):
     h, m = hhmm.split(":")
     return int(h) * 60 + int(m)
@@ -212,7 +217,7 @@ def render(date, store):
     shifted = bool(ov and ov.get("blocks"))
     if shifted:
         shape = (ov.get("label") or "shifted day") + " · override"
-    left = "timetable · " + date.strftime("%A %-d %B")
+    left = "timetable · " + long_date(date)
     pad = max(1, WIDTH - len(left) - len(shape))
     print()
     print("  " + c(left, STEEL, bold=True) + " " * pad + c(shape, AMBER if shifted else SUB))
@@ -474,7 +479,7 @@ def _draw(stdscr, state):
 
     # header: title · date (left), shape badge (right); note + goals meter; a rule
     _put(stdscr, 1, 2, "timetable", CP["steel"] | curses.A_BOLD)
-    _put(stdscr, 1, 12, "· " + state["date"].strftime("%A %-d %B").lower(), CP["sub"])
+    _put(stdscr, 1, 12, "· " + long_date(state["date"]).lower(), CP["sub"])
     _put_right(stdscr, 1, meta["shape"], CP["amber"] if meta["shifted"] else CP["sub"])
     note = meta["note"]
     _put(stdscr, 2, 2, "✎  " + (note or "no note — press n to log an exam / event"),
