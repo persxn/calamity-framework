@@ -13,6 +13,13 @@ changes their record in `learner/`.
   skip. One aggregate check, `ci-ok`, is what branch protection requires;
   a newer push cancels the older run; pull requests run once instead of
   twice; the actions are pinned to commit SHAs.
+- Study records stay out of the framework repository: git hooks in
+  `tools/git-hooks/` (`git config core.hooksPath tools/git-hooks`) refuse
+  to commit `learner/` files in a clone of the framework and to push a
+  study record to it from any clone; the self-test checks that the
+  framework tracks only `learner/README.md`. `CONTRIBUTING.md` and the
+  sync skill describe the two clones: a dev clone of the framework, and a
+  study clone whose `origin` is the learner's private repository.
 
 ## 1.0.0 (2026-10-12)
 
