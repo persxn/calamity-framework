@@ -29,10 +29,13 @@ Check what is there:
 
       git remote rename origin upstream
       git remote add origin <address of their repository>
+      git config core.hooksPath tools/git-hooks
       git push -u origin HEAD
 
   With the GitHub CLI: `gh repo create <name> --private --source . --remote origin`
-  after renaming the old remote.
+  after renaming the old remote. Suggest a name such as `calamity-study`:
+  the hooks treat any repository named `calamity-framework` as the
+  framework, and refuse to push a study record to it.
 - **No remote at all**: `git remote add origin <address of their repository>`
   and `git push -u origin HEAD`.
 

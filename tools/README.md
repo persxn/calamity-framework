@@ -13,6 +13,15 @@ folder and removes it afterwards. Standard library only, like the engine.
 
 On Windows use `python` or `py -3` instead of `python3`.
 
+## Git hooks
+
+`tools/git-hooks/` keeps study records out of the framework repository:
+`pre-commit` refuses files under `learner/` (other than its README) when
+`origin` is the framework, and `pre-push` refuses to push a study record to
+it from any clone. Turn them on once per clone with
+`git config core.hooksPath tools/git-hooks`; `CONTRIBUTING.md` explains
+the two clones they are meant for.
+
 ## Companion tool
 
 `tools/timetable.py` is not a check — it's a learner-facing day planner. Run

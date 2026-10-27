@@ -1,0 +1,33 @@
+#!/bin/sh
+# Calamity: never push a study record to the framework repository, from any clone. In a study
+# clone the framework is the `upstream` remote, so `git push upstream` is what this stops.
+# Git passes the remote's name and URL, and one line per ref on standard input:
+#   <local ref> <local sha> <remote ref> <remote sha>
+
+remote=$1
+url=$2
+name=$(printf '%s\n' "${url%/}" | tr '\\:' '//')     # Windows paths and scp-style addresses
+case "$name" in
+  */calamity-framework | */calamity-framework.git) ;;
+  *) exit 0 ;;
+esac
+
+status=0
+while read -r local_ref local_sha remote_ref remote_sha; do
+  case "$local_sha" in *[!0]*) ;; *) continue ;; esac            # deleting a branch pushes no files
+  case "$remote_sha" in
+    *[!0]*) range="$remote_sha..$local_sha" ;;
+    *) range="$local_sha --not --remotes=$remote" ;;             # a new branch: what the remote lacks
+  esac
+  # $range is split into words on purpose: it may be "<sha> --not --remotes=<name>"
+  files=$(git log --format= --name-only --diff-filter=ACMRT $range -- learner \
+          | grep -v '^learner/README\.md$' | grep -v '^$' | sort -u)
+  if [ -n "$files" ]; then
+    {
+      echo "Not pushed: $local_ref carries a study record, and $remote ($url) is the framework repository."
+      echo "$files" | sed 's/^/  /'
+    } >&2
+    status=1
+  fi
+done
+exit $status

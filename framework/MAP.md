@@ -46,6 +46,7 @@ engine/
   tests/                   run with: python3 engine/calamity.py selftest
 tools/                     development checks: end-to-end run, fuzzer, sample output, timing
   README.md                what each tool checks and how to run it
+  git-hooks/               keep study records out of the framework repository (core.hooksPath)
 framework/                 shipped with the framework; the same for every learner
   method.md                the method (loop, asking, judging, modes): study, recall, boss, gate, cp
   method-teaching.md       the teaching standard: loaded only when teaching new material

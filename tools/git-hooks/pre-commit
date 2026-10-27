@@ -1,0 +1,23 @@
+#!/bin/sh
+# Calamity: a clone of the framework repository never commits a study record.
+# Turn on once per clone: git config core.hooksPath tools/git-hooks (see CONTRIBUTING.md).
+# Git runs hooks with its own sh on every system, Git for Windows included.
+
+url=$(git remote get-url origin 2>/dev/null) || exit 0
+name=$(printf '%s\n' "${url%/}" | tr '\\:' '//')     # Windows paths and scp-style addresses
+case "$name" in
+  */calamity-framework | */calamity-framework.git) ;;
+  *) exit 0 ;;  # a learner's own repository: their record belongs there
+esac
+
+files=$(git diff --cached --name-only --diff-filter=ACMRT -- learner | grep -v '^learner/README\.md$')
+[ -z "$files" ] && exit 0
+
+{
+  echo "Not committed: origin is the framework repository ($url),"
+  echo "and a study record never goes there. Staged under learner/:"
+  echo "$files" | sed 's/^/  /'
+  echo "Unstage them with: git restore --staged learner"
+  echo "Study in a clone whose origin is your own private repository (the sync skill sets one up)."
+} >&2
+exit 1

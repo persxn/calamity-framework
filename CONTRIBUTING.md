@@ -21,7 +21,24 @@ On Windows use `python` or `py -3` instead of `python3`.
 
 Work on the framework in a checkout that holds no study record of your own:
 `learner/` must ship with nothing but `learner/README.md`. If you also
-study with Calamity, do it in a second clone.
+study with Calamity, do it in a second clone whose `origin` is your own
+private repository (the sync skill sets one up) and whose `upstream` is the
+framework.
+
+Turn on the git hooks once per clone:
+
+```bash
+git config core.hooksPath tools/git-hooks
+```
+
+In a clone whose `origin` is the framework repository (or a fork: any
+repository named `calamity-framework`), `pre-commit` refuses staged files
+under `learner/` other than `learner/README.md`. In every clone,
+`pre-push` refuses to push commits that add a study record to such a
+repository, so `git push upstream` from a study clone cannot publish one.
+Git runs them with its own `sh`, Git for Windows included. The self-test
+checks the same rule: in a clone of the framework, `git ls-files learner`
+lists `learner/README.md` alone.
 
 ## Before you open a pull request
 
