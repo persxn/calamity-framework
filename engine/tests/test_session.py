@@ -80,17 +80,21 @@ class AskAnswer(Case):
         self.assertIn("grade: shell/pipes Good", out)
         self.assertIn("KEY: B", out)
         self.assertIn("SOLUTION:", out)
-        self.assertIn("shell/pipes: learning; solid needs 2 more correct answers on verified items", out)
-        self.assertIn("today: reviews 0/0 · new 1/2", out)
+        self.assertIn("shell/pipes: learning; solid needs a right answer on a second item, at least 20 min after "
+                      "the first (consolidation); 2 more correct answers on verified items", out)
+        self.assertIn("today: reviews 0/0 · new 1/2 · consolidated 0/1", out)
         state = sb.state()
         self.assertEqual(state.topic_status("shell/pipes"), "learning")
         self.assertEqual(state.topics["shell/pipes"].n_vok, 1)
         self.assertEqual(state.today_numbers(sb.clock)["new_done"], 1)
         sb.run("answer", draft, "--answer", "B", expect=2)  # it is no longer open
-        self.assertIn("topic: shell/perms", sb.run("next"))  # the next topic is now unlocked
+        nxt = sb.run("next")                                 # perms builds on pipes, which is not secured yet
+        self.assertIn("NEXT: consolidate", nxt)
+        self.assertIn("not before", nxt)
 
     def test_wrong_answer_comes_back(self):
         sb = self.sb
+        sb.legacy_pace()
         ident = sb.item("shell/pipes", answer="C")
         sb.ask("shell/pipes")
         sb.run("answer", ident, "--answer", "A", "--err", "nonsense", expect=2)
@@ -107,7 +111,8 @@ class AskAnswer(Case):
         self.assertEqual((ts.card.due - sb.clock).total_seconds(), 600)
         self.assertIn("answer again today: shell/pipes", sb.run("today"))
         self.assertIn("1 to re-answer correctly", sb.run("today"))
-        self.assertIn("NEXT: new", sb.run("next"))          # it is not due for ten minutes: something else meanwhile
+        # perms builds on pipes, and pipes' last answer was wrong: perms stays closed, so the retry is next
+        self.assertIn("failed a few minutes ago; try it again", sb.run("next"))
         sb.advance(minutes=11)
         nxt = sb.run("next")
         self.assertIn("NEXT: review", nxt)
@@ -275,7 +280,8 @@ class Mastery(Case):
         sb.do("shell/pipes")
         state = sb.state()
         self.assertEqual(state.topics["shell/pipes"].n_vok, 3)
-        self.assertEqual(state.topic_status("shell/pipes"), "learning")   # three right, but all on one day
+        # three right on two different items, 30 minutes apart: consolidated, but not solid (all on one day)
+        self.assertEqual(state.topic_status("shell/pipes"), "consolidating")
         answers = self.until("shell/pipes", "solid")
         self.assertLessEqual(answers, 3)
         ts = sb.state().topics["shell/pipes"]
@@ -289,6 +295,13 @@ class Mastery(Case):
     def test_one_item_is_never_mastery(self):
         sb = self.sb
         sb.item("shell/pipes")
+        self.until("shell/pipes", "learning")
+        for _ in range(4):                    # right every time, but on one item: never even consolidated
+            ts = sb.state().topics["shell/pipes"]
+            sb.at(ts.card.due.isoformat()).advance(hours=1)
+            sb.do("shell/pipes")
+        self.assertEqual(sb.state().topic_status("shell/pipes"), "learning")
+        sb.item("shell/pipes")                # a second item: solid comes within reach, mastered does not
         self.until("shell/pipes", "solid")
         for _ in range(6):
             ts = sb.state().topics["shell/pipes"]
@@ -300,6 +313,7 @@ class Mastery(Case):
     def test_skill_unlocks_dependents_when_ready(self):
         sb = self.sb
         for topic in ("shell/pipes", "shell/perms"):
+            sb.item(topic)
             sb.item(topic)
         self.assertEqual(sb.state().skill_status("docker"), "locked")
         self.until("shell/pipes", "solid")
@@ -313,6 +327,7 @@ class Mastery(Case):
 
     def test_a_failure_takes_solid_away(self):
         sb = self.sb
+        sb.item("shell/pipes")
         sb.item("shell/pipes")
         self.until("shell/pipes", "solid")
         ts = sb.state().topics["shell/pipes"]

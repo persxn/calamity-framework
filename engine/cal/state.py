@@ -15,7 +15,9 @@ from .store import Repo, format_problems, log_text, order_and_dedup, order_key, 
 from .tree import Tree
 from .util import ceil_int, day_bounds, daykey, in_window, parse_hhmm, utc
 
-TOPIC_ORDER = ("new", "covered", "learning", "solid", "mastered")
+TOPIC_ORDER = ("new", "covered", "learning", "consolidating", "solid", "mastered")
+PACES = ("mastery", "exam", "brushup")
+OPEN = ("covered", "learning")      # taught or answered, not yet secured: what the WIP limit counts
 SATISFIED = ("known", "ready", "mastered")
 
 
@@ -23,7 +25,7 @@ class TopicState:
     __slots__ = (
         "key", "covered_ts", "covered_by", "first_ts", "first_day", "last_ts", "card", "n", "n_ok",
         "n_vok", "recent", "ok_days", "ok_items", "last_ok", "errors", "hints", "seeded",
-        "open_day", "open_due", "open_had_card", "fail_day", "err_log", "slow",
+        "open_day", "open_due", "open_had_card", "fail_day", "err_log", "slow", "vok_log", "last_ev_ok",
     )
 
     def __init__(self, key: str):
@@ -50,6 +52,8 @@ class TopicState:
         self.fail_day = None    # learner day of the latest failed attempt
         self.err_log = []       # (datetime, error tag) of recent failures
         self.slow = 0           # correct answers that took far longer than expected
+        self.vok_log = []       # (datetime, item or problem) of correct answers that count as evidence
+        self.last_ev_ok = None  # the latest answer that counts as evidence: right or wrong
 
 
 def restorable(it) -> bool:
@@ -461,6 +465,8 @@ class State:
                 # "new material today": nothing was taught for it.
                 if not c.get("eq") and not placement:
                     ts.first_day = day
+            if evidence:
+                ts.last_ev_ok = good
             if good:
                 ts.n_ok += 1
                 if evidence:
@@ -468,6 +474,9 @@ class State:
                     ts.ok_days.add(day)
                     if source_id:
                         ts.ok_items.add(source_id)
+                        ts.vok_log.append((dt, source_id))
+                        if len(ts.vok_log) > 12:
+                            del ts.vok_log[0]
             else:
                 ts.seeded = False
                 ts.fail_day = day
@@ -656,18 +665,74 @@ class State:
         sk = self.skills.get(skill_id)
         return sk.mode if sk else "mastery"
 
+    def pace(self, skill_id: str) -> dict:
+        """The pace profile a skill is studied at: `brushup` for a skill in brush-up mode, else the track's
+        (`pace.track.<track>`, `exam` for the GATE tracks), else `mastery`. Its settings come from config.md."""
+        name = "brushup" if self.mode_of(skill_id) == "brushup" else None
+        if name is None:
+            node = self.tree.nodes.get(skill_id)
+            name = str(self.repo.cfg("pace.track.%s" % node.track, "mastery")) if node is not None else "mastery"
+            name = name if name in PACES else "mastery"
+        cfg = self.repo.cfg
+        return {"name": name, "unlock": str(cfg("pace.%s.unlock" % name, "consolidating")),
+                "wip": max(1, int(cfg("pace.%s.wip" % name, 2))),
+                "consolidate_minutes": max(0, int(cfg("pace.%s.consolidate_minutes" % name, 20)))}
+
+    def consolidated_at(self, key: str):
+        """When a topic was secured: its second correct verified answer on another item, given at least
+        `consolidate_minutes` after a first one. With no consolidation step (0 minutes) the first one
+        secures it. None while it is not."""
+        ts = self.topics.get(key)
+        if ts is None or not ts.vok_log:
+            return None
+        gap = timedelta(minutes=self.pace(key.split("/", 1)[0])["consolidate_minutes"])
+        if not gap:
+            return ts.vok_log[0][0]
+        for i, (when, source) in enumerate(ts.vok_log):
+            if any(src != source and when - at >= gap for at, src in ts.vok_log[:i]):
+                return when
+        return None
+
+    def consolidation_due(self, key: str):
+        """When a topic answered right once can be consolidated (a second item, `consolidate_minutes` after
+        the last right answer), or None when it needs no consolidation now."""
+        ts = self.topics.get(key)
+        if ts is None or ts.card is None or not ts.vok_log or ts.seeded or ts.last_ev_ok is False:
+            return None
+        if self.consolidated_at(key) is not None:
+            return None
+        gap = self.pace(key.split("/", 1)[0])["consolidate_minutes"]
+        return ts.vok_log[-1][0] + timedelta(minutes=gap) if gap else None
+
+    def need_met(self, key: str, unlock: str) -> bool:
+        """Whether a topic another one builds on is far enough along: `consolidating` (the mastery pace) or
+        `learning` with its latest verified answer right (exam and brush-up). An oral check never counts."""
+        ts = self.topics.get(key)
+        sk = self.skills.get(key.split("/", 1)[0])
+        if (ts is not None and ts.seeded) or (sk is not None and sk.known):
+            return True
+        if ts is None or ts.card is None:
+            return False
+        if unlock == "learning":
+            return ts.last_ev_ok is True or self.topic_status(key) in ("consolidating", "solid", "mastered")
+        return self.topic_status(key) in ("consolidating", "solid", "mastered")
+
     def topic_status(self, key: str) -> str:
         ts = self.topics.get(key)
         if ts is None or ts.card is None:
             return "covered" if (ts is not None and ts.covered_ts is not None) else "new"
         cfg = self.repo.cfg
+        consolidated = self.consolidated_at(key) is not None
         if self.mode_of(key.split("/", 1)[0]) == "brushup":
             solid = bool(ts.last_ok) and ts.n_vok >= 1
         else:
-            window = [ok for _, ok, _ in ts.recent[-int(cfg("solid.window", 5)):]]
+            # accuracy over answers that count as evidence: an oral check or a guess after the key was shown
+            # neither lifts nor sinks it
+            window = [ok for _, ok, ev in ts.recent if ev][-int(cfg("solid.window", 5)):]
             acc = (sum(1 for ok in window if ok) / float(len(window))) if window else 0.0
             solid = (
-                bool(ts.last_ok)
+                consolidated
+                and bool(ts.last_ok)
                 and ts.n_vok >= int(cfg("solid.min_correct", 3))
                 and len(ts.ok_days) >= int(cfg("solid.min_days", 2))
                 and acc >= float(cfg("solid.min_accuracy", 0.8))
@@ -681,7 +746,12 @@ class State:
             return "mastered"
         if solid or ts.seeded:
             return "solid"
-        return "learning"
+        return "consolidating" if consolidated and ts.last_ok else "learning"   # a miss sends it back
+
+    def open_topics(self, skill_id: str) -> list:
+        """A skill's topics that are taught or answered but not yet secured (the WIP limit counts them)."""
+        node = self.tree.nodes.get(skill_id)
+        return [t.key for t in (node.topics if node else []) if self.topic_status(t.key) in OPEN]
 
     def retrievability(self, key: str, when) -> float:
         ts = self.topics.get(key)
@@ -844,6 +914,7 @@ class State:
         day = self.day(when)
         _, day_end = day_bounds(when, self._start_hour)
         due_open, done, relearn, due_now, new_today = [], [], [], [], []
+        to_secure, secured = 0, 0   # topics started today that the pace asks to consolidate, and those that are
         for key, ts in self.scheduled_topics():
             attempted_today = ts.open_day == day
             if ts.card.due <= when:
@@ -852,6 +923,10 @@ class State:
                 relearn.append(key)  # failed today and not yet answered correctly again
             if ts.first_day == day:
                 new_today.append(key)
+                if self.pace(key.split("/", 1)[0])["consolidate_minutes"]:
+                    to_secure += 1
+                    at = self.consolidated_at(key)
+                    secured += 1 if at is not None and self.day(at) == day else 0
                 continue
             was_due = (ts.open_due if attempted_today else ts.card.due)
             if was_due is not None and was_due <= day_end:
@@ -866,6 +941,8 @@ class State:
             "due_now": len(due_now),
             "relearn": relearn,
             "new_done": len(new_today),
+            "consolidate_total": to_secure,
+            "consolidated": secured,
             "attempts": ds.attempts if ds else 0,
             "ok": ds.ok if ds else 0,
             "active_min": ds.active_min if ds else 0.0,

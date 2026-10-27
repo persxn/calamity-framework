@@ -3,7 +3,7 @@ schema: 1
 
 # --- the day
 day_start_hour: 4            # a learner's "day" rolls over at 04:00 local time
-new_per_day: 8               # new topics a day (the finish line counts verified first answers)
+new_per_day: 8               # new topics a day (the finish line also asks each to be consolidated)
 lectures_per_day: 0          # lectures to log a day when studying from a course (0 = no quota)
 sleep_guard_minutes: 60      # no new material this close to the sleep window
 session_gap_minutes: 30      # a longer silence starts a new session
@@ -25,6 +25,20 @@ solid.min_accuracy: 0.8
 solid.min_stability: 7       # memory strength in days
 mastered.min_stability: 21
 mastered.min_items: 4        # distinct verified items answered correctly
+
+# --- pace: how fast new topics open (pace.track.<track> picks a profile; brush-up mode uses brushup)
+pace.mastery.unlock: consolidating   # a topic opens once those it builds on are consolidated
+pace.mastery.wip: 2                  # open topics (taught or answered, not yet consolidated) per skill
+pace.mastery.consolidate_minutes: 20 # a second item, at least this long after the first right answer
+pace.exam.unlock: learning           # ... or answered right on a verified item (the exam pace)
+pace.exam.wip: 3
+pace.exam.consolidate_minutes: 20
+pace.brushup.unlock: learning
+pace.brushup.wip: 4
+pace.brushup.consolidate_minutes: 0  # no consolidation step
+pace.track.gate: exam
+pace.track.gate-cs: exam
+pace.track.gate-da: exam
 
 # --- when a skill unlocks the skills that depend on it
 ready_share: 0.6             # share of its topics that are solid

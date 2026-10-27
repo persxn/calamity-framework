@@ -48,6 +48,7 @@ class FinishLine(Case):
     def setUp(self):
         super().setUp()
         self.sb.onboard()
+        self.sb.legacy_pace()       # quota, lanes and focus, without the pacing gates (Gate tests cover those)
 
     def test_new_quota_and_reviews(self):
         sb = self.sb
@@ -113,6 +114,7 @@ class FinishLine(Case):
         sb = Sandbox()
         self.addCleanup(sb.close)
         sb.onboard(tracks="dev")
+        sb.legacy_pace()
         sb.run("enroll", "shell")
         sb.at("2026-03-02T20:00:00+05:30")
         sb.run("covered", "shell/pipes")
@@ -219,6 +221,7 @@ class Sleep(Case):
         super().setUp()
         sb = self.sb
         sb.onboard(sleep__start="23:30", sleep__end="07:00")
+        sb.legacy_pace()
         sb.run("enroll", "shell")
         sb.item("shell/pipes")
         sb.item("shell/perms")

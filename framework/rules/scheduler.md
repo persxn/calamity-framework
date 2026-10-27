@@ -13,7 +13,9 @@ raises one pattern at a time.
   over),
 - every topic failed today has been answered correctly again,
 - the day's new topics are done (`new_per_day`, default 8, or fewer if
-  fewer are unlocked),
+  fewer are unlocked), and each one is consolidated: answered right on a
+  second item at least 20 minutes after the first (`pace.*` in
+  `framework/config.md`; not in brush-up mode),
 - the day's lectures are logged, if the learner set a lecture quota
   (`lectures_per_day`),
 - every lecture that was logged has been tested. That holds even when the
