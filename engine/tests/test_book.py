@@ -74,7 +74,7 @@ class Book(Case):
         sb = self.sb
         sb.run("enroll", "shell")
         path = sb.run("notes", "section", "shell/pipes").strip().split()[-1]
-        self.assertTrue(path.endswith(os.path.join("md", "pipes.md")), path)
+        self.assertTrue(path.endswith("md/pipes.md"), path)
         write(sb.path("learner", "notes", "shell", "pipes.md"), "---\ntopic: shell/pipes\n---\n## Idea\npipes\n")
         write(sb.path("learner", "notes", "shell", "md", "pipes.md"), SECTION)
         self.assertIn("to write", sb.run("notes", "status", "shell").replace("stale", "to write"))
@@ -109,3 +109,11 @@ class Book(Case):
             mdbook.unicode_engine = saved
         self.assertIn("complete as it is", sb.err)
         sb.run("book", "pdf", sb.path("learner", "missing"), expect=2)
+        sb.run("enroll", "shell")
+        write(sb.path("learner", "notes", "shell", "md", "pipes.md"), SECTION)
+        mdbook.unicode_engine = lambda: None
+        try:
+            out = sb.run("notes", "pdf", "shell")              # no engine: the Markdown book, and how to get a PDF
+        finally:
+            mdbook.unicode_engine = saved
+        self.assertIn("shell-notes.md is assembled (the Markdown is the book)", out)

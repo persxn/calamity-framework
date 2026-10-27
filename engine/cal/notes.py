@@ -274,6 +274,10 @@ def pdf(repo: Repo, tree, skill_id: str) -> str:
         from . import mdbook
 
         book = assemble_markdown(repo, tree, skill_id)
+        if mdbook.unicode_engine() is None:      # the Markdown is the book; a PDF waits for a TeX engine
+            return ("%s is assembled (the Markdown is the book), but no TeX engine that reads Unicode is installed "
+                    "on this machine for a PDF.\nInstall one (tectonic is the smallest; TeX Live or MiKTeX also "
+                    "work), then run: notes pdf %s" % (repo.rel(book), skill_id))
         return mdbook.pdf(repo, book, os.path.join(base, "%s-notes.pdf" % skill_id))
     assemble(repo, tree, skill_id)
     engine = tex_engine()
