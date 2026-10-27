@@ -12,10 +12,10 @@ raises one pattern at a time.
 - 90% of the reviews that were due today are done (a few may always carry
   over),
 - every topic failed today has been answered correctly again,
-- the day's new topics are done (`new_per_day`, default 8, or fewer if
-  fewer are unlocked), and each one is consolidated: answered right on a
-  second item at least 20 minutes after the first (`pace.*` in
-  `framework/config.md`; not in brush-up mode),
+- the day's new topics are done (the quota below, or fewer if fewer are
+  unlocked), and each one is consolidated: answered right on a second item
+  at least 20 minutes after the first (`pace.*` in `framework/config.md`;
+  not in brush-up mode),
 - the day's lectures are logged, if the learner set a lecture quota
   (`lectures_per_day`),
 - every lecture that was logged has been tested. That holds even when the
@@ -26,9 +26,31 @@ The day's count of new topics includes what today's work will open: the
 topics that follow in a syllabus and, when no lecture quota is set, the
 topics behind the next lectures of a course.
 
+**The quota adapts, and says why.** `today` and the brief print a line such
+as `new quota 5 (max 8): reviews forecast 48 min a day of 60; first-try
+accuracy 72% over 14 days`. The engine computes it each time:
+
+```
+base   = new_per_day_max, or the highest pace.<profile>.new_max among the
+         active skills (mastery 6, exam 8, brush-up 10)
+f_load = clamp((review_budget_min - reviews forecast for the next 7 days,
+         in minutes a day) / review_budget_min, 0, 1)
+f_acc  = first-try accuracy on new topics over 14 days (verified items;
+         not counted below 10 first tries)
+quota  = clamp(round(base x (0.4 + 0.6 f_load) x m), 1, base),
+         m = 0.75 below 70%, 1.0 below 90%, 1.1 from 90% (1.0 uncounted)
+```
+
+The forecast counts the cards due within a week at the median time of the
+learner's last timed reviews (`review_secs`, 60 s, until there are five).
+So reviews that pile up, or new topics that are not landing, slow the new
+material down before they become a backlog. `quota.adaptive false` fixes
+the quota at its maximum; `new_per_day_max 0` stops new topics.
+
 A learner day runs from 04:00 to 04:00, so a session after midnight belongs
 to the evening before. Change any number for one learner with
-`python3 engine/calamity.py profile set cfg.new_per_day 12`.
+`python3 engine/calamity.py profile set cfg.new_per_day_max 12`
+(`new_per_day`, the old name, still works).
 
 The order inside a session is fixed by `next`: failed topics first, then
 due reviews (most forgotten first), then new material, then lectures, then

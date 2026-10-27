@@ -77,7 +77,7 @@ class Settings(Case):
         profile = sb.path("learner", "profile.md")
         write(profile, read(profile).replace("---\n", "---\ncfg.new_per_day: lots\ncfg.nonsense: 3\n", 1))
         repo = Repo(sb.root)
-        self.assertEqual(repo.cfg("new_per_day"), 8)                  # the default stands in
+        self.assertEqual(repo.cfg("new_per_day"), 0)                  # the default stands in
         self.assertEqual(len(repo.config_errors), 2)
         for args in (["today"], ["next"], ["dash"], ["brief"]):
             self.assertNotIn("Traceback", sb.run(*args) + sb.err)

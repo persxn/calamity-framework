@@ -128,7 +128,7 @@ def cmd_today(c, a):
     if not c.repo.onboarded():
         return 0, "Not onboarded yet. Run the onboard skill."
     t = plan.today(c.repo, c.tree, c.state, c.when)
-    lines = [plan.today_line(t)]
+    lines = [plan.today_line(t), plan.quota_line(t["quota_info"])]
     n = t["n"]
     lines.append("answered today: %d (%d correct) · active about %d min" % (n["attempts"], n["ok"], round(n["active_min"])))
     if t["relearn"]:

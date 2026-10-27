@@ -79,6 +79,12 @@ changes their record in `learner/`.
   another objective; untagged items count as before. `tree show` prints
   coverage per topic and the strand shares per skill. `syllabus check`
   flags unknown tags and objectives rewritten under tagged items.
+- The daily quota of new topics adapts. It starts from the pace profile's
+  maximum (6 mastery, 8 exam, 10 brush-up; `new_per_day_max` to set it,
+  `new_per_day` still read) and shrinks while the next week's review
+  forecast nears `review_budget_min` (60 minutes) or first tries on new
+  topics go wrong. `today` and the brief print the reason in one line;
+  `quota.adaptive false` keeps it fixed.
 
 ### Development
 

@@ -13,7 +13,7 @@ from datetime import datetime, timedelta
 from . import fsrs, gateinfo, snapshot
 from .store import Repo, format_problems, log_text, order_and_dedup, order_key, parse_event_text
 from .tree import Tree
-from .util import ceil_int, day_bounds, daykey, in_window, parse_hhmm, utc
+from .util import CalError, ceil_int, day_bounds, daykey, in_window, parse_hhmm, utc
 
 TOPIC_ORDER = ("new", "covered", "learning", "consolidating", "solid", "mastered")
 PACES = ("mastery", "exam", "brushup")
@@ -155,6 +155,8 @@ class State:
         self.cp_assigned = []
         self.cp_credits = {}     # problem -> {topic key: True if that credit counted as evidence}
         self.weights = {}
+        self.first_tries = []    # (datetime, right) of the first verified answer on each new topic (the quota)
+        self.review_secs = []    # seconds the latest timed reviews took (the quota's review forecast)
         self.last_dt = None
         self.n_events = 0
         self.n_voided = 0
@@ -358,6 +360,7 @@ class State:
         self.topics, self.skills, self.items, self.days, self.tests, self.src = {}, {}, {}, {}, {}, {}
         self.mocks, self.notes, self.cp_assigned = [], [], []
         self.cp_marks, self.cp_credits, self.weights = {}, {}, {}
+        self.first_tries, self.review_secs = [], []
         self.last_dt, self.n_events, self.n_voided = None, 0, 0
         self._alias_topic, self._alias_skill, self._retag = {}, {}, {}
         self._voided, self._handler_errors = set(), []
@@ -468,6 +471,10 @@ class State:
                 # "new material today": nothing was taught for it.
                 if not c.get("eq") and not placement:
                     ts.first_day = day
+                    if evidence and key == primary:
+                        self.first_tries.append((dt, good))
+                        if len(self.first_tries) > 200:
+                            del self.first_tries[0]
             if evidence:
                 ts.last_ev_ok = good
             if good:
@@ -514,6 +521,11 @@ class State:
             ds.new += 1
         elif counted == "review":
             ds.reviews += 1  # a placement answer on an unstudied topic is neither
+            secs = e.get("secs")
+            if isinstance(secs, (int, float)) and not isinstance(secs, bool) and 0 < secs < 4 * 3600:
+                self.review_secs.append(float(secs))
+                if len(self.review_secs) > 50:
+                    del self.review_secs[0]
         bucket = ds.hours.setdefault(dt.hour, [0, 0])
         bucket[0] += 1
         bucket[1] += 1 if ok else 0
@@ -692,6 +704,48 @@ class State:
         return {"name": name, "unlock": str(cfg("pace.%s.unlock" % name, "consolidating")),
                 "wip": max(1, int(cfg("pace.%s.wip" % name, 2))),
                 "consolidate_minutes": max(0, int(cfg("pace.%s.consolidate_minutes" % name, 20)))}
+
+    def new_quota(self, when) -> dict:
+        """How many new topics today asks for, and why (design §6.1): the most a day (`new_per_day_max`, else
+        the highest pace profile among the active skills), shrunk while the next week's reviews near the review
+        budget and while first tries on new topics go wrong. Returns {quota, max, forecast, budget, acc, n_acc,
+        adaptive}; `acc` is None below 10 first tries in 14 days."""
+        cfg = self.repo.cfg
+        base = self._learner_cfg("new_per_day_max")
+        base = self._learner_cfg("new_per_day") if base is None else base     # the old name, still honoured
+        if base is None:
+            names = {self.pace(s)["name"] for s in self.enrolled_skills()} or {"mastery"}
+            base = max(int(cfg("pace.%s.new_max" % n, {"mastery": 6, "exam": 8, "brushup": 10}[n])) for n in names)
+        base = max(0, base)
+        budget = max(1, int(cfg("review_budget_min", 60)))
+        secs = sorted(self.review_secs)
+        per = (secs[len(secs) // 2] if len(secs) % 2 else (secs[len(secs) // 2 - 1] + secs[len(secs) // 2]) / 2) \
+            if len(secs) >= 5 else float(cfg("review_secs", 60))
+        week = when + timedelta(days=7)
+        forecast = sum(1 for _, ts in self.scheduled_topics() if ts.card.due <= week) * per / 60.0 / 7
+        recent = [ok for at, ok in self.first_tries if when - timedelta(days=14) <= at <= when]
+        acc = (sum(recent) / float(len(recent))) if len(recent) >= 10 else None
+        out = {"max": base, "forecast": forecast, "budget": budget, "acc": acc, "n_acc": len(recent),
+               "adaptive": bool(cfg("quota.adaptive", True))}
+        if not out["adaptive"] or base == 0:
+            out["quota"] = base
+            return out
+        load = min(1.0, max(0.0, (budget - forecast) / budget))
+        factor = 1.0 if acc is None else (0.75 if acc < 0.70 else 1.0 if acc < 0.90 else 1.1)
+        out["quota"] = min(base, max(1, int(base * (0.4 + 0.6 * load) * factor + 0.5)))
+        return out
+
+    def _learner_cfg(self, key: str):
+        """A setting's value when the learner set it in their profile (and it is valid), else None."""
+        from .profile import coerce_cfg
+
+        prof = self.repo.profile()
+        if "cfg." + key not in prof:
+            return None
+        try:
+            return int(coerce_cfg(key, prof["cfg." + key], self.repo.config_defaults()))
+        except (CalError, TypeError, ValueError):
+            return None
 
     def consolidated_at(self, key: str):
         """When a topic was secured: its second correct verified answer on another item, given at least

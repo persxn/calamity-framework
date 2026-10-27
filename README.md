@@ -628,7 +628,7 @@ mastered, 3 surprise-recall questions, GATE and Codeforces settings. Do not
 edit that file; override a value for yourself:
 
 ```bash
-python3 engine/calamity.py profile set cfg.new_per_day 6
+python3 engine/calamity.py profile set cfg.new_per_day_max 6
 ```
 
 ## Updating and removing

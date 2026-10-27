@@ -188,7 +188,7 @@ def patterns(repo: Repo, tree, state, when) -> list:
             "question": "Shall new and hard material move out of the %s, leaving it for light review?" % worst[0],
         })
 
-    quota = int(repo.cfg("new_per_day", 8))
+    quota = state.new_quota(when)["max"]
     heavy = [ds for _, ds in week[-3:] if ds is not None and ds.new > 2 * quota]
     if heavy and due_now >= 10:
         out.append({
