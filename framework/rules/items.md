@@ -37,6 +37,9 @@ store it with `item import --file <path> --by examiner`.
 | `rubric` | `open` (required), `code`/`task` (optional): the points a correct answer must contain. |
 | `marks` | GATE items only: `1` or `2`. |
 | `expect_s` | Seconds a prepared learner needs. Default by type: mcq 90, msq 120, nat 150, short 60, code and task 900, open 300; GATE items 90 for 1 mark and 210 for 2 marks. A correct answer slower than twice this counts as hard. |
+| `objectives` | The numbers of the primary topic's objectives the item tests, as the NEED_ITEM block and `tree show` number them, e.g. `[2]` or `[1, 3]`. A second item on a topic should test another objective. Coverage of the objectives counts toward `solid` (60%) and `mastered` (all). |
+| `strand` | Optional: `T` (theory), `P` (practice), `I` (implementation) or `N` (numerical). |
+| `depth` | Optional: `recall`, `apply`, `analyse` or `transfer`. |
 | `source` | `{"kind": "generated"}` for your own items. `official` needs `"ref": "GATE CS 2024 Q.31"`; `imported` and `manual` name where the item came from. |
 
 How the engine grades:

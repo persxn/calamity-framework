@@ -223,7 +223,7 @@ class Basics(Case):
         out = sb.run("next")
         self.assertIn("NEXT: new", out)
         self.assertIn("level: 1 of 5 · the first topic of shell for this learner", out)
-        self.assertIn("objectives: chain two commands with a pipe", out)
+        self.assertIn("  1. chain two commands with a pipe", out)
         self.assertIn("start from zero", out)
 
     def test_teaching_a_later_topic_first_is_flagged(self):

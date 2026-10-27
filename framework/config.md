@@ -23,8 +23,10 @@ solid.min_days: 2            # spread over at least this many days
 solid.window: 5              # recent answers looked at for accuracy
 solid.min_accuracy: 0.8
 solid.min_stability: 7       # memory strength in days
+solid.objective_coverage: 0.6 # share of the objectives answered right on tagged items (when items are tagged)
 mastered.min_stability: 21
 mastered.min_items: 4        # distinct verified items answered correctly
+mastered.objective_coverage: 1.0
 
 # --- pace: how fast new topics open (pace.track.<track> picks a profile; brush-up mode uses brushup)
 pace.mastery.unlock: consolidating   # a topic opens once those it builds on are consolidated

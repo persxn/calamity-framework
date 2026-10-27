@@ -14,6 +14,7 @@ import codecs
 import hashlib
 import json
 import os
+import re
 import subprocess
 import sys
 
@@ -293,6 +294,22 @@ def cmd_item(c, a):
                 "A mismatch puts the item on hold as disputed until the transcription is compared with the paper"
                 if a.official else "stored as drafts; each needs: item verify")
         return 0, "imported %d item(s): %s\n%s" % (len(made), ", ".join(made), tail)
+    if a.action == "tag":
+        if len(a.item) != 1:
+            raise CalError("item tag takes one item id: item tag <item> --objectives 1,3 [--strand T|P|I|N] "
+                           "[--depth recall|apply|analyse|transfer]")
+        ident = a.item[0]
+        st = c.state.items.get(ident)
+        if st is None or not st.topics:
+            raise CalError("unknown item %s" % ident)
+        if a.objectives is None and a.strand is None and a.depth is None:
+            raise CalError("say what to tag: --objectives, --strand or --depth")
+        tags = items.objective_tags(tree, st.topics[0], a.objectives, a.strand, a.depth)
+        if a.objectives is None and st.objectives:                  # keep what it had
+            tags["objectives"], tags["objsig"] = list(st.objectives), dict(st.objsig)
+        repo.append("item_tag", item=ident, **tags)
+        return 0, "tagged %s: %s" % (ident, ", ".join("%s %s" % (k, ",".join(map(str, v)) if isinstance(v, list) else v)
+                                                     for k, v in tags.items() if k != "objsig"))
     if a.action == "list":
         rows = []
         for it in sorted(c.state.items.values(), key=lambda x: (x.skill or "", x.topics[0] if x.topics else "", x.id)):
@@ -542,6 +559,18 @@ def cmd_syllabus(c, a):
     if not node.topics and not mine:
         lines.append("ERROR no topics found. The file needs a '# Topics' section with '## id | Title' entries.")
     lines += ["warn  " + w for w in warnings if any(w.startswith(p) for p in rel_paths)]
+    for topic in node.topics:
+        for line in topic.body.split("\n"):
+            tag = re.match(r"^[-*] \[([^\]]{1,3})\]", line)
+            if tag and tag.group(1) not in ("T", "P", "I", "N"):
+                lines.append("warn  %s: [%s] is not a strand tag (T theory, P practice, I implementation, N numerical)"
+                             % (topic.key, tag.group(1)))
+        text = {str(o["n"]): hashlib.sha1(o["text"].encode("utf-8")).hexdigest()[:8] for o in topic.objectives()}
+        drift = sorted({it.id for it in c.state.items.values() if it.topics and it.topics[0] == topic.key
+                        and any(text.get(n) != sig for n, sig in it.objsig.items())})
+        if drift:
+            lines.append("warn  %s: objectives changed since item(s) %s were tagged; re-tag them (item tag) or "
+                         "check they still fit" % (topic.key, ", ".join(drift[:5])))
     if any(l.startswith("ERROR") for l in lines):
         return 2, "\n".join(lines)
     lines.append("ok: %s has %d topics (%s)" % (node.id, len(node.topics),
@@ -1096,8 +1125,9 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("--minutes", type=_positive, default=25)
     sp.add_argument("--label")
 
-    sp = add("item", cmd_item, "Item bank: needs, draft, import, show (blind), verify, list, reject, dispute, restore.")
-    sp.add_argument("action", choices=("needs", "draft", "show", "verify", "reject", "dispute", "restore", "list", "import"))
+    sp = add("item", cmd_item, "Item bank: needs, draft, import, show (blind), verify, list, reject, dispute, restore, tag.")
+    sp.add_argument("action", choices=("needs", "draft", "show", "verify", "reject", "dispute", "restore", "list", "import",
+                                       "tag"))
     sp.add_argument("item", nargs="*", help="item id (show takes several)")
     sp.add_argument("--file")
     sp.add_argument("--stdin", action="store_true")
@@ -1117,6 +1147,9 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("--n", type=_positive, default=6, help="needs: how many topics to list")
     sp.add_argument("--full", action="store_true", help="needs: with objectives, difficulty, format and topics to weave")
     sp.add_argument("--void", action="store_true", help="dispute: also cancel the last answer recorded against the item")
+    sp.add_argument("--objectives", help="tag: the numbers of the primary topic's objectives it tests, e.g. 1,3")
+    sp.add_argument("--strand", help="tag: T (theory), P (practice), I (implementation) or N (numerical)")
+    sp.add_argument("--depth", help="tag: recall, apply, analyse or transfer")
 
     sp = add("tree", cmd_tree, "The skill tree: list, show, path, suggest, check, add, set, drop, restore.")
     sp.add_argument("action", choices=("list", "show", "path", "suggest", "check", "add", "set", "drop", "restore"))

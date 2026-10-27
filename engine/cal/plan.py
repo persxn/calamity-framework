@@ -407,10 +407,20 @@ def teaching_lines(tree, state, topic) -> list:
     lines = ["level: %d of 5%s" % (topic.level, (" · the first topic of %s for this learner" % topic.skill) if first else "")]
     if topic.needs:
         lines.append("builds on: %s" % ", ".join(topic.needs))
-    goals = [ln.strip()[2:].strip() for ln in topic.body.split("\n") if ln.strip().startswith(("- ", "* "))]
+    goals = topic.objectives()
     if goals:
-        text = "; ".join(goals[:4])
-        lines.append("objectives: %s" % (text if len(text) <= 300 else text[:297].rstrip() + "..."))
+        lines.append("objectives (teach every one; items name them by number):")
+        used = 0
+        for o in goals[:12]:
+            line = "  %d. %s%s" % (o["n"], ("[%s] " % o["strand"]) if o["strand"] else "", o["text"])
+            if used + len(line) > 1500:
+                lines.append("  ... and %d more in the syllabus (tree show %s names the file)" % (
+                    len(goals) - goals.index(o), topic.skill))
+                break
+            lines.append(line)
+            used += len(line)
+        if len(goals) > 12 and used <= 1500:
+            lines.append("  ... and %d more in the syllabus (tree show %s names the file)" % (len(goals) - 12, topic.skill))
     if first or topic.level <= 1:
         lines.append("start from zero: what it is and why it exists, every new word defined, the simplest possible "
                      "example before a realistic one; assume nothing this learner has not shown here")

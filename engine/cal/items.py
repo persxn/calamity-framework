@@ -12,6 +12,7 @@ The engine grades mcq / msq / nat / short answers itself. Hands-on types
 from __future__ import annotations
 
 import base64
+import hashlib
 import json
 import os
 import re
@@ -186,6 +187,37 @@ def marks_for(item: dict, ok: bool) -> float | None:
 # ---------------------------------------------------------------- creation
 
 
+DEPTHS = ("recall", "apply", "analyse", "transfer")
+
+
+def objective_tags(tree, topic_key: str, objectives=None, strand=None, depth=None) -> dict:
+    """The public tags of an item: which of its primary topic's objectives it tests (numbered as `tree show`
+    and the NEXT block print them), its strand and its depth, with a signature of each objective's text so a
+    later rewrite of the syllabus can be noticed. Raises CalError for a tag that does not fit."""
+    out = {}
+    if objectives not in (None, "", []):
+        known = {o["n"]: o["text"] for o in tree.topic(topic_key).objectives()}
+        try:
+            numbers = sorted({int(x) for x in (objectives if isinstance(objectives, list) else csv_list(objectives))})
+        except (TypeError, ValueError):
+            raise CalError("objectives are the numbers of the topic's objectives, such as 1,3")
+        bad = [n for n in numbers if n not in known]
+        if bad:
+            raise CalError("%s has %d objective(s); there is no objective %s" % (
+                topic_key, len(known), ", ".join(map(str, bad))))
+        out["objectives"] = numbers
+        out["objsig"] = {str(n): hashlib.sha1(known[n].encode("utf-8")).hexdigest()[:8] for n in numbers}
+    if strand not in (None, ""):
+        if str(strand).upper() not in ("T", "P", "I", "N"):
+            raise CalError("strand is T (theory), P (practice), I (implementation) or N (numerical)")
+        out["strand"] = str(strand).upper()
+    if depth not in (None, ""):
+        if depth not in DEPTHS:
+            raise CalError("depth is one of %s" % ", ".join(DEPTHS))
+        out["depth"] = depth
+    return out
+
+
 def validate_draft(data, tree) -> dict:
     """Check an examiner's draft and return the normalised public item plus its sealed part."""
     if not isinstance(data, dict):
@@ -287,6 +319,7 @@ def validate_draft(data, tree) -> dict:
     if src_kind == "official" and not source.get("ref"):
         raise CalError("official items need source.ref (paper, year, question number)")
     public["source"] = {"kind": src_kind, "ref": str(source.get("ref") or ""), "url": str(source.get("url") or "")}
+    public.update(objective_tags(tree, topics[0], data.get("objectives"), data.get("strand"), data.get("depth")))
     return {"public": public, "sealed": sealed}
 
 
@@ -301,8 +334,9 @@ def create(repo: Repo, tree, data, created_by: str = "examiner") -> dict:
     item["sealed"] = seal(parts["sealed"])
     path = os.path.join(repo.items_dir, item["skill"], item["id"] + ".json")
     write_text(path, json.dumps(item, ensure_ascii=False, indent=1) + "\n")
+    tags = {k: item[k] for k in ("objectives", "objsig", "strand", "depth") if k in item}
     repo.append("item_draft", item=item["id"], skill=item["skill"], topics=item["topics"],
-                type=item["type"], src=item["source"]["kind"])
+                type=item["type"], src=item["source"]["kind"], **tags)
     return item
 
 

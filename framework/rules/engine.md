@@ -81,6 +81,7 @@ cannot show them.
 | `item verify ITEM --ran --evidence "..." --by checker` | Verification of a hands-on item: its check was run against a reference solution. `--fail` rejects it. |
 | `item reject ITEM --reason`, `item dispute ITEM --reason`, `item restore ITEM` | Withdraw an item; put a verified item on hold (only a verified item can be disputed); reinstate a disputed item that had been verified, or an official or imported item held because a checker's answer did not match. |
 | `item list [--skill S] [--topic K] [--status draft\|verified\|rejected\|disputed]` | The bank. |
+| `item tag ITEM --objectives 1,3 [--strand T\|P\|I\|N] [--depth recall\|apply\|analyse\|transfer]` | Say which of its primary topic's objectives an item tests (numbered as `tree show` and the NEED_ITEM block print them), without opening its key. Right answers already given on it count toward the topic's coverage. |
 
 ## Study sources
 

@@ -9,6 +9,7 @@ syllabus), otherwise from the node file's own '# Topics' section.
 from __future__ import annotations
 
 import os
+import re
 
 from . import fm
 from .store import Repo, read_text, write_text
@@ -16,6 +17,10 @@ from .util import SKILL_ID_RE, TOPIC_ID_RE, CalError, csv_list
 
 TOPIC_KEYS = ("needs", "level", "minutes", "weight", "band", "aliases", "marks", "same_as")
 SKIP_FILES = ("tracks.md", "readme.md", "index.md")
+
+
+STRAND = re.compile(r"^\[([TPIN])\]\s*")
+STRANDS = {"T": "theory", "P": "practice", "I": "implementation", "N": "numerical"}
 
 
 class Topic:
@@ -39,6 +44,19 @@ class Topic:
     @property
     def key(self) -> str:
         return "%s/%s" % (self.skill, self.id)
+
+    def objectives(self) -> list:
+        """The topic's objectives in order: [{n, strand, text}], from its top-level `- ` bullets. A bullet may open
+        with a strand tag: [T] theory and mechanism, [P] practice and debugging, [I] implementation and
+        internals, [N] a numerical (GATE)."""
+        out = []
+        for line in self.body.split("\n"):
+            if line.startswith(("- ", "* ")):
+                text = line[2:].strip()
+                m = STRAND.match(text)
+                out.append({"n": len(out) + 1, "strand": m.group(1) if m else None,
+                            "text": text[m.end():].strip() if m else text})
+        return out
 
     def first_line(self) -> str:
         for line in self.body.split("\n"):
