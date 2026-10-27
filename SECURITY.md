@@ -30,19 +30,30 @@ Knowing the design makes it easier to see what would be a vulnerability.
 - **Claude Code permissions**: `.claude/settings.json` pre-approves the
   engine commands and edits under `learner/` and `.calamity/tmp/`, asks
   before `setup` and before edits to `engine/`, `framework/` and
-  `CLAUDE.md`, and denies reading item files, editing the event log, and
-  reading `.env` files, cookies and HAR files. Claude Code applies these
-  rules only after the workspace trust prompt is accepted.
-- **What runs without being asked**: nothing. The session-start hook, the
-  status line and the reminders are installed only by `setup --hook`,
-  `setup --statusline` and a scheduler command the learner approves. The
-  repository itself ships no hook.
+  `CLAUDE.md`, and denies reading item files, editing the event log,
+  editing the two settings files themselves, and reading `.env` files,
+  cookies and HAR files. Claude Code applies these rules only after the
+  workspace trust prompt is accepted; deny rules hold even with permission
+  prompts turned off.
+- **The key guard** (`guard tool`, installed by `setup --hook` as a
+  PreToolUse hook) also keeps item keys and the agents' worked answers out
+  of searches and shell commands: `learner/items/` for everyone, the
+  examiner's and the checker's scratch folders for everyone but their
+  owner. It stops slips and instructions planted in a page or a file, not
+  a determined person at the keyboard. `doctor` checks that it is
+  installed and refuses what it must, and warns about scratch files older
+  than a day; `clean tmp` removes them.
+- **What runs without being asked**: nothing. The session-start hook and
+  the key guard, the status line and the reminders are installed only by
+  `setup --hook`, `setup --statusline` and a scheduler command the learner
+  approves. The repository itself ships no hook.
 - **The `calamity` alias** is written only by `setup --alias`, outside
   the repository: a marked block in
   `~/.zshrc` or `~/.bashrc` (`~/.bash_profile` on macOS), taken out again
   by `setup --remove-alias`. It starts Claude Code with
-  `--dangerously-skip-permissions`, so sessions opened with it ask no
-  permission questions: the `ask` rules above stop nothing there.
+  `--dangerously-skip-permissions`, so sessions opened with it ask only
+  where an `ask` rule above says to; `deny` rules and the key guard still
+  refuse, and the `allow` rules no longer matter.
 - **Study sources** are connected only by routes their terms allow. Tools
   generated for a source live in `learner/bridges/<source>/`, are explained
   before they first run, and never store credentials.

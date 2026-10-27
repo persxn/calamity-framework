@@ -25,7 +25,9 @@ Claude runs `doctor` and tells you what it found. Then it offers to run
 - installs the **session-start hook** in `.claude/settings.local.json`. From
   the next session on, Claude Code runs the engine as each session starts
   and Claude reads a short brief of where you stand before you type
-  anything.
+  anything. The **key guard** comes with it: before Claude reads, searches
+  or runs a shell command, it checks that the call cannot reach a
+  question's sealed answer.
 
 Both files stay on this machine and are never committed. Claude Code asks
 for your approval before `setup` runs; you can say no and run it later.

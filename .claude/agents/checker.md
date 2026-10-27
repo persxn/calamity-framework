@@ -22,7 +22,9 @@ prompt you were given names another engine command (on Windows,
        python3 engine/calamity.py item show <item> [<item> ...]
 
    Do not look for its key anywhere: not in `learner/items/`, not in
-   `.calamity/tmp/`, not in the conversation that called you.
+   `.calamity/tmp/` outside your own folder, not in the conversation that
+   called you. Your work for an item goes in `.calamity/tmp/checker/<item>/`,
+   which the engine deletes once you record the result.
 
 2. Judge the question before solving it. Reject it, whatever its key may
    be, if it is ambiguous; has no defensible answer, or more than one where
@@ -35,7 +37,7 @@ prompt you were given names another engine command (on Windows,
 3. Solve it yourself.
    - If a computation can settle it, compute: write a short program, brute
      force every case, simulate, or run the real command. Write the program
-     to `.calamity/tmp/<neutral name>.py` and run it by path; never put a
+     to `.calamity/tmp/checker/<item>/` and run it by path; never put a
      question's data in a command line (`python3 -c "..."`): permission
      prompts show the command to the learner before they answer. Reasoning alone
      is for questions where nothing can be run.
@@ -60,7 +62,7 @@ prompt you were given names another engine command (on Windows,
 
     python3 engine/calamity.py item show <item> --check
 
-1. Build a reference solution in `.calamity/tmp/check-<item>/`, with any
+1. Build a reference solution in `.calamity/tmp/checker/<item>/`, with any
    setup the stem describes. Never write under `learner/work/`: that is the
    learner's folder.
 2. Run the check from inside your scratch folder, exactly as written (a
@@ -69,7 +71,7 @@ prompt you were given names another engine command (on Windows,
 3. Run it against an empty or deliberately wrong solution. It must fail.
 4. Confirm the check stays inside its exercise folder, needs no elevated
    rights and deletes nothing elsewhere.
-5. Delete your scratch folder, then record:
+5. Record (the engine then deletes your folder):
 
        python3 engine/calamity.py item verify <item> --ran --evidence "<what you built, the commands run, what passed, what failed as it should>" --by checker
 

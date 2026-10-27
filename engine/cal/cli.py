@@ -17,7 +17,7 @@ import os
 import subprocess
 import sys
 
-from . import fm, items, plan, session, sources, tree as tree_mod
+from . import fm, items, plan, scratch, session, sources, tree as tree_mod
 from . import profile as profile_rules
 from .state import State, restorable as state_restorable
 from .store import Repo, read_text
@@ -89,18 +89,10 @@ def _read_json(args):
         raise CalError("not valid JSON: %s" % exc)
 
 
-def _discard_draft_file(repo, args) -> None:
-    """A draft holds an answer key in plain text: once stored, remove it if it sits in the scratch folder."""
-    path = getattr(args, "file", None)
-    if not path:
-        return
-    try:
-        scratch = os.path.realpath(os.path.join(repo.local, "tmp"))
-        real = os.path.realpath(path)
-        if os.path.commonpath([scratch, real]) == scratch and os.path.isfile(real):
-            os.remove(real)
-    except (OSError, ValueError):
-        pass
+def _discard_draft_file(repo, args, batch: bool = False) -> None:
+    """A draft holds an answer key in plain text: once stored, remove it if it sits in the scratch folder,
+    with the examiner's whole batch folder (the computations behind the keys) after an import."""
+    scratch.discard_import(repo, getattr(args, "file", None), batch=batch)
 
 
 # ---------------------------------------------------------------- session-level commands
@@ -294,7 +286,7 @@ def cmd_item(c, a):
         for draft in data:
             item = items.create(repo, tree, draft, created_by=a.by or "examiner")
             made.append(item["id"])
-        _discard_draft_file(repo, a)
+        _discard_draft_file(repo, a, batch=True)
         # Official questions go through the same blind check as any other: until the checker's answer
         # matches the official key, a slip in the transcription could reach the learner.
         tail = ("stored as drafts with their official keys; each needs the checker's blind answer (item verify). "
@@ -389,6 +381,7 @@ def cmd_item(c, a):
                 raise CalError("solve it independently, then: item verify %s --answer <your answer> --by %s" % (a.item, by))
             ok, _ = items.grade(item, a.answer)
             repo.append("item_verify", item=a.item, ok=ok, method="checker", by=by, note=a.note)
+            scratch.discard_check(repo, a.item)
             if ok:
                 return 0, "verified: %s (the independent answer matches the key)" % a.item
             verdict = "disputed" if item["source"]["kind"] in ("official", "imported") else "rejected"
@@ -399,11 +392,13 @@ def cmd_item(c, a):
                            else "Draft a fresh item rather than repairing this one."))
         if a.fail:
             repo.append("item_verify", item=a.item, ok=False, method="ran", by=by, note=a.note or a.evidence)
+            scratch.discard_check(repo, a.item)
             return 0, "rejected: %s" % a.item
         if not a.ran or not (a.evidence or "").strip():
             raise CalError("for a %s item: run its check on a reference solution, then: item verify %s --ran "
                            "--evidence \"what was run, what passed\" --by %s" % (item["type"], a.item, by))
         repo.append("item_verify", item=a.item, ok=True, method="ran", by=by, note=a.evidence.strip())
+        scratch.discard_check(repo, a.item)
         return 0, "verified: %s (check ran and passed)" % a.item
     if a.action in ("reject", "dispute"):
         if not (a.reason or "").strip():
@@ -414,6 +409,7 @@ def cmd_item(c, a):
             raise CalError("only a verified item can be disputed (this one is %s)%s" % (
                 status, "; reject it instead" if status == "draft" else ""))
         repo.append("item_" + a.action, item=a.item, reason=a.reason.strip())
+        scratch.discard_check(repo, a.item)
         line = "%s: %s (it will not be asked again)" % ("rejected" if a.action == "reject" else "disputed", a.item)
         if a.void:
             if st is None or not st.last_attempt:
@@ -899,6 +895,16 @@ def cmd_doctor(c, a):
     return machine.doctor(c.repo)
 
 
+def cmd_guard(c, a):
+    from . import guard
+
+    return guard.hook_main(), ""
+
+
+def cmd_clean(c, a):
+    return 0, scratch.clean(c.repo, dry_run=a.dry_run)
+
+
 def cmd_rebuild(c, a):
     from . import progress, snapshot
 
@@ -1192,8 +1198,10 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("--text", action="store_true", help="store the value as one piece of text (allowed anywhere)")
     sp = add("setup", cmd_setup, "Prepare this machine (machine id, folders, optional hook, status line and alias).")
     sp.add_argument("--machine", help="a name for this computer (default: from its host name)")
-    sp.add_argument("--hook", action="store_true", help="install the session-start hook in .claude/settings.local.json")
-    sp.add_argument("--remove-hook", dest="remove_hook", action="store_true", help="take the session-start hook out again")
+    sp.add_argument("--hook", action="store_true",
+                    help="install the session-start hook and the key guard in .claude/settings.local.json")
+    sp.add_argument("--remove-hook", dest="remove_hook", action="store_true",
+                    help="take the session-start hook and the key guard out again")
     sp.add_argument("--statusline", action="store_true", help="show the finish line in Claude Code's status line")
     sp.add_argument("--remove-statusline", dest="remove_statusline", action="store_true",
                     help="take the status line out again")
@@ -1201,6 +1209,12 @@ def build_parser() -> argparse.ArgumentParser:
                     help="add a `calamity` shell alias: cd here and run claude --dangerously-skip-permissions")
     sp.add_argument("--remove-alias", dest="remove_alias", action="store_true", help="take the alias out again")
     add("doctor", cmd_doctor, "Check that everything is in order.")
+    sp = add("guard", cmd_guard, "The key guard Claude Code runs before each Read, Grep, Glob and shell call "
+                                 "(installed by setup --hook; reads the call as JSON on stdin).")
+    sp.add_argument("action", choices=("tool",))
+    sp = add("clean", cmd_clean, "Remove the scratch folder's contents (.calamity/tmp), worked answers included.")
+    sp.add_argument("action", choices=("tmp",))
+    sp.add_argument("--dry-run", dest="dry_run", action="store_true", help="list what would go, remove nothing")
     add("rebuild", cmd_rebuild, "Replay the event log and rewrite learner/PROGRESS.md.")
     add("selftest", cmd_selftest, "Run the engine's own tests.")
     add("version", cmd_version, "Print versions.")

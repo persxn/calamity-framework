@@ -86,50 +86,58 @@ def _load_settings(path: str) -> dict:
     return data
 
 
-def _is_ours(entry) -> bool:
+# Our two hooks: the brief at session start, and the key guard before every tool that reads (cal.guard).
+HOOKS = {"SessionStart": (None, ["brief", "--hook"], 30),
+         "PreToolUse": ("Read|Grep|Glob|Bash|PowerShell", ["guard", "tool"], 10)}
+
+
+def _is_ours(entry, event: str = "SessionStart") -> bool:
+    words = HOOKS[event][1][0]
     for hook in (entry or {}).get("hooks", []) if isinstance(entry, dict) else []:
         args = hook.get("args") or []
         blob = " ".join([str(hook.get("command", ""))] + [str(a) for a in args])
-        if "calamity.py" in blob and "brief" in blob:
+        if "calamity.py" in blob and words in blob:
             return True
     return False
 
 
 def install_hook(repo: Repo) -> str:
-    """Add (or refresh) the SessionStart hook that prints the brief."""
+    """Add (or refresh) the SessionStart hook that prints the brief and the PreToolUse key guard."""
     path = _settings_path(repo)
     data = _load_settings(path)
     hooks = data.setdefault("hooks", {})
     if not isinstance(hooks, dict):
         raise CalError("'hooks' in %s is not an object" % path)
-    entries = [e for e in hooks.get("SessionStart", []) if not _is_ours(e)]
-    entries.append({"hooks": [{
-        "type": "command",
-        "command": sys.executable,
-        "args": [_script(repo), "brief", "--hook"],
-        "timeout": 30,
-    }]})
-    hooks["SessionStart"] = entries
+    for event, (matcher, args, timeout) in HOOKS.items():
+        entries = [e for e in hooks.get(event, []) if not _is_ours(e, event)]
+        entry = {"matcher": matcher} if matcher else {}
+        entry["hooks"] = [{"type": "command", "command": sys.executable, "args": [_script(repo)] + args,
+                           "timeout": timeout}]
+        hooks[event] = entries + [entry]
     write_text(path, json.dumps(data, indent=2) + "\n")
-    return "session-start hook written to .claude/settings.local.json (takes effect in the next session)"
+    return ("session-start hook written to .claude/settings.local.json, with the key guard that keeps item keys "
+            "out of searches and shell commands (both take effect in the next session)")
 
 
 def remove_hook(repo: Repo) -> str:
     path = _settings_path(repo)
     data = _load_settings(path)
     hooks = data.get("hooks") if isinstance(data.get("hooks"), dict) else {}
-    before = hooks.get("SessionStart", [])
-    after = [e for e in before if not _is_ours(e)]
-    if len(after) == len(before):
+    removed = False
+    for event in HOOKS:
+        before = hooks.get(event, [])
+        after = [e for e in before if not _is_ours(e, event)]
+        removed = removed or len(after) != len(before)
+        if after:
+            hooks[event] = after
+        else:
+            hooks.pop(event, None)
+    if not removed:
         return "no Calamity hook was installed"
-    if after:
-        hooks["SessionStart"] = after
-    else:
-        hooks.pop("SessionStart", None)
     if not hooks:
         data.pop("hooks", None)
     write_text(path, json.dumps(data, indent=2) + "\n")
-    return "session-start hook removed"
+    return "session-start hook removed, and the key guard with it"
 
 
 def _short_path(path: str) -> str:
@@ -207,16 +215,16 @@ def statusline_state(repo: Repo) -> str:
     return "ok"
 
 
-def hook_state(repo: Repo) -> str:
-    """'ok', 'missing' or a description of what is wrong."""
+def hook_state(repo: Repo, event: str = "SessionStart") -> str:
+    """'ok', 'missing' or a description of what is wrong (the brief's hook, or with PreToolUse the key guard)."""
     path = _settings_path(repo)
     try:
         data = _load_settings(path)
     except CalError:
         return "settings.local.json is not valid JSON"
-    entries = (data.get("hooks") or {}).get("SessionStart", []) if isinstance(data.get("hooks"), dict) else []
+    entries = (data.get("hooks") or {}).get(event, []) if isinstance(data.get("hooks"), dict) else []
     for entry in entries:
-        if not _is_ours(entry):
+        if not _is_ours(entry, event):
             continue
         hook = entry["hooks"][0]
         if not os.path.isfile(str(hook.get("command", ""))):
@@ -335,8 +343,9 @@ def setup(repo: Repo, machine: str | None = None, hook: bool = False, statusline
     if hook:
         lines.append(install_hook(repo))
     else:
-        state = hook_state(repo)
-        lines.append("session-start hook: %s%s" % (state, "" if state == "ok" else " (install with: setup --hook)"))
+        for event, label in (("SessionStart", "session-start hook"), ("PreToolUse", "key guard")):
+            state = hook_state(repo, event)
+            lines.append("%s: %s%s" % (label, state, "" if state == "ok" else " (install with: setup --hook)"))
     if statusline:
         try:
             lines.append(install_statusline(repo))
@@ -431,6 +440,18 @@ def doctor(repo: Repo):
     state_h = hook_state(repo)
     add("OK" if state_h == "ok" else "WARN", "session-start hook",
         "" if state_h == "ok" else "%s; the brief still works when run by hand (setup --hook installs it)" % state_h)
+    from . import guard, scratch
+
+    state_g = hook_state(repo, "PreToolUse")
+    if state_g == "ok" and not guard.works(repo.root):
+        state_g = "installed, but it does not refuse what it should; please report this"
+    add("OK" if state_g == "ok" else "WARN", "key guard",
+        "" if state_g == "ok" else "%s; it keeps item keys out of searches and shell commands (setup --hook "
+                                   "installs it)" % state_g)
+    old = scratch.stale(repo)
+    add("WARN" if old else "OK", "scratch folder (.calamity/tmp)",
+        ("%d file(s) older than a day, which may hold worked answers; remove them with: clean tmp" % len(old))
+        if old else "nothing left over")
     state_s = statusline_state(repo)
     if state_s == "ok":
         add("OK", "status line", "installed")

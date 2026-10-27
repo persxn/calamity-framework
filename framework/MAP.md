@@ -75,7 +75,8 @@ learner/                   everything about one learner; this is what they sync
   cp/                      competitive programming: plan.md, solutions/, reviews/
   gate/                    plan.md, <year>.md corrections, mock reviews
   bridges/<source>/        generated code that connects one study source, with its README
-.calamity/                 machine-local and never committed: machine id, caches (the replay snapshot), scratch
+.calamity/                 machine-local and never committed: machine id, caches (the replay snapshot),
+                           scratch in tmp/ (the examiner's and checker's folders are sealed: guard tool)
 ```
 
 Tracks shipped: `10x` (the developer path), `ai` (maths, ML, LLM

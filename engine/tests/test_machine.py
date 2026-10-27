@@ -64,9 +64,18 @@ class Setup(Case):
         self.assertEqual(ours["args"], [sb.path("engine", "calamity.py"), "brief", "--hook"])
         self.assertTrue(os.path.isabs(ours["args"][0]))
         self.assertEqual(ours["timeout"], 30)
+        guard = data["hooks"]["PreToolUse"]                          # the key guard comes with it
+        self.assertEqual(len(guard), 1)
+        self.assertEqual(guard[0]["matcher"], "Read|Grep|Glob|Bash|PowerShell")
+        self.assertEqual(guard[0]["hooks"][0]["command"], sys.executable)
+        self.assertEqual(guard[0]["hooks"][0]["args"], [sb.path("engine", "calamity.py"), "guard", "tool"])
         sb.run("setup", "--hook")                                     # installing again does not duplicate it
         self.assertEqual(len(self.settings()["hooks"]["SessionStart"]), 2)
-        self.assertIn("session-start hook: ok", sb.run("setup"))
+        self.assertEqual(len(self.settings()["hooks"]["PreToolUse"]), 1)
+        out = sb.run("setup")
+        self.assertIn("session-start hook: ok", out)
+        self.assertIn("key guard: ok", out)
+        self.assertRegex(sb.run("doctor", expect=None), r"OK +key guard")
 
         # the hook as Claude Code would run it: the executable with its arguments, JSON on stdin
         sb.onboard()
@@ -80,7 +89,9 @@ class Setup(Case):
         self.assertIn("session-start hook removed", sb.run("setup", "--remove-hook"))
         data = self.settings()
         self.assertEqual(data["hooks"]["SessionStart"], existing["hooks"]["SessionStart"])
+        self.assertNotIn("PreToolUse", data["hooks"])
         self.assertIn("no Calamity hook was installed", sb.run("setup", "--remove-hook"))
+        self.assertRegex(sb.run("doctor", expect=None), r"WARN +key guard +missing")
 
     def test_hook_state_detects_a_moved_repository(self):
         sb = self.sb

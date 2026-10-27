@@ -15,6 +15,12 @@ if sys.version_info < (3, 9):
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
+if __name__ == "__main__" and sys.argv[1:] == ["guard", "tool"]:
+    # The key guard runs before every Read, Grep, Glob and shell call: answer it without loading the CLI.
+    from cal.guard import hook_main  # noqa: E402
+
+    sys.exit(hook_main())
+
 from cal.cli import main  # noqa: E402
 
 if __name__ == "__main__":

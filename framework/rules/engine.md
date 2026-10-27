@@ -16,7 +16,11 @@ verified item exists for the topic (`ask`, `test build`), with a
 **Topic keys** are `<skill>/<topic>`. **Item ids** look like `it-7k2m9q4x1c`,
 **test ids** like `t-...`. Where a file of JSON is expected, write it under
 `.calamity/tmp/` and pass `--file`; the engine deletes draft files from that
-folder once they are stored.
+folder once they are stored. The examiner works in
+`.calamity/tmp/examiner/<batch>/` (`item import` deletes the whole batch
+folder once it is stored) and the checker in `.calamity/tmp/checker/<item>/`
+(deleted once its result is recorded); the key guard keeps everyone else
+out of both.
 
 ## Session
 
@@ -130,8 +134,10 @@ cannot show them.
 | `dash [progress\|roadmap\|queue\|gate\|cp\|week\|all] [--track T] [--all-tracks] [--width N] [--ascii]` | Dashboards as plain text. |
 | `statusline [--stdin]` | One line for the Claude Code status line. With `--stdin` (as `setup --statusline` writes it) it reads the session data Claude Code passes and adds `try <model>·<effort>` when the suggested setting differs from the current one. |
 | `remind check [--always]`, `remind render --times 09:00,20:30 [--os linux\|darwin\|windows]`, `remind remove [--os ...]` | Is anything due (for a scheduler); write scheduler files and print how to install and remove them; print the removal command again (no times needed). Files and task names carry a tag of this clone. Nothing is installed by the engine. |
-| `setup [--machine NAME] [--hook] [--statusline] [--alias] [--remove-hook] [--remove-statusline] [--remove-alias]` | Prepare this machine. `--hook` writes the session-start hook and `--statusline` the status line to `.claude/settings.local.json`; `--alias` adds a `calamity` alias to `~/.zshrc` or `~/.bashrc` (`~/.bash_profile` on macOS) that changes to this folder and runs `claude --dangerously-skip-permissions`; the `--remove-` flags take them out again. |
-| `doctor`, `rebuild`, `selftest`, `version` | Health check (it also checks the replay snapshot against a full replay); replay the whole log and rewrite `learner/PROGRESS.md`; run the engine's tests; versions. |
+| `setup [--machine NAME] [--hook] [--statusline] [--alias] [--remove-hook] [--remove-statusline] [--remove-alias]` | Prepare this machine. `--hook` writes the session-start hook and the key guard, `--statusline` the status line, to `.claude/settings.local.json`; `--alias` adds a `calamity` alias to `~/.zshrc` or `~/.bashrc` (`~/.bash_profile` on macOS) that changes to this folder and runs `claude --dangerously-skip-permissions`; the `--remove-` flags take them out again. |
+| `guard tool` | The key guard, run by Claude Code as a PreToolUse hook before every Read, Grep, Glob and shell call (`setup --hook` installs it): it refuses `learner/items/` to everyone, the examiner's scratch to all but the examiner and the checker's to all but the checker, including shell commands that name them and searches that would reach them. It reads the call as JSON on stdin and prints a refusal or nothing. |
+| `clean tmp [--dry-run]` | Empty the scratch folder `.calamity/tmp/`, worked answers included; `--dry-run` lists what would go. |
+| `doctor`, `rebuild`, `selftest`, `version` | Health check (it also checks the replay snapshot against a full replay, that the key guard refuses what it must, and warns about scratch files older than a day); replay the whole log and rewrite `learner/PROGRESS.md`; run the engine's tests; versions. |
 
 ## Profile keys
 
