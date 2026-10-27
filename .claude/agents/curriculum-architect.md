@@ -40,7 +40,12 @@ Read `framework/rules/syllabus.md` and follow its procedure and rules.
    cover the motivation and history, the inner mechanics (why, not only
    what), real use-cases, and — for a tool — the flags that matter and how
    they combine. Objectives of the form "use X to do Y" alone are too thin;
-   add "explain why …" and "choose between …" beside them.
+   add "explain why …" and "choose between …" beside them. Tag every
+   objective with its strand (`[T]`, `[P]`, `[I]`, `[N]`) as
+   `framework/rules/syllabus.md` says: at least 15% `[I]` for developer, AI
+   and CP skills (read the tool's source at a pinned version, or build a
+   small version of it), and at least three objectives for a topic at
+   level 2 or higher.
    Cover the whole scope and end with a topic that leads into the skill's
    boss. Fit it to the learner: finer steps for a novice, merged basics for
    an experienced developer, emphasis where their goal needs it. Without

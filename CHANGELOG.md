@@ -69,6 +69,16 @@ changes their record in `learner/`.
   in the teaching standard, the tutor style, mastery-coach, the examiner
   (vocabulary of the topic and what it builds on) and the checker
   (rejects an item that leans on an unexplained term).
+- Objectives, coverage and the three strands. Syllabus objectives can be
+  tagged `[T]` theory, `[P]` practice, `[I]` implementation or `[N]`
+  numerical. `NEXT: new` lists every objective, numbered (it used to cut
+  off after four). Items name the objectives they test (`objectives` in
+  a draft, or `item tag`), and the NEED_ITEM block says which are not
+  yet answered right on. Once items are tagged, `solid` needs 60% of a
+  topic's objectives and `mastered` all of them, and consolidation needs
+  another objective; untagged items count as before. `tree show` prints
+  coverage per topic and the strand shares per skill. `syllabus check`
+  flags unknown tags and objectives rewritten under tagged items.
 
 ### Development
 

@@ -85,10 +85,21 @@ def need_item_text(repo: Repo, tree, state, key: str, when, purpose: str) -> str
     else:
         lines.append("format: whichever tests the skill best - mcq, msq, nat, short, code, task or open "
                      "(hands-on for tools and frameworks)")
-    body = [l for l in topic.body.split("\n") if l.strip()]
-    if body:
-        lines.append("objectives:")
-        lines.extend("  " + l.strip() for l in body[:12])
+    goals = topic.objectives()
+    if goals:
+        lines.append("objectives (tag the item with the numbers it tests: \"objectives\": [2]):")
+        lines.extend("  %d. %s%s" % (o["n"], ("[%s] " % o["strand"]) if o["strand"] else "", o["text"]) for o in goals[:12])
+        ts = state.topics.get(key)
+        done = set(ts.ok_objs or []) if ts is not None else set()
+        open_ = [o["n"] for o in goals if o["n"] not in done]
+        if done and open_:
+            lines.append("not yet answered right on: objective%s %s (write for one of these)" % (
+                "" if len(open_) == 1 else "s", ", ".join(map(str, open_))))
+    else:
+        body = [l for l in topic.body.split("\n") if l.strip()]
+        if body:
+            lines.append("objectives:")
+            lines.extend("  " + l.strip() for l in body[:12])
     if not gate and purpose != "placement":
         picked = plan.weave_candidates(repo, tree, state, when, node.id)
         if picked:
@@ -206,7 +217,7 @@ def ask(repo: Repo, tree, state, when, topic: str | None = None, item_id: str | 
         exclude = ()
         if state.consolidation_due(key) is not None:
             # a second item secures it: never the one it was already answered right on
-            purpose, exclude = "consolidate (a second item, on another objective)", {s for _, s in ts.vok_log}
+            purpose, exclude = "consolidate (a second item, on another objective)", {entry[1] for entry in ts.vok_log}
         chosen = items.pick(repo, state, key, when, difficulty=items.target_difficulty(state, tree, key),
                             exclude=exclude)
         if chosen is None and exclude and not consolidating:

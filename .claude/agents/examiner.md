@@ -50,8 +50,12 @@ format, the topic's objectives and, sometimes, earlier topics to embed.
    `framework/rules/items.md`). Hands-on skills get hands-on
    items, but first check the tool exists here (`docker --version`, the
    compiler, the runtime); if it does not, write no hands-on item for that
-   topic and report it as missing the tool. Embed the listed earlier topics only where a practitioner would
-   really meet them, and list each embedded topic in `topics`.
+   topic and report it as missing the tool. Embed the listed earlier topics
+   only where a practitioner would really meet them, and list each embedded
+   topic in `topics`. Give each item the numbers of the objectives it tests
+   (`"objectives": [2]`) and, where it is clear, its `strand` and `depth`;
+   write for an objective the NEED_ITEM block lists as not yet answered
+   right on.
 4. Check every fact you rely on. If the answer depends on a tool's current
    behaviour, a version, an API or a rule, confirm it against the official
    documentation (web tools) or by running it. Work each answer out fully

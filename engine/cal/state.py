@@ -25,7 +25,7 @@ class TopicState:
     __slots__ = (
         "key", "covered_ts", "covered_by", "first_ts", "first_day", "last_ts", "card", "n", "n_ok",
         "n_vok", "recent", "ok_days", "ok_items", "last_ok", "errors", "hints", "seeded",
-        "open_day", "open_due", "open_had_card", "fail_day", "err_log", "slow", "vok_log", "last_ev_ok",
+        "open_day", "open_due", "open_had_card", "fail_day", "err_log", "slow", "vok_log", "last_ev_ok", "ok_objs",
     )
 
     def __init__(self, key: str):
@@ -52,8 +52,9 @@ class TopicState:
         self.fail_day = None    # learner day of the latest failed attempt
         self.err_log = []       # (datetime, error tag) of recent failures
         self.slow = 0           # correct answers that took far longer than expected
-        self.vok_log = []       # (datetime, item or problem) of correct answers that count as evidence
+        self.vok_log = []       # (datetime, item or problem, objectives it tested) of right answers that are evidence
         self.last_ev_ok = None  # the latest answer that counts as evidence: right or wrong
+        self.ok_objs = None     # objectives answered right on tagged items (None while no tagged item was)
 
 
 def restorable(it) -> bool:
@@ -83,7 +84,7 @@ class SkillState:
 class ItemState:
     __slots__ = ("id", "status", "skill", "topics", "type", "src", "shown_ts", "open", "open_test",
                  "n_shown", "n_ok", "n_fail", "last_ok", "last_ts", "fail_day", "verify", "reason",
-                 "last_attempt", "last_err")
+                 "last_attempt", "last_err", "objectives", "objsig")
 
     def __init__(self, ident: str):
         self.id = ident
@@ -105,6 +106,8 @@ class ItemState:
         self.reason = None
         self.last_attempt = None   # id of the latest attempt event that still counts
         self.last_err = None       # error kind of that attempt when it was wrong
+        self.objectives = []       # which of its primary topic's objectives it tests (empty: not tagged)
+        self.objsig = {}           # a signature of each of those objectives' text when it was tagged
 
 
 class DayStats:
@@ -474,7 +477,10 @@ class State:
                     ts.ok_days.add(day)
                     if source_id:
                         ts.ok_items.add(source_id)
-                        ts.vok_log.append((dt, source_id))
+                        tested = self.items[source_id].objectives if (key == primary and source_id in self.items) else []
+                        ts.vok_log.append((dt, source_id, list(tested)))
+                        if tested:
+                            ts.ok_objs = sorted(set(ts.ok_objs or []) | set(tested))
                         if len(ts.vok_log) > 12:
                             del ts.vok_log[0]
             else:
@@ -524,6 +530,15 @@ class State:
         it.topics = [self.canon(t) for t in e.get("topics") or []]
         it.type = e.get("type")
         it.src = e.get("src") or "generated"
+        it.objectives, it.objsig = list(e.get("objectives") or []), dict(e.get("objsig") or {})
+
+    def _on_item_tag(self, e, dt):
+        it = self.item(e["item"])
+        it.objectives, it.objsig = list(e.get("objectives") or []), dict(e.get("objsig") or {})
+        ts = self.topics.get(it.topics[0]) if it.topics else None
+        if ts is not None and it.id in ts.ok_items and it.objectives:    # right answers given before the tag count
+            ts.ok_objs = sorted(set(ts.ok_objs or []) | set(it.objectives))
+            ts.vok_log = [(at, src, list(it.objectives) if src == it.id else objs) for at, src, objs in ts.vok_log]
 
     def _on_item_verify(self, e, dt):
         it = self.item(e["item"])
@@ -688,10 +703,27 @@ class State:
         gap = timedelta(minutes=self.pace(key.split("/", 1)[0])["consolidate_minutes"])
         if not gap:
             return ts.vok_log[0][0]
-        for i, (when, source) in enumerate(ts.vok_log):
-            if any(src != source and when - at >= gap for at, src in ts.vok_log[:i]):
+
+        def another(objs, other):          # tagged on both sides: a different objective; untagged: any item
+            return not objs or not other or set(objs) != set(other)
+
+        for i, (when, source, objs) in enumerate(ts.vok_log):
+            if any(src != source and when - at >= gap and another(objs, o) for at, src, o in ts.vok_log[:i]):
                 return when
         return None
+
+    def coverage(self, key: str):
+        """(objectives answered right on a tagged item, objectives the topic has), or None while it cannot be
+        measured: no objectives, or no tagged item answered right (untagged items still count as before)."""
+        ts = self.topics.get(key)
+        total = len(self.tree.topic(key).objectives()) if self.tree.has_topic(key) else 0
+        if ts is None or ts.ok_objs is None or not total:
+            return None
+        return len([n for n in ts.ok_objs if n <= total]), total
+
+    def _covered(self, key: str, setting: str, default: float) -> bool:
+        cov = self.coverage(key)
+        return cov is None or cov[0] >= float(self.repo.cfg(setting, default)) * cov[1] - 1e-9
 
     def consolidation_due(self, key: str):
         """When a topic answered right once can be consolidated (a second item, `consolidate_minutes` after
@@ -738,10 +770,12 @@ class State:
                 and acc >= float(cfg("solid.min_accuracy", 0.8))
                 and ts.card.s >= float(cfg("solid.min_stability", 7))
             )
+        solid = solid and self._covered(key, "solid.objective_coverage", 0.6)
         if (
             solid
             and ts.card.s >= float(cfg("mastered.min_stability", 21))
             and len(ts.ok_items) >= int(cfg("mastered.min_items", 4))
+            and self._covered(key, "mastered.objective_coverage", 1.0)
         ):
             return "mastered"
         if solid or ts.seeded:

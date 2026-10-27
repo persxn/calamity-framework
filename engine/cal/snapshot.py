@@ -26,7 +26,7 @@ from datetime import datetime
 from . import fsrs
 from .store import Repo, log_text, write_text
 
-FORMAT = 2
+FORMAT = 3
 NAME = "replay.json"
 GLOBAL_TYPES = ("rename", "void", "errtag")  # events that change how earlier events are read
 
@@ -183,8 +183,8 @@ def encode_state(state) -> dict:
             ts.key, _t(ts.covered_ts), ts.covered_by, _t(ts.first_ts), ts.first_day, _t(ts.last_ts), _card_out(ts.card),
             ts.n, ts.n_ok, ts.n_vok, [[_t(a), b, c] for a, b, c in ts.recent], sorted(ts.ok_days), sorted(ts.ok_items),
             ts.last_ok, _keys(dict(ts.errors)), ts.hints, ts.seeded, ts.open_day, _t(ts.open_due), ts.open_had_card,
-            ts.fail_day, [[_t(a), b] for a, b in ts.err_log], ts.slow, [[_t(a), b] for a, b in ts.vok_log],
-            ts.last_ev_ok,
+            ts.fail_day, [[_t(a), b] for a, b in ts.err_log], ts.slow, [[_t(a), b, c] for a, b, c in ts.vok_log],
+            ts.last_ev_ok, ts.ok_objs,
         ]
     skills = {}
     for key, sk in _keys(state.skills).items():
@@ -197,7 +197,7 @@ def encode_state(state) -> dict:
             verify = dict(it.verify, ts=_t(it.verify["ts"]))
         items[key] = [it.id, it.status, it.skill, list(it.topics), it.type, it.src, _t(it.shown_ts), it.open,
                       it.open_test, it.n_shown, it.n_ok, it.n_fail, it.last_ok, _t(it.last_ts), it.fail_day, verify,
-                      it.reason, it.last_attempt, it.last_err]
+                      it.reason, it.last_attempt, it.last_err, it.objectives, _keys(dict(it.objsig))]
     days = {}
     for key, ds in _keys(state.days).items():
         days[key] = [ds.day, ds.attempts, ds.ok, ds.new, ds.reviews, _t(ds.first), _t(ds.last), ds.active_min,
@@ -232,13 +232,13 @@ def decode_state(state, data: dict) -> None:
         ts = TopicState(key)
         (ts.key, covered_ts, ts.covered_by, first_ts, ts.first_day, last_ts, card, ts.n, ts.n_ok, ts.n_vok, recent,
          ok_days, ok_items, ts.last_ok, errors, ts.hints, ts.seeded, ts.open_day, open_due, ts.open_had_card,
-         ts.fail_day, err_log, ts.slow, vok_log, ts.last_ev_ok) = row
+         ts.fail_day, err_log, ts.slow, vok_log, ts.last_ev_ok, ts.ok_objs) = row
         ts.covered_ts, ts.first_ts, ts.last_ts, ts.open_due = _d(covered_ts), _d(first_ts), _d(last_ts), _d(open_due)
         ts.card = _card_in(card)
         ts.recent = [(_d(a), b, c) for a, b, c in recent]
         ts.ok_days, ts.ok_items, ts.errors = set(ok_days), set(ok_items), dict(errors)
         ts.err_log = [(_d(a), b) for a, b in err_log]
-        ts.vok_log = [(_d(a), b) for a, b in vok_log]
+        ts.vok_log = [(_d(a), b, c) for a, b, c in vok_log]
         state.topics[key] = ts
     for key, row in data["skills"].items():
         sk = SkillState()
@@ -249,7 +249,9 @@ def decode_state(state, data: dict) -> None:
     for key, row in data["items"].items():
         it = ItemState(key)
         (it.id, it.status, it.skill, it.topics, it.type, it.src, shown_ts, it.open, it.open_test, it.n_shown, it.n_ok,
-         it.n_fail, it.last_ok, last_ts, it.fail_day, verify, it.reason, it.last_attempt, it.last_err) = row
+         it.n_fail, it.last_ok, last_ts, it.fail_day, verify, it.reason, it.last_attempt, it.last_err, it.objectives,
+         it.objsig) = row
+        it.objsig = dict(it.objsig)
         it.shown_ts, it.last_ts = _d(shown_ts), _d(last_ts)
         it.verify = None if verify is None else dict(verify, ts=_d(verify["ts"]))
         state.items[key] = it

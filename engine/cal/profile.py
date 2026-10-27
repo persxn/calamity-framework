@@ -28,6 +28,7 @@ CFG_RANGES = {
     "max_interval_days": (1, 36500), "relearn_minutes": (1, 1440),
     "time.hard_factor": (1.0, 20.0), "time.easy_factor": (0.0, 1.0),
     "solid.min_correct": (1, 50), "solid.min_days": (1, 30), "solid.window": (1, 12), "solid.min_accuracy": (0.0, 1.0),
+    "solid.objective_coverage": (0.0, 1.0), "mastered.objective_coverage": (0.0, 1.0),
     "solid.min_stability": (0.0, 3650.0), "mastered.min_stability": (0.0, 3650.0), "mastered.min_items": (1, 50),
     "ready_share": (0.0, 1.0), "brushup.ready_share": (0.0, 1.0), "recall_n": (0, 30), "weave_n": (0, 6),
     "gate.daily_hours": (0.5, 24.0), "gate.exam_clamp_days": (0, 60), "gate.final_phase_days": (0, 180),

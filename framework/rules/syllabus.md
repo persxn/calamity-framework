@@ -66,6 +66,18 @@ wait for what it uses without the whole skill depending on the other.
   Objectives that only say "use X to do Y" are thin; pair them with
   "explain why …", "when would you not …" and, for a tool, "combine the
   flags to …".
+- **The three strands.** Tag each objective with what it builds: `[T]`
+  theory (the mechanism, the philosophy, why it is so), `[P]` practice
+  (fluency, choosing and combining, debugging), `[I]` implementation
+  (reading the tool's own source at a pinned version, or building a small
+  version of it), and `[N]` for a numerical objective (GATE: wherever
+  previous papers ask for a number). A developer, AI or CP skill gives at
+  least 15% of its objectives to `[I]`. A topic at level 2 or higher has at
+  least three objectives. `[I]` is optional for GATE: use it only where a
+  short simulation speeds understanding. `tree show` prints each skill's
+  strand shares, and items name the objectives they test by number, so
+  `solid` needs 60% of a topic's objectives answered right and `mastered`
+  all of them.
 - **Order by dependency.** List topics so that every `needs` comes earlier.
   `needs` names topic ids of the same skill only.
 - **Cover the whole scope**, and end with a topic that pulls the skill

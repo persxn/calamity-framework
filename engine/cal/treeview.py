@@ -101,21 +101,36 @@ def show_text(repo: Repo, tree, state, when, skill_id: str, ascii_only: bool = F
     lines.append("file: %s (%s)" % (repo.rel(node.path), "your own" if node.origin == "learner" else "shipped"))
     if node.topics:
         led = skill_id in sources.led_skills(repo, tree)
-        rows = []
+        rows, strands, total = [], {}, 0
         for topic in node.topics:
             ts = state.topics.get(topic.key)
             status = state.topic_status(topic.key)
+            goals = topic.objectives()
+            total += len(goals)
+            for o in goals:
+                strands[o["strand"]] = strands.get(o["strand"], 0) + 1
+            cov = state.coverage(topic.key)
+            covered = ("%d/%d" % cov) if cov else ("-/%d" % len(goals) if goals else "")
             if ts is not None and ts.card is not None:
                 recall = pct(state.retrievability(topic.key, when))
                 due = fmt_delta(ts.card.due - when)
                 answers = "%d/%d" % (ts.n_ok, ts.n)
             else:
                 recall, due, answers = "", "", ""
-            rows.append([topic.id, truncate(topic.title, 40), status, answers, recall, due])
+            rows.append([topic.id, truncate(topic.title, 40), status, answers, covered, recall, due])
         lines.append("")
         lines.append("topics (%s%s):" % ("your syllabus" if node.topics_origin == "learner" else "shipped syllabus",
                                          ", studied from a source: lecture first, then tested" if led else ""))
-        lines.append(table(rows, ["topic", "title", "status", "correct", "recall", "review"], aligns="lllrrl"))
+        lines.append(table(rows, ["topic", "title", "status", "correct", "objectives", "recall", "review"],
+                           aligns="lllrrrl"))
+        if total:
+            from .tree import STRANDS
+
+            parts = ["%s %d%%" % (STRANDS[s], round(100.0 * strands[s] / total)) for s in "TPIN" if strands.get(s)]
+            untagged = strands.get(None, 0)
+            lines.append("strands: %s%s (objectives: answered right on a tagged item / in the syllabus)" % (
+                " · ".join(parts) or "none tagged",
+                (" · %d untagged" % untagged) if untagged and parts else ""))
     elif node.kind != "milestone":
         scope = node.section("Scope")
         lines.append("")

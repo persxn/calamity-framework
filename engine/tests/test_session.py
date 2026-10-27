@@ -63,7 +63,7 @@ class AskAnswer(Case):
         self.assertIn("topic: shell/pipes | Pipes", need)
         self.assertIn("purpose: new", need)
         self.assertIn("difficulty: 1", need)
-        self.assertIn("- chain two commands with a pipe", need)
+        self.assertIn("  1. chain two commands with a pipe", need)
         self.assertIn("bank for this topic: empty", need)
 
         draft = sb.draft("shell/pipes")
@@ -384,12 +384,12 @@ class Weaving(Case):
         needs = sb.run("item", "needs", "--skill", "java")          # what the tutor reads: the list only
         self.assertIn("ITEMS NEEDED", needs)
         self.assertIn("  java/classes (new)", needs)
-        self.assertNotIn("objectives:", needs)
+        self.assertNotIn("objectives (", needs)
         self.assertIn("item needs --full --skill java", needs)
         full = sb.run("item", "needs", "--skill", "java", "--full")  # what the examiner reads
         self.assertIn("topic: java/classes | Classes", full)
         self.assertIn("embed", full)
-        self.assertIn("objectives:", full)
+        self.assertIn("objectives (", full)
 
     def test_teaching_and_testing_in_one_call(self):
         sb = self.sb
