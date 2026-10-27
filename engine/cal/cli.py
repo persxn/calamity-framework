@@ -1065,6 +1065,26 @@ def cmd_remind(c, a):
     return 0, remind.render(c.repo, a.times, a.os)
 
 
+def cmd_practice(c, a):
+    from . import practice
+
+    if a.action == "due":
+        return 0, practice.due_text(c.state, c.when)
+    if a.action == "stats":
+        return 0, practice.stats_text(c.tree, c.state)
+    if a.action == "status":
+        return 0, practice.status_text(c.state, c.when, a.set)
+    if not a.set:
+        raise CalError("name the practice set: practice %s <set> ..." % a.action)
+    if a.action == "add":
+        return 0, practice.add(c.repo, c.state, a.set, a.title, a.kind, a.items, a.key, a.source)
+    if a.action == "map":
+        return 0, practice.map_ranges(c.repo, c.tree, c.state, a.set, _read_json(a))
+    if len(a.rest) != 2:
+        raise CalError("practice log <set> <questions> solved|wrong|guessed|skipped [--err E] [--secs N] [--note ...]")
+    return 0, practice.log(c.repo, c.tree, c.state, c.when, a.set, a.rest[0], a.rest[1], a.err, a.secs, a.note)
+
+
 def cmd_stock(c, a):
     from . import stock
 
@@ -1376,6 +1396,20 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("--always", action="store_true", help="check: say something even when nothing is due")
     sp.add_argument("--times", help="render: times of day, e.g. 09:00,14:00,21:00 (default: reminders.times)")
     sp.add_argument("--os", choices=("linux", "darwin", "windows"), help="render: for another system than this one")
+    sp = add("practice", cmd_practice, "Practice sets (outside questions, metadata only): add, map, log, due, status, stats.")
+    sp.add_argument("action", choices=("add", "map", "log", "due", "status", "stats"))
+    sp.add_argument("set", nargs="?")
+    sp.add_argument("rest", nargs="*", help="log: <questions> <solved|wrong|guessed|skipped>")
+    sp.add_argument("--title")
+    sp.add_argument("--kind", default="pyq", help="add: pyq, book, sheet, course or other")
+    sp.add_argument("--items", help="add: how many questions (or a range such as 1-120)")
+    sp.add_argument("--key", default="none", help="add: official, unofficial or none")
+    sp.add_argument("--source", help="add: where the learner's copy comes from, in a few words")
+    sp.add_argument("--file")
+    sp.add_argument("--stdin", action="store_true")
+    sp.add_argument("--err", help="log: the error kind of a wrong answer")
+    sp.add_argument("--secs", type=_positive, help="log: seconds it took")
+    sp.add_argument("--note", help="log: one line on the mistake, never the question")
     sp = add("stock", cmd_stock, "Nightly bank stocking: render scheduler files for a headless /stock run, or remove them.")
     sp.add_argument("action", choices=("render", "remove"))
     sp.add_argument("--at", help="render: the time of night, e.g. 23:45 (default: stock.at in the profile)")

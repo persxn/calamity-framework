@@ -157,6 +157,7 @@ class State:
         self.cp_credits = {}     # problem -> {topic key: True if that credit counted as evidence}
         self.weights = {}
         self.first_tries = []    # (datetime, right) of the first verified answer on each new topic (the quota)
+        self.practice = {}       # practice set id -> {meta, map, qs: {question: record}} (practice.py)
         self.review_secs = []    # seconds the latest timed reviews took (the quota's review forecast)
         self.last_dt = None
         self.n_events = 0
@@ -361,7 +362,7 @@ class State:
         self.topics, self.skills, self.items, self.days, self.tests, self.src = {}, {}, {}, {}, {}, {}
         self.mocks, self.notes, self.cp_assigned = [], [], []
         self.cp_marks, self.cp_credits, self.weights = {}, {}, {}
-        self.first_tries, self.review_secs = [], []
+        self.first_tries, self.review_secs, self.practice = [], [], {}
         self.last_dt, self.n_events, self.n_voided = None, 0, 0
         self._alias_topic, self._alias_skill, self._retag = {}, {}, {}
         self._voided, self._handler_errors = set(), []
@@ -451,7 +452,8 @@ class State:
         placement = e.get("kind") == "placement"
         err_tag = self._retag.get(e["id"]) or e.get("err") or "unclassified"
         problem = e.get("problem")  # a judged Codeforces problem counts as a distinct verified exercise
-        source_id = e.get("item") or (("cf:%s" % problem) if problem else None)
+        source_id = e.get("item") or (("cf:%s" % problem) if problem else None) or \
+            (("ps:%s" % e["practice"]) if e.get("practice") else None)
         if problem:
             self.cp_credits.setdefault(str(problem), {})[primary] = evidence
         for c in credit:
@@ -543,6 +545,24 @@ class State:
             self.tests[test]["answers"][e.get("item")] = {
                 "ok": ok, "marks": e.get("marks"), "secs": e.get("secs"), "ts": dt,
             }
+
+    def _on_practice_set(self, e, dt):
+        rec = self.practice.setdefault(e["set"], {"meta": {}, "map": [], "qs": {}})
+        rec["meta"] = {k: e.get(k) for k in ("title", "kind", "items", "source")}
+        rec["meta"]["key"] = e.get("answer_key") or "none"
+
+    def _on_practice_map(self, e, dt):
+        if e["set"] in self.practice:
+            self.practice[e["set"]]["map"].extend(dict(r) for r in e.get("ranges") or [])
+
+    def _on_practice_attempt(self, e, dt):
+        from .practice import fold
+
+        pset = self.practice.get(e["set"])
+        if pset is None:
+            return
+        for q in e.get("qs") or []:
+            fold(pset["qs"].setdefault(int(q), {}), e.get("result"), dt)
 
     def _on_item_draft(self, e, dt):
         it = self.item(e["item"])

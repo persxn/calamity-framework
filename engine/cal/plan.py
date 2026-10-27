@@ -353,6 +353,12 @@ def next_action(repo: Repo, tree, state, when, skill: str | None = None, only: b
         key, ts = due[0]
         return {"action": "review", "topic": key, "why": "most forgotten of %d due" % len(due), "today": t,
                 "queue": len(due)}
+    from . import practice
+
+    revisits = practice.due(state, when)
+    if revisits and not (only and skill):
+        return {"action": "practice", "set": revisits[0][0], "questions": revisits[0][1], "today": t,
+                "sets": len(revisits)}
     ready, later = consolidations(state, when, skill if only else None)
     if ready:
         return {"action": "consolidate", "topic": ready[0][1], "since": ready[0][2], "today": t}
@@ -450,6 +456,8 @@ def action_label(action: dict) -> str:
         label += " " + action["topic"]
     elif action.get("skill"):
         label += " " + action["skill"]
+    elif action.get("set"):
+        label += " " + action["set"]
     elif action.get("items"):
         label += " %s %s" % (action["items"][0][0].id, action["items"][0][1].id)
     return label
@@ -469,6 +477,18 @@ def next_text(repo: Repo, tree, state, when, action: dict) -> str:
         lines.append("NEXT: sleep")
         lines.append("It is inside the learner's sleep window (%s-%s). %d review(s) are due and can wait."
                      % (s["start"], s["end"], action["due"]))
+    elif kind == "practice":
+        pset = state.practice[action["set"]]
+        qs = action["questions"]
+        pages = sorted({p for _, p in qs if p})
+        lines.append("NEXT: practice")
+        lines.append("set: %s | %s" % (action["set"], pset["meta"]["title"]))
+        lines.append("why: %d question(s) due for a revisit%s" % (
+            len(qs), "" if action["sets"] == 1 else " (and %d more set(s): practice due)" % (action["sets"] - 1)))
+        lines.append("redo: %s%s" % (", ".join("Q%d" % q for q, _ in qs[:15]) + (" ..." if len(qs) > 15 else ""),
+                                     " (pp. %s)" % ", ".join(pages) if pages else ""))
+        lines.append("do: the learner works them from their own copy, then: practice log %s <questions> "
+                     "solved|wrong|guessed|skipped [--err E]" % action["set"])
     elif kind == "review":
         key = action["topic"]
         ts = state.topics[key]

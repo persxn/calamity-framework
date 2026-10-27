@@ -82,12 +82,13 @@ def one_run(seed, steps, shuffle=True):
             run(sb, "profile", "set", "sleep.end", rng.choice(["07:00", "08:30"]))
         run(sb, "profile", "set", "onboarded", "true")
         sourced = False
+        practiced = False
         for step in range(steps):
             kind = rng.choice(["enroll", "enroll", "item", "item", "item", "study", "study", "study", "study", "study",
                                "covered", "advance", "advance", "advance", "quick", "placement", "pause", "resume",
                                "log", "log", "source", "mistake", "dispute", "focus", "cfg", "next", "next", "boss",
                                "ptest", "drop", "observe", "workout", "unenroll", "test", "weave", "mock", "rename",
-                               "merge", "cache", "cache"])
+                               "merge", "cache", "cache", "practice", "practice", "feedback"])
             log.append(kind)
             if kind == "enroll":
                 args = ["enroll", rng.choice(SKILLS)]
@@ -165,6 +166,21 @@ def one_run(seed, steps, shuffle=True):
                     elif rng.random() < 0.1:
                         args.append("--undo")
                     run(sb, *args)
+            elif kind == "practice":
+                if not practiced:
+                    run(sb, "practice", "add", "pyq", "--title", "Papers", "--items", "30",
+                        "--key", rng.choice(["official", "none"]))
+                    path = sb.path(".calamity", "tmp", "p.json")
+                    write(path, json.dumps([{"from": 1, "to": 15, "topics": ["gate.cs.os/scheduling"], "pages": "4"},
+                                            {"from": 10, "to": 30, "topics": ["gate.cs.os/deadlock"]}]))
+                    run(sb, "practice", "map", "pyq", "--file", path)
+                    practiced = True
+                else:
+                    lo = rng.randint(1, 30)
+                    run(sb, "practice", "log", "pyq", "%d-%d" % (lo, min(30, lo + rng.randint(0, 4))),
+                        rng.choice(["solved", "solved", "wrong", "guessed", "skipped"]))
+            elif kind == "feedback":
+                run(sb, "feedback", rng.choice(["pace=slow", "depth=more", "clarity=low", "pace=ok"]))
             elif kind == "mistake":
                 if items:
                     run(sb, "mistake", rng.choice(sorted(items)), rng.choice(["concept", "careless", "time"]))
