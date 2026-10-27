@@ -756,6 +756,11 @@ HELP = __doc__
 
 
 def main():
+    for stream in (sys.stdout, sys.stderr):     # UTF-8 on every system, as the engine writes (Windows pipes)
+        try:
+            stream.reconfigure(encoding="utf-8", errors="replace")
+        except (AttributeError, ValueError):
+            pass
     args = sys.argv[1:]
     cmd = args[0] if args else None
 
