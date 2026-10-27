@@ -25,6 +25,9 @@ record. `CLAUDE.md` holds the session start and the rules that do not bend.
 - Coach an untracked topic with `mastery-coach` (its book is
   `mastery-textbook`), or learn a project by building it with
   `build-it-yourself`.
+- **Taught before tested.** A question or example uses only terms and
+  commands already explained here or shown in the learner's record: read
+  it back first, and teach what is missing before asking.
 - **Feedback after every answer**, before anything else: right or wrong in
   one line; when wrong, the key and solution the engine prints, the cause,
   a short repair. The `next:` line after `answer` says what is due.

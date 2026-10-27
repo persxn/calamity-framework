@@ -158,4 +158,5 @@ beside them and are not listed here.
 | `framework/rules/cp-onboarding.md` | setting up a Codeforces learner, placement from the record |
 | `framework/rules/cp-planning.md` | CP levels, the week, reading `cf analyse`, pace |
 | `framework/rules/cp-playbook.md` | a CP coaching turn: one problem, contests, teaching |
-| `framework/rules/notes-latex.md` | writing notes fragments, LaTeX sections and PDFs |
+| `framework/rules/markdown-books.md` | writing study books and long-form notes in Markdown (the default format) |
+| `framework/rules/notes-latex.md` | writing notes fragments, LaTeX sections and PDFs (`book.format pdf`) |

@@ -678,6 +678,9 @@ def brief(repo: Repo, tree, state, when, engine_cmd: str = "", current=None) -> 
     flags = stats.flags(repo, tree, state, when)
     if flags:
         out.append("Observations: " + " · ".join(flags[:4]))
+    if not repo.prof("book.format"):
+        out.append("Study books: format not chosen. Before writing study material, ask once: Markdown (the default) "
+                   "or PDF; then profile set book.format markdown|pdf")
     s = t["sleep"]
     if s["set"]:
         if s["inside"]:

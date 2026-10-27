@@ -39,6 +39,16 @@ collapse it into one.
   what would a sceptical expert challenge? Teach so those are met, not left
   for later. A new word you cannot yet motivate means the chunk starts too
   late; back up to what it rests on.
+- **Taught before tested.** A question, an example or an exercise may use
+  only the words, commands and ideas this lesson has already explained, or
+  that the learner's record shows they know. Before asking, read the
+  question back word by word: each term, command, flag and file in it must
+  have been defined (a check on what the shell does needs "shell" defined
+  first; an example that runs `grep` needs `grep` taught first). If one is
+  missing, teach it in a line or two, or ask a different question. End each
+  chunk with the facts its check relies on, so the learner can answer at
+  once. A question about something untaught tests the lesson, not the
+  learner.
 - When an answer shows a gap in something earlier (a prerequisite, a
   word, a basic step), go back and teach that first, then return.
 - One chunk is one idea: at most a short explanation, one worked example and

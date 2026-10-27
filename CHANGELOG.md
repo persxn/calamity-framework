@@ -53,6 +53,22 @@ changes their record in `learner/`.
   `solid` counts only answers that are evidence. Pace profiles in
   `framework/config.md` (`pace.mastery`, `pace.exam`, `pace.brushup`,
   `pace.track.<track>`) can be overridden per learner.
+- Study books and long-form notes are Markdown by default (from learner
+  feedback: writing and reviewing LaTeX was slow and costly). The brief
+  asks once for `book.format` (`markdown` or `pdf`). `notes assemble`
+  writes `<skill>-notes.md`, `mastery-textbook` writes a chapter per
+  Markdown file, and `framework/rules/markdown-books.md` sets the house
+  style. A PDF comes only on request, from the engine: `book pdf <file
+  or folder>` and `notes pdf` convert the Markdown themselves, so no
+  model writes LaTeX for it. The typeset LaTeX edition stays for
+  learners who choose `pdf`.
+- Taught before tested (from learner feedback: a check asked about "the
+  shell" and used `grep` before either was taught). A question or
+  example uses only what the lesson has explained or the record shows,
+  and each chunk ends with the facts its check relies on. The rule is
+  in the teaching standard, the tutor style, mastery-coach, the examiner
+  (vocabulary of the topic and what it builds on) and the checker
+  (rejects an item that leans on an unexplained term).
 
 ### Development
 

@@ -115,7 +115,7 @@ def _plain(x):
 KNOWN_KEYS = ("name", "onboarded", "tracks", "goals", "focus", "mode.default", "teach.style", "sleep.start",
               "sleep.end", "workout.minutes", "daily.target_hours", "reminders.times", "gate.year", "gate.papers",
               "gate.registered", "gate.target_rank", "gate.target_source", "cp.handle", "cp.target_rating",
-              "cp.target_date", "cp.language")
+              "cp.target_date", "cp.language", "book.format")
 KNOWN_PREFIXES = ("cfg.", "gate.target_marks.", "gate.exam_date.")
 
 
@@ -158,6 +158,10 @@ def parse(key: str, words, text: bool, defaults: dict):
         if not isinstance(value, bool):
             raise CalError("%s is true or false, got %r" % (key, joined))
         return value
+    if key == "book.format":
+        if joined not in ("markdown", "pdf"):
+            raise CalError("book.format is markdown (the default) or pdf, got %r" % joined)
+        return joined
     if key == "mode.default":
         if joined not in ("mastery", "brushup"):
             raise CalError("mode.default is mastery or brushup, got %r" % joined)

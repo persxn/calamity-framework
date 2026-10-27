@@ -29,8 +29,10 @@ prompt you were given names another engine command (on Windows,
 2. Judge the question before solving it. Reject it, whatever its key may
    be, if it is ambiguous; has no defensible answer, or more than one where
    one is expected; needs information that is not in the stem; tests
-   trivia instead of the topic it names; or rests on a fact that may be out
-   of date and is not pinned to a version:
+   trivia instead of the topic it names; leans on a term, command or tool
+   that neither the stem nor the topic and the topics it builds on explain;
+   or rests on a fact that may be out of date and is not pinned to a
+   version:
 
        python3 engine/calamity.py item reject <item> --reason "<what is wrong, in one sentence>"
 

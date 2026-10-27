@@ -925,6 +925,19 @@ def cmd_day(c, a):
     return 0, day.text(v, finish)
 
 
+def cmd_book(c, a):
+    from . import mdbook
+
+    folder = os.path.isdir(a.target)
+    joined = mdbook.source(c.repo, a.target)
+    out = a.out or (os.path.join(a.target, "book.pdf") if folder else None)
+    try:
+        return 0, mdbook.pdf(c.repo, joined, out, base=os.path.abspath(a.target) if folder else None)
+    finally:
+        if folder:
+            os.remove(joined)
+
+
 def cmd_guard(c, a):
     from . import guard
 
@@ -1246,6 +1259,10 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("--block", help="goal: the block it belongs to")
     sp.add_argument("--json", action="store_true", help="the day as JSON (tools/timetable.py reads it)")
     sp.add_argument("--write", action="store_true", help="migrate: rewrite learner/schedule.md (default: show it)")
+    sp = add("book", cmd_book, "Study books: pdf turns a Markdown book (a file, or a folder of chapters) into a PDF.")
+    sp.add_argument("action", choices=("pdf",))
+    sp.add_argument("target", help="a .md file, or a book folder (README.md, then 01-*.md, 02-*.md ...)")
+    sp.add_argument("--out", help="where to write the PDF (default: beside the book)")
     add("doctor", cmd_doctor, "Check that everything is in order.")
     sp = add("guard", cmd_guard, "The key guard Claude Code runs before each Read, Grep, Glob and shell call "
                                  "(installed by setup --hook; reads the call as JSON on stdin).")

@@ -1,6 +1,6 @@
 ---
 name: notes-writer
-description: "Writes long-form study notes: turns a topic's Markdown fragment into a complete, accurate LaTeX section that compiles with the framework's preamble. Use from the notes skill for topics marked to write or stale."
+description: "Writes long-form study notes: turns a topic's Markdown fragment into a complete, accurate section, in Markdown by default or in LaTeX for a learner who chose PDF. Use from the notes skill for topics marked to write or stale."
 model: inherit
 effort: medium
 disallowedTools: Agent
@@ -16,15 +16,21 @@ Engine commands below are written `python3 engine/calamity.py ...`. If the
 prompt you were given names another engine command (on Windows,
 `python engine/calamity.py` or `py -3 engine/calamity.py`), use that one.
 
-Read `framework/rules/notes-latex.md` first: it defines the structure of a
-section, the environments and helpers the preamble provides, and the LaTeX
-rules. For each topic you are given (`<skill>/<topic>`):
+`python3 engine/calamity.py notes section <skill>/<topic>` gives the path to
+write, and its extension says the format. A `.md` path (the default) follows
+`framework/rules/markdown-books.md`: the same parts as below, written as a
+`##` section with `###` parts, a `> **Key idea** —` callout, fenced code,
+`> **Pitfall** —`, a *Mistakes* list and *Check yourself* questions that use
+only what the section explains. A `.tex` path follows
+`framework/rules/notes-latex.md`, which defines the environments the
+preamble provides and the LaTeX rules; read it first. For each topic you
+are given (`<skill>/<topic>`):
 
 1. Read the fragment `learner/notes/<skill>/<topic>.md` and the topic's
    objectives (`python3 engine/calamity.py tree show <skill>`, or the
    syllabus file it names). Read the neighbouring sections in
-   `learner/notes/<skill>/tex/` so that yours fits and does not repeat
-   them.
+   `learner/notes/<skill>/md/` (or `tex/`) so that yours fits and does
+   not repeat them.
 2. Get the path: `python3 engine/calamity.py notes section <skill>/<topic>`.
 3. Write the section there:
    - `\section{<title>}\label{sec:<skill>:<topic>}`;
@@ -50,8 +56,9 @@ rules. For each topic you are given (`<skill>/<topic>`):
      was run, computed or looked up in the official documentation. If you
      could not check a claim, leave it out;
    - code was run where it can be run here;
-   - no preamble commands, no bare `<`, `>` or `|` in text, every special
-     character escaped, every environment closed.
+   - in LaTeX: no preamble commands, no bare `<`, `>` or `|` in text,
+     every special character escaped, every environment closed; in
+     Markdown: only the subset `framework/rules/markdown-books.md` lists.
 5. Do not build the PDF and do not run `notes stamp`: the caller builds
    once, after every section is written, and sends back any section that
    fails with its error.
