@@ -72,6 +72,7 @@ class Setup(Case):
         sb.run("setup", "--hook")                                     # installing again does not duplicate it
         self.assertEqual(len(self.settings()["hooks"]["SessionStart"]), 2)
         self.assertEqual(len(self.settings()["hooks"]["PreToolUse"]), 1)
+        self.assertEqual(self.settings()["outputStyle"], "Calamity Tutor")   # how a study session teaches
         out = sb.run("setup")
         self.assertIn("session-start hook: ok", out)
         self.assertIn("key guard: ok", out)
@@ -90,8 +91,19 @@ class Setup(Case):
         data = self.settings()
         self.assertEqual(data["hooks"]["SessionStart"], existing["hooks"]["SessionStart"])
         self.assertNotIn("PreToolUse", data["hooks"])
+        self.assertNotIn("outputStyle", data)
         self.assertIn("no Calamity hook was installed", sb.run("setup", "--remove-hook"))
         self.assertRegex(sb.run("doctor", expect=None), r"WARN +key guard +missing")
+
+    def test_a_style_the_learner_chose_is_kept(self):
+        sb = self.sb
+        write(sb.path(".claude", "settings.local.json"), json.dumps({"outputStyle": "Explanatory"}))
+        self.assertIn("your own output style (Explanatory) kept", sb.run("setup", "--hook"))
+        self.assertEqual(self.settings()["outputStyle"], "Explanatory")
+        sb.run("setup", "--remove-hook")
+        self.assertEqual(self.settings()["outputStyle"], "Explanatory")      # not ours to remove
+        write(sb.path(".claude", "output-styles", "calamity-tutor.md"), "---\nname: Calamity Tutor\n---\n")
+        self.assertIn("Explanatory, chosen here", sb.run("doctor", expect=None))
 
     def test_hook_state_detects_a_moved_repository(self):
         sb = self.sb

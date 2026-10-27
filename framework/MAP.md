@@ -28,7 +28,7 @@ evidence. Stop as soon as the question is answered.
 ## Layout
 
 ```
-CLAUDE.md                  what loads every session: the role, the rules that never bend
+CLAUDE.md                  what loads every session, agents included: session start, the rules that never bend
 README.md                  for people: what it is, installation, first session, daily use
 docs/                      guides for people: setup per system, daily use, the three tools, troubleshooting
   maintainers/             token-baseline.md: what sessions cost, measured with tools/baseline.py
@@ -41,6 +41,7 @@ CHANGELOG.md               what changed in each version (framework/VERSION); LIC
   settings.local.json      this machine only (session-start hook); never committed
   skills/<name>/SKILL.md   the slash commands
   agents/<name>.md         the specialist agents
+  output-styles/           calamity-tutor.md: how a study session teaches (setup --hook selects it)
 engine/
   CLAUDE.md                guidance for maintainers; loads only when a session works in engine/
   calamity.py              entry point of the CLI
@@ -99,6 +100,45 @@ these or any new track name.
 - **Skill ids** are lower-case with `-` and `.`; a topic is addressed as
   `<skill>/<topic>`, for example `docker/multi-stage` or
   `gate.cs.toc/pumping-lemma`.
+
+## Skills and agents
+
+Claude Code lists these with their descriptions in every session; this is
+the registry the self-test holds them to. A learner's own additions live
+beside them and are not listed here.
+
+| Skill (`/name`) | What it is for |
+|---|---|
+| `onboard` | first-run setup: a new learner, a new track, a new machine |
+| `study` | a study session: surprise recall, then small chunks tested at once |
+| `recall` | a review round: only what is due, no new material |
+| `today` | today's finish line and the single next thing to do |
+| `dash` | progress, roadmap, revision queue, GATE and Codeforces boards, the week |
+| `tree` | the skill tree: routes, prerequisites, add, swap, drop, skip |
+| `boss` | the project or timed test that proves a skill |
+| `notes` | notes per topic, LaTeX sections, a PDF per skill |
+| `gate` | the GATE companion: plan, triage, mocks, past papers |
+| `cp` | the competitive programming coach on Codeforces |
+| `coach` | the weekly review and the day shape in `learner/schedule.md` |
+| `remind` | study reminders from the operating system |
+| `bridge` | connect a course, playlist or book by a route its terms allow |
+| `log` | record study done outside the session: a lecture, a chapter, a workout |
+| `sync` | save progress to the learner's own repository and merge other laptops |
+| `update-framework` | bring in a new framework version, never touching `learner/` |
+| `mastery-coach` | deep coaching of any tool or topic, with its own loop and state |
+| `mastery-textbook` | a LaTeX study book that grows with the coaching |
+| `build-it-yourself` | learn a project by rebuilding or designing it and shipping it |
+
+| Agent | What it does |
+|---|---|
+| `examiner` | writes practice items as sealed drafts |
+| `checker` | verifies drafts blind, without their keys |
+| `curriculum-architect` | syllabi, placement tests, new tree nodes, lecture mappings |
+| `cp-coach` | the Codeforces training plan from the learner's record |
+| `gate-strategist` | the GATE plan back from the exam date, triage, targets |
+| `habit-coach` | how the learner actually works, against their schedule |
+| `bridge-engineer` | the one-off tool that connects a study source |
+| `notes-writer` | long-form LaTeX sections from a topic's notes |
 
 ## Rule books
 

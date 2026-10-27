@@ -726,7 +726,7 @@ flowchart LR
 
 | Folder | What it holds |
 |---|---|
-| `CLAUDE.md`, `framework/method.md` | What Claude reads every session (its role and the rules), and the method, which the study skills read when they run |
+| `CLAUDE.md`, `.claude/output-styles/calamity-tutor.md`, `framework/method.md` | What every session and agent reads (the session start and the rules that never bend); how a study session teaches (the output style `setup --hook` selects); and the method, which the study skills read when they run |
 | `.claude/skills/`, `.claude/agents/` | The slash commands and the specialist agents |
 | `framework/` | The skill tree, the rule books, the defaults, the exam facts; `framework/MAP.md` indexes everything |
 | `engine/` | The engine and its tests |
