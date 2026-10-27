@@ -11,7 +11,7 @@ forget it, and keeps an honest record of what you can actually do.**
 It ships with three tools built on one method:
 
 - **An adaptive tutor** for development, programming, maths and AI: a skill
-  tree of 150 skills with prerequisites, a route to any goal, syllabi written
+  tree with prerequisites, a route to any goal, syllabi written
   for you from current official documentation, and exercises that weave the
   skills you learnt earlier into the one you are learning now.
 - **A GATE companion** (CS and DA papers): follows you through your own
@@ -500,12 +500,14 @@ your plan to say, not this framework.
 
 ### The skill tree and the tutor
 
-| Track | Skills | What it covers |
-|---|---|---|
-| `10x` Developer | 77 | From a first terminal to production: Linux, Git, web, JavaScript and TypeScript, React (or Vue, Svelte), APIs, Node, Express (or Fastify, NestJS), Python, Java, databases, auth, Docker, CI, Kubernetes, Terraform, observability, security, system design, Android or Flutter, and capstone milestones |
-| `ai` AI engineering | 17 | Maths, the Python data stack, classical ML, deep learning, transformers, serving, LLMs, local models, RAG, evaluation, agents |
-| `cp` Competitive programming | 35 | C++ and the STL, then algorithms by rating band, with milestones from 1200 to 2200 (194 topics) |
-| `gate`, `gate-cs`, `gate-da` | 21 | General Aptitude and every subject of the CS and DA papers (224 topics) |
+| Track | What it covers |
+|---|---|
+| `10x` Developer | From a first terminal to production: Linux, Git, web, JavaScript and TypeScript, React (or Vue, Svelte), APIs, Node, Express (or Fastify, NestJS), Python, Java, databases, auth, Docker, CI, Kubernetes, Terraform, observability, security, system design, Android or Flutter, and capstone milestones |
+| `ai` AI engineering | Maths, the Python data stack, classical ML, deep learning, transformers, serving, LLMs, local models, RAG, evaluation, agents, inference, training and infrastructure |
+| `cp` Competitive programming | C++ and the STL, then algorithms by rating band, with milestones from 1200 to 2200 |
+| `gate`, `gate-cs`, `gate-da` | General Aptitude and every subject of the CS and DA papers |
+
+`python3 engine/calamity.py tree list` shows the whole tree as it stands.
 
 - **Routes**: `tree path <goal>` lays out the skills to a goal in layers;
   skills in one layer can be learnt side by side, and they take turns.
@@ -700,8 +702,8 @@ record and decides what comes next; every skill and agent works through it.
 
 ```mermaid
 flowchart LR
-    you([You]) <--> claude[Claude in Claude Code<br/>16 skills]
-    claude -- delegates --> agents[8 agents<br/>examiner, checker, planners, writers]
+    you([You]) <--> claude[Claude in Claude Code<br/>skills]
+    claude -- delegates --> agents[agents<br/>examiner, checker, planners, writers]
     claude -- commands --> engine[engine/calamity.py]
     agents -- commands --> engine
     engine -- appends --> log[(learner/events<br/>append-only log)]

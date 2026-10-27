@@ -3,7 +3,7 @@
   "name": "calamity",
   "description": "The Calamity learning ecosystem: the Calamity tutor, and room for companion plugins that share the same honest, evidence-first way of working.",
   "owner": { "name": "Calamity Framework" },
-  "metadata": { "version": "0.1.0" },
+  "metadata": { "version": "1.0.0" },
   "plugins": [
     {
       "name": "calamity",

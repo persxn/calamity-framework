@@ -6,8 +6,8 @@ every skill and agent works through `python3 engine/calamity.py ...`.
 
 ```mermaid
 flowchart LR
-    you([You]) <--> claude[Claude in Claude Code<br/>CLAUDE.md, method, 16 skills]
-    claude -- delegates --> agents[8 agents<br/>examiner, checker, curriculum architect,<br/>coaches, notes writer, bridge engineer]
+    you([You]) <--> claude[Claude in Claude Code<br/>CLAUDE.md, method, skills]
+    claude -- delegates --> agents[agents<br/>examiner, checker, curriculum architect,<br/>coaches, notes writer, bridge engineer]
     claude -- engine commands --> engine[engine/calamity.py<br/>standard library only]
     agents -- engine commands --> engine
     engine -- appends --> log[(learner/events/*.jsonl<br/>append-only log)]
@@ -23,8 +23,8 @@ flowchart LR
 | Path | What it is |
 |---|---|
 | `CLAUDE.md` | What Claude reads at the start of every session: the role and the rules that never bend. The method, `framework/method.md`, is read by the study, recall, boss, gate and cp skills when they run, so it costs nothing in a session that does not use it. `engine/CLAUDE.md` is for maintainers and loads only when a session works in `engine/`. |
-| `.claude/skills/` | The sixteen slash commands, each a short procedure. |
-| `.claude/agents/` | Eight specialist agents with their own instructions and context. |
+| `.claude/skills/` | The slash commands, each a short procedure, and the companion skills (`mastery-coach`, `mastery-textbook`, `build-it-yourself`). |
+| `.claude/agents/` | The specialist agents, each with its own instructions and context. |
 | `.claude/settings.json` | Permissions: the engine and edits under `learner/` are pre-approved; editing the framework asks first; reading item files and editing the log are denied. |
 | `framework/` | The skill tree, the rule books, the default numbers (`config.md`), exam facts per year, the LaTeX preamble. The same for every learner. |
 | `engine/` | The engine and its tests. |

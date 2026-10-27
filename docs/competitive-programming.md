@@ -138,7 +138,7 @@ numbers, and you decide what changes.
 
 ## The skills
 
-The `cp` track has 35 skills with 194 topics, from C++ and the STL through
+The `cp` track runs from C++ and the STL through
 complexity, implementation, sorting and greedy, binary search, number
 theory, graphs, DP, trees, range queries and onwards, each with the
 Codeforces tags it covers and the rating from which it is expected. They

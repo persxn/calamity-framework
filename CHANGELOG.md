@@ -6,6 +6,34 @@ changes their record in `learner/`.
 
 ## Unreleased
 
+### The learning system
+
+- The AI Engineering track is built out: maths, ML, LLMs, agents,
+  inference, training and infrastructure, with milestones; `10x/cpp`
+  joins the developer path. The four shapes a skill file can take are
+  documented in `framework/rules/tree-editing.md`.
+- Deep teaching is the default on every path. A depth contract (the
+  problem and its history, intuition, inner mechanics, examples, case
+  studies, flags and how they combine, trade-offs) and a doubt check before
+  teaching; syllabi, items and the examiner aim at the mechanism and the
+  trade-off rather than recall. The teaching standard lives in
+  `framework/method-teaching.md` and loads only when a session teaches;
+  `framework/method.md` keeps the loop, asking, judging and modes. Study's
+  `NEXT: new` teaches a topic's whole arc across chunks.
+- Companion skills with a loop of their own: `mastery-coach` (deep
+  coaching of any tool or topic: history and philosophy first, a
+  gap-free roadmap, interview-grade drills and surprise recall),
+  `mastery-textbook` (a LaTeX study book that grows with the coaching,
+  compiled to PDF) and `build-it-yourself` (learn a project by rebuilding
+  or designing it and shipping it yourself). Their state lives in
+  `learner/mastery/`; `PLUGINS.md` draws the line between them, the
+  engine and the notes skill.
+- A plugin scaffold: `.claude-plugin/plugin.json` and `marketplace.json`
+  describe Calamity as a plugin; using the repository as a project is
+  unchanged.
+- `tools/timetable.py`: a terminal day planner over `learner/schedule.md`,
+  with goals, notes and per-day overrides in `learner/timetable.json`.
+
 ### Development
 
 - Continuous integration is green on every system again: the alias test no
@@ -20,6 +48,10 @@ changes their record in `learner/`.
   framework tracks only `learner/README.md`. `CONTRIBUTING.md` and the
   sync skill describe the two clones: a dev clone of the framework, and a
   study clone whose `origin` is the learner's private repository.
+- One version: `framework/VERSION` is the source, and a test holds the
+  plugin manifests to it (they said 0.1.0). The documents no longer quote
+  counts of skills or agents that drift as the tree grows, and
+  `tools/e2e.py` counts the shipped skills from the tree.
 
 ## 1.0.0 (2026-10-12)
 

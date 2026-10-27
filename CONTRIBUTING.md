@@ -81,6 +81,10 @@ does.
 - A new command or flag is documented in `framework/rules/engine.md`.
 - Facts that change (exam dates, Claude Code's installation, the Codeforces
   API) are taken from the official source and dated.
+- No counts that drift: say "the skill tree", not "164 skills".
+- `framework/VERSION` is the version. A release changes it together with
+  `.claude-plugin/plugin.json` and `.claude-plugin/marketplace.json`; a test
+  holds them equal.
 - Sample output comes from `tools/demo.py` and is labelled as coming from a
   pretend learner.
 - No points, streaks or other gamification: the daily finish line is a

@@ -1,6 +1,6 @@
 # The skill tree
 
-Everything the tutor teaches hangs off one tree of 150 skills. Each skill
+Everything the tutor teaches hangs off one tree of skills. Each skill
 is a file in `framework/tree/<track>/`: what it needs first, what mastery
 covers, the boss that proves it, and, for exam and contest skills, its
 topics.

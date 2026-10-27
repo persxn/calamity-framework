@@ -118,6 +118,13 @@ def section(title):
     print("\n=== %s" % title)
 
 
+def shipped_skills(root):
+    """The skill files under framework/tree/<track>/ (tracks.md, one level up, describes the tracks)."""
+    tree = os.path.join(root, "framework", "tree")
+    return sum(1 for track in os.listdir(tree) if os.path.isdir(os.path.join(tree, track))
+               for name in os.listdir(os.path.join(tree, track)) if name.endswith(".md"))
+
+
 def remove_tree(path):
     """Delete a folder, including the read-only files git leaves on Windows."""
     def retry(func, name, _):
@@ -144,7 +151,7 @@ def main():
 
     section("fresh clone")
     out = a.cal("brief")
-    assert "NOT ONBOARDED" in out and "164 skills" in out, out
+    assert "NOT ONBOARDED" in out and "%d skills" % shipped_skills(seed) in out, out
     print(out.strip())
     doctor = a.cal("doctor")
     assert "0 problem(s)" in doctor, doctor
@@ -348,7 +355,9 @@ def main():
     print("event files:", files)
     assert any("laptop-a" in f for f in files) and any("laptop-b" in f for f in files)
     section("framework update: a clone, and a copy that began as a downloaded archive")
-    s.write("framework/VERSION", "9.9.9\n")                # a later release of the framework
+    s.write("framework/VERSION", "9.9.9\n")                # a later release of the framework,
+    for rel in (".claude-plugin/plugin.json", ".claude-plugin/marketplace.json"):  # with its manifests
+        s.write(rel, s.read(rel).replace('"%s"' % version, '"9.9.9"'))
     s.git("commit", "-q", "-am", "release 9.9.9")
     a.git("remote", "add", "upstream", seed)                 # what /update-framework does in a clone
     a.git("fetch", "-q", "upstream", "--tags")
