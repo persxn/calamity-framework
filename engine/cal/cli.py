@@ -171,7 +171,11 @@ def cmd_next(c, a):
 
 def cmd_ask(c, a):
     return session.ask(c.repo, c.tree, c.state, c.when, topic=a.topic, item_id=a.id, skill=a.skill, test=a.test,
-                       show_check=a.check, due_only=a.due, taught=a.taught)
+                       show_check=a.check, due_only=a.due, taught=a.taught, parts=a.parts, minutes=a.minutes)
+
+
+def cmd_feedback(c, a):
+    return 0, session.feedback(c.repo, c.tree, a.pairs, topic=a.topic)
 
 
 def cmd_answer(c, a):
@@ -946,6 +950,8 @@ def cmd_day(c, a):
         raise CalError("day [<day>]: one day at a time (today, tomorrow, +2, fri, 2026-11-03)")
     target = day.parse_day(words[0] if words else a.date, c.repo, c.when)
     v = day.view(c.repo, target, c.when)
+    if c.repo.onboarded():
+        v["teaching"] = day.teaching_lines(c.state, target)
     finish = None
     if target == day.learner_date(c.repo, c.when) and c.repo.onboarded():
         finish = plan.today_line(plan.today(c.repo, c.tree, c.state, c.when))
@@ -1066,6 +1072,9 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("--check", action="store_true", help="also print the check/rubric of a hands-on item")
     sp.add_argument("--due", action="store_true", help="serve a review only: never new material")
     sp.add_argument("--taught", action="store_true", help="with --topic: record that it was just taught, then serve")
+    sp.add_argument("--parts", help="with --taught: the parts taught, e.g. history,model,mechanics,example,usage,"
+                                    "flags,tradeoffs,impl")
+    sp.add_argument("--minutes", type=_positive, help="with --taught: about how long the teaching took")
     sp = add("answer", cmd_answer, "Record the learner's answer to the open item.")
     sp.add_argument("item")
     sp.add_argument("--answer", help="the learner's answer (mcq/msq/nat/short)")
@@ -1244,6 +1253,9 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("action", nargs="?", default="flags", choices=("flags", "week", "hours", "patterns", "errors"))
     sp.add_argument("--days", type=_positive, default=7)
     sp.add_argument("--track")
+    sp = add("feedback", cmd_feedback, "Record the learner's word on the teaching: pace, depth, clarity.")
+    sp.add_argument("pairs", nargs="+", help="pace=fast|slow|ok depth=more|less|ok clarity=low|ok")
+    sp.add_argument("--topic")
     sp = add("observe", cmd_observe, "Record an observation about what helps this learner.")
     sp.add_argument("text", nargs="+")
     sp.add_argument("--tag", help="teaching (default) or coach")

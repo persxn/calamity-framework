@@ -85,6 +85,11 @@ changes their record in `learner/`.
   forecast nears `review_budget_min` (60 minutes) or first tries on new
   topics go wrong. `today` and the brief print the reason in one line;
   `quota.adaptive false` keeps it fixed.
+- Teaching telemetry. `ask --topic K --taught --parts model,example,...
+  --minutes N` stores what was taught and for how long on the same event,
+  `day` shows it, and a warning (never a block) names the parts a topic's
+  level asks for that were left out. `feedback pace=slow depth=more
+  clarity=low --topic K` records the learner's word on the teaching.
 
 ### Development
 

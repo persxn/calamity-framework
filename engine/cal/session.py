@@ -56,6 +56,27 @@ def set_enrollment(repo: Repo, tree, state, skill_id: str, what: str) -> str:
             "unenroll": "unenrolled: %s (progress is kept; its reviews stop)"}[what] % skill_id
 
 
+def feedback(repo: Repo, tree, pairs, topic: str | None = None) -> str:
+    """Record the learner's word on the teaching: pace=fast|slow|ok, depth=more|less|ok, clarity=low|ok."""
+    allowed = {"pace": ("fast", "slow", "ok"), "depth": ("more", "less", "ok"), "clarity": ("low", "ok")}
+    said = {}
+    for pair in pairs:
+        name, _, value = pair.partition("=")
+        name, value = name.strip().lower(), value.strip().lower()
+        if name not in allowed or value not in allowed[name]:
+            raise CalError("feedback takes %s (got %r)" % (
+                ", ".join("%s=%s" % (k, "|".join(v)) for k, v in allowed.items()), pair))
+        said[name] = value
+    if not said:
+        raise CalError("say what the learner said: pace=fast|slow|ok, depth=more|less|ok, clarity=low|ok")
+    skill = None
+    if topic:
+        topic = tree.topic(topic).key
+        skill = topic.split("/", 1)[0]
+    repo.append("feedback", topic=topic, skill=skill, **said)
+    return "feedback noted: %s%s" % (" ".join("%s=%s" % kv for kv in said.items()), (" on " + topic) if topic else "")
+
+
 def covered(repo: Repo, tree, keys, by: str = "tutor") -> str:
     out = []
     for key in keys:
@@ -66,6 +87,31 @@ def covered(repo: Repo, tree, keys, by: str = "tutor") -> str:
 
 
 # ---------------------------------------------------------------- asking
+
+
+# The parts of the depth contract (framework/method-teaching.md), in teaching order, and those a topic's
+# level asks for at least. A topic taught with fewer gets a warning, never a block.
+PARTS = ("history", "model", "mechanics", "example", "usage", "flags", "tradeoffs", "impl")
+REQUIRED_PARTS = {1: ("model", "example"), 2: ("model", "mechanics", "example"),
+                  3: ("history", "model", "mechanics", "example", "usage", "tradeoffs")}
+
+
+def parse_parts(text) -> list:
+    """The parts named in `--parts history,model,...`, checked against PARTS. Raises CalError."""
+    parts = []
+    for word in csv_list(text):
+        word = word.strip().lower()
+        if word not in PARTS:
+            raise CalError("--parts names the parts taught: %s (got %r)" % (", ".join(PARTS), word))
+        if word not in parts:
+            parts.append(word)
+    return parts
+
+
+def missing_parts(topic, parts) -> list:
+    """The parts the topic's level asks for that were not taught (level 3 and above ask the most)."""
+    need = REQUIRED_PARTS[min(3, max(1, int(topic.level or 1)))]
+    return [p for p in need if p not in parts]
 
 
 def need_item_text(repo: Repo, tree, state, key: str, when, purpose: str) -> str:
@@ -172,16 +218,20 @@ def needs_text(repo: Repo, tree, state, when, skill: str | None = None, n: int =
 
 def ask(repo: Repo, tree, state, when, topic: str | None = None, item_id: str | None = None,
         skill: str | None = None, test: str | None = None, show_check: bool = False, due_only: bool = False,
-        taught: bool = False):
+        taught: bool = False, parts: str | None = None, minutes: int | None = None):
     """Serve one item. Returns (exit_code, text).
 
     With no topic or id it serves whatever `next` would: a review, or a new topic that was taught
     already; anything else (a topic to teach, a lecture, the end of the day) is printed instead.
     `due_only` serves a review and nothing else. `taught` (with a topic) first records that the
-    topic was just taught, as `covered` does, so teaching and testing take one call.
+    topic was just taught, as `covered` does, so teaching and testing take one call; `parts` and
+    `minutes` say what was taught and for how long, stored on that same event.
     """
     if taught and not topic:
         raise CalError("--taught goes with --topic: the topic that was just taught")
+    if (parts is not None or minutes is not None) and not taught:
+        raise CalError("--parts and --minutes describe a teaching: use them with --topic K --taught")
+    taught_parts = parse_parts(parts) if parts is not None else None
     purpose, warn, consolidating = "review", None, False
     if item_id:
         item = items.load(repo, item_id)
@@ -193,13 +243,23 @@ def ask(repo: Repo, tree, state, when, topic: str | None = None, item_id: str | 
         if topic:
             key = tree.topic(topic).key
             ts = state.topics.get(key)
-            if taught and (ts is None or (ts.covered_ts is None and ts.card is None)):
-                repo.append("covered", topic=key, by="tutor")
-                missing = plan.unmet_needs(tree, state, tree.topic(key))
+            first = ts is None or (ts.covered_ts is None and ts.card is None)
+            if taught and (first or taught_parts is not None or minutes is not None):
+                tele = {k: v for k, v in (("parts", taught_parts), ("minutes", minutes)) if v is not None}
+                repo.append("covered", topic=key, by="tutor", **tele)
+                notes = []
+                missing = plan.unmet_needs(tree, state, tree.topic(key)) if first else []
                 if missing:
-                    warn = ("note: %s builds on %s, not studied yet. If the learner could not follow, teach "
-                            "that first (next --skill %s) rather than testing this." % (key, ", ".join(missing),
-                                                                                     key.split("/", 1)[0]))
+                    notes.append("note: %s builds on %s, not studied yet. If the learner could not follow, teach "
+                                 "that first (next --skill %s) rather than testing this."
+                                 % (key, ", ".join(missing), key.split("/", 1)[0]))
+                short = missing_parts(tree.topic(key), taught_parts) if taught_parts is not None else []
+                if short:
+                    notes.append("warning: a level-%d topic asks for %s too (framework/method-teaching.md); teach "
+                                 "%s before the next topic, or say why it was left out (observe)"
+                                 % (int(tree.topic(key).level or 1), ", ".join(short),
+                                    "it" if len(short) == 1 else "them"))
+                warn = "\n".join(notes) or None
         else:
             action = plan.next_action(repo, tree, state, when, skill=skill)
             if due_only and action["action"] != "review":
