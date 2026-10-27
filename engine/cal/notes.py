@@ -1,9 +1,11 @@
-"""Study notes: per-topic markdown fragments -> LaTeX sections -> one PDF per skill.
+"""Study notes: per-topic markdown fragments -> long-form sections -> one book per skill.
 
 Layout, inside learner/notes/<skill>/:
     <topic>.md            fragment saved after a session (idea, example, code, mistakes)
-    tex/<topic>.tex       the full section written from the fragment
-    main.tex              assembled by this module, in syllabus order (never hand-edited)
+    md/<topic>.md         the full section in Markdown (book.format markdown, the default)
+    tex/<topic>.tex       ... or in LaTeX (book.format pdf)
+    <skill>-notes.md      assembled from md/, in syllabus order (never hand-edited)
+    main.tex              assembled from tex/ (never hand-edited)
     calamity-preamble.tex copied from framework/notes/preamble.tex
     <skill>-notes.pdf     built on demand; needs a TeX engine on the machine
 
@@ -54,11 +56,17 @@ def fragment_path(repo: Repo, tree, key: str, create: bool = True) -> str:
     return path
 
 
+def kind(repo: Repo) -> tuple:
+    """(folder, extension) of long-form sections: Markdown unless the learner chose PDF (book.format)."""
+    return ("tex", ".tex") if repo.prof("book.format") == "pdf" else ("md", ".md")
+
+
 def section_path(repo: Repo, tree, key: str) -> str:
     topic = tree.topic(key)
-    d = os.path.join(skill_dir(repo, topic.skill), "tex")
+    folder, ext = kind(repo)
+    d = os.path.join(skill_dir(repo, topic.skill), folder)
     os.makedirs(d, exist_ok=True)
-    return os.path.join(d, topic.id + ".tex")
+    return os.path.join(d, topic.id + ext)
 
 
 def _sha(path: str) -> str:
@@ -67,7 +75,7 @@ def _sha(path: str) -> str:
 
 
 def _stamps_path(repo: Repo, skill_id: str) -> str:
-    return os.path.join(skill_dir(repo, skill_id), "tex", "stamps.json")
+    return os.path.join(skill_dir(repo, skill_id), kind(repo)[0], "stamps.json")
 
 
 def _stamps(repo: Repo, skill_id: str) -> dict:
@@ -87,7 +95,8 @@ def rows(repo: Repo, tree, skill_id: str) -> list:
     out = []
     for topic in node.topics:
         frag = os.path.join(base, topic.id + ".md")
-        sect = os.path.join(base, "tex", topic.id + ".tex")
+        folder, ext = kind(repo)
+        sect = os.path.join(base, folder, topic.id + ext)
         has_f, has_s = os.path.isfile(frag), os.path.isfile(sect)
         if has_f and _is_blank_fragment(frag):
             has_f = False
@@ -146,17 +155,47 @@ def stamp(repo: Repo, tree, skill_id: str) -> str:
     n = 0
     for topic in node.topics:
         frag = os.path.join(base, topic.id + ".md")
-        sect = os.path.join(base, "tex", topic.id + ".tex")
+        folder, ext = kind(repo)
+        sect = os.path.join(base, folder, topic.id + ext)
         if os.path.isfile(frag) and os.path.isfile(sect):
             stamps[topic.id] = _sha(frag)
             n += 1
-    os.makedirs(os.path.join(base, "tex"), exist_ok=True)
+    os.makedirs(os.path.join(base, kind(repo)[0]), exist_ok=True)
     write_text(_stamps_path(repo, skill_id), json.dumps(stamps, indent=1, sort_keys=True) + "\n")
     return "stamped %d section(s) of %s as current" % (n, skill_id)
 
 
+def assemble_markdown(repo: Repo, tree, skill_id: str) -> str:
+    """Write <skill>-notes.md from the Markdown sections that exist, in syllabus order, with a contents list."""
+    node = tree.get(skill_id)
+    base = skill_dir(repo, skill_id)
+    md_dir = os.path.join(base, "md")
+    have = {n[:-3] for n in os.listdir(md_dir) if n.endswith(".md")} if os.path.isdir(md_dir) else set()
+    ordered = [t for t in node.topics if t.id in have]
+    orphans = sorted(have - {t.id for t in node.topics})
+    if not ordered and not orphans:
+        raise CalError("no sections written yet for %s (see: notes status %s)" % (skill_id, skill_id))
+    learner = repo.prof_text("name")
+    parts = ["<!-- Assembled by the Calamity engine (notes assemble). Edit the sections in md/, then assemble again. -->",
+             "", "# %s" % node.title, "",
+             "*Study notes%s · %s*" % ((" of " + learner) if learner else "", now().strftime("%d %B %Y")), "",
+             "## Contents", ""]
+    parts += ["- %s" % t.title for t in ordered] + (["- Earlier notes"] if orphans else []) + [""]
+    for tid in [t.id for t in ordered] + orphans:
+        text = read_text(os.path.join(md_dir, tid + ".md"))
+        if text.startswith("---"):
+            _, text, _ = fm.split(text)            # a section's own front matter stays out of the book
+        parts += [text.strip(), ""]
+    path = os.path.join(base, "%s-notes.md" % skill_id)
+    write_text(path, "\n".join(parts).rstrip("\n") + "\n")
+    return path
+
+
 def assemble(repo: Repo, tree, skill_id: str) -> str:
-    """Write main.tex for a skill from the sections that exist, in syllabus order."""
+    """Write the skill's book from the sections that exist, in syllabus order: <skill>-notes.md for Markdown
+    sections, main.tex for LaTeX ones."""
+    if kind(repo)[0] == "md":
+        return assemble_markdown(repo, tree, skill_id)
     node = tree.get(skill_id)
     base = skill_dir(repo, skill_id)
     tex_dir = os.path.join(base, "tex")
@@ -231,6 +270,11 @@ def _log_errors(base: str) -> list:
 
 def pdf(repo: Repo, tree, skill_id: str) -> str:
     base = skill_dir(repo, skill_id)
+    if kind(repo)[0] == "md":                      # the Markdown book, converted by the engine (no LaTeX to write)
+        from . import mdbook
+
+        book = assemble_markdown(repo, tree, skill_id)
+        return mdbook.pdf(repo, book, os.path.join(base, "%s-notes.pdf" % skill_id))
     assemble(repo, tree, skill_id)
     engine = tex_engine()
     if engine is None:

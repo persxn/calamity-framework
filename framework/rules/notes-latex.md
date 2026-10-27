@@ -1,5 +1,9 @@
 # Study notes: fragments, LaTeX sections, PDF
 
+This is the path for a learner whose `book.format` is `pdf`. The default is
+Markdown (`framework/rules/markdown-books.md`); fragments are the same in
+both.
+
 Every skill a learner studies becomes a document they can keep: one PDF per
 skill, built from what actually happened in their sessions. It is made in
 two steps so that nothing is lost and nothing is invented.

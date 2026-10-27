@@ -87,6 +87,10 @@ one in what you return: the caller is the tutor in front of the learner.
   the official key.
 - One idea per item, answerable from the stem alone, with distractors that
   come from real misconceptions.
+- Taught before tested: an item uses only the vocabulary of its topic's
+  objectives and of the topics it builds on. A term, command or tool
+  outside them is either defined in the stem or left out (an item on what
+  the shell does must not lean on `grep` before `grep` is taught).
 - A check for a hands-on item is a short list of commands whose result
   decides pass or fail. It runs from inside the exercise folder (never
   `cd learner/work/...`), works only there, needs no elevated rights and

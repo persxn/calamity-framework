@@ -1,6 +1,6 @@
 ---
 name: mastery-textbook
-description: Builds and grows a polished LaTeX study book (a textbook for one topic, compiled to PDF) as the learner progresses. It has refined explanations, SVG diagrams, flag and comparison tables, real code and terminal output, graded exercises with solutions, and verified references, written to the standard of the best-selling guide in the field and with the same first-principles philosophy as mastery-coach. It builds the book, renders every page, and reviews the layout, figures, tables and explanation quality before handing it over. Use this skill whenever the learner wants notes, study material, a textbook, a PDF, a revision book or a written version of what they've learned, or wants to update, fix, review or rebuild an existing study book. Use it too when a mastery-coach unit is finished and the book should catch up, even if they only say "add this to my notes".
+description: Builds and grows a polished study book for one topic as the learner progresses: a well-structured Markdown book by default (chapters with diagrams, flag and comparison tables, real code and terminal output, graded exercises with worked answers, verified references), and a typeset LaTeX/PDF edition only when the learner asks for one. It is written to the standard of the best-selling guide in the field and with the same first-principles philosophy as mastery-coach. Use this skill whenever the learner wants notes, study material, a textbook, a PDF, a revision book or a written version of what they've learned, or wants to update, fix, review or rebuild an existing study book. Use it too when a mastery-coach unit is finished and the book should catch up, even if they only say "add this to my notes".
 ---
 
 # Mastery Textbook
@@ -18,6 +18,25 @@ The book shares mastery-coach's philosophy:
 
 The two run hand in hand: mastery-coach hands you each unit once it has taught it and records every question it asked in `recall.md`; you turn that unit into a chapter and those questions into exercises, then write back which chapter covers which unit. Nothing taught or asked is left only in chat.
 
+## Format first: Markdown unless the learner asks for PDF
+
+The learner's `book.format` decides (`python3 engine/calamity.py profile get book.format`). If it is
+not set, ask once, before writing: "A well-structured Markdown file as your main textbook (the
+default: quicker and much cheaper), or a typeset PDF?" Record the answer with
+`python3 engine/calamity.py profile set book.format markdown` (or `pdf`) and never ask again.
+
+- **Markdown (the default).** The book is `learner/mastery/<topic-slug>/book/README.md` (title,
+  what the book covers, contents) plus one chapter per file, `01-<slug>.md`, `02-<slug>.md`, ...,
+  written to `framework/rules/markdown-books.md`: the same chapter anatomy, depth, exercises and
+  verified references as below, in Markdown. There is no build, no page rendering and no visual
+  review: check each chapter once against `references/writing-standard.md` and the rule book,
+  update `book-state.md`, and deliver. A PDF of it, when asked for, is one command and no LaTeX:
+  `python3 engine/calamity.py book pdf learner/mastery/<topic-slug>/book`.
+- **PDF.** Only when the learner chose `pdf` or explicitly asks for a typeset edition: the LaTeX
+  workflow below (template, SVG figures, build, three review passes).
+
+Change one chapter at a time; never rewrite a whole book to fix a section.
+
 ## Where the book lives
 
 1. **Adopt existing state first, inside the part that gets synced.** If the repo is a learning framework (such as the Calamity Framework) or already has mastery-coach state, put the book **beside that state, under the synced store**. In Calamity that is `learner/mastery/<topic-slug>/book/`: only `learner/` is carried by `/sync` to the learner's own repository and their other machines, so this is what keeps the book backed up. Do **not** put it under `learner/notes/` — that store is the engine's, and its `.gitignore` drops `main.tex` and the PDF because they are rebuilt from fragments; the book's `main.tex` is hand-authored and must be kept.
@@ -32,7 +51,7 @@ By default the book never gets ahead of the learner: it covers units that are do
 
 Keep a `book-state.md` in the book root. It maps chapters to curriculum units and records the edition number, last build result, last review scores and a short changelog.
 
-## First-time setup
+## First-time setup (the LaTeX edition)
 
 1. Copy `assets/template/` into the book root. It contains `main.tex`, `mastery-book.sty`, `refs.bib` and `frontmatter/preface.tex`. Create `chapters/`, `solutions/` and `figures/src/`.
 2. Fill the `<<...>>` placeholders in `main.tex`. Ask the learner how they want their name shown.
@@ -41,7 +60,7 @@ Keep a `book-state.md` in the book root. It maps chapters to curriculum units an
 
 `assets/example/` holds a small compiled chapter showing the markup conventions in use: an SVG figure, a flag table, a shell listing, callout boxes, exercises with solutions, and a citation. Treat it as a reference for markup, not for depth. Real chapters are far fuller.
 
-## Writing a chapter
+## Writing a chapter (the LaTeX edition)
 
 A chapter usually covers one curriculum unit, or a few small related ones. Work through these steps in order:
 

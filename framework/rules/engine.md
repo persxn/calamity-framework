@@ -120,8 +120,9 @@ cannot show them.
 | Command | What it does |
 |---|---|
 | `notes status [S]` | What exists and which sections must be written or rewritten. |
-| `notes fragment K`, `notes section K` | Path of a topic's markdown fragment (created if missing) and of its LaTeX section. |
-| `notes stamp S`, `notes assemble S`, `notes pdf S` | Mark sections as current; write `main.tex`; build the PDF with whatever TeX engine is installed. |
+| `notes fragment K`, `notes section K` | Path of a topic's markdown fragment (created if missing) and of its long-form section: `md/<topic>.md`, or `tex/<topic>.tex` when `book.format` is `pdf`. |
+| `notes stamp S`, `notes assemble S`, `notes pdf S` | Mark sections as current; put the book together (`<skill>-notes.md` from Markdown sections, `main.tex` from LaTeX ones); build the PDF (Markdown is converted by the engine, LaTeX compiled with whatever TeX engine is installed). |
+| `book pdf <file.md or folder> [--out F]` | A PDF of a Markdown study book, made by the engine (no LaTeX written by hand): a folder is its `README.md` then its chapters in name order. Needs Tectonic, XeLaTeX or LuaLaTeX. |
 
 ## The learner, the machine, the data
 
@@ -146,7 +147,7 @@ cannot show them.
 `teach.style`, `sleep.start`, `sleep.end`, `workout.minutes`,
 `daily.target_hours`, `reminders.times`, `gate.year`, `gate.papers`,
 `gate.registered`, `gate.target_rank`, `gate.target_marks.<PAPER>`,
-`gate.target_source`, `gate.exam_date.<PAPER>`, `cp.handle`,
+`gate.target_source`, `gate.exam_date.<PAPER>`, `cp.handle`, `book.format`,
 `cp.target_rating`, `cp.target_date`, `cp.language`, and `cfg.<key>` to
 override any default in `framework/config.md` (for example
 `cfg.advice false` to turn off the model suggestions, or

@@ -41,6 +41,7 @@ One unit is taught as a sequence of chunks. Each chunk covers one idea and ends 
 
 - One chunk is one idea: usually one diagram's worth, or one group of flags.
 - End every chunk with 1–3 quick check questions. If the answers are wrong or shaky, explain again *from a different angle* (a new analogy, a new diagram, a trace) instead of repeating yourself.
+- **Taught before tested.** A check question, and any example inside it, uses only terms, commands and ideas this lesson has already defined (or that the learner showed they know). Read each question back word by word before asking: if it names something untaught ("the shell", `grep`), define it in the chunk first or ask something else. Close each chunk with the facts its questions rely on, so they can be answered at once.
 - At natural pauses, ask whether they want to keep going or stop here. Update state either way.
 - Long mechanisms (like the CPU descent) are a *sequence* of chunks across several turns. Give the learner a sense of where they are in it: "We've built a register. Next we wire registers to an ALU."
 

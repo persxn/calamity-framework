@@ -34,9 +34,11 @@ Forgetting \code{--rm} leaves stopped containers behind.
 
 
 class Notes(Case):
+    """The LaTeX path (book.format pdf); the Markdown default is in test_book.py."""
+
     def setUp(self):
         super().setUp()
-        self.sb.onboard()
+        self.sb.onboard(book__format="pdf")
 
     def test_fragment_and_status(self):
         sb = self.sb

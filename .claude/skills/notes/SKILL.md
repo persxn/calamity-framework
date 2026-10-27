@@ -1,13 +1,16 @@
 ---
 name: notes
-description: "Turn what was studied into notes: a Markdown fragment per topic after a session, a LaTeX section on request, a PDF per skill. Use when the learner asks to save notes, write up a topic, update study material or make a PDF."
+description: "Turn what was studied into notes: a Markdown fragment per topic after a session, and on request a long-form book per skill, in Markdown by default (a PDF only when asked). Use when the learner asks to save notes, write up a topic, update study material or make a PDF."
 argument-hint: "[skill | skill/topic | pdf <skill>]"
 ---
 
 # Notes
 
-Conventions for both steps are in `framework/rules/notes-latex.md`. Read
-it before writing a section.
+The long form follows the learner's `book.format`: `markdown` (the
+default, `framework/rules/markdown-books.md`) or `pdf` (LaTeX,
+`framework/rules/notes-latex.md`). If the brief says the format is not
+chosen, ask once before writing anything long and record it with
+`python3 engine/calamity.py profile set book.format markdown` (or `pdf`).
 
 ## After a session: fragments
 
@@ -30,13 +33,20 @@ textbook material; that belongs in the section.
        python3 engine/calamity.py notes status <skill>
 
 2. For every topic marked `to write` or `stale`, delegate to the
-   `notes-writer` agent: "Write the LaTeX section for `<skill>/<topic>`
-   from its fragment." Several topics can go in one request. The agent
-   writes `learner/notes/<skill>/tex/<topic>.tex`.
+   `notes-writer` agent: "Write the section for `<skill>/<topic>` from its
+   fragment." Several topics can go in one request. The agent writes it
+   where `notes section` says: `md/<topic>.md`, or `tex/<topic>.tex` for a
+   learner who chose PDF.
 
-3. Mark them current and build:
+3. Mark them current and put the book together:
 
        python3 engine/calamity.py notes stamp <skill>
+       python3 engine/calamity.py notes assemble <skill>
+
+   In Markdown that writes `<skill>-notes.md`, and that is the book: tell
+   the learner where it is. Build a PDF only when they ask for one, or
+   when their format is `pdf`:
+
        python3 engine/calamity.py notes pdf <skill>
 
    - Success prints the path of `<skill>-notes.pdf`: tell the learner

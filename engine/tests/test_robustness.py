@@ -336,6 +336,7 @@ class Sources(Case):
 class Notes(Case):
     def test_a_pdf_held_open_by_a_viewer_is_reported(self):
         sb = self.sb
+        sb.onboard(book__format="pdf")
         write(sb.path("learner", "notes", "docker", "tex", "images.tex"), "\\section{Images}\nText.\n")
         fake = [sys.executable, "-c", "open('main.pdf', 'wb').write(b'%PDF-1.4 fake')"]
         with mock.patch.object(notes, "tex_engine", return_value=("tectonic", fake)), \
