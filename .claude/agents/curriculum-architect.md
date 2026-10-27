@@ -78,8 +78,12 @@ of the `# Boss` section. Do not create it yourself unless asked to.
 
 ## Task: mapping lectures to topics
 
-Given a source id: read `learner/sources/<id>.md` and the syllabi of the
-skills it serves (`python3 engine/calamity.py tree show <skill>`). Each
+Given a source id, read it in slices, never the whole file:
+`python3 engine/calamity.py source show <id>` lists its sections with
+counts; `source show <id> --section <part of a name>`, `--unmapped` or
+`--topic <key or skill>` list the lectures (`--limit N`, 40 by default).
+Read the syllabi of the skills it serves with
+`python3 engine/calamity.py tree show <skill>`. Each
 lecture gets the topics it **completes**; a topic spread over several
 lectures is mapped to the last of them. Leave introductions and doubt
 sessions unmapped. Write the JSON list for `source import` to
@@ -87,6 +91,31 @@ sessions unmapped. Write the JSON list for `source import` to
 (`python3 engine/calamity.py source import <id> --file ...`), run
 `python3 engine/calamity.py source check`, and return the count mapped, the
 lectures you could not place, and any syllabus topic no lecture covers.
+
+## Task: deepening a shipped GATE syllabus
+
+Given a GATE subject (one at a time, the next in the triage order, always
+before its first lecture is studied): write `learner/syllabus/<skill>.md`
+that keeps **every topic id, title, `needs`, `level` and the other keys**
+of the shipped file (`tree show <skill>` lists them; the shipped file is
+`framework/tree/gate-cs/<skill>.md`) and only deepens the objectives.
+Lectures and items point at those ids; `syllabus check <skill>` refuses a
+file that drops one in use, and no topic is renamed this way.
+
+1. Read the official GATE syllabus for the subject (the current year's
+   organising institute) and what the previous papers ask of each topic.
+   Cite both in `sources:`; say what you could not check.
+2. Give each topic 4 to 8 objectives (`framework/rules/syllabus.md`):
+   `[T]` for the mechanism and the why, `[P]` for solving and choosing,
+   and `[N]` wherever previous papers ask for a number (and say what
+   number). `[I]` only where a short simulation speeds understanding.
+3. See which lectures teach each topic (`source show <id> --topic
+   <skill>`) and keep the objectives within what the course and the
+   official syllabus cover; a gap goes in your report, not in invented
+   scope.
+4. Run `python3 engine/calamity.py syllabus check <skill>` and
+   `tree check`; fix until clean. Return the topic count, objectives per
+   topic, the `[N]` share, and anything you could not verify.
 
 ## Task: a route to a goal
 

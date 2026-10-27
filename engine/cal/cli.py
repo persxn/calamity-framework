@@ -576,11 +576,44 @@ def cmd_syllabus(c, a):
         if drift:
             lines.append("warn  %s: objectives changed since item(s) %s were tagged; re-tag them (item tag) or "
                          "check they still fit" % (topic.key, ", ".join(drift[:5])))
+    if node.topics_origin == "learner":
+        lines += _kept_ids(c, node)
     if any(l.startswith("ERROR") for l in lines):
         return 2, "\n".join(lines)
     lines.append("ok: %s has %d topics (%s)" % (node.id, len(node.topics),
                                                "your syllabus" if node.topics_origin == "learner" else "shipped"))
     return 0, "\n".join(lines)
+
+
+def _kept_ids(c, node) -> list:
+    """A learner syllabus for a shipped skill may deepen its topics but must keep the ids that lectures,
+    items and the record use: a dropped or renamed id would orphan them (rename them with `rename topic`)."""
+    have = {t.id for t in node.topics}
+    used = {}
+    for src in sources.load_all(c.repo):
+        for it in src.items:
+            for k in it.topics:
+                if k.startswith(node.id + "/"):
+                    used.setdefault(k.split("/", 1)[1], set()).add("lectures")
+    for it in c.state.items.values():
+        for k in it.topics:
+            if k.startswith(node.id + "/"):
+                used.setdefault(k.split("/", 1)[1], set()).add("items")
+    for k, ts in c.state.topics.items():
+        if k.startswith(node.id + "/") and (ts.card is not None or ts.covered_ts is not None):
+            used.setdefault(k.split("/", 1)[1], set()).add("your record")
+    out = ["ERROR %s/%s is used by %s but is not in your syllabus: keep its id (or move it with rename topic)"
+           % (node.id, tid, " and ".join(sorted(why))) for tid, why in sorted(used.items()) if tid not in have]
+    if node.origin != "learner":
+        try:
+            shipped = [e["id"] for e in fm.entries(node.body, "Topics", tree_mod.TOPIC_KEYS)]
+        except CalError:
+            shipped = []
+        gone = [t for t in shipped if t not in have and t not in used]
+        if gone:
+            out.append("warn  your syllabus leaves out shipped topic(s) %s; keep the shipped ids when deepening"
+                       % ", ".join(gone))
+    return out
 
 
 def cmd_rename(c, a):
@@ -627,6 +660,10 @@ def cmd_source(c, a):
         lines = ["ERROR " + e for e in errors] + ["warn  " + w for w in warnings]
         lines.append("%d source(s), %d error(s), %d warning(s)" % (len(sources.load_all(repo)), len(errors), len(warnings)))
         return (2 if errors else 0), "\n".join(lines)
+    if a.action == "show":
+        if not a.source:
+            raise CalError("name the source id: source show <id> [--section S] [--unmapped] [--topic K] [--limit N]")
+        return 0, sources.show_text(repo, c.tree, a.source, a.section, a.unmapped, a.topic, a.limit)
     return 0, sources.status_text(repo, c.state, c.tree, a.source)
 
 
@@ -1205,8 +1242,8 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("old")
     sp.add_argument("new")
 
-    sp = add("source", cmd_source, "Study sources: add, import items, status, check.")
-    sp.add_argument("action", choices=("add", "import", "status", "check"))
+    sp = add("source", cmd_source, "Study sources: add, import items, status, check, show (a slice).")
+    sp.add_argument("action", choices=("add", "import", "status", "check", "show"))
     sp.add_argument("source", nargs="?")
     sp.add_argument("--title")
     sp.add_argument("--kind", default="course", choices=sources.KINDS)
@@ -1217,6 +1254,10 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("--file")
     sp.add_argument("--stdin", action="store_true")
     sp.add_argument("--dry-run", dest="dry_run", action="store_true", help="import: check and count, write nothing")
+    sp.add_argument("--section", help="show: items whose section name contains this")
+    sp.add_argument("--unmapped", action="store_true", help="show: items mapped to no topic")
+    sp.add_argument("--topic", help="show: items mapped to this topic (or to any topic of this skill)")
+    sp.add_argument("--limit", type=_positive, default=40, help="show: at most this many items")
     sp = add("log", cmd_log, "Log a lecture or chapter as done (by id, number or a piece of its title).")
     sp.add_argument("source")
     sp.add_argument("item")

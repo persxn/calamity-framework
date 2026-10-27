@@ -370,6 +370,52 @@ def status_text(repo: Repo, state, tree, ident: str | None = None) -> str:
     return "\n".join(lines)
 
 
+def show_text(repo: Repo, tree, ident: str, section: str | None = None, unmapped: bool = False,
+              topic: str | None = None, limit: int = 40) -> str:
+    """A slice of one source, so that a mapping task never reads the whole file: with no filter, its
+    sections with item counts; with --section (a piece of its name), --unmapped or --topic (a topic key,
+    or a skill id for all its topics), the matching items in course order, at most `limit`."""
+    src = get(repo, ident)
+    items = src.ordered()
+    unmapped_all = [it for it in items if not [k for k in it.topics if tree.has_topic(k)]]
+    head = "source %s | %s: %d items, %d unmapped" % (src.id, src.title, len(items), len(unmapped_all))
+    if section is None and not unmapped and topic is None:
+        rows, order = {}, []
+        for it in items:
+            if it.section not in rows:
+                rows[it.section] = [0, 0]
+                order.append(it.section)
+            rows[it.section][0] += 1
+            rows[it.section][1] += 0 if [k for k in it.topics if tree.has_topic(k)] else 1
+        lines = [head, "sections (items, unmapped):"]
+        lines += ["  %s (%d, %d)" % (name or "(no section)", n, u) for name, (n, u) in
+                  ((name, rows[name]) for name in order)]
+        lines.append("items: source show %s --section <part of a name> | --unmapped | --topic <key or skill>"
+                     % src.id)
+        return "\n".join(lines)
+    picked = items
+    if section is not None:
+        picked = [it for it in picked if section.lower() in it.section.lower()]
+    if unmapped:
+        picked = [it for it in picked if it in unmapped_all]
+    if topic is not None:
+        whole = "/" not in topic
+        if whole:
+            tree.get(topic)
+        else:
+            tree.topic(topic)
+        picked = [it for it in picked if any(k == topic or (whole and k.startswith(topic + "/")) for k in it.topics)]
+    lines = [head, "%d item(s) match%s" % (len(picked), (", showing %d" % limit) if len(picked) > limit else "")]
+    for it in picked[:limit]:
+        mapped = [k for k in it.topics if tree.has_topic(k)]
+        unknown = [k for k in it.topics if not tree.has_topic(k)]
+        lines.append("%s | %s | %s | %s%s" % (it.id, it.title, it.section or "-", ", ".join(mapped) or "unmapped",
+                                             (" | unknown: " + ", ".join(unknown)) if unknown else ""))
+    if len(picked) > limit:
+        lines.append("... %d more: --limit %d" % (len(picked) - limit, len(picked)))
+    return "\n".join(lines)
+
+
 def _int(value, default: int) -> int:
     try:
         return int(value)
