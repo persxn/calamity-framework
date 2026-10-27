@@ -22,6 +22,7 @@ class Sources(Case):
         super().setUp()
         sb = self.sb
         sb.onboard(gate__year="2027", gate__papers="CS", tracks="gate-cs")
+        sb.legacy_pace()
         sb.run("enroll", "gate.cs.os")
         out = sb.run("source", "add", "course", "--title", "GATE CS course", "--kind", "course",
                      "--url", "https://example.com/course", "--route", "paste", "--tracks", "gate-cs",

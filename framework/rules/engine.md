@@ -28,7 +28,7 @@ out of both.
 |---|---|
 | `brief` | The session-start summary. `--hook` is for the SessionStart hook (it reads the model and effort Claude Code passes, when it passes them). |
 | `today` | Today's plan: finish line, what is due, what is new, next lecture, the next action, a `settings:` line and, at the finish line or after a long block, a `session:` line suggesting a fresh session. |
-| `next [--skill S] [--only]` | The single next action: `onboard`, `enroll`, `sleep`, `review`, `new`, `watch`, `wind-down`, `boss`, `syllabus` (an enrolled skill has no topics yet) or `done`. `--skill` draws new material from one skill; `--only` also limits reviews to it. |
+| `next [--skill S] [--only]` | The single next action: `onboard`, `enroll`, `sleep`, `review`, `consolidate` (a second item on a topic answered right once, before new material; with `not before HH:MM` while it is too soon), `new`, `watch`, `wind-down`, `boss`, `syllabus` (an enrolled skill has no topics yet) or `done`. `--skill` draws new material from one skill; `--only` also limits reviews to it. |
 | `ask [--topic K [--taught] \| --id ITEM \| --skill S] [--due] [--test T] [--check]` | Serve one verified item without its key and start its timer. With no argument it serves whatever `next` says (a review, or a topic taught already) and otherwise prints the next action; `--due` serves a review only. `--taught` first records that the topic was just taught, as `covered` does, and adds a `note:` when topics it builds on were never studied. |
 
 `NEXT: new` for a topic to teach also prints its `level`, what it `builds

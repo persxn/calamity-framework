@@ -141,6 +141,10 @@ def new_candidates(repo: Repo, tree, state, when, skill: str | None = None, limi
             node = tree.nodes.get(skill_id)
             if node is None or node.dropped:
                 continue
+            pace = state.pace(skill_id)
+            # the WIP limit: with this many topics open (taught or answered, not yet consolidated), the skill
+            # secures them before it opens another; new material comes from another lane meanwhile
+            held = not lookahead and len(state.open_topics(skill_id)) >= pace["wip"]
             for topic in node.topics:
                 ts = state.topics.get(topic.key)
                 if ts is not None and ts.card is not None:
@@ -157,8 +161,10 @@ def new_candidates(repo: Repo, tree, state, when, skill: str | None = None, limi
                     continue
                 if skill_id in waiting and not covered:
                     continue                # its lecture has not been logged yet
-                if not lookahead and any(_untouched(state, need if "/" in need else "%s/%s" % (skill_id, need))
-                                         for need in topic.needs):
+                if not lookahead and any(not state.need_met(need if "/" in need else "%s/%s" % (skill_id, need),
+                                                            pace["unlock"]) for need in topic.needs):
+                    continue                # what it builds on is not far enough along (pace profile)
+                if held and not covered:
                     continue
                 rows.append(row)
                 listed.add(topic.key)
@@ -211,9 +217,10 @@ def today(repo: Repo, tree, state, when) -> dict:
     lectures_left = max(0, lecture_target - lectures_done)
     pending_lectures = pending_lectures[:3]
     relearn = n["relearn"]
+    consolidate_left = max(0, n["consolidate_total"] - n["consolidated"])
     finished = (
         reviews_left == 0 and not relearn and new_left == 0 and tests_left == 0 and lectures_left == 0
-        and (n["attempts"] > 0 or lectures_done > 0)
+        and consolidate_left == 0 and (n["attempts"] > 0 or lectures_done > 0)
     )
     nothing_to_do = (
         n["due_total"] == 0 and not relearn and new_target == 0 and tests_left == 0 and lecture_target == 0
@@ -227,6 +234,7 @@ def today(repo: Repo, tree, state, when) -> dict:
         "tests_left": tests_left,
         "reviews_left": reviews_left,
         "relearn": relearn,
+        "consolidate_left": consolidate_left,
         "lecture_quota": lecture_quota,
         "lecture_target": lecture_target,
         "lectures_done": lectures_done,
@@ -252,6 +260,8 @@ def finish_text(t: dict) -> str:
         left.append("%d to re-answer correctly" % len(t["relearn"]))
     if t["new_left"]:
         left.append("%d new" % t["new_left"])
+    if t["consolidate_left"]:
+        left.append("%d to consolidate" % t["consolidate_left"])
     if t["tests_left"]:
         left.append("%d watched lecture%s to test" % (t["tests_left"], "" if t["tests_left"] == 1 else "s"))
     if t["lectures_left"]:
@@ -264,6 +274,8 @@ def finish_text(t: dict) -> str:
 def today_line(t: dict) -> str:
     n = t["n"]
     parts = ["reviews %d/%d" % (n["due_done"], n["due_total"]), "new %d/%d" % (n["new_done"], t["new_target"])]
+    if n["consolidate_total"]:
+        parts.append("consolidated %d/%d" % (n["consolidated"], n["consolidate_total"]))
     if t["lecture_target"]:
         parts.append("lectures %d/%d" % (t["lectures_done"], t["lecture_target"]))
     return "today: " + " · ".join(parts) + " · " + finish_text(t)
@@ -292,6 +304,19 @@ def boss_ready(repo: Repo, tree, state) -> list:
 # ---------------------------------------------------------------- next action
 
 
+def consolidations(state, when, skill: str | None = None):
+    """([(time, topic, first right answer)] ready now, [...] later today), soonest first: topics answered right
+    once that need a right answer on a second item before they count as secured."""
+    ready, later = [], []
+    for key, ts in state.scheduled_topics():
+        if skill and key.split("/", 1)[0] != skill:
+            continue
+        at = state.consolidation_due(key)
+        if at is not None:
+            (ready if at <= when else later).append((at, key, ts.vok_log[-1][0]))
+    return sorted(ready), sorted(later)
+
+
 def next_action(repo: Repo, tree, state, when, skill: str | None = None, only: bool = False) -> dict:
     """Decide the single next thing to do. `skill` narrows new material to one
     skill; reviews stay global unless `only` is set."""
@@ -315,6 +340,9 @@ def next_action(repo: Repo, tree, state, when, skill: str | None = None, only: b
         key, ts = due[0]
         return {"action": "review", "topic": key, "why": "most forgotten of %d due" % len(due), "today": t,
                 "queue": len(due)}
+    ready, later = consolidations(state, when, skill if only else None)
+    if ready:
+        return {"action": "consolidate", "topic": ready[0][1], "since": ready[0][2], "today": t}
     cands = t["candidates"] if not skill else new_candidates(repo, tree, state, when, skill=skill, limit=4)
     quota_open = t["n"]["new_done"] < t["quota"]
     # the quota limits what is taught in a day; a lecture already watched is tested regardless
@@ -340,6 +368,8 @@ def next_action(repo: Repo, tree, state, when, skill: str | None = None, only: b
                 "today": t}
     if lectures and (t["lectures_left"] or not cands) and not t["finished"]:
         return {"action": "watch", "items": lectures, "today": t}
+    if later:       # nothing else to start: the next consolidation is the next thing, at its time
+        return {"action": "consolidate", "topic": later[0][1], "at": later[0][0], "since": later[0][2], "today": t}
     if startable and sleep["in_guard"]:
         return {"action": "wind-down", "today": t}
     if t["relearn"]:
@@ -442,6 +472,16 @@ def next_text(repo: Repo, tree, state, when, action: dict) -> str:
             lines.extend(teaching_lines(tree, state, topic))
             lines.append("do: teach one small chunk, then: ask --topic %s --taught   (records the teaching and serves "
                          "the question)" % key)
+    elif kind == "consolidate":
+        key = action["topic"]
+        lines.append("NEXT: consolidate")
+        lines.append("topic: %s | %s" % (key, tree.topic(key).title))
+        lines.append("why: answered right once (%s); a right answer on a second item secures it before new material"
+                     % action["since"].strftime("%H:%M"))
+        if action.get("at") is not None:
+            lines.append("not before %s (in %s): until then, reviews or another skill's new topic; nothing else is "
+                         "open now" % (action["at"].strftime("%H:%M"), fmt_delta(action["at"] - when).replace("in ", "")))
+        lines.append("do: ask --topic %s   (serves an item it has not been answered right on)" % key)
     elif kind == "watch":
         lines.append("NEXT: watch")
         if action.get("turn"):

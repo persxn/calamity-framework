@@ -355,6 +355,7 @@ class RatingBands(Case):
         super().setUp()
         write(self.sb.path("learner", "tree", "cp.dp.md"), BANDED_DP)
         self.sb.onboard()
+        self.sb.legacy_pace()
 
     def new_topics(self):
         from cal import plan

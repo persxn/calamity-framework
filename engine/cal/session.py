@@ -120,6 +120,9 @@ def needed_topics(repo: Repo, tree, state, when, skill: str | None = None, n: in
     for key, _ in state.due(when, until=day_end):
         if not skill or key.split("/", 1)[0] == skill:
             add(key, "review")
+    ready, later = plan.consolidations(state, when, skill)
+    for _, key, _ in ready + later:
+        add(key, "consolidate")
     for cand in plan.new_candidates(repo, tree, state, when, skill=skill, limit=max(n, 4) + 4, lookahead=True):
         add(cand["key"], "new")
     return rows
@@ -168,7 +171,7 @@ def ask(repo: Repo, tree, state, when, topic: str | None = None, item_id: str | 
     """
     if taught and not topic:
         raise CalError("--taught goes with --topic: the topic that was just taught")
-    purpose, warn = "review", None
+    purpose, warn, consolidating = "review", None, False
     if item_id:
         item = items.load(repo, item_id)
         st = state.items.get(item_id)
@@ -191,15 +194,25 @@ def ask(repo: Repo, tree, state, when, topic: str | None = None, item_id: str | 
             if due_only and action["action"] != "review":
                 return 0, ("NOTHING_DUE\nNo review is due right now%s, so the surprise recall is over. Go on with "
                            "the main block: ask%s" % (" in %s" % skill if skill else "", " --skill %s" % skill if skill else ""))
-            if action["action"] not in ("review", "new"):
+            if action["action"] not in ("review", "new", "consolidate") or action.get("at") is not None:
                 return 0, plan.next_text(repo, tree, state, when, action)
             key = action["topic"]
+            consolidating = action["action"] == "consolidate"
             if action["action"] == "new" and not action.get("covered"):
                 return 0, plan.next_text(repo, tree, state, when, action)
         ts = state.topics.get(key)
         if ts is None or ts.card is None:
             purpose = "new"
-        chosen = items.pick(repo, state, key, when, difficulty=items.target_difficulty(state, tree, key))
+        exclude = ()
+        if state.consolidation_due(key) is not None:
+            # a second item secures it: never the one it was already answered right on
+            purpose, exclude = "consolidate (a second item, on another objective)", {s for _, s in ts.vok_log}
+        chosen = items.pick(repo, state, key, when, difficulty=items.target_difficulty(state, tree, key),
+                            exclude=exclude)
+        if chosen is None and exclude and not consolidating:
+            # asked for by name (a review, a retry): the same item is better than none; `item needs` lists the topic
+            # so the examiner writes the second one
+            chosen = items.pick(repo, state, key, when, difficulty=items.target_difficulty(state, tree, key))
         if chosen is None:
             return NEED_ITEM, need_item_text(repo, tree, state, key, when, purpose)
         item = items.load(repo, chosen)
@@ -254,7 +267,10 @@ def describe_topic(repo: Repo, state, key: str) -> str:
         return "%s: %s" % (key, status)
     cfg = repo.cfg
     need = []
-    if status == "learning":
+    if status in ("learning", "consolidating"):
+        minutes = state.pace(key.split("/", 1)[0])["consolidate_minutes"]
+        if status == "learning" and minutes and state.consolidated_at(key) is None:
+            need.append("a right answer on a second item, at least %d min after the first (consolidation)" % minutes)
         if state.mode_of(key.split("/", 1)[0]) == "brushup":
             need.append("one correct answer on a verified item")
         else:
@@ -267,7 +283,7 @@ def describe_topic(repo: Repo, state, key: str) -> str:
                 need.append("memory strength %.1fd of %sd" % (ts.card.s, cfg("solid.min_stability", 7)))
             if not ts.last_ok:
                 need.append("the last answer was wrong")
-        return "%s: learning; solid needs %s" % (key, "; ".join(need) or "recent accuracy to recover")
+        return "%s: %s; solid needs %s" % (key, status, "; ".join(need) or "recent accuracy to recover")
     if status == "solid":
         if ts.seeded and ts.n_vok == 0:
             return "%s: solid (from the placement test; first real review pending)" % key

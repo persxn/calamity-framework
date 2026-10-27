@@ -42,6 +42,17 @@ changes their record in `learner/`.
   format. `tools/timetable.py` reads its blocks from the engine, works
   on its own checkout, never runs `sudo`, and `timetable install` adds a
   launcher in `~/.local/bin` only when asked.
+- Mastery Gate v2: progress is paced by evidence. A topic is
+  `consolidating` once it is answered right on a second item at least 20
+  minutes after the first, and it must be consolidated before it is
+  solid. A topic opens only when what it builds on is consolidated (GATE:
+  answered right on a verified item); an oral check opens nothing. At most
+  two topics per skill are open at once (GATE three, brush-up four);
+  `next` then says `consolidate` and new material comes from another
+  lane. The finish line counts consolidated topics, and accuracy for
+  `solid` counts only answers that are evidence. Pace profiles in
+  `framework/config.md` (`pace.mastery`, `pace.exam`, `pace.brushup`,
+  `pace.track.<track>`) can be overridden per learner.
 
 ### Development
 

@@ -33,14 +33,22 @@ CFG_RANGES = {
     "gate.daily_hours": (0.5, 24.0), "gate.exam_clamp_days": (0, 60), "gate.final_phase_days": (0, 180),
     "cp.band_low": (-1000, 2000), "cp.band_high": (-1000, 2000), "cp.resolve_days": (1, 365),
     "cp.credit_days": (1, 365), "cp.band_lookahead": (0, 3000), "coach.cooldown_days": (0, 60),
+    "pace.mastery.wip": (1, 50), "pace.exam.wip": (1, 50), "pace.brushup.wip": (1, 50),
+    "pace.mastery.consolidate_minutes": (0, 1440), "pace.exam.consolidate_minutes": (0, 1440),
+    "pace.brushup.consolidate_minutes": (0, 1440),
 }
 FIXED_CFG = ("schema",)
+PACES = ("mastery", "exam", "brushup")       # the pace profiles in config.md (pace.<name>.*)
 
 
 def coerce_cfg(key: str, value, defaults: dict):
     """The override for config key `key` converted to the type of its default. Raises CalError."""
     if key in FIXED_CFG:
         raise CalError("cfg.%s cannot be overridden" % key)
+    if key.startswith("pace.track.") and len(key) > len("pace.track."):   # any track, a learner's own included
+        if str(value).strip() not in PACES:
+            raise CalError("cfg.%s is one of %s, got %r" % (key, ", ".join(PACES), value))
+        return str(value).strip()
     if key not in defaults:
         close = [k for k in sorted(defaults) if k.split(".")[-1] == key.split(".")[-1] or key in k][:3]
         raise CalError("framework/config.md has no setting %r%s" % (
@@ -72,6 +80,8 @@ def coerce_cfg(key: str, value, defaults: dict):
         if (low is not None and number < low) or (high is not None and number > high):
             raise CalError("cfg.%s must be between %s and %s, got %s" % (key, low, high, value))
         return number
+    if key.startswith("pace.") and key.endswith(".unlock") and str(value).strip() not in ("consolidating", "learning"):
+        raise CalError("cfg.%s is consolidating or learning, got %r" % (key, value))
     return value
 
 

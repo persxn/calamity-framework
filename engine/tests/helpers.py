@@ -465,6 +465,14 @@ class Sandbox:
             self.run("profile", "set", key.replace("__", "."), value)
         self.run("profile", "set", "onboarded", "true")
 
+    def legacy_pace(self):
+        """The pace before Mastery Gate v2 (a topic opens once those it needs were answered right, no limit on
+        open topics, no consolidation step), for tests about other parts of the plan."""
+        for pace in ("mastery", "exam"):
+            self.run("profile", "set", "cfg.pace.%s.unlock" % pace, "learning")
+            self.run("profile", "set", "cfg.pace.%s.wip" % pace, "50")
+            self.run("profile", "set", "cfg.pace.%s.consolidate_minutes" % pace, "0")
+
     def draft(self, topic, kind="mcq", answer="B", also=(), by="examiner", **more):
         """Store one draft and return its id."""
         data = {"type": kind, "topics": [topic] + list(also), "difficulty": more.pop("difficulty", 2),

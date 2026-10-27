@@ -89,9 +89,18 @@ own for it. It schedules the topic but never counts as evidence.
 |---|---|---|
 | For | learning a skill properly | refreshing something once known |
 | Start | from the first topic | placement test, then only the gaps |
-| A topic is solid after | 3 verified correct answers on 2 or more days, 80% recent accuracy, memory strength 7 days | 1 verified correct answer |
+| A topic is consolidated after | a right answer on a second item, 20+ min after the first (same day is fine) | its first verified right answer |
+| A topic is solid after | consolidated, 3 verified correct answers on 2 or more days, 80% recent accuracy, memory strength 7 days | 1 verified correct answer |
 | A skill unlocks the next | at 60% of topics solid | at 50% |
 | Finished when | every topic mastered (strength 21 days, 4 distinct items) and the boss passed | every topic solid |
+
+**Pace.** A topic opens only when those it builds on are consolidated (the
+GATE tracks use the `exam` pace: answered right on a verified item); an
+oral check (`quick`) never opens anything. A skill keeps at most two
+topics open at once (three for GATE): with that many taught or answered
+but not consolidated, `next` says `consolidate` and new material comes
+from another skill meanwhile. Teach A, test A, teach B, test B,
+consolidate A and B, then C: that interleaving is the point.
 
 The mode is per skill (`python3 engine/calamity.py enroll <skill> --mode brushup`). The numbers
 are defaults from `framework/config.md`; a learner overrides them with

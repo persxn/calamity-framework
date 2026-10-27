@@ -239,6 +239,7 @@ class AnswerNext(Case):
     def test_a_right_answer_serves_the_next_question_and_a_wrong_one_does_not(self):
         sb = self.sb
         sb.onboard()
+        sb.legacy_pace()
         sb.run("enroll", "shell")
         sb.item("shell/pipes")
         sb.item("shell/perms")
