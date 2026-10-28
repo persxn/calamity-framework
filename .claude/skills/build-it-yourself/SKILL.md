@@ -1,6 +1,7 @@
 ---
 name: build-it-yourself
-description: Turns any project into a learning path so the learner can build and ship it from scratch on their own, without AI writing the code. Reverse mode tears down a GitHub repository or a shipped app (desktop, Electron, mobile APK or IPA, CLI binary, web app, game) using source reading, artifact recon and the REA reverse-engineering tool. It finds the stack, recovers the architecture and how it was built, then teaches every concept and technique needed to rebuild it. Idea mode architects the learner's own idea with them (or reviews their design once they're experienced), suggests improvements and tools, teaches those tools in depth, and coaches the build. Both modes end in a properly shipped, installable or deployed product. Use this skill whenever someone wants to understand how an app or repo was built, clone or rebuild an app to learn, reverse engineer software, turn an idea into a project they'll build themselves, or get the roadmap of skills behind a project, even if they don't say "learn".
+description: "Turns a project into a learning path the learner builds and ships with their own hands, without AI writing the code: reverse mode tears down a repo or shipped app (desktop, Electron, APK/IPA, CLI, web, game) with recon and REA; idea mode architects their own idea."
+when_to_use: "When the learner wants to understand how an app or repo was built, rebuild or clone an app to learn, reverse engineer software, turn an idea into a project they build themselves, or get the roadmap of skills behind a project."
 ---
 
 # Build It Yourself
@@ -40,7 +41,16 @@ build-path.md   # milestones (assets/templates/milestone.md), status, links to s
 log.md          # sessions, unlocks, reviews, changes
 ```
 
-Skills learned are mastery-coach topics. They live in its state and recall bank, so later projects know what's already known. Read `log.md` and `build-path.md` at the start of every session.
+Read `log.md` and `build-path.md` at the start of every session.
+
+## On the engine
+
+The project is on the record like everything else, so its progress shows on the roadmap and in the log:
+
+- **Skills are tree skills.** Each node of the skill map is found with `python3 engine/calamity.py find <words>`, or designed by the `curriculum-architect` (a node and its syllabus, `tree add`). What the learner already knows is settled by a placement test, not by asking.
+- **The project is a tree skill.** The `curriculum-architect` adds it (`tree add project.<slug> --prereqs <its skills>`) with a topic per build milestone and shipping as its boss, so `tree path project.<slug>` shows the route.
+- **Each milestone's acceptance tests are a `task` item.** Pass the milestone's spec and tests to the `examiner` ("a task item for `project.<slug>/<milestone>`, its check is these acceptance tests"); the `checker` verifies the check runs and fails on an empty project. When the learner says it is done, `python3 engine/calamity.py item show <item> --check`, run it for real, and record `answer <item> --result pass|fail --evidence "what ran, what happened"`.
+- **Shipping is the capstone**: `python3 engine/calamity.py boss record project.<slug> pass --kind capstone --evidence "<where it is installed or deployed>"`.
 
 ## Reverse mode: two kinds of target
 
@@ -79,10 +89,10 @@ Full procedure in `references/idea-mode.md`.
 
 1. **Skill map** (`references/skill-map.md`): stack → concepts → foundations, as a prerequisite graph. Each node is known, shaky or unknown, with a tier: **core** (in-depth), **supporting** (balanced) or **peripheral** (brush-up now, mastery later). It includes the **shipping skills** for the target platform.
 2. **Build path** (`references/build-path.md`): vertical-slice milestones, starting with a walking skeleton. Each has the skills it needs, a spec, acceptance tests as copyable code blocks, stretch goals, and, in reverse mode, what to compare against *after* building. The path **always ends with shipping milestones**: packaging, signing, distribution and updates for the target platform, plus CI releases.
-3. **Learn, just in time but in depth**: before each milestone, teach its unknown skills with **mastery-coach** at the node's tier. Its exercises are kept separate from the project.
+3. **Learn, just in time but in depth**: before each milestone, teach its unknown skills with **mastery-coach** at the node's tier (core: in-depth, supporting: balanced, peripheral: brush-up). Those skills' items are kept separate from the project's code.
 4. **Build**: the learner writes the code. Use the stuck protocol, and pass on the techniques for working without AI (`references/independence.md`).
-5. **Review**: run the tests, review the code, have the learner explain their code, and mix in recall questions. In reverse mode, compare with the original: code for repos, behaviour (and REA evidence) for shipped apps.
-6. **Ship and graduate**: the product is installable or deployed. Then write the README, share it, and optionally add chapters to the study book with **mastery-textbook**. The graduation test: rebuild one core milestone from a blank folder, time-boxed, with docs but no notes and no AI, then explain the architecture as if at a whiteboard.
+5. **Review**: run the milestone's check and record it (above), review the code, have the learner explain their code (`observe "..." --tag explain --topic project.<slug>/<milestone>`), and mix in due reviews (`ask --due`). In reverse mode, compare with the original: code for repos, behaviour (and REA evidence) for shipped apps.
+6. **Ship and graduate**: the product is installable or deployed (record the capstone). Then write the README, share it, and optionally add chapters to the study book with **mastery-textbook**. The graduation test: rebuild one core milestone from a blank folder, time-boxed, with docs but no notes and no AI, then explain the architecture as if at a whiteboard.
 
 ## Style
 

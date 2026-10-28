@@ -20,17 +20,20 @@ SPAN = re.compile(r"`([^`\n]+)`")
 
 # What ships. A learner may add skills and agents of their own next to these; the checks below
 # look only at the framework's files, so the self-test keeps passing in a customised checkout.
-SKILLS = ("boss", "bridge", "coach", "cp", "dash", "gate", "log", "notes", "onboard", "practice", "recall", "remind", "stock", "study",
-          "sync", "today", "tree", "update-framework")
-AGENTS = ("bridge-engineer", "checker", "cp-coach", "curriculum-architect", "examiner", "gate-strategist",
+SKILLS = ("boss", "bridge", "build-it-yourself", "coach", "cp", "dash", "gate", "log", "mastery-coach", "mastery-textbook",
+          "notes", "onboard", "practice", "recall", "remind", "stock", "study", "sync", "teach-deep", "today", "tree",
+          "update-framework")
+AGENTS = ("book-builder", "bridge-engineer", "checker", "cp-coach", "curriculum-architect", "examiner", "gate-strategist",
           "habit-coach", "notes-writer", "opportunity-scout")
-# Companion skills that ship with the framework but run their own loop and state, outside the engine's
-# event log and the examiner/checker pipeline. They are not in SKILLS (the engine's self-test set), but
-# they are still the framework's, so they are held to the same doc standard: valid front matter, and every
-# engine command and framework link they quote must exist. A learner's own added skills are not checked.
-ADDED_SKILLS = ("mastery-coach", "mastery-textbook", "build-it-yourself")
-ADDED_SKILL_DOCS = (("mastery-coach", "SKILL.md"), ("mastery-coach", os.path.join("references", "state-format.md")),
-                    ("mastery-textbook", "SKILL.md"), ("build-it-yourself", "SKILL.md"))
+# Reference files of the companion skills that quote engine commands: checked like the skills themselves.
+# A learner's own added skills are not checked.
+SKILL_DOCS = (("mastery-coach", os.path.join("references", "state-format.md")),
+              ("teach-deep", os.path.join("references", "questions-and-recall.md")),
+              ("teach-deep", os.path.join("references", "curriculum-design.md")),
+              ("teach-deep", os.path.join("references", "modes.md")))
+# Requests that must reach exactly one skill: the word may appear in that skill's description or when_to_use
+# and in no other's (WP-16: the companions no longer compete with recall and study).
+ROUTES = {"quiz me": "recall", "continue": "study"}
 
 
 def documents():
@@ -46,7 +49,7 @@ def documents():
         paths += [os.path.join(folder, name) for name in sorted(files) if name.endswith(".md")]
     paths += [os.path.join(REPO, ".claude", "skills", name, "SKILL.md") for name in SKILLS]
     paths += [os.path.join(REPO, ".claude", "agents", name + ".md") for name in AGENTS]
-    paths += [os.path.join(REPO, ".claude", "skills", skill, *rel.split(os.sep)) for skill, rel in ADDED_SKILL_DOCS]
+    paths += [os.path.join(REPO, ".claude", "skills", skill, *rel.split(os.sep)) for skill, rel in SKILL_DOCS]
     paths += [os.path.join(REPO, ".claude", "output-styles", "calamity-tutor.md")]
     return paths
 
@@ -165,11 +168,10 @@ class Structure(unittest.TestCase):
     def test_every_shipped_skill_and_agent_is_there(self):
         present = set(self.names("skills", skill=True))
         self.assertEqual(sorted(set(SKILLS) - present), [])
-        self.assertEqual(sorted(set(ADDED_SKILLS) - present), [])
         self.assertEqual(sorted(set(AGENTS) - set(self.names("agents"))), [])
 
     def test_skills_and_agents_have_valid_front_matter(self):
-        skills, agents = SKILLS + ADDED_SKILLS, AGENTS
+        skills, agents = SKILLS, AGENTS
         builtin = {"review", "plan", "focus", "stats", "status", "run", "verify", "android", "ios", "design", "checkup",
                    "insights", "new", "reset", "stop", "help", "clear", "compact", "config", "init", "memory", "model",
                    "agents", "permissions", "login", "logout", "doctor", "cost", "resume", "export", "hooks", "mcp"}
@@ -188,15 +190,27 @@ class Structure(unittest.TestCase):
             self.assertEqual(meta.get("model"), "inherit", "%s: pinning a model can fail on plans without it" % name)
             # verification, item writing, syllabi, plans and source tools need the depth; writing notes up
             # from a fragment and reading a week's numbers do not
-            self.assertEqual(meta.get("effort"), "medium" if name in ("notes-writer", "habit-coach") else "high", name)
+            self.assertEqual(meta.get("effort"), "medium" if name in ("notes-writer", "habit-coach", "book-builder")
+                             else "high", name)
             self.assertNotIn("(", str(meta.get("tools", "")), "%s: tools takes names only" % name)
             self.assertGreater(len(body), 800, name)
+
+    def test_requests_route_to_one_skill(self):
+        """A request word that belongs to one skill appears in no other skill's description or when_to_use."""
+        for phrase, owner in ROUTES.items():
+            holders = []
+            for name in SKILLS:
+                meta, _ = fm.load(os.path.join(REPO, ".claude", "skills", name, "SKILL.md"))
+                text = (str(meta.get("description", "")) + " " + str(meta.get("when_to_use", ""))).lower()
+                if re.search(r"\b%s\b" % re.escape(phrase), text) and not re.search(r"\(%s\)" % re.escape(owner), text):
+                    holders.append(name)
+            self.assertEqual(holders, [owner], "%r should route to %s only" % (phrase, owner))
 
     def test_map_registers_every_skill_and_agent(self):
         """framework/MAP.md is the registry. CLAUDE.md loads into every session and every agent: it stays short."""
         with open(os.path.join(REPO, "framework", "MAP.md"), "r", encoding="utf-8") as fh:
             registry = fh.read().split("\n## Skills and agents\n", 1)[1].split("\n## ", 1)[0]
-        for name in SKILLS + AGENTS + ADDED_SKILLS:
+        for name in SKILLS + AGENTS:
             self.assertRegex(registry, r"(?m)^\| `%s` \|" % re.escape(name), "framework/MAP.md does not list %s" % name)
         with open(os.path.join(REPO, "CLAUDE.md"), "r", encoding="utf-8") as fh:
             text = fh.read()

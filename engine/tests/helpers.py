@@ -379,7 +379,8 @@ class Sandbox:
     def __init__(self, mini=True, start=START):
         self.root = tempfile.mkdtemp(prefix="calamity-test-")
         self.clock = datetime.fromisoformat(start)
-        self.env = {"SHELL": ""}  # no shell start-up file: setup and doctor never read or write the real one
+        # no shell start-up file and no Claude Code home: setup and doctor never read or write the real ones
+        self.env = {"SHELL": "", "CLAUDE_CONFIG_DIR": os.path.join(self.root, ".claude-home")}
         self.code = 0
         self.err = ""
         if mini:

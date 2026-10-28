@@ -28,120 +28,80 @@ Validate the manifest and marketplace from the repository root:
 
 ## The companion-skill contract
 
-Calamity ships three **added** skills beside the engine's set — `mastery-coach`,
-`mastery-textbook` and `build-it-yourself`. They run their own loops and state,
-outside the engine's event log and the examiner/checker pipeline, so they are
-not in the engine's `SKILLS` tuple. But to fit the ecosystem they all keep to
-one contract, and any future companion skill should too:
+Calamity ships three companions beside its study skills — `mastery-coach`,
+`mastery-textbook` and `build-it-yourself` — and since framework 1.1 they run
+**on the engine**, not beside it. Any future companion keeps to the same
+contract:
 
-1. **One depth standard.** Teach and write to the single bar in
-   `framework/method-teaching.md` — the same bar the default `study` path is
-   now held to. There is no "lite" tier of *understanding*; there are only
-   fuller and quicker *write-ups* (see tiers below). A shallow summary is a
-   failure of the standard, never a faster option.
-2. **One synced, learner-aware store.** All state and output go under
-   `learner/coach/` (topics in `learner/coach/<topic>/`, projects in
-   `learner/projects/<slug>/`), inside the only tree `/sync` commits,
-   written as the work happens. Never a repo-root `.mastery/`, which is not
-   backed up. Record who the learner is in the store; a session for someone
-   other than the framework's own learner stays in the store only.
-3. **Bridge tracked work into the engine.** When the topic is one the skill
-   tree tracks and the learner is the framework's own, surface it with
-   `observe --tag coach` and `quick`, so it shows on the roadmap, recall queue
-   and dashboards and lands in the synced event log. The engine stays the
-   system of record for verified, blind-checked items.
-4. **Held to the framework's doc standard.** They are listed in `test_docs.py`'s
-   `ADDED_SKILLS`, so their front matter is valid and every engine command and
-   framework link they quote is checked — the same net as the shipped skills.
+1. **One record.** Progress is decided by the engine and nothing else. A
+   topic the learner works on is a tree skill (`find`, or the
+   `curriculum-architect` designs the node and its syllabus with `tree add`);
+   teaching is recorded with `ask --taught`; every question that counts is an
+   engine item, written by the `examiner` and verified blind by the `checker`;
+   reviews come from the engine's schedule. A companion keeps no parallel
+   question bank, schedule or "done" flag.
+2. **Formative versus summative.** Questions a companion asks inline while
+   teaching are formative: they check a chunk landed and decide nothing. Its
+   best ones become *seeds* for the examiner (question ideas, never answers).
+3. **One depth standard.** `framework/method-teaching.md`, with the deep arc
+   in the reference skill `teach-deep` (not a command; `mastery-coach` and
+   `study --deep` read it).
+4. **Narrative beside the record.** What the engine cannot hold — the story of
+   the teaching, which the book is written from — lives in the synced store:
+   `learner/coach/<topic>/` (curriculum units, session log, glossary,
+   reading, seeds), books in `learner/books/<topic>/`, projects in
+   `learner/projects/<slug>/`. `layout migrate` moves an older
+   `learner/mastery/`.
+5. **Heavy work runs forked.** A book is written and built by the
+   `book-builder` agent (`mastery-textbook` has `context: fork`), so drafts,
+   builds and page images never enter the tutor's conversation.
+6. **Held to the framework's doc standard**: valid front matter, a
+   `description` and `when_to_use` that do not collide with another skill's
+   requests, and every engine command and framework link they quote checked
+   by `test_docs.py`.
 
-**Two write-up tiers, one standard.** The engine's `notes`/`notes-writer`
-produce the learner's per-skill *notebook* (seeded from their own session,
-analytical to the one bar). `mastery-textbook` produces the deluxe per-topic
-*book* to a bestseller standard, and can build from **either** teaching path —
-`mastery-coach` state, or the engine's notes fragments and verified item bank
-for a topic taught through `/study`. So whichever way a topic was taught, both
-a notebook and, on request, a full book are available, and both are analytical.
+## `mastery-coach`
 
-## The `mastery-coach` skill (an added skill)
+Deep coaching to complete mastery of any tool or topic: the origin story,
+vocabulary, a gap-free map, the designer's lens, the whole surface, field
+reading, debugging literacy, the AI era, build and ship, and the mastery exam
+as the skill's boss. Its routing is narrow on purpose: deep dives, internals
+and interview preparation. "Quiz me" belongs to `recall`, "continue" to
+`study`.
 
-`.claude/skills/mastery-coach/` is a deep-coaching skill that ships with the
-Calamity plugin and is invoked as `/mastery-coach`. It takes a learner to
-complete mastery of one topic through its history and philosophy, a gap-free
-prerequisite roadmap, the mechanism explained from the designer's point of
-view, every flag and niche feature, and interview-grade questions with surprise
-recall. It is the same depth-first teaching philosophy as the depth contract in
-`framework/method.md`, in a self-contained coach.
+A unit is done when the engine says so: `unit <skill> <topics>` prints
+`UNIT DONE` once every topic is `consolidating` or beyond and the learner has
+explained one back (`observe --tag explain`). In-depth mode opens at most one
+new unit per session. An account-level copy of a skill with the same name
+(for instance synced from claude.ai) competes for the same requests; `doctor`
+warns while one is installed.
 
-It is an **added** skill, not part of the engine's shipped set (it is not in the
-`SKILLS` tuple the self-test validates), because it runs its **own** session
-loop and its **own** markdown state, and asks its **own** questions inline —
-outside the engine's event log and the blind examiner/checker verification
-pipeline. So:
+## `mastery-textbook`
 
-- Use `/mastery-coach` for coaching a topic deeply or ad hoc, including topics
-  the tree does not track. It keeps its state under `learner/coach/<topic>/`
-  — **inside Calamity's synced `learner/` store**, never a repo-root `.mastery/`
-  — so `/sync` (which runs `git add learner`) backs every bit of it up and
-  carries it to the learner's other machines.
-- The engine-backed `study` skill stays the **system of record** for verified,
-  blind-checked items and the numbers on the roadmap, GATE board and recall
-  queue. `mastery-coach` does not write its own inline questions into the event
-  log. But so that deep coaching still *shows* there, it bridges tracked topics
-  into the engine with `observe --tag coach` (what was taught) and `quick`
-  (oral checks). Untracked or someone-else's sessions stay in `learner/coach/`
-  alone, so they never pollute the tracked learner's record.
+A study book per topic that grows as units are done: Markdown chapters by
+default (`framework/rules/markdown-books.md`), a typeset LaTeX/PDF edition
+when the learner chose `book.format pdf` (template, SVG figures, `build.sh`,
+three review passes). It runs forked through `book-builder`, reads the coach's
+narrative, the notes fragments and the seeds, and **never** the item bank: a
+key in a book is a key seen before the question. Only the regenerable
+`build/` output and `book.pdf` are git-ignored.
 
-## The `mastery-textbook` skill (an added skill)
+It overlaps the `notes` skill on purpose and at a different size: `notes`
+keeps the per-topic fragments and the per-skill notebook; the book is the
+deluxe per-topic edition. The two stores stay separate (`learner/notes/`
+versus `learner/books/`).
 
-`.claude/skills/mastery-textbook/` is `mastery-coach`'s companion: it builds and
-grows a polished LaTeX study book (compiled to PDF) as the learner progresses —
-SVG figures, flag and comparison tables, real terminal output, graded exercises
-with worked solutions, and verified references, to the same first-principles
-standard. It ships a LaTeX template, an example chapter, reference guides, and a
-build toolchain in `scripts/` (`build.sh` converts SVGs, compiles with
-`latexmk`/`pdflatex`, renders pages, and runs `check_build.py`, a read-only
-report). The scripts touch only the book root passed as an argument and reach no
-network; a full LaTeX toolchain (`pdflatex`, `latexmk`, `pdftoppm`, an SVG
-converter) is needed to build, and the skill asks before any system install.
+## `build-it-yourself`
 
-Like `mastery-coach` it is an **added** skill (not in the engine's `SKILLS`
-set) and engine-independent. The two work **hand in hand**: `mastery-coach`
-hands it each unit once taught and records every question it asked in
-`recall.md`; `mastery-textbook` turns each unit into a chapter and every
-question into a graded exercise with a worked solution, so nothing taught or
-asked is left only in chat. The book lives beside the coach state, under
-`learner/books/<topic>/`, so `/sync` saves it with the rest of
-`learner/`; only its regenerable `book/build/` (PDF, page images, logs) is
-git-ignored — the `.tex` sources, SVG and figure PDFs, and `book-state.md` are
-kept and rebuild deterministically.
-
-It **overlaps** the engine's `notes` skill and `notes-writer` agent (which also
-produce LaTeX notes and a PDF per skill): use `mastery-textbook` for a
-from-scratch, bestseller-standard book grown alongside `mastery-coach`; use
-`notes`/`notes-writer` for the engine-tracked per-topic notes fragments and
-skill PDFs. The two stores stay separate — `learner/coach/` versus
-`learner/notes/` — because `learner/notes/`'s `.gitignore` drops the `main.tex`
-and PDF it rebuilds from fragments, which would delete the hand-authored book.
-
-## The `build-it-yourself` skill (an added skill)
-
-`.claude/skills/build-it-yourself/` turns a project into a learning path and
-coaches the learner to build and **ship** it *with their own hands* — no AI
-writing the project's code. **Reverse mode** tears down a source repository or a
-shipped app (Electron, APK/IPA, CLI binary, web app, game) with read-only recon
-(`scripts/repo_recon.py`: `git clone --filter=blob:none` and `gh api` reads, no
-execution of the target's own scripts; `scripts/artifact_recon.py`: static
-byte-scanning only, no network), recovers the architecture and teaches every
-concept behind it. **Idea mode** architects the learner's own idea and coaches
-the build. It respects authorisation and never bypasses DRM or extracts secrets.
-
-It sits on top of `mastery-coach` and `mastery-textbook`, not beside them: it
-decides *what* skills a project needs and *in what order*, hands the actual
-teaching to `mastery-coach` at each node's tier, and adds chapters through
-`mastery-textbook` on request. It follows the companion-skill contract above —
-state under `learner/projects/<slug>/` (the cloned source and binaries
-are scratch, never committed), skills learned recorded as `mastery-coach`
-topics, and listed in `ADDED_SKILLS`.
+Turns a project into a learning path the learner builds and ships with their
+own hands. **Reverse mode** tears down a repository or a shipped app with
+read-only recon (`scripts/repo_recon.py`, `scripts/artifact_recon.py`, REA);
+**idea mode** architects the learner's own idea. On the engine: the project
+is a tree skill whose topics are the build milestones, each milestone's
+acceptance tests are a `task` item checked for real, the skills it needs are
+tree skills taught through `mastery-coach` at their tier, and shipping is
+recorded as its capstone (`boss record ... --kind capstone`). The cloned
+source and binaries are scratch outside `learner/`, never committed.
 
 ## Known follow-ups before Calamity installs cleanly as a plugin
 

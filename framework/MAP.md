@@ -131,9 +131,10 @@ beside them and are not listed here.
 | `log` | record study done outside the session: a lecture, a chapter, a workout |
 | `sync` | save progress to the learner's own repository and merge other laptops |
 | `update-framework` | bring in a new framework version, never touching `learner/` |
-| `mastery-coach` | deep coaching of any tool or topic, with its own loop and state |
-| `mastery-textbook` | a LaTeX study book that grows with the coaching |
-| `build-it-yourself` | learn a project by rebuilding or designing it and shipping it |
+| `mastery-coach` | deep coaching of any tool or topic on the engine: a new topic becomes a tree skill first |
+| `mastery-textbook` | a study book per topic (Markdown, or PDF when chosen), written forked by `book-builder` |
+| `build-it-yourself` | learn a project by rebuilding or designing it and shipping it; milestones are `task` items |
+| `teach-deep` | reference, not a command: the deep teaching arc that `mastery-coach` and `study --deep` follow |
 
 | Agent | What it does |
 |---|---|
@@ -144,7 +145,8 @@ beside them and are not listed here.
 | `gate-strategist` | the GATE plan back from the exam date, triage, targets |
 | `habit-coach` | how the learner actually works, against their schedule |
 | `bridge-engineer` | the one-off tool that connects a study source |
-| `notes-writer` | long-form LaTeX sections from a topic's notes |
+| `notes-writer` | long-form sections (Markdown, or LaTeX) from a topic's notes fragment |
+| `book-builder` | writes and builds a topic's study book, forked from the tutor (`mastery-textbook`) |
 | `opportunity-scout` | finds GATE mocks on the web (official, all-India, offline near the learner), each recorded with source, date and terms |
 
 ## Rule books

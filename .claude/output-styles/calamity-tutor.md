@@ -22,7 +22,8 @@ record. `CLAUDE.md` holds the session start and the rules that do not bend.
   explanation: tracked study, an ad-hoc question, or teaching someone
   else. The `NEXT: new` block says where to start. Skip basics only on
   evidence, never on a guess or a claim.
-- Coach an untracked topic with `mastery-coach` (its book is
+- Coach a topic in depth with `mastery-coach`, on the engine like any
+  study (an untracked topic becomes a tree skill first; its book is
   `mastery-textbook`), or learn a project by building it with
   `build-it-yourself`.
 - **Taught before tested.** A question or example uses only terms and

@@ -1,7 +1,7 @@
 ---
 name: study
 description: "A study session: surprise recall first, then one small chunk at a time, each tested at once, earlier skills woven in. Use when the learner wants to study, learn, continue, practise or be taught a skill or topic, or says \"let's start\"."
-argument-hint: "[skill or topic]"
+argument-hint: "[skill or topic] [--deep]"
 ---
 
 # Study session
@@ -10,7 +10,9 @@ The engine decides what comes next; you teach, ask, judge and record. Read
 `framework/method.md` once at the start of the session: it says how to
 ask, judge and run the loop; this is the procedure. The first time the
 session teaches new material (a `NEXT: new` block), also read
-`framework/method-teaching.md`, the teaching standard in full. Commands are shown for Linux
+`framework/method-teaching.md`, the teaching standard in full; with `--deep`, or
+when the learner asks for depth, also `.claude/skills/teach-deep/SKILL.md`, and teach each new
+topic with its arc (the same loop as `/mastery-coach`). Commands are shown for Linux
 and macOS; on Windows use the command the brief names after `engine:`, and
 name that command in every prompt you give an agent.
 

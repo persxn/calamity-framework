@@ -1,6 +1,6 @@
 # Curriculum design
 
-The curriculum is the promise of mastery. If it's missing something, the learner will hit that gap in an interview or in production. Build it carefully, show it to the learner, and treat it as a living document in state.
+The curriculum is the promise of mastery. If it's missing something, the learner will hit that gap in an interview or in production. Build it carefully, show it to the learner, and treat it as a living document: the syllabus and `curriculum.md` change as you learn what the learner needs.
 
 ## 1. Map the territory before ordering it
 
@@ -69,19 +69,28 @@ Apply the same descent to every topic:
 
 Don't flatten this depth in in-depth mode. Make it digestible instead: chunk it, draw it, and check after each step.
 
-## 4. Unit format in state
+## 4. Units on the engine
+
+In Calamity the map has two layers. The **syllabus** (`learner/syllabus/<skill>.md`, written by the
+`curriculum-architect` and checked with `syllabus check <skill>`) holds the topics: one per idea the
+learner must own, each with a level, what it `needs`, and objectives tagged `[T]`, `[P]`, `[I]` or `[N]`.
+The engine schedules, tests and unlocks them. `learner/coach/<topic>/curriculum.md` groups those topic
+keys into the units you teach, with what the engine cannot know:
 
 ```markdown
 ## U07 — Pointer arithmetic and arrays
+- topics: c-pointers/arithmetic, c-pointers/decay, c-pointers/bounds
 - prereqs: U03 (RAM layout), U05 (types and sizeof), U06 (pointer basics)
-- covers: p+n scaling, array decay, a[i] == *(a+i), pointer subtraction (ptrdiff_t), out-of-bounds UB
 - surface: (none — language feature)
 - field reading: Linux kernel container_of macro; Heartbleed (CVE-2014-0160) as a bounds failure
-- status: not-started | in-progress | done | needs-review
+- mode: in-depth
 ```
+
+Whether a unit is done is the engine's answer, not a status you write: `unit <skill> <topics>` prints
+`UNIT DONE` once every topic is `consolidating` or beyond and the learner has explained one back.
 
 ## 5. Show it and keep it alive
 
 - Present the curriculum in conversation as a compact numbered roadmap, grouped into parts. Mention roughly how many sessions it represents. Ask whether anything they care about is missing.
-- As teaching reveals gaps (a learner stumbles on something nobody assumed they'd need), insert a unit and say so.
-- Units marked `needs-review` come back in recall, and are re-taught if recall keeps failing.
+- As teaching reveals gaps (a learner stumbles on something nobody assumed they'd need), insert a unit and say so; a missing topic goes into the syllabus through the `curriculum-architect`, never by renaming one in use.
+- A unit whose topics keep slipping back to `learning` is re-taught from a new angle before going further.
