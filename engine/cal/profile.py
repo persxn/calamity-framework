@@ -120,7 +120,7 @@ KNOWN_KEYS = ("name", "onboarded", "tracks", "goals", "focus", "mode.default", "
               "sleep.end", "workout.minutes", "daily.target_hours", "reminders.times", "gate.year", "gate.papers",
               "gate.registered", "gate.target_rank", "gate.target_source", "cp.handle", "cp.target_rating",
               "cp.target_date", "cp.language", "book.format", "stock.at", "location.city",
-              "location.radius_km", "auto.start")
+              "location.radius_km", "auto.start", "career.blackout_until")
 KNOWN_PREFIXES = ("cfg.", "gate.target_marks.", "gate.exam_date.")
 
 
@@ -185,7 +185,7 @@ def parse(key: str, words, text: bool, defaults: dict):
         return _number(key, joined, 0, 100)
     if key == "cp.target_rating":
         return _number(key, joined, 0, 5000, whole=True)
-    if key.startswith("gate.exam_date.") or key == "cp.target_date":
+    if key.startswith("gate.exam_date.") or key in ("cp.target_date", "career.blackout_until"):
         return _date(key, joined)
     if "," in joined and not joined.startswith("["):
         return [fm.parse_value(v) for v in csv_list(joined)]

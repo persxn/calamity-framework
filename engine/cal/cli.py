@@ -1214,6 +1214,10 @@ def cmd_rebuild(c, a):
     state = c.state
     path = progress.write(c.repo, c.tree, state)
     months = journal.write_all(c.repo, c.tree, state)
+    from . import career
+
+    if os.path.isfile(os.path.join(c.repo.learner, "career", "portfolio.md")):
+        career.write_portfolio(c.repo, c.tree, state)   # a derived view: kept in step once it exists
     lines = ["replayed %d event(s) from %d file(s)" % (state.n_events, len(c.repo.event_files())),
              "tree: %d error(s), %d warning(s)" % (len(errors), len(warnings)),
              "wrote %s" % c.repo.rel(path),
@@ -1284,11 +1288,24 @@ def cmd_career(c, a):
     from . import career
 
     if a.action == "add":
-        return 0, career.add(c.repo, _read_json(a), c.when)
+        return 0, career.add(c.repo, c.tree, _read_json(a), c.when)
     if a.action == "show":
         if not a.id:
             raise CalError("career show <id> (ids from career list)")
         return 0, career.show_text(c.state, a.id)
+    if a.action == "match":
+        return 0, career.match_text(c.repo, c.tree, c.state, c.when, a.id, a.kind)
+    if a.action == "status":
+        if a.id and not a.value:
+            raise CalError("career status <id> %s [--note ...]" % "|".join(career.STATUSES))
+        if a.id:
+            return 0, career.set_status(c.repo, c.state, c.when, a.id, a.value, a.note)
+        return 0, career.status_text(c.repo, c.tree, c.state, c.when)
+    if a.action == "nudge":
+        return 0, career.nudge_text(c.repo, c.tree, c.state, c.when)
+    if a.action == "portfolio":
+        path = career.write_portfolio(c.repo, c.tree, c.state)
+        return 0, career.portfolio(c.repo, c.tree, c.state) + "\nwrote %s" % c.repo.rel(path)
     return 0, career.list_text(c.state, c.when, a.kind)
 
 
@@ -1673,10 +1690,12 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("--topic", help="session: the tree topic its notes and seeds belong to")
     sp.add_argument("--ideas", type=int, help="session: new ideas taken from it (a classic asks for 3 or more)")
     sp.add_argument("--days", type=_positive, default=30, help="sessions: look back this many days")
-    sp = add("career", cmd_career, "Opportunity records found on the web (for now GATE mocks): add, list, show.")
-    sp.add_argument("action", choices=("add", "list", "show"))
+    sp = add("career", cmd_career, "Opportunities found on the web, readiness from the record, nudges and the portfolio.")
+    sp.add_argument("action", choices=("add", "list", "show", "match", "status", "nudge", "portfolio"))
     sp.add_argument("id", nargs="?")
-    sp.add_argument("--kind", help="list: only this kind (gate-mock)")
+    sp.add_argument("value", nargs="?", help="status: the step taken (saved, applied, interviewing, offer, ...)")
+    sp.add_argument("--kind", help="list, match: only this kind (gate-mock, job, internship, ...)")
+    sp.add_argument("--note", help="status: one line on the step")
     sp.add_argument("--file")
     sp.add_argument("--stdin", action="store_true")
     sp = add("stock", cmd_stock, "Nightly bank stocking: render scheduler files for a headless /stock run, or remove them.")

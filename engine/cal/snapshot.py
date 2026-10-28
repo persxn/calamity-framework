@@ -26,7 +26,7 @@ from datetime import datetime
 from . import fsrs
 from .store import Repo, log_text, write_text
 
-FORMAT = 10
+FORMAT = 11
 NAME = "replay.json"
 GLOBAL_TYPES = ("rename", "void", "errtag")  # events that change how earlier events are read
 
@@ -221,6 +221,7 @@ def encode_state(state) -> dict:
         "first_tries": [[_t(a), b] for a, b in state.first_tries], "review_secs": list(state.review_secs),
         "mistakes": [dict(m, ts=_t(m["ts"])) for m in state.mistakes],
         "career": {k: dict(v) for k, v in _keys(state.career).items()},
+        "bosses": [dict(b, ts=_t(b["ts"])) for b in state.bosses],
         "tasks": dict(_keys(state.tasks)), "last_task": dict(_keys(state.last_task)),
         "experiments": {k: dict(v, assigned=[list(a) for a in v["assigned"]], results=_keys(dict(v["results"])))
                         for k, v in _keys(state.experiments).items()},
@@ -289,6 +290,7 @@ def decode_state(state, data: dict) -> None:
     state.review_secs = list(data["review_secs"])
     state.mistakes = [dict(m, ts=_d(m["ts"])) for m in data["mistakes"]]
     state.career = {k: dict(v) for k, v in data["career"].items()}
+    state.bosses = [dict(b, ts=_d(b["ts"])) for b in data["bosses"]]
     state.tasks, state.last_task = dict(data["tasks"]), dict(data["last_task"])
     state.experiments = {k: dict(v, assigned=[list(a) for a in v["assigned"]], results=dict(v["results"]))
                          for k, v in data["experiments"].items()}
