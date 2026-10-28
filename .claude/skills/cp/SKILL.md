@@ -1,6 +1,7 @@
 ---
 name: cp
-description: "The competitive programming coach: Codeforces sync and analysis, practice sets above the learner's rating, contests and their review, upsolving, rating targets, C++ and algorithms. Use for anything about Codeforces, contests, rating, problem practice or DSA for contests."
+description: "The competitive programming coach on Codeforces: sync, analysis, practice sets, contests, upsolving, rating targets."
+when_to_use: "For anything about Codeforces, contests, rating, problem practice, or C++ and algorithms for contests."
 argument-hint: "[status | plan | set [skill] | contest | review | upsolve | learn <skill>]"
 effort: high
 ---
@@ -30,7 +31,7 @@ Sync once per session, before the first coaching turn, not on every turn:
 |---|---|
 | where they stand | `cf status`, `cf rating` |
 | what is weak | `cf analyse`; read it as `framework/rules/cp-planning.md` describes |
-| a plan, or a new one | delegate to the `cp-coach` agent; it writes `learner/cp/plan.md` |
+| a plan, or a new one | delegate to the `cp-coach` agent; it writes `learner/cp/plan.md`; then `tasks done cp-plan` |
 | problems to solve | `cf recommend` (or `--skill <skill>`, `--tags "..."`); then `cf assign <problems> --reason "..."` |
 | to learn a technique | `/study <cp skill>`, then problems on it with `cf recommend --skill <skill>` |
 | to get ready for a contest | `cf contests`; nothing new that day; template compiled |

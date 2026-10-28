@@ -1,6 +1,7 @@
 ---
 name: dash
-description: "Show progress as plain-text dashboards: overall progress, roadmap, revision queue, GATE board, Codeforces board, the week. Use when the learner asks to see progress, roadmap, dashboard, stats, revision queue or how the week went."
+description: "Plain-text dashboards: progress, roadmap, revision queue, GATE and Codeforces boards, the week, a past day."
+when_to_use: "When the learner asks to see progress, a roadmap, a dashboard, stats, the revision queue, how the week went or what they did on a date."
 argument-hint: "[progress | roadmap | queue | gate | cp | week | all]"
 ---
 

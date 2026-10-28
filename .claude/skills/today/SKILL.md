@@ -1,6 +1,7 @@
 ---
 name: today
-description: "Today's finish line and the single next thing to do: what is due, what is new, the next lecture. Use when the learner asks what to do today, what is left, or how to spend the next hour."
+description: "Today's finish line and the single next thing: what is due, what is new, the next lecture, tasks."
+when_to_use: "When the learner asks what to do today, what is left, or how to spend the next hour."
 ---
 
 # Today

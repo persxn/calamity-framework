@@ -161,6 +161,8 @@ class State:
         self.mistakes = []       # wrong answers for the error book: {ts, topic, err, note, src, id}
         self.passes = {}         # GATE subject -> {pass number: {"planned": date, "done": date}}
         self.career = {}         # record id -> an opportunity record (career.py)
+        self.tasks = {}          # task id -> the learner day until which it is hidden (tasks.py)
+        self.last_task = {}      # task id -> the learner day it was last done
         self.review_secs = []    # seconds the latest timed reviews took (the quota's review forecast)
         self.last_dt = None
         self.n_events = 0
@@ -367,6 +369,7 @@ class State:
         self.cp_marks, self.cp_credits, self.weights = {}, {}, {}
         self.first_tries, self.review_secs, self.practice = [], [], {}
         self.mistakes, self.passes, self.career = [], {}, {}
+        self.tasks, self.last_task = {}, {}
         self.last_dt, self.n_events, self.n_voided = None, 0, 0
         self._alias_topic, self._alias_skill, self._retag = {}, {}, {}
         self._voided, self._handler_errors = set(), []
@@ -567,6 +570,12 @@ class State:
 
         self.career.pop(e["id"], None)              # a newer fetch replaces the record, and moves it last
         self.career[e["id"]] = dict({k: e[k] for k in FIELDS if k in e}, id=e["id"])
+
+    def _on_task(self, e, dt):
+        tid = str(e["task"])
+        self.tasks[tid] = str(e.get("until") or "")
+        if e.get("action") == "done":
+            self.last_task[tid] = self.day(dt)
 
     def _on_gate_pass(self, e, dt):
         rec = self.passes.setdefault(self.canon_skill(e["skill"]), {}).setdefault(str(e["n"]), {})

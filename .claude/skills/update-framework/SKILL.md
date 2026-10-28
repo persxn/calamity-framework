@@ -1,6 +1,7 @@
 ---
 name: update-framework
-description: "Bring a newer version of the Calamity Framework (engine, rule books, skills, skill trees) into the learner's repository without touching their data."
+description: "Bring a newer Calamity Framework (engine, rules, skills, trees) into the learner's repository without touching their data."
+when_to_use: "When the learner asks to update the framework; run by the learner only."
 argument-hint: "[address of the framework repository]"
 disable-model-invocation: true
 ---

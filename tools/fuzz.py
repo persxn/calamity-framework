@@ -40,7 +40,7 @@ VIEWS = (["brief"], ["today"], ["next"], ["dash", "all"], ["dash", "roadmap", "-
          ["dash", "week"], ["item", "needs"], ["tree", "suggest"], ["stats", "patterns"], ["stats", "flags"],
          ["statusline"], ["remind", "check", "--always"], ["gate", "status"], ["gate", "triage"], ["source", "status"],
          ["tree", "path", "capstone"], ["boss", "status"], ["observations"], ["history", "--by", "day"],
-         ["day", "yesterday"])
+         ["day", "yesterday"], ["tasks"])
 CATALOGUE = [
     {"id": "l1", "title": "Intro", "order": 1, "minutes": 30, "topics": []},
     {"id": "l2", "title": "Scheduling", "order": 2, "minutes": 50, "topics": ["gate.cs.os/scheduling"]},
@@ -195,6 +195,8 @@ def one_run(seed, steps, shuffle=True):
                         rng.choice(["solved", "solved", "wrong", "guessed", "skipped"]))
             elif kind == "feedback":
                 run(sb, "feedback", rng.choice(["pace=slow", "depth=more", "clarity=low", "pace=ok"]))
+                if rng.random() < 0.5:
+                    run(sb, "tasks", rng.choice(["done", "snooze"]), rng.choice(["weekly-review", "stock", "notes"]))
             elif kind == "mistake":
                 if items:
                     run(sb, "mistake", rng.choice(sorted(items)), rng.choice(["concept", "careless", "time"]))

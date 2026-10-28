@@ -1,6 +1,7 @@
 ---
 name: gate
-description: "The GATE companion: countdown and status, the plan back from the exam date, subject triage, mocks and their review, past papers, targets. Use for anything about GATE preparation (CS or DA), a score or rank target, a mock or test series."
+description: "The GATE companion: countdown, the plan back from the exam date, triage, mocks and their review, past papers, targets."
+when_to_use: "For anything about GATE preparation (CS or DA), a score or rank target, a mock or a test series."
 argument-hint: "[status | plan | triage | mock <paper> <score> | review | papers]"
 effort: high
 ---
@@ -21,7 +22,7 @@ follow `framework/rules/gate-onboarding.md` first.
 | where they stand | `python3 engine/calamity.py gate status` |
 | what to study next | `python3 engine/calamity.py next` (the engine already orders GATE subjects by triage), or `/study` |
 | which subjects matter most | `python3 engine/calamity.py gate triage` |
-| a plan, or a new one | delegate to the `gate-strategist` agent; it writes `learner/gate/plan.md` |
+| a plan, or a new one | delegate to the `gate-strategist` agent; it writes `learner/gate/plan.md` (with its `review_on` date); then `tasks done gate-plan` |
 | to record a mock | `python3 engine/calamity.py gate mock <PAPER> <score> --source "..." [--sections "GA=..,OS=.."]` |
 | to review a mock | the mock review below |
 | to see mock history | `python3 engine/calamity.py gate mocks` |

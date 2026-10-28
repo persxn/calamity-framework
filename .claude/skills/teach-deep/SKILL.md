@@ -1,7 +1,7 @@
 ---
 name: teach-deep
-description: "Reference, not a command: how to teach a topic in deep mode — origin story, vocabulary, a gap-free map, the designer's lens, the whole surface, field reading, debugging literacy, the AI era, build and ship, the mastery exam."
-when_to_use: "Read by mastery-coach, and by study when the learner asks for depth (study --deep), before teaching the first NEXT: new of a session."
+description: "Reference, not a command: the deep teaching arc (origin, vocabulary, a gap-free map, the designer's lens, the whole surface)."
+when_to_use: "Read by mastery-coach, and by study --deep, before the first new topic of a session."
 user-invocable: false
 ---
 
