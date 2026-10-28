@@ -6,7 +6,7 @@ import subprocess
 import sys
 import unittest
 
-from tests.helpers import ENGINE, Case, write
+from tests.helpers import ENGINE, Case, read, write
 
 from cal import machine, remind
 from cal.store import Repo
@@ -195,6 +195,21 @@ class Setup(Case):
         sb.env["SHELL"] = "/usr/bin/fish"
         self.assertIn("alias NOT written: the alias is written for bash and zsh", sb.run("setup", "--alias"))
         self.assertIn("not available for this shell", sb.run("doctor", expect=None))
+
+    @unittest.skipIf(sys.platform.startswith("win"), "the alias is for bash and zsh")
+    def test_a_1x_alias_is_never_mistaken_for_the_engine(self):
+        sb = self.sb
+        home = sb.path("home")
+        sb.env.update({"HOME": home, "SHELL": "/bin/zsh", "ZDOTDIR": ""})
+        write(os.path.join(home, ".zshrc"), "# >>> calamity alias >>>\nalias calamity='cd -- /x && claude "
+                                            "--dangerously-skip-permissions'\n# <<< calamity alias <<<\n")
+        brief = sb.run("brief")
+        self.assertIn("Shell: `calamity` is still the 1.x alias", brief)
+        self.assertNotIn("engine: calamity\n", brief)
+        self.assertIn("the old alias", sb.run("doctor", expect=None))
+        sb.run("setup", "--alias")
+        self.assertNotIn("Shell: `calamity`", sb.run("brief"))
+        self.assertEqual(read(os.path.join(home, ".zshrc")).count("alias calamity="), 0)
 
     # Windows runners carry WSL's bash.exe launcher, which exists but runs no Linux; the alias is never written there.
     @unittest.skipIf(os.name == "nt" or not shutil.which("bash"), "the alias is written for Linux and macOS")

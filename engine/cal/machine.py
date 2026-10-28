@@ -112,7 +112,7 @@ def engine_cmd(repo: Repo) -> str:
     """How to call the engine on this machine. `calamity` when the plugin's shim or `setup --shim` put it on the
     PATH; otherwise the form typed from the repository root, worked out once and kept in .calamity/machine.json,
     next to the machine id."""
-    if plugin_mode() or shutil.which("calamity"):
+    if plugin_mode() or (shutil.which("calamity") and not old_alias()):
         return "calamity"
     cmd = _machine_json(repo).get("cmd")
     if isinstance(cmd, str) and cmd:
@@ -443,6 +443,18 @@ def remove_alias(repo: Repo) -> str:
         return "no Calamity alias was installed"
     _write_rc(rc, text)
     return "alias removed from %s (open a new terminal, or run: unalias calamity)" % _shown(rc)
+
+
+def old_alias() -> bool:
+    """Whether the shell still has the 1.x `calamity` alias, which opens Claude Code: until `setup --alias` replaces
+    it, `calamity <command>` typed in that shell (and in Claude Code's, which keeps the learner's aliases) would
+    start a new session instead of running the engine."""
+    rc = rc_file()
+    try:
+        _, block = _without_alias(read_text(rc) if rc and os.path.isfile(rc) else "")
+    except (OSError, UnicodeDecodeError):
+        return False
+    return bool(block) and len(block) == 1 and block[0].startswith("alias calamity=")
 
 
 def alias_state(repo: Repo) -> str:

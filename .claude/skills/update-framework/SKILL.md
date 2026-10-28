@@ -61,7 +61,9 @@ instead of editing them.
    Prefer the upstream version and move the local change to where it
    belongs (`learner/tree/`, `learner/syllabus/`, `cfg.*` in the profile).
 
-5. **Verify.**
+5. **Verify.** Use the engine command the brief names: an update from
+   1.x has no `calamity` command yet, so there it is
+   `python3 engine/calamity.py` (`docs/migrating-to-2.0.md`).
 
        calamity selftest
        calamity doctor
@@ -73,8 +75,11 @@ instead of editing them.
    fails, undo with `git merge --abort` (during the merge) or
    `git reset --hard ORIG_HEAD` (after it), and report what failed.
 
-6. **Say what is new** in a few lines, and that the session-start hook
-   needs no change. Push with the sync skill if they want.
+6. **Say what is new** in a few lines. `doctor` lists what the new version
+   asks of this machine (hooks to install again, a store layout to move, a
+   shell alias to replace); for a move from 1.x to 2.0, walk the learner
+   through `docs/migrating-to-2.0.md`, asking before each `setup`. Push with
+   the sync skill if they want.
 
 Do not run an update in the middle of a study session, and never from a
 source the learner did not name.

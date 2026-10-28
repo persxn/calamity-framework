@@ -43,6 +43,12 @@ anywhere except the Codeforces calls you ask for, and there is no
 telemetry; your conversations with Claude go through Claude Code like any
 other session.
 
+**New in 2.0** (`docs/releases/2.0.0.md`): mastery paced by evidence, a
+day runner, GATE practice sets and mock scouting, a competitive-programming
+program, developer drills and projects, a career layer, one design system
+for every document, and installation as a Claude Code plugin. Moving a 1.x
+clone: `docs/migrating-to-2.0.md`.
+
 ## Quick start
 
 New to terminals? That is fine: you copy three short blocks, then you just
