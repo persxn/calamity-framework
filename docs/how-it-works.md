@@ -26,7 +26,7 @@ flowchart LR
 | `.claude/skills/` | The slash commands, each a short procedure, the companion skills (`mastery-coach`, `mastery-textbook`, `build-it-yourself`, all on the engine), and `teach-deep`, the deep teaching arc they read. |
 | `.claude/agents/` | The specialist agents, each with its own instructions and context. |
 | `.claude/settings.json` | Permissions: the engine and edits under `learner/` are pre-approved; editing the framework asks first; reading item files and editing the log are denied. |
-| `framework/` | The skill tree, the rule books, the default numbers (`config.md`), exam facts per year, the LaTeX preamble. The same for every learner. |
+| `framework/` | The skill tree, the rule books, the default numbers (`config.md`), exam facts per year, the design system (Calamity Paper: `framework/design/`). The same for every learner. |
 | `engine/` | The engine and its tests. |
 | `learner/` | One learner's record. |
 | `tools/` | Development checks (end-to-end run, fuzzer, sample output, timing). |

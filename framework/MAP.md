@@ -60,7 +60,6 @@ framework/                 shipped with the framework; the same for every learne
   tree/tracks.md           the tracks and the order of their groups
   tree/<track>/<skill>.md  one file per skill: prerequisites, scope, boss, weave, topics
   gate/<year>.md           what the organisers published for that year
-  notes/preamble.tex       LaTeX preamble for study notes
   design/tokens.json       Calamity Paper: colours, fonts (Charter, Fira Sans, Fira Mono), type, callouts
   design/calamity.sty      generated: the LaTeX package (notebook and book options); calamity.css,
                            palette.svg and calamity-terminal.json beside it (tools/design.py writes them)

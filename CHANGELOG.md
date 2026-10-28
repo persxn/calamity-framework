@@ -172,7 +172,11 @@ changes their record in `learner/`.
   macro name: no more `\term` clash), `calamity.css`, an SVG palette and
   two terminal colour schemes, and `--qa` builds a notebook and a book
   chapter that use every macro. `tools/font_samples.py` renders the
-  candidate families.
+  candidate families. Notes PDFs (`notes pdf`), Markdown books
+  (`book pdf`) and revision packs (`gate pack --pdf`) are set in it:
+  notes load `\usepackage{calamity}` instead of the old preamble (its
+  environments are all still there, with eleven more callouts), and a
+  Markdown book's block quotes take their callout's colour.
 - Progress by date. `day <date>` adds what was recorded that day (time,
   answers, topics taught and secured, lectures, practice, workouts);
   `history --by day|week|month [--skill S] [--track T]` gives one row per

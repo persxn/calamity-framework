@@ -26,29 +26,17 @@ from .util import CalError
 SPECIAL = {"\\": r"\textbackslash{}", "&": r"\&", "%": r"\%", "$": r"\$", "#": r"\#", "_": r"\_", "{": r"\{",
            "}": r"\}", "~": r"\textasciitilde{}", "^": r"\textasciicircum{}"}
 PREAMBLE = r"""\documentclass[11pt,a4paper]{article}
-\usepackage[margin=2.2cm]{geometry}
-\usepackage{fontspec}
-\setmainfont{DejaVu Serif}
-\setsansfont{DejaVu Sans}
-\setmonofont{DejaVu Sans Mono}[Scale=0.86]
-\newfontfamily\symbolfont{DejaVu Sans}
-\usepackage{xcolor}
-\definecolor{ink}{HTML}{1F2933}\definecolor{accent}{HTML}{2F5D8A}\definecolor{paper}{HTML}{F4F6F8}
-\color{ink}
-\usepackage[hidelinks]{hyperref}
-\hypersetup{colorlinks=true,linkcolor=accent,urlcolor=accent}
+\usepackage{calamity}
+\IfFontExistsTF{DejaVu Sans}{\newfontfamily\symbolfont{DejaVu Sans}}{\newcommand{\symbolfont}{}}
 \usepackage{fancyvrb,fvextra}
 \fvset{breaklines=true,breakanywhere=true,fontsize=\small}
-\usepackage{longtable,booktabs,array}
-\usepackage{graphicx}
+\usepackage{longtable,array}
 \usepackage{enumitem}
 \setlist{itemsep=2pt}
 \usepackage{mdframed}
-\newmdenv[backgroundcolor=paper,linewidth=0pt,innerleftmargin=10pt,innerrightmargin=10pt]{callout}
-\usepackage{titlesec}
-\titleformat{\section}{\Large\bfseries\color{accent}}{}{0pt}{}
-\titleformat{\subsection}{\large\bfseries}{}{0pt}{}
-\setlength{\parskip}{6pt}\setlength{\parindent}{0pt}
+\mdfdefinestyle{calquote}{linewidth=2.5pt,topline=false,bottomline=false,rightline=false,innerleftmargin=8pt,
+  innerrightmargin=8pt,innertopmargin=5pt,innerbottommargin=5pt,skipabove=8pt,skipbelow=8pt}
+\hypersetup{colorlinks=true,linkcolor=calAccent,urlcolor=calAccent}
 \title{%(title)s}\date{}
 \begin{document}
 \maketitle
@@ -65,11 +53,36 @@ def _escape(text: str) -> str:
             out.append(SPECIAL[ch])
         elif code > 0xFFFF or 0xFE00 <= code <= 0xFE0F:
             continue                                  # emoji and variation selectors: no font has them all
-        elif 0x2190 <= code <= 0x27BF or 0x2900 <= code <= 0x2BFF:
-            out.append(r"{\symbolfont %s}" % ch)      # arrows, ticks, dingbats: the serif lacks some
+        elif 0x2190 <= code <= 0x27BF or 0x2900 <= code <= 0x2BFF or 0x20A0 <= code <= 0x20CF:
+            out.append(r"{\symbolfont %s}" % ch)      # arrows, operators, ticks, dingbats, currency: Charter lacks some
         else:
             out.append(ch)
     return "".join(out)
+
+
+def _callout_colours() -> dict:
+    """{label in lower case: LaTeX colour} from the design tokens, with the labels books use besides them."""
+    import json
+
+    path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
+                        "framework", "design", "tokens.json")
+    out = {"note": "calSlate", "warning": "calAmber", "tip": "calGreen", "definition": "calAccent"}
+    try:
+        with open(path, "r", encoding="utf-8") as fh:
+            for c in json.load(fh)["callouts"]:
+                colour = "cal" + c["colour"].capitalize()
+                out[c["label"].lower()] = colour
+                for alias in c.get("aliases", []):
+                    out[alias.lower()] = colour
+    except (OSError, ValueError, KeyError):
+        pass
+    return out
+
+
+def quote_colour(first_line: str) -> str:
+    """The callout colour for a block quote that opens with **Label**; slate for any other quote."""
+    m = re.match(r"^\*\*([^*]+)\*\*", first_line.strip())
+    return _callout_colours().get(m.group(1).strip().rstrip(":.").lower(), "calSlate") if m else "calSlate"
 
 
 INLINE = re.compile(r"(`[^`]+`)|(\*\*[^*]+\*\*)|(\*[^*\s][^*]*\*|_[^_\s][^_]*_)|(\[[^\]]+\]\([^)\s]+\))")
@@ -144,9 +157,11 @@ def to_latex(markdown: str, base_dir: str, title: str) -> str:
             i += 1
             if lang == "mermaid":
                 out.append(r"\textit{Diagram (Mermaid source; it renders in a Markdown viewer):}")
+            out.append(r"\begin{mdframed}[style=calquote,linecolor=calRule!60,linewidth=2pt,backgroundcolor=calSurface]")
             out.append(r"\begin{Verbatim}")
             out.extend(body)
             out.append(r"\end{Verbatim}")
+            out.append(r"\end{mdframed}")
             continue
         if not stripped:
             flush()
@@ -187,9 +202,10 @@ def to_latex(markdown: str, base_dir: str, title: str) -> str:
             while i < len(lines) and lines[i].strip().startswith(">"):
                 quote.append(lines[i].strip()[1:].strip())
                 i += 1
-            out.append(r"\begin{callout}")
+            colour = quote_colour(quote[0] if quote else "")
+            out.append(r"\begin{mdframed}[style=calquote,linecolor=%s,backgroundcolor=%s!7!white]" % (colour, colour))
             out.extend(inline(q) + ("\n" if not q else "") for q in quote)
-            out.append(r"\end{callout}")
+            out.append(r"\end{mdframed}")
             continue
         details = re.match(r"^\s*<summary>(.*?)</summary>\s*$", line)
         if details:
@@ -285,6 +301,7 @@ def pdf(repo, source: str, out: str | None = None, base: str | None = None) -> s
     work = tempfile.mkdtemp(prefix="calamity-book-")
     try:
         write_text(os.path.join(work, "book.tex"), to_latex(text, base or os.path.dirname(path), first))
+        shutil.copyfile(os.path.join(repo.framework, "design", "calamity.sty"), os.path.join(work, "calamity.sty"))
         name, argv = engine
         for _ in range(1 if name in ("tectonic", "latexmk") else 2):   # a second pass fills in the contents
             try:
