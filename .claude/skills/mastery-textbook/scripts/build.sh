@@ -38,14 +38,21 @@ for svg in figures/src/*.svg; do
 done
 
 # ---------- 2. Compile ----------
+[ -f calamity.sty ] || echo "WARN: calamity.sty is missing beside main.tex: copy framework/design/calamity.sty here"
 if command -v latexmk >/dev/null 2>&1; then
   BIBINPUTS="$ROOT:" latexmk -pdf -interaction=nonstopmode -halt-on-error -file-line-error \
     -outdir=build main.tex > build/latexmk.out 2>&1
   status=$?
-else
+elif command -v pdflatex >/dev/null 2>&1; then
   run() { pdflatex -interaction=nonstopmode -halt-on-error -file-line-error -output-directory=build main.tex > build/pdflatex.out 2>&1; }
   run && { (cd build && BIBINPUTS="$ROOT:" bibtex main > bibtex.out 2>&1 || true); run && run; }
   status=$?
+elif command -v tectonic >/dev/null 2>&1; then
+  # Tectonic runs BibTeX and the reruns itself, and fetches the packages Calamity Paper needs
+  tectonic -X compile --keep-logs --outdir build main.tex > build/tectonic.out 2>&1
+  status=$?
+else
+  echo "ERROR: no TeX engine. Install TeX Live (latexmk, pdflatex, bibtex) or Tectonic"; status=2
 fi
 if [ $status -ne 0 ]; then
   echo "ERROR: LaTeX compile failed (exit $status). First errors:"

@@ -61,9 +61,9 @@ Keep a `book-state.md` in the book root. It maps chapters to curriculum units an
 
 ## First-time setup (the LaTeX edition)
 
-1. Copy `assets/template/` into the book root. It contains `main.tex`, `mastery-book.sty`, `refs.bib` and `frontmatter/preface.tex`. Create `chapters/`, `solutions/` and `figures/src/`.
+1. Copy `assets/template/` into the book root. It contains `main.tex`, `refs.bib` and `frontmatter/preface.tex`. Copy `framework/design/calamity.sty` beside `main.tex`: it is the house style for every Calamity document (Calamity Paper, loaded as `\usepackage[book]{calamity}`), never edited in the book; copy it again to take a newer version. Create `chapters/`, `solutions/` and `figures/src/`.
 2. Fill the `<<...>>` placeholders in `main.tex`. The author line is the learner's `name` from the profile (`profile get name`), unless the tutor passed another form.
-3. Check the toolchain: `pdflatex`, `latexmk`, `bibtex`, `pdftoppm`, `pdftotext`, and one SVG converter (`rsvg-convert`, `inkscape`, or Python `cairosvg`). Installing `cairosvg` with pip is fine. Never run a system package install: return the missing tools and the command to install them, and stop.
+3. Check the toolchain: `pdflatex`, `latexmk` and `bibtex` (or Tectonic alone, which `build.sh` uses when they are missing), `pdftoppm`, `pdftotext`, and one SVG converter (`rsvg-convert`, `inkscape`, or Python `cairosvg`). Installing `cairosvg` with pip is fine. Never run a system package install: return the missing tools and the command to install them, and stop.
 4. **Build the bestseller benchmark once per topic.** Follow `references/review.md`, part C, and save it as `benchmark.md` in the book root. Every chapter is later judged against it.
 
 `assets/example/` holds a small compiled chapter showing the markup conventions in use: an SVG figure, a flag table, a shell listing, callout boxes, exercises with solutions, and a citation. Treat it as a reference for markup, not for depth. Real chapters are far fuller.
@@ -94,7 +94,7 @@ The learner can rebuild at any time with `bash build.sh <book-root>` or `latexmk
 ## Reference files
 
 - `references/writing-standard.md`: the voice, the chapter anatomy, turning chat into book prose, and what "polished" means sentence by sentence.
-- `references/latex-conventions.md`: file layout, every macro and environment in `mastery-book.sty`, listings, tables, cross-references and escaping.
+- `references/latex-conventions.md`: file layout, every macro and environment the book option of `calamity.sty` provides, listings, tables, cross-references and escaping.
 - `references/figures-svg.md`: when a figure earns its place, SVG authoring rules for clean PDF conversion, the palette, and figure types.
 - `references/exercises-and-references.md`: the exercise mix and solutions, the reference types, BibTeX entries, and verification.
 - `references/review.md`: the mechanical, visual and quality review passes, the rubric, and building the bestseller benchmark.

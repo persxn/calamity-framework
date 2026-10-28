@@ -1,13 +1,13 @@
 # LaTeX conventions
 
-The house style lives in `mastery-book.sty`. Use its macros and environments instead of ad-hoc formatting, so the whole book stays consistent and the checks can understand it.
+The house style is `calamity.sty` with the `book` option (Calamity Paper, `framework/design/`: Charter, Fira Sans headings, Fira Mono code). Use its macros and environments instead of ad-hoc formatting, so the whole book stays consistent and the checks can understand it.
 
 ## File layout
 
 ```
 book-root/
 ├── main.tex              # parts, \include per chapter, solutions appendix, bibliography
-├── mastery-book.sty      # house style (copied from the template; edit only to fix style bugs)
+├── calamity.sty          # house style, copied from framework/design/ (never edited here)
 ├── refs.bib
 ├── book-state.md         # chapters ↔ units, edition, build and review status, changelog
 ├── benchmark.md          # bestseller benchmark for this topic (review.md, part C)
@@ -39,13 +39,15 @@ Each takes an optional subtitle: `\begin{gotcha}[Sorting needs everything first]
 | `designnote` | Why it's built this way; rejected alternatives |
 | `tryit` | Something the reader runs now |
 | `gotcha` | A trap and why it happens |
+| `pitfall` | The usual way to get it wrong (the notes' name; same colour as `gotcha`) |
 | `misconception` | A common wrong belief, and the correction |
 | `interview` | An interview question and what a strong answer contains |
 | `outage` | A real incident: the decision, the chain, the lesson (cited) |
 | `aiwatch` | A typical AI-tool mistake in this area and how to catch it |
 | `scale` | How a large company does this (cited) |
+| `vocab` | A few terms introduced together |
 
-Use boxes for what they mean, not for decoration. More than about three boxes per page reads as clutter. Keep the core explanation in the prose.
+A section written for the notes (`framework/rules/notes-latex.md`) uses the same names and drops into a chapter unchanged. Use boxes for what they mean, not for decoration. More than about three boxes per page reads as clutter. Keep the core explanation in the prose.
 
 ## Inline technical text
 
@@ -63,15 +65,16 @@ total 48
 drwxrwxrwt 12 root root 4096 Oct 25 17:02 .
 \end{shell}
 
-\begin{code}[language=C]
+\begin{codeblock}[language=C]
 int *p = &x;
-\end{code}
+\end{codeblock}
 ```
 
 - Prompt lines start with `$ ` (they're highlighted); output lines have no prompt.
 - **Use real output** captured from the tool. Mark trimmed output with `...` on its own line and say so in the text.
 - Keep lines under about 80 characters. Listings wrap long lines, but wrapped output is hard to read, so trim or reformat instead.
 - Avoid raw Unicode inside listings (box-drawing characters, emoji, curly quotes): pdflatex can't render it. Replace it, or describe it.
+- `\code{...}` is inline code, as in the notes; a code block is `codeblock`, a terminal session `shell`.
 - Put long listings that need a caption in `\begin{lstlisting}[caption={...},label={lst:...}]`.
 
 ## Tables
