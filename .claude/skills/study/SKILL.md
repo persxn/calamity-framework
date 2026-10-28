@@ -17,6 +17,13 @@ topic with its arc (the same loop as `/mastery-coach`). Commands are shown for L
 and macOS; on Windows use the command the brief names after `engine:`, and
 name that command in every prompt you give an agent.
 
+If the engine cannot record (an `ask` or `answer` fails: a read-only
+checkout, a lock, an error), say so in a line, add what
+`python3 engine/calamity.py next` says comes next (it reads only), and stop.
+Teach nothing and answer nothing in its place, and offer no unrecorded
+lesson: what is not recorded is not studied, and the order the engine
+keeps (a topic secured before the next) holds either way.
+
 ## 0. Open
 
 - `NOT ONBOARDED` in the brief: run the onboard skill instead.
@@ -109,6 +116,9 @@ flaw found and why it is wrong), then `--result`. `chaos`: make a throwaway
 copy of the project (`git worktree add`), apply the injection that
 `item show <item> --check` describes, and let the learner diagnose from the
 logs alone. For a missing drill, ask the `drill-smith`, not the examiner.
+A learner who gives up gets the cause only after `--result fail` is
+recorded, from the solution the engine prints then; never from your own
+reading of the code (`framework/method.md`, "Asking and judging").
 
 **After every answer**, before anything else: say whether it was right, in
 one line. When it was wrong, show the key and the solution as the engine

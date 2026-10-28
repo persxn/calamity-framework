@@ -410,7 +410,14 @@ def cmd_item(c, a):
             if st.open:
                 raise CalError("%s is waiting for the learner's answer: record it first (answer %s ...)" % (a.item, a.item))
             text += "\n---\n" + items.reveal_text(item)
-        return 0, text + "\n---\nstatus: %s%s" % (status, (" (%s)" % st.reason) if st and st.reason else "")
+        text += "\n---\nstatus: %s%s" % (status, (" (%s)" % st.reason) if st and st.reason else "")
+        if st is not None and st.open and not a.reveal:
+            # The tutor may read the question; solving it for the learner, from the key or from its own reading,
+            # waits until the answer (or the give-up, --result fail) is recorded.
+            text += ("\nopen: waiting for the learner's answer. Never solve it or name its answer for them, from "
+                     "the key or your own reading, before `answer %s` is recorded (a give-up too: --result fail); "
+                     "if the engine cannot record, say so and stop." % a.item)
+        return 0, text
     if a.action == "verify":
         by = (a.by or "").strip()
         if not by:

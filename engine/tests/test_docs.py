@@ -385,6 +385,8 @@ class Structure(unittest.TestCase):
             raw.decode("utf-8")
             for word in (b"TODO", b"FIXME", b"XXX", b"lorem ipsum"):
                 self.assertNotIn(word, raw, "%s contains %s" % (rel, word.decode()))
+            self.assertNotRegex(raw, rb"(?m)^(<<<<<<<|\|\|\|\|\|\|\||=======|>>>>>>>)( |$)",
+                                "%s holds a merge conflict marker" % rel)
 
     def test_version_file(self):
         with open(os.path.join(REPO, "framework", "VERSION"), "r", encoding="utf-8") as fh:
