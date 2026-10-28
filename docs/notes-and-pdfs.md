@@ -48,7 +48,7 @@ it finds: Tectonic, then `latexmk`, `pdflatex`, `xelatex` or `lualatex`.
 
 | System | Smallest choice | Also works |
 |---|---|---|
-| Linux | Tectonic | TeX Live: `sudo apt install texlive-latex-recommended latexmk` on Debian or Ubuntu |
+| Linux | Tectonic | TeX Live: `sudo apt install texlive-latex-recommended texlive-latex-extra texlive-fonts-extra latexmk` on Debian or Ubuntu |
 | macOS | `brew install tectonic` | MacTeX |
 | Windows | `winget install MiKTeX.MiKTeX` (installs missing packages on demand) | Tectonic |
 
@@ -56,13 +56,20 @@ Tectonic downloads the LaTeX packages it needs the first time it builds a
 document, so that first build needs the internet. Without any TeX engine
 the `.tex` files are still written and ready; `notes pdf` says so.
 
+Notes, books and revision packs are set in Calamity Paper
+(`framework/design/`): Charter, Fira Sans, Fira Mono and Charter maths.
+Tectonic and MiKTeX fetch those fonts by themselves. A TeX Live without
+them (the `xcharter`, `xcharter-math`, `fira`, `newtx` and `txfonts`
+packages; Debian ships them in `texlive-fonts-extra`) still builds the PDF,
+in Latin Modern. Study books need `tcolorbox` as well (`texlive-latex-extra`).
+
 `python3 engine/calamity.py doctor` reports which TeX engine it found.
 
 ## Rules
 
 - Notes record what you did and understood. They never copy course
   material, slides or a book's text.
-- Do not edit `main.tex` or `calamity-preamble.tex`: the engine rewrites
+- Do not edit `main.tex` or `calamity.sty`: the engine rewrites
   them on every build. Edit the sections in `tex/`.
 - Fragments and sections are part of your record and are synced; the built
   PDF and LaTeX's working files are not (`.gitignore`).

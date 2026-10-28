@@ -74,5 +74,5 @@ lists every skill that has notes; build each in turn.
   the session must be checked before it is written down.
 - Never copy course material, slides or a book's text into notes. A
   lecture is summarised in the learner's own words.
-- Do not edit `main.tex` or `calamity-preamble.tex`; the engine rewrites
+- Do not edit `main.tex` or `calamity.sty`; the engine rewrites
   them on every build.

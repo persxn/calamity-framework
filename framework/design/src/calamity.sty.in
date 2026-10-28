@@ -32,6 +32,10 @@
 %%OTF_FONTS%%
   \RequirePackage{unicode-math}
   \IfFontExistsTF{%%OTF_MATH%%}{\setmathfont{%%OTF_MATH%%}}{}
+  % amssymb names that unicode-math spells differently, so a section builds on every engine
+  \AtBeginDocument{\providecommand{\square}{\mdlgwhtsquare}\providecommand{\blacksquare}{\mdlgblksquare}%
+    \providecommand{\lozenge}{\mdlgwhtlozenge}\providecommand{\blacklozenge}{\mdlgblklozenge}%
+    \let\Box\mdlgwhtsquare\let\Diamond\mdlgwhtdiamond}
 \fi
 \IfFileExists{microtype.sty}{\RequirePackage{microtype}%
   \ifPDFTeX\DisableLigatures[-,<,>,`,']{encoding=*,family=tt*}\fi}{}
@@ -87,6 +91,10 @@
   \fancyhead[L]{\sffamily\small\color{calSlate}\nouppercase{\leftmark}}
   \fancyhead[R]{\sffamily\small\color{calSlate}\thepage}
   \renewcommand{\headrulewidth}{0.3pt}
+  % the title block: sans, left-aligned, the author and date muted under it
+  \renewcommand{\@maketitle}{\null\vskip 0.5em{\sffamily\bfseries\LARGE\@title\par}\vskip 0.4em
+    {\sffamily\color{calMuted}\@author\par}\ifx\@date\@empty\else{\small\sffamily\color{calMuted}\@date\par}\fi
+    \vskip 1.2em}
 \fi
 
 % ---------------------------------------------------------------- callouts

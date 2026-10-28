@@ -14,7 +14,7 @@ learner/notes/<skill>/
   tex/<topic>.tex         section: the full write-up, derived from the fragment
   tex/stamps.json         which fragment each section was written from (engine)
   main.tex                assembled by the engine, in syllabus order (never edited)
-  calamity-preamble.tex   copied from framework/notes/preamble.tex (never edited)
+  calamity.sty            copied from framework/design/calamity.sty (Calamity Paper; never edited)
   <skill>-notes.pdf       built on demand
 ```
 
@@ -129,35 +129,47 @@ The usual way to get this wrong, and how to notice.
 
 ### LaTeX rules
 
-The preamble defines everything a section may use. A section must compile
-with pdfLaTeX, XeLaTeX and LuaLaTeX alike, without shell escape.
+`main.tex` loads `\usepackage{calamity}` (the notebook option of Calamity
+Paper: Charter, Fira Sans headings, Fira Mono code). It defines everything a
+section may use, and the same names exist in the book option, so a section
+drops into a study book unchanged. A section must compile with pdfLaTeX,
+XeLaTeX, LuaLaTeX and Tectonic alike, without shell escape.
 
 - **No preamble commands in a section**: no `\documentclass`,
   `\usepackage`, `\input`, `\include`, `\newcommand`, `\write18`.
-- **Environments available**: `keyidea`, `pitfall` (short, they do not break
-  across pages), `example`, `mistakes`, `recall`, `lstlisting`, and standard
-  LaTeX (`itemize`, `enumerate`, `tabular` with `\toprule`, `\midrule`,
-  `\bottomrule`, `align`, `equation`, `figure`).
+- **Callouts** (short: in notes they do not break across pages), each with
+  an optional subtitle, `\begin{pitfall}[the TLB time]`: `keyidea`,
+  `plainwords`, `underthehood`, `designnote`, `tryit`, `pitfall` (also
+  `gotcha`), `misconception`, `origin`, `scale`, `vocab`, `outage`,
+  `aiwatch`, `interview`, and `\begin{definition}{term}`. Use the one that
+  says what the box is; most sections need a key idea and a pitfall at most.
+- **Other environments**: `example` (a numbered worked example), `mistakes`,
+  `recall`, `lstlisting`, and standard LaTeX (`itemize`, `enumerate`,
+  `tabular` with `\toprule`, `\midrule`, `\bottomrule`, `align`,
+  `equation`, `figure`).
 - **Inline helpers**: `\code{git rebase -i}` for inline code (it copes with
   `_ ^ & $ ~`; for text containing `%`, `#` or unbalanced braces use
-  `\lstinline|...|`), `\term{...}` for a term being defined, `\bigO{n \log n}`.
+  `\lstinline|...|`), `\cmd{...}`, `\flag{--force}` and `\file{/etc/hosts}`
+  the same way, `\term{...}` for a term being defined, `\bigO{n \log n}`,
+  `\key{Ctrl}` for a key.
 - **Listings**: `\begin{lstlisting}[language=...]`. Languages: `C`, `C++`,
   `Java`, `Python`, `SQL`, `bash`, `HTML`, `XML`, `Go` (built in) and
   `JavaScript`, `TypeScript`, `Kotlin`, `Dart`, `Dockerfile`, `YAML`, `JSON`,
-  `HCL`, `text` (defined in the preamble). Listings contain plain ASCII
+  `HCL`, `text` (defined in `calamity.sty`). Listings contain plain ASCII
   only: replace arrows, curly quotes and accented letters inside code.
 - **Escape in running text**: `\&`, `\%`, `\$`, `\#`, `\_`, `\{`, `\}`,
   `\textasciitilde{}`, `\textasciicircum{}`, `\textbackslash{}`. Write
   `<`, `>` and `|` only in math or in code, never bare in text.
-- **Maths** in `\( ... \)` and `\[ ... \]` or `align`; amsmath and amssymb
-  are loaded.
+- **Maths** in `\( ... \)` and `\[ ... \]` or `align`; amsmath is loaded, and
+  the symbols of amssymb (`\mathbb`, `\leqslant`, `\checkmark`) work on every
+  engine.
 - **Quotes** as ``` ``like this'' ```. Dashes as `--` and `---`.
 - **Images** only if they exist: put the file in
   `learner/notes/<skill>/img/` and include it with
   `\includegraphics[width=0.8\linewidth]{img/<file>}`. Do not reference an
   image that is not there.
 - One file per topic, named after the topic id. Never edit `main.tex` or
-  `calamity-preamble.tex`: the engine rewrites them.
+  `calamity.sty`: the engine rewrites them.
 
 ## What is committed
 

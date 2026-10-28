@@ -387,7 +387,7 @@ class Sandbox:
             fw = os.path.join(self.root, "framework")
             for rel, text in MINI.items():
                 write(os.path.join(fw, rel), text)
-            for rel in ("config.md", os.path.join("gate", "2027.md"), os.path.join("notes", "preamble.tex")):
+            for rel in ("config.md", os.path.join("gate", "2027.md"), os.path.join("design", "calamity.sty")):
                 os.makedirs(os.path.dirname(os.path.join(fw, rel)), exist_ok=True)
                 shutil.copyfile(os.path.join(REPO, "framework", rel), os.path.join(fw, rel))
             write(os.path.join(fw, "method.md"), "# Method (test stub)\n")

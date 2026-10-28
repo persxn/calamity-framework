@@ -94,7 +94,7 @@ class Notes(Case):
         self.assertLess(main.index(r"\appendix"), main.index(r"\input{tex/old-topic}"))  # no longer in the syllabus
         self.assertIn(r"\title{Docker}", main)
         self.assertIn(r"\author{Tester", main)
-        self.assertTrue(os.path.isfile(sb.path("learner", "notes", "docker", "calamity-preamble.tex")))
+        self.assertTrue(os.path.isfile(sb.path("learner", "notes", "docker", "calamity.sty")))
 
     def test_tex_escape(self):
         self.assertEqual(notes.tex_escape("50% of A&B_c #1 {x} ~ ^ \\ $"),

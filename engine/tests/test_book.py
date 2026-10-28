@@ -37,7 +37,11 @@ class Convert(unittest.TestCase):
         tex = mdbook.to_latex("# The book\n\n" + SECTION, ".", "fallback")
         self.assertIn(r"\title{The book}", tex)
         self.assertIn(r"\section{Pipes}", tex)
-        self.assertIn(r"\begin{callout}", tex)
+        self.assertIn(r"\begin{mdframed}[style=calquote", tex)                # a block quote is a callout
+        self.assertIn(r"\usepackage{calamity}", tex)                           # Calamity Paper
+        self.assertEqual(mdbook.quote_colour("**Common misconception** — no"), "calAmber")
+        self.assertEqual(mdbook.quote_colour("**Note** — yes"), "calSlate")
+        self.assertEqual(mdbook.quote_colour("**Key idea**: this"), "calAccent")
         self.assertIn(r"\begin{enumerate}", tex)
         self.assertIn(r"\begin{itemize}", tex)                    # the nested list
         self.assertIn(r"\texttt{ls}", tex)

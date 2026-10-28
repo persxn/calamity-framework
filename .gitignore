@@ -17,6 +17,7 @@ __pycache__/
 # Study notes: build products (fragments, tex/ sections and stamps.json are kept)
 learner/notes/**/main.tex
 learner/notes/**/calamity-preamble.tex
+learner/notes/**/calamity.sty
 learner/notes/**/main.pdf
 learner/notes/**/*-notes.pdf
 learner/notes/**/*-notes.md
