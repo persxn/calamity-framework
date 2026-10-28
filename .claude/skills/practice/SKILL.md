@@ -1,8 +1,8 @@
 ---
 name: practice
-description: "Questions from outside material (previous-paper books, PDFs, sheets) as metadata: map a set, log results, revisit every one."
-when_to_use: "When the learner says they solved, got wrong or skipped questions from a book, a PDF or previous papers, or asks what to redo."
-argument-hint: "[set id | due | log ...]"
+description: "Questions from outside material as metadata (map a set, log results, revisit each), and the developer track's session types: system-day, classic, outage, oss, vocab."
+when_to_use: "When the learner logs questions from a book, a PDF or previous papers, asks what to redo, or wants a system-day, classic, outage, open-source or vocabulary session."
+argument-hint: "[set id | due | log ... | system-day | classic | outage | oss | vocab]"
 ---
 
 # Practice sets
@@ -77,3 +77,25 @@ it. When a wrong question shows a real gap, ask the `examiner` agent for
 an **original** engine item on the same idea with new numbers (give it
 the topic and the idea in one line, never the question's text); the
 `checker` verifies it, and it is asked like any other item.
+
+## Developer sessions
+
+The developer track's own practice, run as one session each (`/practice <type>`):
+
+| Type | The session | Ends with |
+|---|---|---|
+| `system-day` | a real system the learner did not choose (the tutor names it: Discord's message store, Stripe's idempotency, Netflix's CDN), taken apart from its constraints: what it must do, what breaks at its scale, the design, each trade-off | a one-page design sketch in the learner's words |
+| `classic` | a classic read: a paper, an RFC or an engineering post (the tutor checks it exists and links the original) | at least three new ideas, each in a sentence of the learner's own |
+| `outage` | a real, published post-mortem: the failure chain rebuilt link by link, the decision behind each, what the learner would have done | the chain written as trigger → causes → impact → fix |
+| `oss` | open-source immersion: a repository cloned into `.calamity/scratch/` (never committed), built, run, traced, changed in one small way | the change, and a `path:symbol` map of what was read |
+| `vocab` | about five terms of `eng-vocab` (enrol it once), each with its mental model, a real example, where it bites, and a check | the terms in the topic's notes fragment |
+
+For every session:
+
+1. Teach and discuss to the depth contract; nothing copied in from the source (summaries in the learner's words, links to the original).
+2. Record it: `python3 engine/calamity.py practice session <type> --minutes N --topic <key> --ideas N --note "what it was about"`. Pick the closest tree topic (`find <words>`; for vocab, the `eng-vocab` family).
+3. Save the notes fragment for that topic (notes skill, step 1).
+4. Hand its testable ideas to the examiner as seeds for that topic, then the ids to the checker: the session itself is not evidence; the items that follow are.
+
+`python3 engine/calamity.py practice sessions` shows what was done lately and which types have not come up.
+

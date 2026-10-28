@@ -210,6 +210,14 @@ changes their record in `learner/`.
   what else they combine with, shared ground and the route to a goal, each
   with its reasons ("builds on React (100% secured)"). Weaving now picks
   the topics most at risk of being forgotten first.
+- The developer track's session types: `/practice system-day`, `classic`
+  (three new ideas), `outage`, `oss` and `vocab`, each recorded with
+  `practice session <type>` (shown in `day`, `history` and the journal,
+  never evidence), its notes fragment saved and its testable ideas sent to
+  the examiner as seeds. `practice sessions` shows what came up lately. A
+  new optional skill, `eng-vocab`, holds the vocabulary in seven families
+  (reliability, distributed systems, data, performance, architecture,
+  operations, security).
 
 ### Development
 
