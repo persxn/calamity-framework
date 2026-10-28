@@ -111,8 +111,8 @@ Ask for them with `/remind`. Claude stores the times you choose and writes
 the scheduler files for this computer:
 
 ```bash
-python3 engine/calamity.py profile set reminders.times 09:00,14:00,21:00
-python3 engine/calamity.py remind render
+calamity profile set reminders.times 09:00,14:00,21:00
+calamity remind render
 ```
 
 `remind render` writes the files under `.calamity/reminders/` and prints
@@ -126,7 +126,7 @@ engine installs nothing itself: Claude shows you the command and runs it
 when you agree. To see what a reminder would say right now:
 
 ```bash
-python3 engine/calamity.py remind check --always
+calamity remind check --always
 ```
 
 Reminders are per computer; set them up again on a second laptop.
@@ -134,7 +134,7 @@ Reminders are per computer; set them up again on a second laptop.
 ## The status line
 
 ```bash
-python3 engine/calamity.py setup --statusline
+calamity setup --statusline
 ```
 
 shows the day's numbers at the bottom of Claude Code, for example
@@ -142,7 +142,7 @@ shows the day's numbers at the bottom of Claude Code, for example
 learner). The last part is the suggested model and effort for the next
 block; it disappears when your current setting already fits (see
 [Choosing a model](#choosing-a-model)). Remove the status line with
-`python3 engine/calamity.py setup --remove-statusline`.
+`calamity setup --remove-statusline`.
 
 ## Choosing a model
 
@@ -161,8 +161,8 @@ in testing, and no models were compared.
 The examiner and checker run on your session's model, so while `/study`
 stocks the question bank the line suggests the stronger setting, then the
 lighter one for reviews. Change a row with
-`python3 engine/calamity.py profile set cfg.advice.light "haiku low"`;
-turn the line off with `python3 engine/calamity.py profile set cfg.advice false`.
+`calamity profile set cfg.advice.light "haiku low"`;
+turn the line off with `calamity profile set cfg.advice false`.
 
 ## Free views
 
@@ -172,12 +172,12 @@ your Claude plan. Run them in a terminal in the framework folder (Windows:
 
 | Command | Shows |
 |---|---|
-| `python3 engine/calamity.py today` | Today's finish line and the next action |
-| `python3 engine/calamity.py next` | The single next thing to do, and why |
-| `python3 engine/calamity.py dash` | The main dashboard (`dash queue`, `dash roadmap`, `dash week`, `dash gate`, `dash cp`) |
-| `python3 engine/calamity.py tree suggest` | What you could start next |
-| `python3 engine/calamity.py stats week` | The last days: time, reviews, new topics, accuracy |
-| `python3 engine/calamity.py doctor` | A health check that says what to fix |
+| `calamity today` | Today's finish line and the next action |
+| `calamity next` | The single next thing to do, and why |
+| `calamity dash` | The main dashboard (`dash queue`, `dash roadmap`, `dash week`, `dash gate`, `dash cp`) |
+| `calamity tree suggest` | What you could start next |
+| `calamity stats week` | The last days: time, reviews, new topics, accuracy |
+| `calamity doctor` | A health check that says what to fix |
 
 The full list is in the README, "Views you can run yourself, for free".
 

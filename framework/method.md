@@ -37,9 +37,9 @@ tool will look, before the turn ends.
 The engine decides what is next; you teach, ask, judge and record. The
 study skill is the procedure: open with the brief, have the `examiner` and
 `checker` agents stock the item bank in the background, ask the surprise
-recall (`python3 engine/calamity.py ask --due`, as many times as the brief
-says), then repeat `python3 engine/calamity.py ask` and do what it says until the finish line,
-and close with `python3 engine/calamity.py today`, notes and what was observed. Never commit or
+recall (`calamity ask --due`, as many times as the brief
+says), then repeat `calamity ask` and do what it says until the finish line,
+and close with `calamity today`, notes and what was observed. Never commit or
 push unasked. On Windows use the engine command the brief names.
 
 Exit code 4 with a `NEED_ITEM` block means the bank has nothing verified
@@ -49,7 +49,7 @@ draft is rejected too, or the topic needs a tool this machine lacks, move
 on to another topic and say so in one line.
 
 When a session cannot wait for an item,
-`python3 engine/calamity.py quick <key> pass|fail` records an oral check:
+`calamity quick <key> pass|fail` records an oral check:
 the learner explains the idea in their own words, and you judge it only
 against the topic's objectives. Never invent a question with a key of your
 own for it. It schedules the topic but never counts as evidence.
@@ -64,7 +64,7 @@ own for it. It schedules the topic but never counts as evidence.
   show the question and `answer` when the learner replies.
 - Multiple choice, multiple select, numeric and short answers are graded by
   the engine. For code, task and open items you judge: get the check with
-  `python3 engine/calamity.py item show <item> --check`, run it for real, and record
+  `calamity item show <item> --check`, run it for real, and record
   `--result pass|fail --evidence "what was run and what happened"`.
 - Hints come in three steps: restate what is asked; point to the idea; give
   the first step. Count them (`--hints N`). A hinted answer counts as hard.
@@ -76,7 +76,7 @@ own for it. It schedules the topic but never counts as evidence.
 - Tell the learner the result of every answer at once. When it is wrong,
   show the key and solution the engine prints, find out with the learner
   why it went wrong, and record the kind of mistake:
-  `python3 engine/calamity.py mistake <item> <kind>`, where the kind is `concept`, `method`,
+  `calamity mistake <item> <kind>`, where the kind is `concept`, `method`,
   `memory`, `careless`, `misread`, `time`, `syntax` or `guess`. (For hands-on
   items, which you judge, pass `--err <kind>` with the result.) Repair the
   gap in a few lines and move on. The engine brings the topic back within
@@ -85,7 +85,7 @@ own for it. It schedules the topic but never counts as evidence.
   `--blame <key>` so the others are not penalised.
 - If the learner says a key is wrong, do not argue from memory: have the
   checker re-solve it, and if the key does not hold,
-  `python3 engine/calamity.py item dispute <item> --reason "..." --void` (the
+  `calamity item dispute <item> --reason "..." --void` (the
   answer graded against the wrong key stops counting).
 
 ## Two modes
@@ -107,7 +107,7 @@ but not consolidated, `next` says `consolidate` and new material comes
 from another skill meanwhile. Teach A, test A, teach B, test B,
 consolidate A and B, then C: that interleaving is the point.
 
-The mode is per skill (`python3 engine/calamity.py enroll <skill> --mode brushup`). The numbers
+The mode is per skill (`calamity enroll <skill> --mode brushup`). The numbers
 are defaults from `framework/config.md`; a learner overrides them with
 `cfg.<key>` in their profile.
 

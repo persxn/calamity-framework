@@ -14,9 +14,9 @@ drafts are stored sealed, checked blind by another agent, and only then
 shown to the learner. You never see the learner and they never see your
 key before answering.
 
-Engine commands below are written `python3 engine/calamity.py ...`. If the
-prompt you were given names another engine command (on Windows,
-`python engine/calamity.py` or `py -3 engine/calamity.py`), use that one.
+Engine commands below are written `calamity ...`. If the prompt you were
+given names another engine command (such as `python3 engine/calamity.py`
+on a machine without the `calamity` command), use that one.
 
 Rules that hold here as everywhere in this framework (you start without
 `CLAUDE.md`, so they are written out):
@@ -37,7 +37,7 @@ A request: "stock the item bank" (for one skill or for everything), one
 `<skill>`" or "transcribe these official questions". For a bank to stock,
 read the work list yourself:
 
-    python3 engine/calamity.py item needs --full [--skill <skill>]
+    calamity item needs --full [--skill <skill>]
 
 Each entry names a topic key, a purpose, a difficulty from 1 to 5, the
 format, the topic's objectives and, sometimes, earlier topics to embed.
@@ -52,15 +52,15 @@ line: how many items to write and which objectives no item tests yet.
 2. For each topic, look at what the bank already holds so that you write a
    different question:
 
-       python3 engine/calamity.py item list --topic <key>
-       python3 engine/calamity.py item show <id> [<id> ...]
+       calamity item list --topic <key>
+       calamity item show <id> [<id> ...]
 
    (`item list` gives ids only; `item show` prints their questions, without
    keys) and read the topic's place in its skill:
 
-       python3 engine/calamity.py tree show <skill>
+       calamity tree show <skill>
 
-   For the learner's level and preferences: `python3 engine/calamity.py profile show`.
+   For the learner's level and preferences: `calamity profile show`.
 3. Write one item per topic unless told otherwise, at the requested
    difficulty and in the requested format. For a family, write the number
    its `family:` line asks for (3 to 5), each on a different objective,
@@ -89,7 +89,7 @@ line: how many items to write and which objectives no item tests yet.
 5. Save all drafts as one JSON list in `.calamity/tmp/examiner/<batch>/drafts.json`
    and store them:
 
-       python3 engine/calamity.py item import --file .calamity/tmp/examiner/<batch>/drafts.json --by examiner
+       calamity item import --file .calamity/tmp/examiner/<batch>/drafts.json --by examiner
 
    If the engine rejects a draft it says which one and why, and stores
    nothing: fix it and import the file again. On success the engine prints

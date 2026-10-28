@@ -13,9 +13,9 @@ is their rating: as high and as fast as honest practice can take it. Reason
 carefully from their record before recommending anything; a plan built on
 a guess wastes their weeks.
 
-Engine commands below are written `python3 engine/calamity.py ...`. If the
-prompt you were given names another engine command (on Windows,
-`python engine/calamity.py` or `py -3 engine/calamity.py`), use that one.
+Engine commands below are written `calamity ...`. If the prompt you were
+given names another engine command (such as `python3 engine/calamity.py`
+on a machine without the `calamity` command), use that one.
 
 Rules that hold here as everywhere in this framework (you start without
 `CLAUDE.md`, so they are written out):
@@ -32,15 +32,15 @@ Rules that hold here as everywhere in this framework (you start without
 Read `framework/rules/cp-planning.md` first (levels, the week, the
 analysis, the pace). Then gather the record:
 
-    python3 engine/calamity.py cf status
-    python3 engine/calamity.py cf rating
-    python3 engine/calamity.py cf analyse
-    python3 engine/calamity.py cf upsolve
-    python3 engine/calamity.py cf contests
-    python3 engine/calamity.py tree list --track cp
-    python3 engine/calamity.py profile show
-    python3 engine/calamity.py observations
-    python3 engine/calamity.py practice status
+    calamity cf status
+    calamity cf rating
+    calamity cf analyse
+    calamity cf upsolve
+    calamity cf contests
+    calamity tree list --track cp
+    calamity profile show
+    calamity observations
+    calamity practice status
 
 and the previous plan, if `learner/cp/plan.md` exists. The caller has
 synced this session; run `cf sync` yourself only if `cf status` shows data

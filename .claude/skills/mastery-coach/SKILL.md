@@ -11,21 +11,21 @@ Deep coaching on the engine. The engine decides what comes next, serves the ques
 schedules the reviews and says when a unit is done; you teach with the deep arc in
 `.claude/skills/teach-deep/SKILL.md` (read it, and `framework/method.md`, once per session; read
 `framework/method-teaching.md` before the first new topic). Nothing about the learner is assumed: ask,
-or read their files. Commands are shown for Linux and macOS; on Windows use the command the brief names
-after `engine:`.
+or read their files. Engine commands are written `calamity <command>`; if the brief names another engine
+command after `engine:`, use that one.
 
 ## 1. Make the topic tracked
 
 Everything the coach teaches goes on the record, so every topic is a tree skill first.
 
-1. `python3 engine/calamity.py find <words>`. A match that fits the learner's intent: use that skill.
+1. `calamity find <words>`. A match that fits the learner's intent: use that skill.
 2. No match: ask the `curriculum-architect` agent to design one, in one run ("a new skill node and its
    syllabus for `<topic>`, track `<the learner's track, or personal>`, depth: complete mastery, from
    the official documentation"). It adds the node with `tree add` and writes the syllabus. Then
-   `python3 engine/calamity.py syllabus check <skill>` and `tree check`.
+   `calamity syllabus check <skill>` and `tree check`.
 3. A skill with no syllabus yet: the same agent writes it ("write the syllabus for `<skill>`, depth:
    complete mastery").
-4. `python3 engine/calamity.py enroll <skill> --mode mastery` (`--mode brushup` for a brush-up;
+4. `calamity enroll <skill> --mode mastery` (`--mode brushup` for a brush-up;
    `references/state-format.md` says how balanced is recorded). If it is locked, show the
    prerequisites and `tree path <skill>`; `--force` only if the learner wants it anyway.
 
@@ -44,25 +44,25 @@ grouped into units in `learner/coach/<topic>/curriculum.md`. Show the roadmap be
 
 ## 4. The session loop
 
-1. **Stock the bank in the background.** `python3 engine/calamity.py item needs --skill <skill> --compact`; if it
+1. **Stock the bank in the background.** `calamity item needs --skill <skill> --compact`; if it
    lists topics, ask the `examiner` to stock them, passing the seeds you have
    (`learner/coach/<topic>/seeds.md`), then the ids it returns to the `checker`. Never write or verify an
    item yourself.
-2. **Open with recall.** `python3 engine/calamity.py ask --due` two or three times, no warning, from
+2. **Open with recall.** `calamity ask --due` two or three times, no warning, from
    every skill.
-3. **Teach.** `python3 engine/calamity.py ask --skill <skill>` and follow what it prints exactly as the
+3. **Teach.** `calamity ask --skill <skill>` and follow what it prints exactly as the
    study skill's table says (`NEXT: new`, `consolidate`, `watch`, `boss`, an item). On `NEXT: new`,
    teach the topic with the arc, in chunks, each checked with formative questions; when it is taught
-   through, `python3 engine/calamity.py ask --topic <key> --taught --parts <parts> --minutes <n>` records
+   through, `calamity ask --topic <key> --taught --parts <parts> --minutes <n>` records
    the teaching and serves the first question that counts. Show questions exactly as the engine prints
    them and record answers with `answer` (`--hints N`, `mistake` after a miss), as in the study skill.
    Drop surprise recall (`ask --due`) at natural pauses.
 4. **Seeds.** Your best formative questions go to `seeds.md` (question idea, type, topic keys, never an
    answer) and to the examiner with the next stocking.
-5. **Close a unit.** `python3 engine/calamity.py unit <skill> <topics of the unit>`. `UNIT OPEN` names
+5. **Close a unit.** `calamity unit <skill> <topics of the unit>`. `UNIT OPEN` names
    what is missing: topics not yet consolidated (their second item comes from `ask`), or an explain-back.
    For the explain-back, the learner explains one idea of the unit in their own words; judge it against
-   the objectives, then `python3 engine/calamity.py observe "<what they explained, how well>" --tag
+   the objectives, then `calamity observe "<what they explained, how well>" --tag
    explain --topic <key>`. In in-depth mode start at most one new unit per session; the rest of the time
    goes to consolidation and reviews.
 6. **Write as you go** (`references/state-format.md`): the session log after every chunk, the unit's
@@ -82,7 +82,7 @@ sealed. If `book.format` is not set, ask once first (Markdown, the default, or P
 
 ## Older state
 
-- A `learner/mastery/` folder from before: `python3 engine/calamity.py layout migrate`, show the moves,
+- A `learner/mastery/` folder from before: `calamity layout migrate`, show the moves,
   then `--write` if the learner agrees.
 - A `recall.md` in `learner/coach/<topic>/`: hand its questions (never its answers) to the examiner as
   seeds once, then rename it `recall.retired.md`. The engine's schedule replaces it.

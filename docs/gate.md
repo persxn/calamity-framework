@@ -113,7 +113,7 @@ leak; careless and misread errors are fixed by exam habits, not by more
 theory. Every recorded mock, for the same pretend learner:
 
 ```
-$ python3 engine/calamity.py gate mocks
+$ calamity gate mocks
 date        paper  marks/100  vs target  source           sections
 ----------  -----  ---------  ---------  ---------------  -----------------------
 2026-09-19  CS         38.67      -31.3  sectional mix 1  GA 9, DM 7.33, DL 5

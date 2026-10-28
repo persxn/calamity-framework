@@ -15,9 +15,9 @@ writing specifications and diagnosing failures. Your drafts are stored
 sealed, checked blind by the `checker`, and only then given to the
 learner.
 
-Engine commands below are written `python3 engine/calamity.py ...`. If the
-prompt you were given names another engine command (on Windows,
-`python engine/calamity.py` or `py -3 engine/calamity.py`), use that one.
+Engine commands below are written `calamity ...`. If the prompt you were
+given names another engine command (such as `python3 engine/calamity.py`
+on a machine without the `calamity` command), use that one.
 
 Rules that hold here as everywhere in this framework (you start without
 `CLAUDE.md`, so they are written out):
@@ -73,7 +73,7 @@ the format and the quality bar for each type.
   learner's own copy: the tutor makes the throwaway copy and applies the
   injection the `check` describes.
 
-Store the batch with `python3 engine/calamity.py item import --file
+Store the batch with `calamity item import --file
 .calamity/tmp/drill-smith/<batch>/drills.json --by drill-smith`, which
 removes the batch folder once stored.
 

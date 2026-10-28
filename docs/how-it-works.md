@@ -2,7 +2,7 @@
 
 Claude teaches, asks and judges. A small Python program, the engine, keeps
 the record and decides what comes next. They meet at the command line:
-every skill and agent works through `python3 engine/calamity.py ...`.
+every skill and agent works through `calamity ...`.
 
 ```mermaid
 flowchart LR
@@ -117,8 +117,8 @@ Never edit the file for yourself: override a value in your profile, and it
 is checked before it is stored.
 
 ```bash
-python3 engine/calamity.py profile set cfg.new_per_day_max 6
-python3 engine/calamity.py profile unset cfg.new_per_day_max
+calamity profile set cfg.new_per_day_max 6
+calamity profile unset cfg.new_per_day_max
 ```
 
 The profile keys the engine reads are listed in

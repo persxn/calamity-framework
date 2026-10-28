@@ -63,10 +63,10 @@ instead of editing them.
 
 5. **Verify.**
 
-       python3 engine/calamity.py selftest
-       python3 engine/calamity.py doctor
-       python3 engine/calamity.py tree check
-       python3 engine/calamity.py rebuild
+       calamity selftest
+       calamity doctor
+       calamity tree check
+       calamity rebuild
 
    All four must pass. `tree check` may warn that a learner override now
    shadows a changed shipped skill: show those to the learner. If anything

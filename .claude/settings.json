@@ -1,6 +1,7 @@
 {
   "permissions": {
     "allow": [
+      "Bash(calamity *)",
       "Bash(python3 engine/calamity.py *)",
       "Bash(python engine/calamity.py *)",
       "Bash(py -3 engine/calamity.py *)",
@@ -26,6 +27,7 @@
       "Edit(/.calamity/tmp/**)"
     ],
     "ask": [
+      "Bash(calamity setup *)",
       "Bash(python3 engine/calamity.py setup *)",
       "Bash(python engine/calamity.py setup *)",
       "Bash(py -3 engine/calamity.py setup *)",

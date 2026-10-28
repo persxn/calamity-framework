@@ -52,18 +52,34 @@ jobs:
       - name: Random command sequences, replay checked against a full replay
         run: python tools/fuzz.py --runs 5 --steps 40
 
+  plugin:
+    name: plugin manifest (claude plugin validate --strict)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.12"
+      - name: Claude Code (validation needs no account)
+        run: |
+          curl -fsSL https://claude.ai/install.sh | bash -s 2.1.312
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+      - name: Validate, allowing only the clone's CLAUDE.md warning
+        run: python tools/validate_plugin.py
+
   # The one check that branch protection requires. It runs even when a job above failed or was
   # cancelled (a skipped required check would count as passed), and passes only if every job passed.
   ci-ok:
     name: ci-ok
     if: always()
-    needs: [selftest, end-to-end]
+    needs: [selftest, end-to-end, plugin]
     runs-on: ubuntu-latest
     steps:
       - name: Every job passed
         env:
           SELFTEST: ${{ needs.selftest.result }}
           END_TO_END: ${{ needs.end-to-end.result }}
+          PLUGIN: ${{ needs.plugin.result }}
         run: |
-          echo "selftest: $SELFTEST · end to end: $END_TO_END"
-          test "$SELFTEST" = success && test "$END_TO_END" = success
+          echo "selftest: $SELFTEST · end to end: $END_TO_END · plugin: $PLUGIN"
+          test "$SELFTEST" = success && test "$END_TO_END" = success && test "$PLUGIN" = success

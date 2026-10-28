@@ -11,16 +11,16 @@ Pick the view from the argument or the question:
 
 | They want | Run |
 |---|---|
-| overall progress (default) | `python3 engine/calamity.py dash` |
-| the roadmap of their tracks | `python3 engine/calamity.py dash roadmap` (`--all-tracks` for everything, `--track cp` for one) |
-| what is due and coming up | `python3 engine/calamity.py dash queue` |
-| the GATE board | `python3 engine/calamity.py dash gate` |
-| the Codeforces board | `python3 engine/calamity.py dash cp` |
-| the last seven days | `python3 engine/calamity.py dash week` |
-| everything at once | `python3 engine/calamity.py dash all` |
-| a past day, or what was done when ("what did I do in October?") | `python3 engine/calamity.py day 2026-10-12`, `python3 engine/calamity.py history --by month`, or read `learner/journal/<YYYY-MM>.md` (a month on one page) |
-| one skill in detail | `python3 engine/calamity.py tree show <skill>` |
-| the route to a goal | `python3 engine/calamity.py tree path <skill>` |
+| overall progress (default) | `calamity dash` |
+| the roadmap of their tracks | `calamity dash roadmap` (`--all-tracks` for everything, `--track cp` for one) |
+| what is due and coming up | `calamity dash queue` |
+| the GATE board | `calamity dash gate` |
+| the Codeforces board | `calamity dash cp` |
+| the last seven days | `calamity dash week` |
+| everything at once | `calamity dash all` |
+| a past day, or what was done when ("what did I do in October?") | `calamity day 2026-10-12`, `calamity history --by month`, or read `learner/journal/<YYYY-MM>.md` (a month on one page) |
+| one skill in detail | `calamity tree show <skill>` |
+| the route to a goal | `calamity tree path <skill>` |
 
 Rules:
 
@@ -35,9 +35,9 @@ Rules:
 - After the block, at most two lines: the one thing that stands out and the
   next action. No commentary on every row.
 - A printable snapshot lives in `learner/PROGRESS.md`; refresh it with
-  `python3 engine/calamity.py rebuild`.
+  `calamity rebuild`.
 - If the Codeforces board says nothing is cached on this machine, run
-  `python3 engine/calamity.py cf sync` first.
+  `calamity cf sync` first.
 - The first time the learner uses this in a session, add one line: every
   view here runs in a terminal at no cost (the same command; see "Free
   views" in `docs/daily-use.md`).

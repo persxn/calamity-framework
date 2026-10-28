@@ -7,7 +7,7 @@ primary format: it costs a fraction of the tokens of LaTeX, renders on
 GitHub and in any editor, and stays easy to change. A PDF is made only
 when the learner asks for one, by the engine, from the same files:
 
-    python3 engine/calamity.py book pdf <file or folder>
+    calamity book pdf <file or folder>
 
 No model writes or reviews LaTeX for it.
 
@@ -18,7 +18,7 @@ answered. Ask once, the first time study material would be written: "A
 well-structured Markdown file as your main textbook (the default, cheaper
 and quicker), or a PDF?". Record the answer:
 
-    python3 engine/calamity.py profile set book.format markdown
+    calamity profile set book.format markdown
 
 `pdf` keeps the earlier LaTeX path (`framework/rules/notes-latex.md`). Never
 ask again unless the learner raises it.

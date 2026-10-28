@@ -96,9 +96,9 @@ your first skills. [The first session](first-session.md) walks through it.
 - **Desktop reminders**: they use `notify-send`
   (`sudo apt install libnotify-bin` on Debian or Ubuntu) and your user's
   crontab. Ask for them with `/remind`; see [daily use](daily-use.md#reminders).
-- **The status line**: `python3 engine/calamity.py setup --statusline`
+- **The status line**: `calamity setup --statusline`
   shows the day's numbers at the bottom of Claude Code.
-- **A `calamity` command**: `python3 engine/calamity.py setup --alias`
+- **A `calamity` command**: `python3 engine/calamity.py setup --alias --shim`
   adds an alias to your shell's start-up file, so that typing `calamity`
   in a new terminal goes to this folder and starts
   `claude --dangerously-skip-permissions`. That session asks no

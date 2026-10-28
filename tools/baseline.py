@@ -31,7 +31,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import tokens  # noqa: E402
 
 SRC = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-ENGINE_FORMS = "Bash(python3 engine/calamity.py *)"
+ENGINE_FORMS = "Bash(calamity *) Bash(python3 engine/calamity.py *)"
 OPTIONS = re.compile(r"(?m)^\s*(?:\*\*)?\(?[A-D][).:](?:\*\*)?\s+\S")      # a question with lettered options
 RECALL = [("gate.cs.digital-logic", t) for t in ("boolean-algebra", "minimization-kmap", "minimization-tabular",
                                                    "combinational-circuits", "sequential-circuits")] + \

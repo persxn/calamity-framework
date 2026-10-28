@@ -186,6 +186,25 @@ changes their record in `learner/`.
   `cheatsheet.tex` and `notes cheatsheet <skill>` builds it in the
   `cheatsheet` option (landscape, three columns), saying so when it runs
   past a page. `dash --html` pages wear `calamity.css`.
+- Calamity as a plugin. `/plugin install calamity --marketplace
+  persxn/calamity-framework` and an empty folder of your own are enough:
+  `bin/calamity` (and `calamity.cmd` on Windows) puts the engine on the
+  shell's PATH and finds the learner's folder by itself (`CALAMITY_ROOT`,
+  the plugin's `learner_dir` setting, the nearest `learner/profile.md`, or
+  the current folder); `hooks/hooks.json` runs the brief, the key guard
+  and the study hooks; the brief exports `CALAMITY_ROOT` for the session
+  and links the plugin's `framework/` into the learner's folder (git-
+  ignored) so every relative path in the skills resolves; the tutor's
+  output style is forced on and carries the session start and the rules
+  that do not bend; `setup --permissions` copies the permission rules in.
+  Every skill, agent, rule and guide now writes `calamity <command>`; the
+  brief names `python3 engine/calamity.py` where `calamity` is not on the
+  PATH. In a clone, `setup --shim` writes `calamity` to `~/.local/bin`, and
+  `setup --alias` (D5: the name stays) writes a shell function: alone it
+  opens Claude Code with permission prompts off, with arguments it runs
+  the engine. CI validates the plugin with `claude plugin validate
+  --strict` (`tools/validate_plugin.py`). The plugin has an icon, drawn
+  from the design tokens.
 - Progress by date. `day <date>` adds what was recorded that day (time,
   answers, topics taught and secured, lectures, practice, workouts);
   `history --by day|week|month [--skill S] [--track T]` gives one row per

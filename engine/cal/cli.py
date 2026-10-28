@@ -125,6 +125,7 @@ def cmd_brief(c, a):
             src = src[:20]
             if c.repo.onboarded() and not hooks.off():
                 c.repo.append("session", when=c.when, src=src)
+            machine.export_root(c.repo)        # plugin mode: `calamity` finds this learner for the whole session
             # The hook input may name the model and effort (optional fields): the advice line uses them.
             text = plan.brief(c.repo, c.tree, c.state, c.when, machine.engine_cmd(c.repo), current=data)
             if src == "compact" and c.repo.onboarded() and not hooks.off():
@@ -1087,8 +1088,10 @@ def cmd_profile(c, a):
 def cmd_setup(c, a):
     from . import machine
 
-    if a.remove_hook or a.remove_statusline or a.remove_alias:
+    if a.remove_hook or a.remove_statusline or a.remove_alias or a.remove_shim:
         done = []
+        if a.remove_shim:
+            done.append(machine.remove_shim(c.repo))
         if a.remove_hook:
             done.append(machine.remove_hook(c.repo))
         if a.remove_statusline:
@@ -1096,7 +1099,7 @@ def cmd_setup(c, a):
         if a.remove_alias:
             done.append(machine.remove_alias(c.repo))
         return 0, "\n".join(done)
-    return 0, machine.setup(c.repo, a.machine, a.hook, a.statusline, a.alias)
+    return 0, machine.setup(c.repo, a.machine, a.hook, a.statusline, a.alias, a.shim, a.permissions)
 
 
 def cmd_doctor(c, a):
@@ -1629,7 +1632,8 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("key", nargs="?")
     sp.add_argument("value", nargs=argparse.REMAINDER, help="the value (the rest of the line)")
     sp.add_argument("--text", action="store_true", help="store the value as one piece of text (allowed anywhere)")
-    sp = add("setup", cmd_setup, "Prepare this machine (machine id, folders, optional hook, status line and alias).")
+    sp = add("setup", cmd_setup, "Prepare this machine (machine id, folders, optional hook, status line, the calamity "
+                                 "function and command, permissions).")
     sp.add_argument("--machine", help="a name for this computer (default: from its host name)")
     sp.add_argument("--hook", action="store_true",
                     help="install the session-start hook and the key guard in .claude/settings.local.json")
@@ -1639,8 +1643,13 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("--remove-statusline", dest="remove_statusline", action="store_true",
                     help="take the status line out again")
     sp.add_argument("--alias", action="store_true",
-                    help="add a `calamity` shell alias: cd here and run claude --dangerously-skip-permissions")
-    sp.add_argument("--remove-alias", dest="remove_alias", action="store_true", help="take the alias out again")
+                    help="add the `calamity` shell function: alone, cd here and run claude --dangerously-skip-permissions; "
+                         "with arguments, the engine")
+    sp.add_argument("--remove-alias", dest="remove_alias", action="store_true", help="take the function out again")
+    sp.add_argument("--shim", action="store_true", help="write the `calamity` command to ~/.local/bin (no sudo)")
+    sp.add_argument("--remove-shim", dest="remove_shim", action="store_true", help="take that command out again")
+    sp.add_argument("--permissions", action="store_true",
+                    help="plugin mode: copy the permission rules into this learner repository's .claude/settings.json")
     sp = add("day", cmd_day, "The day's shape: its blocks with the current one marked, the day's note and goals, "
                               "the finish line. Also: day note, day goal, day done, day migrate.")
     sp.add_argument("words", nargs="*", help="[<day>] | note <day> <text> | goal <text> | done|undone <n> | migrate")

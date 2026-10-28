@@ -13,9 +13,9 @@ There is nothing to install. You need Python 3.9 or newer and git.
 ```bash
 git clone https://github.com/persxn/calamity-framework.git
 cd calamity-framework
-python3 engine/calamity.py selftest
-python3 engine/calamity.py doctor
-python3 engine/calamity.py tree check
+calamity selftest
+calamity doctor
+calamity tree check
 ```
 
 On Windows use `python` or `py -3` instead of `python3`.
@@ -50,8 +50,8 @@ lists `learner/README.md` alone.
 
 | Check | Command |
 |---|---|
-| Unit tests, including the documents lint | `python3 engine/calamity.py selftest` |
-| The skill tree | `python3 engine/calamity.py tree check` |
+| Unit tests, including the documents lint | `calamity selftest` |
+| The skill tree | `calamity tree check` |
 | The whole framework end to end (needs git) | `python3 tools/e2e.py` |
 | Replay under random commands, after a change to the engine's state or log | `python3 tools/fuzz.py --runs 20 --steps 60` |
 
@@ -98,14 +98,14 @@ does.
 
 ## Adding a skill to the tree
 
-1. Search first: `python3 engine/calamity.py find <words>`. It may exist
+1. Search first: `calamity find <words>`. It may exist
    under another name.
 2. Create `framework/tree/<track>/<id>.md` in one of the four shapes in
    `framework/rules/tree-editing.md` (taught skill, milestone, competitive
    programming, or GATE subject): the shared front matter plus the shape's own
    fields, then its sections (for a taught skill: `# Scope`, `# Boss` with
    checks that can be run, and `# Topics` if it ships a syllabus).
-3. Run `python3 engine/calamity.py tree check` and the self-test.
+3. Run `calamity tree check` and the self-test.
 
 ## Changing a skill, an agent or a rule book
 
@@ -113,7 +113,7 @@ Keep them short: what Claude reads every session costs tokens on every
 turn. `CLAUDE.md` (every session and every agent) stays under 3,000
 characters and the tutor's output style under 6,000; a new skill or agent
 goes into the registry in `framework/MAP.md`, which the self-test checks. Skills and agents run each engine command on its own, in the form
-`python3 engine/calamity.py ...` from the repository root, because that is
+`calamity ...` from the repository root, because that is
 the form `.claude/settings.json` pre-approves.
 
 ## Commits and pull requests

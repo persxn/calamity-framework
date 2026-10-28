@@ -19,8 +19,8 @@ it cannot be converted to marks by a formula. The strategist:
 3. returns it with its basis, as commands the tutor runs once the learner
    agrees (the strategist itself changes no settings):
 
-       python3 engine/calamity.py profile set gate.target_marks.CS 72
-       python3 engine/calamity.py profile set gate.target_source --text "rank 1000 needed about N marks in 2024-2026 (sources: ...); +5 margin; read 2026-10-11"
+       calamity profile set gate.target_marks.CS 72
+       calamity profile set gate.target_source --text "rank 1000 needed about N marks in 2024-2026 (sources: ...); +5 margin; read 2026-10-11"
 
 4. tells the learner in one sentence that it is an estimate that moves with
    the paper's difficulty.
@@ -96,7 +96,7 @@ past papers the learner supplies (`item import --official`, then
 (`gate weight gate.cs.toc 8 --source "..."`).
 
 Dropping is the learner's call. When they make it:
-`python3 engine/calamity.py pause <subject>` and record the reason with
+`calamity pause <subject>` and record the reason with
 `observe`. Paused subjects keep their progress and can be resumed. Inside a
 subject, selective study means doing the topics with the most past
 questions first; it never means skipping the test of a lecture that was

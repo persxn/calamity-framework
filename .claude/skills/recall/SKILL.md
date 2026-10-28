@@ -13,7 +13,7 @@ session if it is not in context yet.
 
 1. See what is due:
 
-       python3 engine/calamity.py dash queue
+       calamity dash queue
 
    Nothing due: say so, show when the next reviews arrive (the "coming up"
    lines), and stop.
@@ -21,24 +21,24 @@ session if it is not in context yet.
 2. For each question, up to the number the learner asked for (default: all
    that are due, in batches of ten with a check-in between batches):
 
-       python3 engine/calamity.py ask --due
+       calamity ask --due
 
    The engine serves the most urgent review and never new material. To
-   stay inside one skill: `python3 engine/calamity.py next --skill <skill> --only`
+   stay inside one skill: `calamity next --skill <skill> --only`
    names the topic, then `ask --topic <key>`.
 
    - Show the question exactly as printed: the text between the first two
      lines of dashes, and nothing else. The line above it names the topic;
      do not show it or say which skill the question belongs to before the
      answer.
-   - Record the reply: `python3 engine/calamity.py answer <item> --answer "..." --next --due`,
+   - Record the reply: `calamity answer <item> --answer "..." --next --due`,
      or `--result pass|fail --evidence "..." --next --due` for a hands-on
      item after running its check (`item show <item> --check`). After a
      right answer this also serves the next review in the same call (below
      `=== NEXT`): give the result in one line, then that question. After a
      wrong answer it serves nothing.
    - Wrong: show the solution the engine prints, record the kind of
-     mistake (`python3 engine/calamity.py mistake <item> <kind>`), give the
+     mistake (`calamity mistake <item> <kind>`), give the
      one-paragraph repair, move on. The engine brings the topic back in a
      few minutes; ask it again before the round ends (`ask --topic <key>`).
    - If `ask --due` prints something other than an item (new material, a
@@ -49,12 +49,12 @@ session if it is not in context yet.
    it against the topic's objectives (no question or key of your own), and
    record that oral check
 
-       python3 engine/calamity.py quick <key> pass|fail
+       calamity quick <key> pass|fail
 
    and afterwards send the printed block to the `examiner` agent and the new
    ids to the `checker` agent so the next review has a real item.
 
-4. Finish with one line from `python3 engine/calamity.py today`: reviews
+4. Finish with one line from `calamity today`: reviews
    done out of due, and what is left of the finish line.
 
 Keep the pace up: one question, one answer, one line of feedback.

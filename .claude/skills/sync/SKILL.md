@@ -48,8 +48,8 @@ Commit first, pull second: git refuses to pull over uncommitted changes.
 
 1. Make the snapshot current and check the record:
 
-       python3 engine/calamity.py rebuild
-       python3 engine/calamity.py doctor
+       calamity rebuild
+       calamity doctor
 
    If `doctor` reports a failure, fix it before committing.
 
@@ -73,8 +73,8 @@ Commit first, pull second: git refuses to pull over uncommitted changes.
    merged `learner/PROGRESS.md` and `learner/journal/` hold lines from both
    laptops until they are rebuilt:
 
-       python3 engine/calamity.py rebuild
-       python3 engine/calamity.py doctor
+       calamity rebuild
+       calamity doctor
        git add learner
        git commit -m "Rebuild progress after merge"
 

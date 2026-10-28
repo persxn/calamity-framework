@@ -17,27 +17,37 @@ a track name means do only that track's part of step 3, then steps 4 to 6.
 
 ## 1. This machine
 
-    python3 engine/calamity.py doctor
+The engine is the `calamity` command. With the Calamity plugin it is
+already on the shell's PATH. In a clone of the framework it is not there
+until `setup --shim` writes it, so the first commands of a clone use
+`python3 engine/calamity.py` (on Windows `python engine/calamity.py` or
+`py -3 engine/calamity.py`; `setup` prints the form that works here).
+
+    calamity doctor
 
 Read the result. Then tell the learner in one sentence what the next
 command does and run it (they will be asked to approve it):
 
-    python3 engine/calamity.py setup --hook
+    calamity setup --hook --shim           in a clone
+    calamity setup --permissions           with the plugin
 
-It writes a machine id under `.calamity/`, and a session-start hook, the
-key guard and the Calamity Tutor output style into
-`.claude/settings.local.json`. Neither file is ever committed. The hook
-prints the session brief when a session opens, the guard keeps item keys
-out of searches and shell commands, and the style is how a study session
-teaches. All take effect from the next session. Offer the status line (`setup --statusline`) as optional. On
-Linux and macOS, also offer the `calamity` command (`setup --alias`): an
-alias in their shell's start-up file that goes to this folder and starts
-`claude --dangerously-skip-permissions`. Say plainly that sessions opened
-that way ask no permission questions at all, and install it only if they
-say yes. If
-`doctor` reports a failure, fix it before going on. On Windows run the same
-commands with `python engine/calamity.py` or `py -3 engine/calamity.py`;
-`setup` prints the form that works on this machine.
+In a clone this writes a machine id under `.calamity/`, a session-start
+hook, the key guard, the study hooks and the Calamity Tutor output style
+into `.claude/settings.local.json` (never committed), and the `calamity`
+command into `~/.local/bin`. With the plugin the hooks and the style come
+with the plugin, and `--permissions` copies the framework's permission
+rules into this repository's `.claude/settings.json` (a plugin cannot ship
+them). The hook prints the session brief when a session opens, the guard
+keeps item keys out of searches and shell commands, and the style is how a
+study session teaches. All take effect from the next session.
+
+Offer the status line (`setup --statusline`) as optional. On Linux and
+macOS, also offer the `calamity` shell function (`setup --alias`): typed
+on its own it goes to this folder and starts
+`claude --dangerously-skip-permissions`; with a command after it, it runs
+the engine. Say plainly that sessions opened that way ask no permission
+questions at all, and install it only if they say yes. If `doctor`
+reports a failure, fix it before going on.
 
 ## 2. The learner
 
@@ -58,7 +68,7 @@ otherwise plain text), and record each answer as you get it.
 Record each group of answers in one call, `key=value` pairs, quoting a
 pair with spaces:
 
-    python3 engine/calamity.py profile set name=Robin tracks=gate-da mode.default=mastery "teach.style=examples first"
+    calamity profile set name=Robin tracks=gate-da mode.default=mastery "teach.style=examples first"
 
 Do not suggest answers to personal questions, and do not carry a number
 over from another learner or from an example in these files.
@@ -68,7 +78,7 @@ over from another learner or from an example in these files.
 - **Developer path (`10x`) or AI (`ai`)**: ask what they can already do.
   For a skill they claim, plan a placement test rather than taking their
   word or doubting it (`framework/rules/syllabus.md`). Show the route to
-  their goal: `python3 engine/calamity.py tree path <goal>`. Where the route
+  their goal: `calamity tree path <goal>`. Where the route
   has a choice (language, framework), ask which they prefer and enrol that
   one. Read `framework/rules/tree-editing.md` if they want skills added or
   removed.
@@ -78,13 +88,13 @@ over from another learner or from an example in these files.
 - **GATE**: follow
   `framework/rules/gate-onboarding.md` (year, papers, registration, target,
   source), connect their course or playlist with the bridge skill, run
-  `python3 engine/calamity.py gate enroll`, then delegate the first plan to
+  `calamity gate enroll`, then delegate the first plan to
   the `gate-strategist` agent.
 
 ## 4. First enrolments
 
-    python3 engine/calamity.py tree suggest
-    python3 engine/calamity.py enroll <skill>
+    calamity tree suggest
+    calamity enroll <skill>
 
 Enrol what they will actually start this week: one or two skills from the
 developer or AI track, the next skills of the competitive-programming
@@ -100,9 +110,9 @@ behind it yet.
 
 ## 6. Finish
 
-    python3 engine/calamity.py profile set onboarded true
-    python3 engine/calamity.py dash
-    python3 engine/calamity.py today
+    calamity profile set onboarded true
+    calamity dash
+    calamity today
 
 Tell them, briefly:
 

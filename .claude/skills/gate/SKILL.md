@@ -19,18 +19,18 @@ follow `framework/rules/gate-onboarding.md` first.
 
 | They want | Do |
 |---|---|
-| where they stand | `python3 engine/calamity.py gate status` |
-| what to study next | `python3 engine/calamity.py next` (the engine already orders GATE subjects by triage), or `/study` |
-| which subjects matter most | `python3 engine/calamity.py gate triage` |
+| where they stand | `calamity gate status` |
+| what to study next | `calamity next` (the engine already orders GATE subjects by triage), or `/study` |
+| which subjects matter most | `calamity gate triage` |
 | a plan, or a new one | delegate to the `gate-strategist` agent; it writes `learner/gate/plan.md` (with its `review_on` date); then `tasks done gate-plan` |
-| to record a mock | `python3 engine/calamity.py gate mock <PAPER> <score> --source "..." [--sections "GA=..,OS=.."]` |
+| to record a mock | `calamity gate mock <PAPER> <score> --source "..." [--sections "GA=..,OS=.."]` |
 | to review a mock | the mock review below |
-| to see mock history | `python3 engine/calamity.py gate mocks` |
-| where marks leak | `python3 engine/calamity.py gate errors` |
-| revision passes | `python3 engine/calamity.py gate pass <subject> <n> --planned DATE` or `--done`; `gate status` shows them |
-| numerical practice | `python3 engine/calamity.py gate numericals [<subject>]` |
-| lectures to rewatch | `python3 engine/calamity.py source revise` |
-| a revision pack | `python3 engine/calamity.py gate pack <subject> [--pdf]`: formula sheet and error book (no keys) |
+| to see mock history | `calamity gate mocks` |
+| where marks leak | `calamity gate errors` |
+| revision passes | `calamity gate pass <subject> <n> --planned DATE` or `--done`; `gate status` shows them |
+| numerical practice | `calamity gate numericals [<subject>]` |
+| lectures to rewatch | `calamity source revise` |
+| a revision pack | `calamity gate pack <subject> [--pdf]`: formula sheet and error book (no keys) |
 | questions from a book or past papers | the `practice` skill |
 | to find mocks | ask the city once if `location.city` is not set (`profile set location.city "..."`, and `location.radius_km` if they would travel), then the `opportunity-scout` agent ("gate-mocks beat"), then the `gate-strategist` to put them in the mock calendar; `career list --kind gate-mock` shows what was found |
 | to add past papers | "Past questions" in the playbook, then `item import --official`, the new ids to the `checker` agent, and `gate weights --apply` |
@@ -53,11 +53,11 @@ Within a day of the mock, with the paper in front of the learner:
 
 1. Record the score and section scores (`gate mock ...`).
 2. For each question that was wrong or guessed: find the topic
-   (`python3 engine/calamity.py find <words>`), agree the kind of error
+   (`calamity find <words>`), agree the kind of error
    (`concept`, `method`, `memory`, `careless`, `misread`, `time`, `guess`),
    and bring the topic back:
 
-       python3 engine/calamity.py quick <subject>/<topic> fail --err <kind> --note "mock N Q.x: what went wrong"
+       calamity quick <subject>/<topic> fail --err <kind> --note "mock N Q.x: what went wrong"
 
    A question from a topic they have not studied yet needs no entry (the
    engine refuses one): that topic is still ahead in the plan.

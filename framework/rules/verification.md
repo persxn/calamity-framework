@@ -12,7 +12,7 @@ verifies it, and the one that verifies never sees the key.
    solution, following `framework/rules/items.md`, saves the drafts as JSON
    in its batch folder under `.calamity/tmp/examiner/` and stores them:
 
-       python3 engine/calamity.py item import --file .calamity/tmp/examiner/<batch>/drafts.json --by examiner
+       calamity item import --file .calamity/tmp/examiner/<batch>/drafts.json --by examiner
 
    The engine seals the key, deletes the batch folder (drafts and the
    computations behind them) and returns item ids.
@@ -21,21 +21,21 @@ verifies it, and the one that verifies never sees the key.
 2. **Blind check (checker).** For each id the checker reads the item as the
    learner will see it:
 
-       python3 engine/calamity.py item show <item>
+       calamity item show <item>
 
    It first judges the question itself. An item is rejected, whatever its
    key, if it is ambiguous, has no correct option or more than one where one
    is expected, depends on information not in the stem, tests trivia rather
    than the topic, or relies on a fact that may be out of date:
 
-       python3 engine/calamity.py item reject <item> --reason "..."
+       calamity item reject <item> --reason "..."
 
    Otherwise it solves the item independently. Wherever a computation can
    settle the answer, it computes: a short program, a brute force over all
    cases, a simulation, the real command. A numeric answer is derived twice
    by two routes. Then it submits its own answer:
 
-       python3 engine/calamity.py item verify <item> --answer "<answer>" --by checker
+       calamity item verify <item> --answer "<answer>" --by checker
 
    The engine compares that answer with the sealed key. A match makes the
    item `verified`. A mismatch rejects it; the checker is not told the key.
@@ -48,7 +48,7 @@ verifies it, and the one that verifies never sees the key.
    real, and also confirms that the check fails on an empty or deliberately
    wrong solution. Only then:
 
-       python3 engine/calamity.py item verify <item> --ran --evidence "what was built, what was run, what passed, what failed as it should" --by checker
+       calamity item verify <item> --ran --evidence "what was built, what was run, what passed, what failed as it should" --by checker
 
    If the check cannot be run on this machine, the item is not verified.
    Say what is missing instead.
@@ -75,7 +75,7 @@ returns its own answer and does not run `item verify`, which the engine
 refuses for a verified item. If its answer differs from the key, the key
 does not hold:
 
-    python3 engine/calamity.py item dispute <item> --reason "..." --void
+    calamity item dispute <item> --reason "..." --void
 
 `--void` cancels the answer that was graded against the wrong key, so the
 topic's schedule and statistics return to what they were. If the key holds,

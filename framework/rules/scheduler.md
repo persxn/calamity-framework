@@ -7,7 +7,7 @@ raises one pattern at a time.
 
 ## The finish line
 
-`python3 engine/calamity.py today` prints it. The day is finished when:
+`calamity today` prints it. The day is finished when:
 
 - 90% of the reviews that were due today are done (a few may always carry
   over),
@@ -49,7 +49,7 @@ the quota at its maximum; `new_per_day_max 0` stops new topics.
 
 A learner day runs from 04:00 to 04:00, so a session after midnight belongs
 to the evening before. Change any number for one learner with
-`python3 engine/calamity.py profile set cfg.new_per_day_max 12`
+`calamity profile set cfg.new_per_day_max 12`
 (`new_per_day`, the old name, still works).
 
 The order inside a session is fixed by `next`: failed topics first, then
@@ -71,7 +71,7 @@ the subject already under way first.
   that has not been watched, `next` answers `watch`, names the lecture, and
   says what could be started meanwhile. Offer both; the learner picks.
 - `focus` in the profile puts skills ahead of all others:
-  `python3 engine/calamity.py profile set focus docker`. An entry may be a
+  `calamity profile set focus docker`. An entry may be a
   skill id, a track id, or `gate` for every GATE subject.
 - `next --skill <skill>` stays inside one skill for a session without
   changing the profile. Reviews still come from everywhere.
@@ -132,15 +132,15 @@ contest hour; the weekend is lighter, with a mock.
 - 2026-10-11: first version, from onboarding answers.
 ```
 
-`python3 engine/calamity.py day [<day>]` prints a day's blocks with the
+`calamity day [<day>]` prints a day's blocks with the
 current one marked, its note and goals, and the finish line; the brief's
 `Now:` line says which block a session falls in. One day that differs (an
 exam, travel, time that will be lost) gets a note,
-`python3 engine/calamity.py day note <day> "..."`, and goals are added
+`calamity day note <day> "..."`, and goals are added
 with `day goal "..." [--at HH:MM]`; both live in `learner/timetable.json`,
 which `tools/timetable.py` also edits. A schedule written as tables under
 `## Weekday` and `## Weekend` headings is read too;
-`python3 engine/calamity.py day migrate` shows it in the one format and
+`calamity day migrate` shows it in the one format and
 `--write` rewrites it.
 
 Rules for writing and changing it:
@@ -150,17 +150,17 @@ Rules for writing and changing it:
   Say honestly what the log shows they sustain, and build up to a target in
   steps rather than writing a day they will not live.
 - Put the hardest new material where their accuracy is highest
-  (`python3 engine/calamity.py stats hours`), and reviews where it dips.
+  (`calamity stats hours`), and reviews where it dips.
 - Keep recall first. Reviews done late are reviews skipped.
 - Every block names what it is for. Hours without a purpose are not a plan.
 - A change is made with the learner, dated under `# Changes`, with the
   reason. Never rewrite the schedule silently.
 - Workouts are part of the day: log them with
-  `python3 engine/calamity.py workout <minutes>`.
+  `calamity workout <minutes>`.
 
 ## What the log can and cannot see
 
-`python3 engine/calamity.py stats week` shows, per day, active time in this
+`calamity stats week` shows, per day, active time in this
 repository, logged lectures with their stated length, logged workouts, and
 their sum ("accounted"). It cannot see a contest on Codeforces, a book, or a
 lecture that was not logged. Before reading a short day as a lost day, ask
@@ -168,7 +168,7 @@ what else happened, and log what can be logged.
 
 ## Behaviour patterns
 
-`python3 engine/calamity.py stats patterns` reports what the last seven
+`calamity stats patterns` reports what the last seven
 days show, once there are at least four days of history:
 
 | Pattern | What it means | A reasonable response |
@@ -191,7 +191,7 @@ How to raise one:
 - **At a natural pause**, never in the middle of a question.
 - **Record it**, with what the learner said:
 
-      python3 engine/calamity.py observe "raised late nights; wants sleep window moved to 02:00-09:00" --tag coach --pattern late-night
+      calamity observe "raised late nights; wants sleep window moved to 02:00-09:00" --tag coach --pattern late-night
 
   The pattern then rests for a few days (`coach.cooldown_days`).
 - If the learner decides to change something, change it (profile key or
@@ -209,7 +209,7 @@ accept.
 Reminders are operating-system notifications that fire only when something
 is due and never inside the sleep window.
 
-    python3 engine/calamity.py remind render --times 09:00,14:00,20:30
+    calamity remind render --times 09:00,14:00,20:30
 
 writes the files for this machine under `.calamity/reminders/` and prints
 the one command that installs them and the one that removes them (cron on
@@ -223,7 +223,7 @@ laptop.
 A study session that meets `NEED_ITEM` waits while two agents write and
 check an item. Stocking ahead moves that work to the night:
 
-    python3 engine/calamity.py stock render --at 23:45
+    calamity stock render --at 23:45
 
 writes a scheduler entry, installed the same way as reminders and only
 with the learner's yes, that runs `item needs --days 2 --per-topic 3`

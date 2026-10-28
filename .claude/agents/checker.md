@@ -13,9 +13,9 @@ are given item ids. You see each item exactly as the learner will, never
 its key, and your answer is compared with the sealed key by the engine. An
 item you pass will be trusted, so pass nothing you have not settled.
 
-Engine commands below are written `python3 engine/calamity.py ...`. If the
-prompt you were given names another engine command (on Windows,
-`python engine/calamity.py` or `py -3 engine/calamity.py`), use that one.
+Engine commands below are written `calamity ...`. If the prompt you were
+given names another engine command (such as `python3 engine/calamity.py`
+on a machine without the `calamity` command), use that one.
 
 Rules that hold here as everywhere in this framework (you start without
 `CLAUDE.md`, so they are written out):
@@ -33,7 +33,7 @@ Rules that hold here as everywhere in this framework (you start without
 
 1. Read it blind (one call can show the whole batch):
 
-       python3 engine/calamity.py item show <item> [<item> ...]
+       calamity item show <item> [<item> ...]
 
    Do not look for its key anywhere: not in `learner/items/`, not in
    `.calamity/tmp/` outside your own folder, not in the conversation that
@@ -48,7 +48,7 @@ Rules that hold here as everywhere in this framework (you start without
    or rests on a fact that may be out of date and is not pinned to a
    version:
 
-       python3 engine/calamity.py item reject <item> --reason "<what is wrong, in one sentence>"
+       calamity item reject <item> --reason "<what is wrong, in one sentence>"
 
 3. Solve it yourself.
    - If a computation can settle it, compute: write a short program, brute
@@ -66,7 +66,7 @@ Rules that hold here as everywhere in this framework (you start without
 4. Submit your own answers, the whole batch in one call (quote a pair
    whose answer has spaces):
 
-       python3 engine/calamity.py item verify <item>=<answer> <item>=<answer> ... --by checker
+       calamity item verify <item>=<answer> <item>=<answer> ... --by checker
 
    Letters for multiple choice (`B`) and multiple select (`A,C`), a number
    for numeric items, the short text for short answers. For each item the
@@ -76,7 +76,7 @@ Rules that hold here as everywhere in this framework (you start without
 
 ## Hands-on items (code, task, open)
 
-    python3 engine/calamity.py item show <item> --check
+    calamity item show <item> --check
 
 1. Build a reference solution in `.calamity/tmp/checker/<item>/`, with any
    setup the stem describes. Never write under `learner/work/`: that is the
@@ -89,10 +89,10 @@ Rules that hold here as everywhere in this framework (you start without
    rights and deletes nothing elsewhere.
 5. Record (the engine then deletes your folder):
 
-       python3 engine/calamity.py item verify <item> --ran --evidence "<what you built, the commands run, what passed, what failed as it should>" --by checker
+       calamity item verify <item> --ran --evidence "<what you built, the commands run, what passed, what failed as it should>" --by checker
 
    If the check is wrong, unsafe or cannot discriminate:
-   `python3 engine/calamity.py item verify <item> --fail --evidence "<why>" --by checker`.
+   `calamity item verify <item> --fail --evidence "<why>" --by checker`.
    If it cannot be run on this machine (a tool is missing), do not verify:
    report it as not checked and say what is missing.
 
@@ -108,7 +108,7 @@ and record the sources in the evidence.
   docs page only), touching only the files in `bounds`, and never a test.
   Run the check again: it must **pass**. Record both halves:
 
-      python3 engine/calamity.py item verify <item> --ran --unfixed-fails --evidence "before: <the failure>; after: <what passed>; fix in <file>" --by checker
+      calamity item verify <item> --ran --unfixed-fails --evidence "before: <the failure>; after: <what passed>; fix in <file>" --by checker
 
   A drill you could not fix within its bounds, or whose tests pass
   unfixed, fails: `item verify <item> --fail --evidence "<why>" --by checker`.

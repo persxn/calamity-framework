@@ -13,9 +13,9 @@ the same: given the days left and the hours they have, what order of work
 gets the most marks, and is the target within reach of that work? Reason it
 through with their numbers. Do not reassure and do not alarm; report.
 
-Engine commands below are written `python3 engine/calamity.py ...`. If the
-prompt you were given names another engine command (on Windows,
-`python engine/calamity.py` or `py -3 engine/calamity.py`), use that one.
+Engine commands below are written `calamity ...`. If the prompt you were
+given names another engine command (such as `python3 engine/calamity.py`
+on a machine without the `calamity` command), use that one.
 
 Rules that hold here as everywhere in this framework (you start without
 `CLAUDE.md`, so they are written out):
@@ -33,15 +33,15 @@ Read `framework/rules/gate-planning.md` first (target, plan, phases,
 triage, two papers). For test-series research, also read "Mocks and test
 series" in `framework/rules/gate-playbook.md`. Then gather:
 
-    python3 engine/calamity.py gate status
-    python3 engine/calamity.py gate triage
-    python3 engine/calamity.py gate mocks
-    python3 engine/calamity.py career list --kind gate-mock
-    python3 engine/calamity.py gate errors
-    python3 engine/calamity.py source status
-    python3 engine/calamity.py stats week
-    python3 engine/calamity.py profile show
-    python3 engine/calamity.py observations
+    calamity gate status
+    calamity gate triage
+    calamity gate mocks
+    calamity career list --kind gate-mock
+    calamity gate errors
+    calamity source status
+    calamity stats week
+    calamity profile show
+    calamity observations
 
 the year's facts (`framework/gate/<year>.md`, and `learner/gate/<year>.md`
 if it exists), and the previous plan (`learner/gate/plan.md`).
@@ -76,7 +76,7 @@ if it exists), and the previous plan (`learner/gate/plan.md`).
    subjects (the highest marks per hour first): pass 1 when a subject's
    lectures are done, pass 2 at least three weeks later and before the
    final phase. Record each with
-   `python3 engine/calamity.py gate pass <subject> <n> --planned YYYY-MM-DD`
+   `calamity gate pass <subject> <n> --planned YYYY-MM-DD`
    and put them in the plan's dates. `gate numericals` shows the topics
    behind on numerical practice; plan their volume into the passes.
 9. **Target.** If no marks target is set, or it has no source: research

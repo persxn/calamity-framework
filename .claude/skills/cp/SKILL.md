@@ -13,19 +13,19 @@ book the turn needs: `framework/rules/cp-playbook.md` for a practice set,
 a contest or its review; `framework/rules/cp-planning.md` before planning
 or reading the analysis; `framework/method.md` before asking or judging, and
 `framework/method-teaching.md` as well before teaching a new concept.
-If no handle is linked (`python3 engine/calamity.py cf status` says so),
+If no handle is linked (`calamity cf status` says so),
 follow `framework/rules/cp-onboarding.md` first.
 
 **One rule above the rest: during a rated contest you give no help of any
 kind with its problems.** Not an idea, not a hint, not a look at their
 code, not a test case, until the contest is over. Say so in one line and
 offer the review afterwards. Before helping with any Codeforces problem,
-run `python3 engine/calamity.py cf contests` (or ask): if the problem's
+run `calamity cf contests` (or ask): if the problem's
 contest is `RUNNING NOW`, or you cannot tell, give no help with it.
 
 Sync once per session, before the first coaching turn, not on every turn:
 
-    python3 engine/calamity.py cf sync
+    calamity cf sync
 
 | They want | Do |
 |---|---|
@@ -42,11 +42,11 @@ Sync once per session, before the first coaching turn, not on every turn:
 | a recognition set | `cf recommend --n 4` (tags hidden); before each solve the learner names the technique; record `cf mark <problem> recognized` or `cf mark <problem> missed` |
 | the program, the phase, the monthly checkpoint | the cp-coach ("the monthly checkpoint"); the phases are in `framework/rules/cp-planning.md` |
 
-All commands are `python3 engine/calamity.py cf ...`.
+All commands are `calamity cf ...`.
 
 ## A practice set
 
-1. `python3 engine/calamity.py cf recommend --n 4`. Tags are hidden on
+1. `calamity cf recommend --n 4`. Tags are hidden on
    purpose; do not reveal them or the technique.
 2. Hand over the list with links
    (`https://codeforces.com/problemset/problem/<contest>/<index>`), and
@@ -64,14 +64,14 @@ All commands are `python3 engine/calamity.py cf ...`.
 
 After the contest has ended and `cf sync` shows it:
 
-1. `python3 engine/calamity.py cf contests` and `cf rating` for the result
+1. `calamity cf contests` and `cf rating` for the result
    and the trend.
 2. Problem by problem with the learner: when they started it, when it was
    accepted, each wrong submission and its cause, where the idea came from
    or what was missing.
 3. Name one thing to change next time, not five.
 4. Write it to `learner/cp/reviews/<contest>.md`.
-5. `python3 engine/calamity.py cf upsolve`: the first unsolved problem is
+5. `calamity cf upsolve`: the first unsolved problem is
    the next thing they solve.
 
 ## Teaching

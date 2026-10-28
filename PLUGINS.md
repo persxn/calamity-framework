@@ -103,23 +103,45 @@ tree skills taught through `mastery-coach` at their tier, and shipping is
 recorded as its capstone (`boss record ... --kind capstone`). The cloned
 source and binaries are scratch outside `learner/`, never committed.
 
-## Known follow-ups before Calamity installs cleanly as a plugin
+## Calamity as an installed plugin
 
-These are not blockers for using the repository in project mode; they are what a
-full plugin install would need, and they are deliberately left for a later pass:
+Calamity runs in two ways that share every file of the framework:
 
-1. **Root `CLAUDE.md` doctrine.** A plugin does **not** load a plugin-root
-   `CLAUDE.md` into context (plugin validate warns about one). Calamity's core
-   rules live in `CLAUDE.md`, so to run as an installed plugin that doctrine
-   must move into an always-on skill. In project mode it already loads, so
-   nothing is lost today.
-2. **The session-start brief hook.** The `=== CALAMITY BRIEF ===` hook lives in
-   `.claude/settings.json`. As a plugin it would move to a plugin hook
-   (`hooks/hooks.json` or the manifest's `hooks` field), using
-   `${CLAUDE_PLUGIN_ROOT}` to locate `engine/calamity.py`.
-3. **The engine path.** Skills call `python3 engine/calamity.py …` relative to
-   the project root. An installed plugin would resolve the engine through
-   `${CLAUDE_PLUGIN_ROOT}` instead.
+- **A clone**: the framework and the learner's record in one folder.
+  `CLAUDE.md` loads as project context; `setup --hook` writes the hooks to
+  `.claude/settings.local.json`; `setup --shim` writes the `calamity`
+  command to `~/.local/bin`, and `setup --alias` the shell function of the
+  same name (D5): on its own it opens Claude Code in the folder with
+  permission prompts off, with a command after it, it runs the engine.
+- **The plugin**: `/plugin install calamity --marketplace
+  persxn/calamity-framework`, then Claude Code opened in the learner's own
+  folder. Nothing is cloned.
+
+What makes the plugin work without a clone:
+
+1. **The engine command.** `bin/calamity` (and `bin/calamity.cmd`) is on
+   the PATH of Claude Code's shell while the plugin is enabled. It finds the
+   learner's folder by itself: `CALAMITY_ROOT`, the plugin's `learner_dir`
+   setting (`userConfig`, type `directory`), the nearest folder holding
+   `learner/profile.md`, or the current folder, never the plugin's own
+   copy. Every skill and agent writes `calamity <command>`.
+2. **The hooks.** `hooks/hooks.json` runs the brief, the key guard (so item
+   keys stay sealed in plugin mode too), and the study hooks. At session
+   start the brief exports `CALAMITY_ROOT` through `CLAUDE_ENV_FILE`, and
+   keeps a link `framework` in the learner's folder pointing at the
+   plugin's `framework/` (git-ignored, re-pointed after an update), so the
+   relative paths the skills and rules use resolve.
+3. **The doctrine.** A plugin never loads a root `CLAUDE.md`. The Calamity
+   Tutor output style is shipped with `force-for-plugin: true` and carries
+   the session start and the rules that do not bend.
+4. **Permissions.** A plugin cannot ship them: `calamity setup
+   --permissions` copies the framework's allow, ask and deny rules into the
+   learner folder's `.claude/settings.json` (the onboard skill offers it).
+
+Do not enable the plugin in a clone: the clone's own hooks and skills
+would run twice. `python3 tools/validate_plugin.py` (in CI) runs
+`claude plugin validate . --strict`, accepting only the warning that the
+root `CLAUDE.md` is not loaded by a plugin.
 
 ## Adding a companion plugin (for example, Ascend)
 

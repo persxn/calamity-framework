@@ -13,7 +13,7 @@ Its five rules are not negotiable: the site's terms decide the route; no
 credentials in the repository; progress metadata only; never go around a
 gate; the learner sees what will run.
 
-`status`: `python3 engine/calamity.py source status` and stop.
+`status`: `calamity source status` and stop.
 
 ## Connect a new source
 
@@ -37,7 +37,7 @@ gate; the learner sees what will run.
 
 4. **Register** it:
 
-       python3 engine/calamity.py source add <id> --title "..." --kind course --url <address> \
+       calamity source add <id> --title "..." --kind course --url <address> \
            --route <route> --tracks <tracks> --note "<terms note with date>"
 
 5. **Build the catalogue.**
@@ -46,19 +46,19 @@ gate; the learner sees what will run.
      `.calamity/tmp/`). Turn it into the JSON list the rule book shows:
      ids, titles, sections, order, lengths. Titles and structure only.
    - Write the list to `.calamity/tmp/<id>.json` and import it:
-     `python3 engine/calamity.py source import <id> --file .calamity/tmp/<id>.json`.
+     `calamity source import <id> --file .calamity/tmp/<id>.json`.
 
 6. **Map lectures to topics.** Delegate to the `curriculum-architect`
    agent for a long catalogue: each lecture gets the syllabus topics it
    completes. Import again with the mapping, then
-   `python3 engine/calamity.py source check` until there are no errors.
+   `calamity source check` until there are no errors.
    Tell the learner how many lectures could not be placed.
 
 7. **Catch up.** If they have already watched part of it:
-   `python3 engine/calamity.py log <id> <last lecture> --upto`. Otherwise
+   `calamity log <id> <last lecture> --upto`. Otherwise
    they start at the beginning.
 
-8. **Show** `python3 engine/calamity.py source status <id>` and explain the
+8. **Show** `calamity source status <id>` and explain the
    daily habit: after each lecture, `/log <id> <lecture>`, and the test
    follows.
 

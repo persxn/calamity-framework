@@ -8,14 +8,13 @@ disable-model-invocation: true
 # Stock the bank
 
 This runs with no learner present, usually headless at night
-(`python3 engine/calamity.py stock render` schedules it). Nobody will answer
+(`calamity stock render` schedules it). Nobody will answer
 a question: decide from the engine's output, and finish. Use the engine
-command the brief names (`engine:`); it is written `python3
-engine/calamity.py` here.
+command the brief names (`engine:`); it is written `calamity` here.
 
 1. The work list:
 
-       python3 engine/calamity.py item needs --days 2 --per-topic 3
+       calamity item needs --days 2 --per-topic 3
 
    `ITEMS: stocked` (or the learner is not onboarded): say so in one line and
    stop.
@@ -29,7 +28,7 @@ engine/calamity.py` here.
    that wrote them): "Verify these drafts blind: <ids>."
 4. Check the result:
 
-       python3 engine/calamity.py item needs --days 2 --per-topic 3
+       calamity item needs --days 2 --per-topic 3
 
    and end with three lines: items verified, items rejected or disputed,
    topics still short (and why, from the agents' reports).

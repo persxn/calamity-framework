@@ -13,8 +13,8 @@ what is due; the other skills do the work. Read `framework/method.md` once per s
 
 ## 1. Where the day is
 
-    python3 engine/calamity.py day
-    python3 engine/calamity.py tasks
+    calamity day
+    calamity tasks
 
 `day` marks the block under way (`▸`) and the finish line; `tasks` lists the work around the studying
 that has fallen due. Then:
@@ -29,12 +29,12 @@ that has fallen due. Then:
 At most one task from `tasks`, and only one that fits the block (a review block: `weekly-review` on its
 day; a study block: `stock` before new material, `notes` at its end; the close: `push`). Run it through
 the skill it names (`/coach`, `/gate`, `/cp`, `/stock`, `/notes`, `/sync`), then
-`python3 engine/calamity.py tasks done <id>`. If the learner would rather not now:
-`python3 engine/calamity.py tasks snooze <id>`. Never more than one per block.
+`calamity tasks done <id>`. If the learner would rather not now:
+`calamity tasks snooze <id>`. Never more than one per block.
 
 ## 3. Surprise recall
 
-Two or three `python3 engine/calamity.py ask --due`, unannounced, as the study skill does. Nothing due:
+Two or three `calamity ask --due`, unannounced, as the study skill does. Nothing due:
 skip it.
 
 ## 4. The block's work
@@ -60,8 +60,8 @@ the next block, or stop here.
 
 ## 5. Close
 
-    python3 engine/calamity.py today
-    python3 engine/calamity.py day
+    calamity today
+    calamity day
 
 The finish line in one line; a notes fragment for every topic taught today (notes skill, step 1); what
 you learnt about how they learn (`observe`); a `/sync` reminder when `tasks` lists `push`. Commit or

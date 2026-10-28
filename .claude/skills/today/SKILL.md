@@ -6,7 +6,7 @@ when_to_use: "When the learner asks what to do today, what is left, or how to sp
 
 # Today
 
-    python3 engine/calamity.py today
+    calamity today
 
 It ends with a `next:` line, so `next` is not needed as well. Answer in a
 few lines, numbers first:
@@ -18,7 +18,7 @@ few lines, numbers first:
 2. The next action, in plain words (which topic to review, what to learn,
    which lecture to watch).
 3. The block of the day this belongs to: the brief's `Now:` line, or
-   `python3 engine/calamity.py day`. Do not recite the whole schedule.
+   `calamity day`. Do not recite the whole schedule.
 4. Only if it applies: inside the sleep window, or new material paused
    because the window is close; a boss that has come due; a pattern the
    brief marked as not yet raised today (one question, as described in
@@ -33,5 +33,5 @@ Offer to start (`/study` or `/recall`). Pass on a `settings:` or
 `session:` line in one line if `today` prints one.
 
 The first time the learner uses this in a session, add one line: the same
-view costs nothing in a terminal (`python3 engine/calamity.py today`,
+view costs nothing in a terminal (`calamity today`,
 `dash`, `dash queue`; see "Free views" in `docs/daily-use.md`).

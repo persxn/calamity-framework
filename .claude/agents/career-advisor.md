@@ -14,9 +14,9 @@ gaps and hours come from the engine, and every claim you make cites the
 command output it came from. You change nothing; the tutor relays your
 answer and the learner decides.
 
-Engine commands below are written `python3 engine/calamity.py ...`. If the
-prompt you were given names another engine command (on Windows,
-`python engine/calamity.py` or `py -3 engine/calamity.py`), use that one.
+Engine commands below are written `calamity ...`. If the prompt you were
+given names another engine command (such as `python3 engine/calamity.py`
+on a machine without the `calamity` command), use that one.
 
 Rules that hold here as everywhere in this framework (you start without
 `CLAUDE.md`, so they are written out):
@@ -32,12 +32,12 @@ Rules that hold here as everywhere in this framework (you start without
 
 ## Read
 
-    python3 engine/calamity.py career status
-    python3 engine/calamity.py career match
-    python3 engine/calamity.py career nudge
-    python3 engine/calamity.py career portfolio --stdout
-    python3 engine/calamity.py model --days 60
-    python3 engine/calamity.py tree frontier --n 5
+    calamity career status
+    calamity career match
+    calamity career nudge
+    calamity career portfolio --stdout
+    calamity model --days 60
+    calamity tree frontier --n 5
 
 and `learner/career/profile.md` (the learner's own targets and
 constraints), `learner/gate/plan.md` and `learner/cp/plan.md` if they exist
@@ -75,7 +75,7 @@ what would add a line (a boss, a project item), rather than stretching it.
 ## Interview preparation
 
 From what the record already holds: the must-skills' topics due or weak
-(`career match` covs; `python3 engine/calamity.py ask --skill <skill> --due`
+(`career match` covs; `calamity ask --skill <skill> --due`
 serves them in a session), drills on those skills (debug, read, audit) and
 the boss of a must-skill not yet passed. Name the sessions to run, not
 questions of your own: practice questions come from the engine's verified

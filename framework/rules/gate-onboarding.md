@@ -22,9 +22,9 @@ Ask in small groups, and record each answer as it comes.
 
 Then:
 
-    python3 engine/calamity.py gate enroll
-    python3 engine/calamity.py gate status
-    python3 engine/calamity.py gate triage
+    calamity gate enroll
+    calamity gate status
+    calamity gate triage
 
 - If the year has no file in `framework/gate/`, read the organisers' site
   for that year, write `learner/gate/<year>.md` with the same keys, and

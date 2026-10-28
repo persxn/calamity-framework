@@ -18,46 +18,46 @@ the last weeks against `learner/schedule.md` and the learner model; at most
 three proposals, each with its numbers"). It returns findings; it changes
 nothing. Then, with the learner:
 
-1. Show the week as it was: print `python3 engine/calamity.py stats week`
+1. Show the week as it was: print `calamity stats week`
    in a code block.
 2. Ask what the log cannot see before drawing any conclusion: contests,
    lectures not logged, college, travel, illness.
 3. Put the proposals as questions, strongest evidence first. For each one
    the learner accepts, make the change now:
    - the day shape: edit the blocks in `learner/schedule.md`'s front matter
-     (the format is in `framework/rules/scheduler.md`; `python3 engine/calamity.py day`
+     (the format is in `framework/rules/scheduler.md`; `calamity day`
      shows the result) and add a dated line under `# Changes` with the reason;
    - a teaching style (`profile set teach.style "..."`), only with the
      learner's yes, and only from a measured pattern or a finished
      experiment (`experiment status <id>`);
-   - an experiment to run: `python3 engine/calamity.py experiment start <id> --skill <skill> --arms a,b --n 12 --desc "..."`;
+   - an experiment to run: `calamity experiment start <id> --skill <skill> --arms a,b --n 12 --desc "..."`;
      from then on `NEXT: new` names the arm to teach each topic with;
    - one day only (an exam, travel, lost time):
-     `python3 engine/calamity.py day note <day> "..."`;
-   - a number: `python3 engine/calamity.py profile set cfg.new_per_day_max 6`
+     `calamity day note <day> "..."`;
+   - a number: `calamity profile set cfg.new_per_day_max 6`
      (or `cfg.review_budget_min 45`: the quota adapts to it),
      `profile set sleep.start 02:00`, `profile set workout.minutes 45`,
      and so on.
 4. Record what was decided:
 
-       python3 engine/calamity.py observe "weekly review: moved deep block to mornings; new topics 8 -> 6" --tag coach
-       python3 engine/calamity.py tasks done weekly-review
+       calamity observe "weekly review: moved deep block to mornings; new topics 8 -> 6" --tag coach
+       calamity tasks done weekly-review
 
 ## A single pattern
 
 When the brief shows "Behaviour pattern not yet raised today", or
-`python3 engine/calamity.py stats patterns` marks one `RAISE NOW`: raise
+`calamity stats patterns` marks one `RAISE NOW`: raise
 that one, once, as a question with its number, at a natural pause. Then
 record it with its id so it rests for a few days:
 
-    python3 engine/calamity.py observe "<what was raised and what they said>" --tag coach --pattern <id>
+    calamity observe "<what was raised and what they said>" --tag coach --pattern <id>
 
 ## A new or changed schedule
 
 Write `learner/schedule.md` in the shape the rule book gives: timed blocks
 in its front matter, one line each, in order, each with a purpose, sized to the total the learner states. Build
 toward a large target in steps from what the log shows they sustain. Put
-hard material where `python3 engine/calamity.py stats hours` shows their
+hard material where `calamity stats hours` shows their
 accuracy is highest.
 
 ## How to talk

@@ -34,8 +34,8 @@ or use `/notes`:
    `notes pdf <skill>` builds `learner/notes/<skill>/<skill>-notes.pdf`.
 
 ```bash
-python3 engine/calamity.py notes status docker
-python3 engine/calamity.py notes pdf docker
+calamity notes status docker
+calamity notes pdf docker
 ```
 
 A fragment you change later makes its section **stale**; `notes status`
@@ -63,7 +63,7 @@ them (the `xcharter`, `xcharter-math`, `fira`, `newtx` and `txfonts`
 packages; Debian ships them in `texlive-fonts-extra`) still builds the PDF,
 in Latin Modern. Study books need `tcolorbox` as well (`texlive-latex-extra`).
 
-`python3 engine/calamity.py doctor` reports which TeX engine it found.
+`calamity doctor` reports which TeX engine it found.
 
 ## Rules
 

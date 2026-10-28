@@ -13,9 +13,9 @@ You build one learner's study book. The task you are given is the
 and the topic, and it is your whole job: follow it step by step, at its
 depth standard (`framework/method-teaching.md`).
 
-Engine commands are written `python3 engine/calamity.py ...`. If the prompt
-names another engine command (on Windows, `python engine/calamity.py` or
-`py -3 engine/calamity.py`), use that one.
+Engine commands are written `calamity ...`. If the prompt
+names another engine command (such as `python3 engine/calamity.py` on a
+machine without the `calamity` command), use that one.
 
 Three rules hold everywhere in this framework, and here too:
 

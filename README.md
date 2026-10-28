@@ -103,7 +103,7 @@ enrolled a first skill. The route to their goal, in layers that can be
 studied in parallel:
 
 ```
-$ python3 engine/calamity.py tree path mern-stack
+$ calamity tree path mern-stack
 Route to mern-stack | MERN capstone
 layer 1 (start here): ◐ dev-environment
 layer 2: · javascript   · linux-shell   · html-css
@@ -121,14 +121,14 @@ choices on this route (enrol in an alternative and the route follows it):
 What to start next, and the roadmap of their track:
 
 ```
-$ python3 engine/calamity.py tree suggest
+$ calamity tree suggest
 Nothing else is open to start yet.
   dev-environment unlocks linux-shell, html-css, javascript, python, java, sql-modelling ... once it is ready
 Carry on with what is enrolled (the route to a goal: tree path <skill>), or add a skill: tree add ...
 ```
 
 ```
-$ python3 engine/calamity.py dash roadmap --width 78
+$ calamity dash roadmap --width 78
 10x Developer  [77 skills: 1 learning, 76 locked]
  foundations
    ◐ dev-environment   · linux-shell   · git-gh   · networking
@@ -170,7 +170,7 @@ Another pretend learner, six simulated weeks into the developer track,
 competitive programming and GATE CS, on an evening after a missed day:
 
 ```
-$ python3 engine/calamity.py dash --width 78
+$ calamity dash --width 78
 CALAMITY · Asha · Mon 12 Oct 19:40
 reviews ░░░░░░░░░░ 0/29   new ░░░░░░░░░░ 0/6
 finish line: 27 reviews, 6 new to go
@@ -206,7 +206,7 @@ GATE Computer Science and Information Technology (CS)
 ```
 
 ```
-$ python3 engine/calamity.py today
+$ calamity today
 today: reviews 0/29 · new 0/6 · finish line: 27 reviews, 6 new to go
 answered today: 0 (0 correct) · active about 1 min
 due now (29): gate.cs.programming-ds/trees, html-css/grid, gate.cs.operating-systems/cpu-scheduling, gate.cs.operating-systems/file-systems, gate.cs.programming-ds/c-programming, typescript/interfaces, gate.cs.programming-ds/recursion, gate.cs.discrete-math/sets-relations ...
@@ -260,6 +260,24 @@ The first time you run `claude`, it opens your browser to sign in.
 
 ### 2. Get the framework
 
+There are two ways. **As a plugin** (nothing to clone; your record lives in
+a folder of your own):
+
+```text
+/plugin install calamity --marketplace persxn/calamity-framework
+```
+
+Run that inside Claude Code (2.1.275 or later; on older versions,
+`/plugin marketplace add persxn/calamity-framework`, then
+`/plugin install calamity@calamity`). Open Claude Code in an empty folder
+for your record (make it a private git repository if you want it synced),
+type `/onboard`, and the tutor sets the folder up: it asks before it runs
+`calamity setup --permissions`. The plugin brings the `calamity` command,
+the session-start brief, the key guard and the tutor's output style; its
+`learner_dir` setting points it at your folder when you open Claude Code
+elsewhere.
+
+**As a clone** (the framework and your record in one folder, as before).
 Linux and macOS:
 
 ```bash
@@ -375,25 +393,25 @@ terminal (Windows: `python engine/calamity.py ...` or
 
 | Command | Shows |
 |---|---|
-| `python3 engine/calamity.py today` | Today's finish line: reviews due, new topics left, lectures |
-| `python3 engine/calamity.py next` | The single next thing to do, and why |
-| `python3 engine/calamity.py dash` | The main dashboard (`dash roadmap`, `dash queue`, `dash week`, `dash gate`, `dash cp`, `dash all`; add `--width 60` for a narrow window, `--ascii` if symbols look broken) |
-| `python3 engine/calamity.py tree path mern-stack` | The route to a goal, in layers you can learn side by side |
-| `python3 engine/calamity.py tree show git-gh` | One skill in full: topics, prerequisites, what it unlocks |
-| `python3 engine/calamity.py tree suggest` | What you could start next |
-| `python3 engine/calamity.py tree list --track cp` | Every skill of a track with its status |
-| `python3 engine/calamity.py find docker` | Search skills, topics, lectures and notes |
-| `python3 engine/calamity.py stats week` | The last days: time, reviews, new topics, accuracy (`stats errors`, `stats flags` for the rest) |
-| `python3 engine/calamity.py gate status` | Countdown, phase, coverage per subject (`gate triage`, `gate mocks`, `gate errors`) |
-| `python3 engine/calamity.py cf rating` | Rating, pace against your target, next milestone (`cf analyse`, `cf recommend`, `cf upsolve`, `cf contests`; after a `cf sync`) |
-| `python3 engine/calamity.py notes status` | Which notes exist and which need writing |
-| `python3 engine/calamity.py profile show` | Your settings |
-| `python3 engine/calamity.py doctor` | A health check that says what to fix |
+| `calamity today` | Today's finish line: reviews due, new topics left, lectures |
+| `calamity next` | The single next thing to do, and why |
+| `calamity dash` | The main dashboard (`dash roadmap`, `dash queue`, `dash week`, `dash gate`, `dash cp`, `dash all`; add `--width 60` for a narrow window, `--ascii` if symbols look broken) |
+| `calamity tree path mern-stack` | The route to a goal, in layers you can learn side by side |
+| `calamity tree show git-gh` | One skill in full: topics, prerequisites, what it unlocks |
+| `calamity tree suggest` | What you could start next |
+| `calamity tree list --track cp` | Every skill of a track with its status |
+| `calamity find docker` | Search skills, topics, lectures and notes |
+| `calamity stats week` | The last days: time, reviews, new topics, accuracy (`stats errors`, `stats flags` for the rest) |
+| `calamity gate status` | Countdown, phase, coverage per subject (`gate triage`, `gate mocks`, `gate errors`) |
+| `calamity cf rating` | Rating, pace against your target, next milestone (`cf analyse`, `cf recommend`, `cf upsolve`, `cf contests`; after a `cf sync`) |
+| `calamity notes status` | Which notes exist and which need writing |
+| `calamity profile show` | Your settings |
+| `calamity doctor` | A health check that says what to fix |
 
 ### Every engine command
 
 Claude runs these for you, and any command prints its options with
-`--help` (for example `python3 engine/calamity.py ask --help`). The full
+`--help` (for example `calamity ask --help`). The full
 reference, with every option, is
 [`framework/rules/engine.md`](framework/rules/engine.md).
 
@@ -510,7 +528,7 @@ your plan to say, not this framework.
 | `cp` Competitive programming | C++ and the STL, then algorithms by rating band, with milestones from 1200 to 2200 |
 | `gate`, `gate-cs`, `gate-da` | General Aptitude and every subject of the CS and DA papers |
 
-`python3 engine/calamity.py tree list` shows the whole tree as it stands.
+`calamity tree list` shows the whole tree as it stands.
 
 - **Routes**: `tree path <goal>` lays out the skills to a goal in layers;
   skills in one layer can be learnt side by side, and they take turns.
@@ -591,9 +609,9 @@ and removable with one command.
 
 | Extra | Install | Remove |
 |---|---|---|
-| **Session brief and key guard**: Claude reads where you stand as each session starts, and cannot search or shell its way to a sealed answer | `python3 engine/calamity.py setup --hook` | `python3 engine/calamity.py setup --remove-hook` |
-| **Status line**: the day's numbers at the bottom of Claude Code, such as `CAL · due 29 · new 0/6 · GATE 117d` (from a pretend learner) | `python3 engine/calamity.py setup --statusline` | `python3 engine/calamity.py setup --remove-statusline` |
-| **`calamity` command** (Linux and macOS, bash or zsh): typing `calamity` in any terminal goes to this folder and starts `claude --dangerously-skip-permissions`, so Claude Code asks no permission questions at all in that session | `python3 engine/calamity.py setup --alias` | `python3 engine/calamity.py setup --remove-alias` |
+| **Session brief and key guard**: Claude reads where you stand as each session starts, and cannot search or shell its way to a sealed answer | `calamity setup --hook` | `calamity setup --remove-hook` |
+| **Status line**: the day's numbers at the bottom of Claude Code, such as `CAL · due 29 · new 0/6 · GATE 117d` (from a pretend learner) | `calamity setup --statusline` | `calamity setup --remove-statusline` |
+| **`calamity` command** (Linux and macOS, bash or zsh): typing `calamity` in any terminal goes to this folder and starts `claude --dangerously-skip-permissions`, so Claude Code asks no permission questions at all in that session | `calamity setup --alias` | `calamity setup --remove-alias` |
 | **Reminders**: notifications from your operating system, only when something is due, never in your sleep window | `/remind 09:00,21:00`: Claude saves the times (`profile set reminders.times 09:00,21:00`), runs `remind render`, and shows you the install command | `/remind off`, or the command `remind remove` prints |
 | **PDF notes**: one PDF per skill from your notes | install Tectonic, TeX Live or MiKTeX; then `/notes pdf <skill>` | uninstall the TeX engine |
 
@@ -646,14 +664,14 @@ an update. It needs your progress saved to your own repository first
 1. Take out the hook, the status line and the alias:
 
    ```bash
-   python3 engine/calamity.py setup --remove-hook --remove-statusline --remove-alias
+   calamity setup --remove-hook --remove-statusline --remove-alias
    ```
 
 2. If you installed reminders, print the command that removes them (it
    needs no times) and run it:
 
    ```bash
-   python3 engine/calamity.py remind remove
+   calamity remind remove
    ```
 
 3. Keep your progress if you want it: push it with `/sync`, or copy the
@@ -664,7 +682,7 @@ an update. It needs your progress saved to your own repository first
 
 ## Troubleshooting
 
-`python3 engine/calamity.py doctor` checks everything and says what to fix.
+`calamity doctor` checks everything and says what to fix.
 
 | Symptom | Fix |
 |---|---|

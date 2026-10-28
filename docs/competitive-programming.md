@@ -11,8 +11,8 @@ onboarding), then use `/cp`.
 ## Linking your handle
 
 ```bash
-python3 engine/calamity.py cf link <your handle>
-python3 engine/calamity.py cf sync
+calamity cf link <your handle>
+calamity cf sync
 ```
 
 The engine reads your public record through Codeforces' official API:
@@ -99,8 +99,8 @@ For each problem: read it and restate it, think inside a time box (about
 it is accepted, two lines from you (the idea and the complexity), then:
 
 ```bash
-python3 engine/calamity.py cf sync
-python3 engine/calamity.py cf credit 1520C --topic cp.binary-search/on-answer
+calamity cf sync
+calamity cf credit 1520C --topic cp.binary-search/on-answer
 ```
 
 `cf credit` counts the judged solve as verified evidence for the topic;
