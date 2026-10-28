@@ -415,8 +415,8 @@ def cmd_item(c, a):
         by = (a.by or "").strip()
         if not by:
             raise CalError("--by is required: who checked it (for example: checker)")
-        if by == item.get("created_by") or by == "examiner":
-            raise CalError("an item cannot be verified by its own author or by the examiner (%s): the "
+        if by == item.get("created_by") or by in ("examiner", "drill-smith"):
+            raise CalError("an item cannot be verified by its own author, the examiner or the drill-smith (%s): the "
                            "checker verifies" % by)
         if status == "rejected":
             raise CalError("item %s was rejected; write a new draft instead" % a.item)
@@ -445,6 +445,12 @@ def cmd_item(c, a):
         if not a.ran or not (a.evidence or "").strip():
             raise CalError("for a %s item: run its check on a reference solution, then: item verify %s --ran "
                            "--evidence \"what was run, what passed\" --by %s" % (item["type"], a.item, by))
+        from . import drills
+
+        if item["type"] in drills.FIXED and not a.unfixed_fails:
+            raise CalError("a %s drill is verified on both halves: its check fails on the fixture as given and passes "
+                           "once you fixed it blind; then: item verify %s --ran --unfixed-fails --evidence \"before: "
+                           "..., after: ...\" --by %s" % (item["type"], a.item, by))
         repo.append("item_verify", item=a.item, ok=True, method="ran", by=by, note=a.evidence.strip())
         scratch.discard_check(repo, a.item)
         return 0, "verified: %s (check ran and passed)" % a.item
@@ -1410,6 +1416,8 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("--by")
     sp.add_argument("--answer")
     sp.add_argument("--ran", action="store_true")
+    sp.add_argument("--unfixed-fails", dest="unfixed_fails", action="store_true",
+                    help="verify a debug, debug-docs or chaos drill: the check failed on the fixture as given")
     sp.add_argument("--fail", action="store_true")
     sp.add_argument("--evidence")
     sp.add_argument("--note")

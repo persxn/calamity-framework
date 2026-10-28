@@ -23,7 +23,8 @@ SPAN = re.compile(r"`([^`\n]+)`")
 SKILLS = ("boss", "bridge", "build-it-yourself", "coach", "cp", "dash", "day", "gate", "log", "mastery-coach", "mastery-textbook",
           "notes", "onboard", "practice", "recall", "remind", "stock", "study", "sync", "teach-deep", "today", "tree",
           "update-framework")
-AGENTS = ("book-builder", "bridge-engineer", "checker", "cp-coach", "curriculum-architect", "examiner", "gate-strategist",
+AGENTS = ("book-builder", "bridge-engineer", "checker", "cp-coach", "curriculum-architect", "drill-smith", "examiner",
+          "gate-strategist",
           "learning-analyst", "notes-writer", "opportunity-scout")
 # Reference files of the companion skills that quote engine commands: checked like the skills themselves.
 # A learner's own added skills are not checked.

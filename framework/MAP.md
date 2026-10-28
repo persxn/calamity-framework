@@ -141,6 +141,7 @@ beside them and are not listed here.
 |---|---|
 | `examiner` | writes practice items as sealed drafts |
 | `checker` | verifies drafts blind, without their keys |
+| `drill-smith` | writes developer drills (debug, debug-docs, read, audit, prompt, chaos) as sealed drafts |
 | `curriculum-architect` | syllabi, placement tests, new tree nodes, lecture mappings |
 | `cp-coach` | the Codeforces training plan from the learner's record |
 | `gate-strategist` | the GATE plan back from the exam date, triage, targets |
