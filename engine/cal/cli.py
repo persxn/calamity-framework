@@ -856,6 +856,8 @@ def cmd_notes(c, a):
         return 0, "assembled: " + repo.rel(notes.assemble(repo, tree, a.target))
     if a.action == "pdf":
         return 0, notes.pdf(repo, tree, a.target)
+    if a.action == "cheatsheet":
+        return 0, notes.cheatsheet(repo, tree, a.target)
     raise CalError("unknown notes action")
 
 
@@ -1562,8 +1564,8 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("--also", help="credit: further topics the same problem exercised")
     sp.add_argument("--hints", type=_count, default=0)
 
-    sp = add("notes", cmd_notes, "Study notes: status, fragment, section, stamp, assemble, pdf.")
-    sp.add_argument("action", choices=("status", "fragment", "section", "stamp", "assemble", "pdf"))
+    sp = add("notes", cmd_notes, "Study notes: status, fragment, section, stamp, assemble, pdf, cheatsheet.")
+    sp.add_argument("action", choices=("status", "fragment", "section", "stamp", "assemble", "pdf", "cheatsheet"))
     sp.add_argument("target", nargs="?", help="a skill, or <skill>/<topic> for fragment and section")
 
     sp = add("stats", cmd_stats, "How the learner works: week, hours, patterns, errors, flags.")

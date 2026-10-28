@@ -1,7 +1,7 @@
 import os
 import unittest
 
-from tests.helpers import Case, write
+from tests.helpers import Case, read, write
 
 from cal import notes
 
@@ -142,3 +142,27 @@ class Notes(Case):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class Cheatsheet(Case):
+    """WP-27: a one-page revision sheet in the cheatsheet option of calamity.sty."""
+
+    def test_the_sheet_is_wrapped_and_built(self):
+        sb = self.sb
+        sb.onboard()
+        sb.run("enroll", "shell")
+        sb.run("notes", "cheatsheet", "shell", expect=2)
+        self.assertIn("ask the notes-writer agent", sb.err)
+        write(sb.path("learner", "notes", "shell", "cheatsheet.tex"),
+              "\\section{Pipes}\n\\code{a | b} sends the output of a to b.\n\\begin{pitfall}A pipe does not store.\\end{pitfall}\n")
+        out = sb.run("notes", "cheatsheet", "shell")
+        main = read(sb.path("learner", "notes", "shell", "cheatsheet-main.tex"))
+        self.assertIn("\\usepackage[cheatsheet]{calamity}", main)
+        self.assertIn("\\input{cheatsheet}", main)
+        self.assertTrue(os.path.isfile(sb.path("learner", "notes", "shell", "calamity.sty")))
+        from cal.notes import tex_engine
+        if tex_engine() is None:
+            self.assertIn("no TeX engine", out)
+        else:
+            self.assertIn("shell-cheatsheet.pdf", out)
+            self.assertIn(", 1 pages", out)

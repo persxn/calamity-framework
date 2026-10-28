@@ -10,7 +10,7 @@ import subprocess
 import tempfile
 import unittest
 
-from tests.helpers import REPO, read
+from tests.helpers import REPO, Case, read
 
 DESIGN = os.path.join(REPO, "framework", "design")
 
@@ -66,6 +66,19 @@ class Design(unittest.TestCase):
         with contextlib.redirect_stdout(io.StringIO()):
             self.assertEqual(mod.qa(out), 0)
         self.assertTrue(os.path.isfile(os.path.join(out, "notebook.%s.pdf" % found[0][0])))
+
+
+class Pages(Case):
+    mini = False
+
+    def test_dash_html_wears_calamity_paper(self):
+        sb = self.sb
+        sb.onboard()
+        out = sb.run("dash", "queue", "--html").strip().split("\n")[1]
+        page = read(out.split(" written to ")[1].split(" (open")[0])
+        self.assertIn("--cal-ink: #1F2328", page)
+        self.assertIn("prefers-color-scheme: dark", page)
+        self.assertIn("<pre>", page)
 
 
 if __name__ == "__main__":

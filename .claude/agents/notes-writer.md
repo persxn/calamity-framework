@@ -77,6 +77,25 @@ are given (`<skill>/<topic>`):
    once, after every section is written, and sends back any section that
    fails with its error.
 
+## Cheat-sheet mode
+
+When asked for a cheat sheet of a skill, write
+`learner/notes/<skill>/cheatsheet.tex`: one landscape A4 page in three
+columns, set by `notes cheatsheet <skill>` in the `cheatsheet` option of
+`calamity.sty` (the same environments as a section). Take everything from
+the skill's notes and sections, nothing new:
+
+- what is looked up during revision: formulas with their symbols named,
+  commands with the flags that matter, small tables (`tabular`, booktabs),
+  the definitions that are easy to mix up;
+- one `pitfall` or `keyidea` per topic at most, a line or two each;
+- a `\section{}` per topic in syllabus order, no prose paragraphs, no
+  worked examples, no recall questions beyond one closing `recall` list.
+
+Then run `python3 engine/calamity.py notes cheatsheet <skill>`. If it reports
+more than one page, cut until it fits: drop what the learner answers right
+reliably before anything they still miss. Return the PDF's path.
+
 ## What you return
 
 For each topic: the file written and its approximate length; anything from

@@ -230,11 +230,17 @@ def write_html(repo, view: str, text: str) -> str:
 
     folder = os.path.join(repo.local, "dash")
     path = os.path.join(folder, "%s.html" % view)
-    page = ("<!doctype html>\n<html><head><meta charset=\"utf-8\"><title>Calamity: %s</title>\n<style>"
-            "body{font:14px/1.45 ui-monospace,Menlo,Consolas,monospace;margin:24px;background:#fbfaf7;color:#222}"
-            "@media (prefers-color-scheme:dark){body{background:#16161a;color:#e8e6e1}}"
-            "pre{white-space:pre;overflow-x:auto}</style></head>\n<body><pre>%s</pre></body></html>\n"
-            % (html.escape(view), html.escape(text)))
+    try:                                   # Calamity Paper: the same colours and fonts as the notes and books
+        with open(os.path.join(repo.framework, "design", "calamity.css"), "r", encoding="utf-8") as fh:
+            css = fh.read()
+    except OSError:
+        css = "body{font:14px/1.45 ui-monospace,Menlo,Consolas,monospace;margin:24px}"
+    page = ("<!doctype html>\n<html><head><meta charset=\"utf-8\">"
+            "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">"
+            "<title>Calamity: %s</title>\n<style>%s\npre{background:transparent;border:0;padding:0;"
+            "font-size:13px;line-height:1.4}</style></head>\n<body><main class=\"cal-page\" style=\"max-width:none\">"
+            "<h1>Calamity &middot; %s</h1><pre>%s</pre></main></body></html>\n"
+            % (html.escape(view), css, html.escape(view), html.escape(text)))
     write_text(path, page, durable=False)
     first = next((line for line in text.split("\n") if line.strip()), "")
     return "%s\n%s view written to %s (open it in a browser)" % (first.strip()[:160], view, path)

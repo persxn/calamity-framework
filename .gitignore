@@ -19,6 +19,9 @@ learner/notes/**/main.tex
 learner/notes/**/calamity-preamble.tex
 learner/notes/**/calamity.sty
 learner/notes/**/main.pdf
+learner/notes/**/cheatsheet-main.tex
+learner/notes/**/cheatsheet-main.pdf
+learner/notes/**/*-cheatsheet.pdf
 learner/notes/**/*-notes.pdf
 learner/notes/**/*-notes.md
 learner/notes/**/*.aux

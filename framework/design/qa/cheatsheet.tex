@@ -1,0 +1,29 @@
+% QA page for calamity.sty, cheatsheet option: the page `notes cheatsheet` builds around a cheatsheet.tex.
+% Built by: python3 tools/design.py --qa <out folder>
+\documentclass[10pt]{article}
+\usepackage[cheatsheet]{calamity}
+\begin{document}
+\noindent{\sffamily\bfseries\large Operating Systems \textperiodcentered{} cheat sheet}\hfill{\sffamily\small\color{calMuted}Calamity Paper QA \textperiodcentered{} 28 October 2026}\par\vspace{2pt}{\color{calRule}\hrule}\vspace{4pt}
+\begin{multicols*}{3}
+\section{Paging}
+$\mathrm{EAT} = h(t_{\mathrm{TLB}} + t_m) + (1-h)(t_{\mathrm{TLB}} + k\,t_m)$ for a $k$-level table.
+Entries $= 2^{v-p}$; table size $= 2^{v-p}\times e$.
+\begin{pitfall}The TLB is searched on every reference: $t_{\mathrm{TLB}}$ is in both terms.\end{pitfall}
+\section{Scheduling}
+\begin{tabular}{@{}lll@{}}\toprule Policy & Pre-empts & Starves\\\midrule FCFS & no & no\\ SJF & no & yes\\ SRTF & yes & yes\\ RR & yes & no\\\bottomrule\end{tabular}
+
+Turnaround $=$ completion $-$ arrival; waiting $=$ turnaround $-$ burst.
+\section{Deadlock}
+Coffman: mutual exclusion, hold and wait, no pre-emption, circular wait.
+\begin{keyidea}Banker's: grant only if a safe sequence remains.\end{keyidea}
+\section{Shell}
+\begin{lstlisting}[language=bash]
+ps -eo pid,ppid,stat,cmd | grep '[s]shd'
+kill -TERM 1234; wait
+\end{lstlisting}
+\code{fork()} returns twice: $0$ in the child, the child's PID in the parent.
+\section{Disk}
+Access $=$ seek $+$ $\frac{1}{2}\cdot\frac{60}{\mathrm{RPM}}$ $+$ transfer.
+\begin{recall}\item Which condition does lock ordering break?\end{recall}
+\end{multicols*}
+\end{document}
