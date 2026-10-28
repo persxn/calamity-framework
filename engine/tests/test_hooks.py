@@ -41,6 +41,8 @@ class Hooks(Case):
         notes = [n for n in self.sb.state().notes if n["tag"] == "feedback"]
         self.assertEqual((notes[-1]["pace"], notes[-1]["clarity"]), ("fast", "low"))
         self.assertIn("feedback: pace=fast clarity=low", self.sb.run("day"))
+        self.prompt("!harder")
+        self.assertIn("feedback: level=harder", self.sb.run("day"))
 
     def test_stop_blocks_once_when_an_answer_was_not_recorded(self):
         sb = self.sb

@@ -1470,7 +1470,7 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("--days", type=_positive, default=7)
     sp.add_argument("--track")
     sp = add("feedback", cmd_feedback, "Record the learner's word on the teaching: pace, depth, clarity.")
-    sp.add_argument("pairs", nargs="+", help="pace=fast|slow|ok depth=more|less|ok clarity=low|ok")
+    sp.add_argument("pairs", nargs="+", help="pace=fast|slow|ok depth=more|less|ok clarity=low|ok level=harder|easier|ok")
     sp.add_argument("--topic")
     sp = add("observe", cmd_observe, "Record an observation about what helps this learner.")
     sp.add_argument("text", nargs="+")

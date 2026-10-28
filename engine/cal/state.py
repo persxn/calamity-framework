@@ -436,10 +436,10 @@ class State:
             self._day_stats(dt).taught.append([ts.key, list(e.get("parts") or []), e.get("minutes")])
 
     def _on_feedback(self, e, dt):
-        said = " ".join("%s=%s" % (k, e[k]) for k in ("pace", "depth", "clarity") if e.get(k))
+        said = " ".join("%s=%s" % (k, e[k]) for k in ("pace", "depth", "clarity", "level") if e.get(k))
         self.notes.append({"ts": dt, "text": said, "tag": "feedback", "topic": e.get("topic"),
                            "skill": e.get("skill"), "pace": e.get("pace"), "depth": e.get("depth"),
-                           "clarity": e.get("clarity")})
+                           "clarity": e.get("clarity"), "level": e.get("level")})
 
     def _on_shown(self, e, dt):
         it = self.item(e["item"])
