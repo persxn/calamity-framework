@@ -100,25 +100,41 @@ def _discard_draft_file(repo, args, batch: bool = False) -> None:
 # ---------------------------------------------------------------- session-level commands
 
 
+def _hook_input() -> dict:
+    """What Claude Code passes a hook on standard input; anything unexpected is an empty dict, never a failure."""
+    if sys.stdin is None or sys.stdin.isatty():
+        return {}
+    try:
+        data = json.loads(decode_text(_stdin_bytes()) or "{}")
+    except (ValueError, OSError, AttributeError, UnicodeDecodeError):
+        return {}
+    return data if isinstance(data, dict) else {}
+
+
+def _hook_json(event: str, **fields) -> str:
+    return json.dumps({"hookSpecificOutput": dict({"hookEventName": event}, **fields)}, ensure_ascii=False)
+
+
 def cmd_brief(c, a):
-    from . import machine
+    from . import hooks, machine
 
     if a.hook:
         try:
-            src, data = "manual", None
-            if not sys.stdin.isatty():
-                src = "startup"
-                try:  # what Claude Code says about the session; anything unexpected is not a reason to fail
-                    data = json.loads(decode_text(_stdin_bytes()) or "{}")
-                    if isinstance(data, dict) and isinstance(data.get("source"), str) and data["source"]:
-                        src = data["source"][:20]
-                except (ValueError, OSError, AttributeError):
-                    pass
-            if c.repo.onboarded():
+            data = _hook_input()
+            src = data.get("source") if isinstance(data.get("source"), str) and data.get("source") else "startup"
+            src = src[:20]
+            if c.repo.onboarded() and not hooks.off():
                 c.repo.append("session", when=c.when, src=src)
             # The hook input may name the model and effort (optional fields): the advice line uses them.
-            return 0, plan.brief(c.repo, c.tree, c.state, c.when, machine.engine_cmd(c.repo),
-                                 current=data if isinstance(data, dict) else None)
+            text = plan.brief(c.repo, c.tree, c.state, c.when, machine.engine_cmd(c.repo), current=data)
+            if src == "compact" and c.repo.onboarded() and not hooks.off():
+                more = hooks.resume_lines(c.repo, c.state, data)
+                if more:
+                    text = text.replace("=== END BRIEF ===", "\n".join(more) + "\n=== END BRIEF ===")
+            opening = hooks.auto_start(c.repo, data)
+            if opening:
+                return 0, _hook_json("SessionStart", additionalContext=text, initialUserMessage=opening)
+            return 0, text
         except Exception as exc:  # a hook must never break the session
             return 0, ("=== CALAMITY BRIEF ===\nThe brief could not be built (%s: %s).\n"
                        "Run the doctor command to see what is wrong.\n=== END BRIEF ===" % (exc.__class__.__name__, exc))
@@ -1086,9 +1102,40 @@ def cmd_book(c, a):
 
 
 def cmd_guard(c, a):
-    from . import guard
+    from . import guard, hooks
 
-    return guard.hook_main(), ""
+    if a.action == "tool":
+        return guard.hook_main(), ""
+    try:  # the other hooks: never a reason to fail the session
+        data = _hook_input()
+        if hooks.off() or not c.repo.onboarded():
+            return 0, ""
+        if a.action == "prompt":
+            context = hooks.prompt(c.repo, c.tree, data, c.when)
+            return 0, _hook_json("UserPromptSubmit", additionalContext=context) if context else ""
+        if a.action == "stop":
+            reason = hooks.stop(c.repo, c.tree, c.state, data, c.when)
+            return 0, json.dumps({"decision": "block", "reason": reason}) if reason else ""
+        if a.action == "end":
+            hooks.end(c.repo, data, c.when)
+    except Exception:  # noqa: BLE001 - see above; doctor checks the hooks are installed and current
+        return 0, ""
+    return 0, ""
+
+
+def cmd_snapshot(c, a):
+    from . import hooks
+
+    if not a.session:
+        raise CalError("snapshot --session (run by the PreCompact hook)")
+    try:
+        data = _hook_input()
+        if hooks.off() or not c.repo.onboarded():
+            return 0, ""
+        hooks.snapshot(c.repo, c.state, data, c.when)
+    except Exception:  # noqa: BLE001 - a hook never breaks the session
+        pass
+    return 0, ""
 
 
 def cmd_clean(c, a):
@@ -1494,9 +1541,11 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("target", help="a .md file, or a book folder (README.md, then 01-*.md, 02-*.md ...)")
     sp.add_argument("--out", help="where to write the PDF (default: beside the book)")
     add("doctor", cmd_doctor, "Check that everything is in order.")
-    sp = add("guard", cmd_guard, "The key guard Claude Code runs before each Read, Grep, Glob and shell call "
-                                 "(installed by setup --hook; reads the call as JSON on stdin).")
-    sp.add_argument("action", choices=("tool",))
+    sp = add("guard", cmd_guard, "The hooks Claude Code runs (installed by setup --hook; each reads JSON on stdin): "
+                                 "tool (the key guard), prompt, stop, end.")
+    sp.add_argument("action", choices=("tool", "prompt", "stop", "end"))
+    sp = add("snapshot", cmd_snapshot, "Where the session stands, before a compaction (the PreCompact hook).")
+    sp.add_argument("--session", action="store_true", help="write .calamity/session.json for the session on stdin")
     sp = add("clean", cmd_clean, "Remove the scratch folder's contents (.calamity/tmp), worked answers included.")
     sp.add_argument("action", choices=("tmp",))
     sp.add_argument("--dry-run", dest="dry_run", action="store_true", help="list what would go, remove nothing")

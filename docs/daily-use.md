@@ -79,6 +79,27 @@ You can also just talk:
   `checker` agent solves the question again from scratch, and if the key
   does not hold, the question is withdrawn and your answer stops counting.
 
+## Steering with a word
+
+Type one of these anywhere in a message (with `setup --hook` installed) and
+it is recorded as feedback on the teaching and acted on at once:
+
+| Type | It means | Recorded as |
+|---|---|---|
+| `!slow` | slow down: shorter chunks | `pace=fast` (it was too fast) |
+| `!fast` | speed up: bigger steps | `pace=slow` |
+| `!deeper` | the mechanism underneath | `depth=more` |
+| `!lighter` | the core idea first, details later | `depth=less` |
+| `!example` | a worked example now | `clarity=low` |
+| `!harder`, `!easier` | stretch, or step back to a prerequisite | `level=harder\|easier` |
+
+The same hooks name the skill a request belongs to ("I finished lecture
+12" goes to `/log`), stop Claude ending a turn once when your answer was
+not recorded or a topic taught today has no notes yet, carry an open
+question across a compacted conversation, and record when a session ends.
+`CALAMITY_HOOKS=off` in the shell turns them all off. With
+`profile set auto.start true`, a new session opens with `/day` by itself.
+
 ## Reminders
 
 Reminders are notifications from your operating system, so they work while

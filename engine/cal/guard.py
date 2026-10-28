@@ -12,6 +12,10 @@ the engine has stored or checked them. `setup --hook` installs it as a PreToolUs
     .calamity/tmp/checker/    the checker
 
 It stops slips and instructions planted in pages or files, not a determined person at the keyboard.
+
+It also keeps big learner files out of the conversation: a whole-file Read of a file over 20 KB under
+learner/sources/, learner/events/ or learner/PROGRESS.md is refused with the engine command that gives
+the slice instead (a Read with a line limit goes through).
 """
 from __future__ import annotations
 
@@ -21,6 +25,11 @@ import sys
 
 TOOLS = ("Read", "Grep", "Glob", "Bash", "PowerShell")
 SHELLS = ("Bash", "PowerShell")
+BIG = 20 * 1024
+# Learner files that grow without bound, and the engine's slice of each.
+SLICES = ((("learner", "sources"), "source show <id> (--section, --topic, --unmapped) or source status"),
+          (("learner", "events"), "day <date>, history --by day|week|month, or the views in dash"),
+          (("learner", "PROGRESS.md"), "dash, or history"))
 
 
 def _norm(path: str) -> str:
@@ -83,6 +92,13 @@ def decide(payload: dict, root: str) -> str | None:
         pattern = str(tool_input.get("pattern") or "")
         target = pattern.split("*", 1)[0].rsplit("/", 1)[0] if "/" in pattern.split("*", 1)[0] else ""
     target = _norm(os.path.join(cwd, target) if target else cwd)
+    if tool == "Read" and not tool_input.get("limit"):
+        for parts, slice_cmd in SLICES:
+            area = _norm(os.path.join(root, *parts))
+            if _inside(target, area) and os.path.isfile(target) and os.path.getsize(target) > BIG:
+                return ("%s is over %d KB: ask the engine for the part you need instead (%s), or read a few "
+                        "lines with a limit" % ("/".join(parts) if not target.endswith(".jsonl") else
+                                                os.path.basename(target), BIG // 1024, slice_cmd))
     for area, name in barred:
         area = _norm(area)
         if _inside(target, area):

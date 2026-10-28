@@ -55,7 +55,11 @@ class Setup(Case):
         self.assertIn("session-start hook written to .claude/settings.local.json", out)
         data = self.settings()
         self.assertEqual(data["permissions"], existing["permissions"])
-        self.assertEqual(data["hooks"]["Stop"], existing["hooks"]["Stop"])
+        self.assertEqual(data["hooks"]["Stop"][0], existing["hooks"]["Stop"][0])    # the learner's own hook stays first
+        self.assertEqual(data["hooks"]["Stop"][1]["hooks"][0]["args"][1:], ["guard", "stop"])
+        for event, args in (("UserPromptSubmit", ["guard", "prompt"]), ("PreCompact", ["snapshot", "--session"]),
+                            ("SessionEnd", ["guard", "end"])):
+            self.assertEqual(data["hooks"][event][0]["hooks"][0]["args"][1:], args, event)
         entries = data["hooks"]["SessionStart"]
         self.assertEqual(len(entries), 2)
         ours = entries[-1]["hooks"][0]
@@ -72,6 +76,7 @@ class Setup(Case):
         sb.run("setup", "--hook")                                     # installing again does not duplicate it
         self.assertEqual(len(self.settings()["hooks"]["SessionStart"]), 2)
         self.assertEqual(len(self.settings()["hooks"]["PreToolUse"]), 1)
+        self.assertEqual(len(self.settings()["hooks"]["Stop"]), 2)
         self.assertEqual(self.settings()["outputStyle"], "Calamity Tutor")   # how a study session teaches
         out = sb.run("setup")
         self.assertIn("session-start hook: ok", out)
