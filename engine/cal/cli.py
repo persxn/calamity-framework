@@ -1255,6 +1255,13 @@ def cmd_practice(c, a):
         return 0, practice.stats_text(c.tree, c.state)
     if a.action == "status":
         return 0, practice.status_text(c.state, c.when, a.set)
+    if a.action == "sessions":
+        return 0, practice.sessions_text(c.repo, c.state, c.when, a.days)
+    if a.action == "session":
+        if not a.set:
+            raise CalError("practice session %s [--minutes N] [--topic K] [--ideas N] [--note \"...\"]"
+                           % "|".join(practice.SESSION_TYPES))
+        return 0, practice.session_log(c.repo, c.tree, c.when, a.set, a.minutes, a.topic, a.ideas, a.note)
     if not a.set:
         raise CalError("name the practice set: practice %s <set> ..." % a.action)
     if a.action == "add":
@@ -1638,8 +1645,9 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("--always", action="store_true", help="check: say something even when nothing is due")
     sp.add_argument("--times", help="render: times of day, e.g. 09:00,14:00,21:00 (default: reminders.times)")
     sp.add_argument("--os", choices=("linux", "darwin", "windows"), help="render: for another system than this one")
-    sp = add("practice", cmd_practice, "Practice sets (outside questions, metadata only): add, map, log, due, status, stats.")
-    sp.add_argument("action", choices=("add", "map", "log", "due", "status", "stats"))
+    sp = add("practice", cmd_practice, "Practice sets (outside questions, metadata only): add, map, log, due, status, stats; "
+                                       "developer sessions: session, sessions.")
+    sp.add_argument("action", choices=("add", "map", "log", "due", "status", "stats", "session", "sessions"))
     sp.add_argument("set", nargs="?")
     sp.add_argument("rest", nargs="*", help="log: <questions> <solved|wrong|guessed|skipped>")
     sp.add_argument("--title")
@@ -1651,7 +1659,11 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("--stdin", action="store_true")
     sp.add_argument("--err", help="log: the error kind of a wrong answer")
     sp.add_argument("--secs", type=_positive, help="log: seconds it took")
-    sp.add_argument("--note", help="log: one line on the mistake, never the question")
+    sp.add_argument("--note", help="log: one line on the mistake, never the question; session: what it was about")
+    sp.add_argument("--minutes", type=_positive, help="session: how long it took")
+    sp.add_argument("--topic", help="session: the tree topic its notes and seeds belong to")
+    sp.add_argument("--ideas", type=int, help="session: new ideas taken from it (a classic asks for 3 or more)")
+    sp.add_argument("--days", type=_positive, default=30, help="sessions: look back this many days")
     sp = add("career", cmd_career, "Opportunity records found on the web (for now GATE mocks): add, list, show.")
     sp.add_argument("action", choices=("add", "list", "show"))
     sp.add_argument("id", nargs="?")

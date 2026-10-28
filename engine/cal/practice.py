@@ -287,3 +287,65 @@ def write_view(repo: Repo, ident: str, meta: dict, ranges) -> None:
     if not ranges:
         lines.append("(not mapped yet)")
     write_text(os.path.join(repo.root, "learner", "practice", ident + ".md"), "\n".join(lines) + "\n")
+
+
+# ---------------------------------------------------------------- session types (the developer track's doctrine)
+
+SESSION_TYPES = {
+    "system-day": "a real system taken apart: what it is for, its constraints, the design and its trade-offs",
+    "classic": "a classic read: a paper, an RFC or an engineering post, with at least three new ideas",
+    "outage": "an outage study: the failure chain reconstructed, the decision behind each link",
+    "oss": "open-source immersion: a real repository read, built, run and changed",
+    "vocab": "engineering vocabulary: about five terms, each with its mental model, an example and a check",
+}
+
+
+def session_log(repo: Repo, tree, when, kind: str, minutes, topic, ideas, note) -> str:
+    """Record one session of a developer-doctrine type. Its notes go in the topic's fragment, and its testable
+    ideas to the examiner as seeds: the session itself is not evidence."""
+    if kind not in SESSION_TYPES:
+        raise CalError("a session type is one of %s" % ", ".join(SESSION_TYPES))
+    key = tree.topic(topic).key if topic else None
+    if note and (len(note) > 200 or "\n" in note):
+        raise CalError("a note is one line (at most 200 characters): what it was about, never copied text")
+    if ideas is not None and ideas < 0:
+        raise CalError("--ideas counts new ideas: 0 or more")
+    repo.append("session_type", when=when, kind=kind, minutes=minutes, topic=key, ideas=ideas, note=note)
+    lines = ["%s session recorded%s%s" % (kind, (" on %s" % key) if key else "", (", %d min" % minutes) if minutes else "")]
+    if kind == "classic" and (ideas or 0) < 3:
+        lines.append("note: a classic read asks for at least three new ideas; name them before closing")
+    if key:
+        lines.append("next: save its notes fragment (notes fragment %s), then give its testable ideas to the examiner "
+                     "as seeds for %s" % (key, key))
+    else:
+        lines.append("next: pick the closest tree topic for its notes (find <words>), or record it with --topic")
+    return "\n".join(lines)
+
+
+def sessions(repo: Repo, state, when, days: int = 30) -> list:
+    since = when - timedelta(days=days)
+    return [e for e in repo.events() if e["t"] == "session_type" and e["_dt"] >= since]
+
+
+def sessions_text(repo: Repo, state, when, days: int = 30) -> str:
+    rows = sessions(repo, state, when, days)
+    if not rows:
+        return "no developer sessions in the last %d days (practice session system-day|classic|outage|oss|vocab)" % days
+    counts = {}
+    for e in rows:
+        c = counts.setdefault(e.get("kind"), [0, 0, 0])
+        c[0] += 1
+        c[1] += int(e.get("minutes") or 0)
+        c[2] += int(e.get("ideas") or 0)
+    out = ["developer sessions, last %d days:" % days]
+    for kind in SESSION_TYPES:
+        if kind in counts:
+            n, mins, ideas = counts[kind]
+            out.append("  %-10s %d session%s, %d min%s" % (kind, n, "" if n == 1 else "s", mins,
+                                                       (", %d new ideas" % ideas) if ideas else ""))
+    missing = [k for k in SESSION_TYPES if k not in counts]
+    if missing:
+        out.append("  not yet: %s" % ", ".join(missing))
+    last = rows[-1]
+    out.append("last: %s %s%s" % (state.day(last["_dt"]), last.get("kind"), (" on %s" % last["topic"]) if last.get("topic") else ""))
+    return "\n".join(out)

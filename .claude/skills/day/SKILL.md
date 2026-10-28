@@ -51,6 +51,7 @@ session (do not hand the learner a command):
 | a mock | the gate skill's mock flow |
 | competitive programming, Codeforces, a contest | the cp skill (`set`, `contest`, `upsolve`) |
 | developer track, a tool in depth | the mastery-coach skill on the goal's next skill |
+| a system day, a classic, an outage study, open source, vocabulary | the practice skill's developer session of that type |
 | a workout | nothing to teach: `workout <minutes>` when they are back |
 | a close, a wind-down, the review of the day | step 5 |
 

@@ -33,7 +33,7 @@ def journal_dir(repo: Repo) -> str:
 def _blank(day: str) -> dict:
     return {"day": day, "minutes": 0.0, "sessions": 0, "answers": 0, "ok": 0, "new": 0, "reviews": 0,
             "taught": [], "consolidated": [], "lectures": 0, "lecture_min": 0, "practice": 0, "practice_ok": 0,
-            "workout": 0, "mocks": [], "passes": [], "feedback": 0}
+            "workout": 0, "mocks": [], "passes": [], "feedback": 0, "dev": []}
 
 
 def _match(key: str, skill: str | None, track: str | None, tree) -> bool:
@@ -100,6 +100,8 @@ def records(repo: Repo, tree, state, skill: str | None = None, track: str | None
             rec(dt, e.get("done"))["passes"].append("%s pass %s" % (state.canon_skill(str(e.get("skill"))), e.get("n")))
         elif t == "feedback":
             rec(dt)["feedback"] += 1
+        elif t == "session_type":
+            rec(dt)["dev"].append("%s%s" % (e.get("kind"), (" %d min" % e["minutes"]) if e.get("minutes") else ""))
     for key in state.topics:
         if not _match(key, skill, track, tree):
             continue
@@ -121,7 +123,7 @@ def _num(value) -> str:
 
 def _active(r: dict) -> bool:
     return bool(r["answers"] or r["taught"] or r["consolidated"] or r["lectures"] or r["practice"] or r["workout"]
-                or r["mocks"] or r["passes"] or r["minutes"] >= 5)
+                or r["mocks"] or r["passes"] or r["dev"] or r["minutes"] >= 5)
 
 
 def _short(keys, n: int = 4) -> str:
@@ -150,6 +152,8 @@ def line(r: dict) -> str:
         bits.append("mock %s" % m)
     for p in r["passes"]:
         bits.append(p + " done")
+    for s in r["dev"]:
+        bits.append("session " + s)
     if r["workout"]:
         bits.append("workout %d min" % r["workout"])
     if r["feedback"]:
@@ -187,8 +191,8 @@ def totals(rs) -> dict:
         for k in ("minutes", "answers", "ok", "new", "reviews", "lectures", "lecture_min", "practice", "practice_ok",
                   "workout", "feedback", "sessions"):
             t[k] += r[k]
-        for k in ("taught", "consolidated", "mocks", "passes"):
-            t[k] += [x for x in r[k] if x not in t[k]]
+        for k in ("taught", "consolidated", "mocks", "passes", "dev"):
+            t[k] += [x for x in r[k] if x not in t[k] or k == "dev"]
     return t
 
 
@@ -262,6 +266,11 @@ def render_month(month: str, rs: list, tree) -> str:
         lines.append("- mocks: %s" % ", ".join(t["mocks"]))
     if t["passes"]:
         lines.append("- revision passes done: %s" % ", ".join(t["passes"]))
+    if t["dev"]:
+        kinds = {}
+        for d in t["dev"]:
+            kinds[d.split(" ")[0]] = kinds.get(d.split(" ")[0], 0) + 1
+        lines.append("- developer sessions: %s" % ", ".join("%s %d" % kv for kv in sorted(kinds.items())))
     if t["workout"]:
         lines.append("- workouts: %d min" % t["workout"])
     lines += ["", "## Days", ""]
