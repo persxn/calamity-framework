@@ -134,6 +134,15 @@ changes their record in `learner/`.
   refuses one without a source, fetch date and terms note; `career list`
   and `career show` read them, and the gate-strategist places them in the
   mock calendar.
+- The career engine. Records grow to jobs, internships, open-source
+  programmes, hackathons, test series, M.Tech admissions, PSUs and
+  scholarships, each with how it was read (`via`), dates and the tree
+  skills it needs. `career match` computes readiness from the record
+  (capped without project evidence), `career status` keeps the pipeline,
+  `career nudge` and a weekly `career` task name what to act on, never
+  in a blackout (`career.blackout_until` or GATE's final phase), and
+  `career portfolio` writes `learner/career/portfolio.md` with evidenced
+  lines only. Fixed: a refreshed record was dropped as a duplicate.
 - Progress by date. `day <date>` adds what was recorded that day (time,
   answers, topics taught and secured, lectures, practice, workouts);
   `history --by day|week|month [--skill S] [--track T]` gives one row per

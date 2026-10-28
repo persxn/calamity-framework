@@ -9,6 +9,7 @@
     numericals      a GATE topic far behind on numerical questions
     revise          watched lectures whose topics have faded
     mocks           GATE mock records older than 30 days (the opportunity-scout refreshes them)
+    career          a career record worth acting on (career nudge); never during a career blackout
 
 `tasks` lists what is due, most pressing first; the brief shows the top two and `/day` takes one that
 belongs to the block. `tasks done <id>` records that it was handled and `tasks snooze <id> [--days N]`
@@ -37,6 +38,7 @@ TASKS = {
     "numericals": (7, "numericals behind", "/gate numericals, then practice"),
     "revise": (3, "lectures to revise", "source revise"),
     "mocks": (14, "GATE mock records stale", "/gate (the opportunity-scout refreshes them)"),
+    "career": (7, "a career opportunity to act on", "career nudge, then career match <id>"),
 }
 ORDER = tuple(TASKS)
 
@@ -158,6 +160,12 @@ def due(repo, tree, state, when) -> list:
         if fading:
             first = fading[0]
             add("revise", "%d lecture(s), first %s %s" % (len(fading), first[0], getattr(first[1], "id", first[1])))
+    if state.career:
+        from . import career
+
+        pending = career.nudges(repo, tree, state, when)    # empty during a blackout
+        if pending:
+            add("career", "%d, first %s" % (len(pending), pending[0][1]))
     return out
 
 

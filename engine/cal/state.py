@@ -160,7 +160,8 @@ class State:
         self.practice = {}       # practice set id -> {meta, map, qs: {question: record}} (practice.py)
         self.mistakes = []       # wrong answers for the error book: {ts, topic, err, note, src, id}
         self.passes = {}         # GATE subject -> {pass number: {"planned": date, "done": date}}
-        self.career = {}         # record id -> an opportunity record (career.py)
+        self.career = {}         # record id -> an opportunity record with its status (career.py)
+        self.bosses = []         # passed bosses: {skill, kind, evidence, ts} (the career portfolio)
         self.tasks = {}          # task id -> the learner day until which it is hidden (tasks.py)
         self.last_task = {}      # task id -> the learner day it was last done
         self.experiments = {}    # experiment id -> its arms, the topics assigned to each, their first tries (model.py)
@@ -369,7 +370,7 @@ class State:
         self.mocks, self.notes, self.cp_assigned = [], [], []
         self.cp_marks, self.cp_credits, self.weights = {}, {}, {}
         self.first_tries, self.review_secs, self.practice = [], [], {}
-        self.mistakes, self.passes, self.career = [], {}, {}
+        self.mistakes, self.passes, self.career, self.bosses = [], {}, {}, []
         self.tasks, self.last_task, self.experiments = {}, {}, {}
         self.last_dt, self.n_events, self.n_voided = None, 0, 0
         self._alias_topic, self._alias_skill, self._retag = {}, {}, {}
@@ -574,8 +575,20 @@ class State:
     def _on_career_add(self, e, dt):
         from .career import FIELDS
 
-        self.career.pop(e["id"], None)              # a newer fetch replaces the record, and moves it last
-        self.career[e["id"]] = dict({k: e[k] for k in FIELDS if k in e}, id=e["id"])
+        rid = e.get("rec") or e["id"]               # logs before 1.x wrote the record id as the event id
+        old = self.career.pop(rid, None) or {}      # a newer fetch replaces the record, and moves it last
+        self.career[rid] = dict({k: e[k] for k in FIELDS if k in e}, id=rid)
+        for k in ("status", "status_on", "status_note"):
+            if k in old:                            # what the learner did with it survives a refresh
+                self.career[rid][k] = old[k]
+
+    def _on_career_status(self, e, dt):
+        rec = self.career.get(e["rec"])
+        if rec is not None:
+            rec["status"], rec["status_on"] = e["status"], self.day(dt)
+            rec.pop("status_note", None)
+            if e.get("note"):
+                rec["status_note"] = e["note"]
 
     def _on_experiment_start(self, e, dt):
         self.experiments[str(e["exp"])] = {"id": str(e["exp"]), "skill": self.canon_skill(e["skill"]),
@@ -701,6 +714,8 @@ class State:
         sk.boss_tries += 1
         if e.get("ok"):
             sk.boss_ok, sk.boss_ts = True, dt
+            self.bosses.append({"skill": self.canon_skill(e["skill"]), "kind": e.get("kind") or "project",
+                                "evidence": e.get("evidence") or "", "ts": dt})
 
     def _on_mock(self, e, dt):
         self.mocks.append({k: v for k, v in e.items() if not k.startswith("_")})
