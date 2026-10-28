@@ -60,7 +60,8 @@ def set_enrollment(repo: Repo, tree, state, skill_id: str, what: str) -> str:
 
 def feedback(repo: Repo, tree, pairs, topic: str | None = None) -> str:
     """Record the learner's word on the teaching: pace=fast|slow|ok, depth=more|less|ok, clarity=low|ok."""
-    allowed = {"pace": ("fast", "slow", "ok"), "depth": ("more", "less", "ok"), "clarity": ("low", "ok")}
+    allowed = {"pace": ("fast", "slow", "ok"), "depth": ("more", "less", "ok"), "clarity": ("low", "ok"),
+               "level": ("harder", "easier", "ok")}
     said = {}
     for pair in pairs:
         name, _, value = pair.partition("=")

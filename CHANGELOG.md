@@ -157,6 +157,19 @@ changes their record in `learner/`.
   capstone. Descriptions no longer compete: "quiz me" reaches `recall`
   only, "continue" `study` only. `doctor` warns about an account-level
   `mastery-coach` that would compete with the framework's.
+- Hooks around every turn (`setup --hook` installs them; `CALAMITY_HOOKS=off`
+  silences them). A request a skill owns gets one routing line ("I finished
+  lecture 12" → `/log`); `!slow`, `!fast`, `!deeper`, `!lighter`,
+  `!example`, `!harder` and `!easier` typed anywhere are recorded as feedback
+  and acted on; a pasted link to a running Codeforces contest brings the
+  no-help rule. The Stop guard keeps a study turn going once when the
+  learner's answer was not recorded or a topic taught today has no notes
+  fragment, and never loops. A compaction keeps the item in flight
+  (`snapshot --session`, then `Resumed after compaction` in the brief);
+  `session_end` events make session lengths exact. Big learner files
+  (sources, the event log, PROGRESS.md) are read as engine slices, not
+  whole. With `profile set auto.start true` a new session opens with
+  `/day`, never in a clone without a learner.
 
 ### Development
 

@@ -86,11 +86,17 @@ def _load_settings(path: str) -> dict:
     return data
 
 
-# Our two hooks: the brief at session start, and the key guard before every tool that reads (cal.guard).
-# The output style (.claude/output-styles/calamity-tutor.md) comes with them: it is how a study session teaches.
+# Our hooks (cal.hooks): the brief at session start, the key guard before every tool that reads (cal.guard),
+# and the study hooks around each turn. The output style (.claude/output-styles/calamity-tutor.md) comes with
+# them: it is how a study session teaches.
 STYLE = "Calamity Tutor"
 HOOKS = {"SessionStart": (None, ["brief", "--hook"], 30),
-         "PreToolUse": ("Read|Grep|Glob|Bash|PowerShell", ["guard", "tool"], 10)}
+         "PreToolUse": ("Read|Grep|Glob|Bash|PowerShell", ["guard", "tool"], 10),
+         "UserPromptSubmit": (None, ["guard", "prompt"], 10),
+         "Stop": (None, ["guard", "stop"], 20),
+         "PreCompact": (None, ["snapshot", "--session"], 20),
+         "SessionEnd": (None, ["guard", "end"], 5)}
+STUDY_HOOKS = ("UserPromptSubmit", "Stop", "PreCompact", "SessionEnd")
 
 
 def _is_ours(entry, event: str = "SessionStart") -> bool:
@@ -124,7 +130,8 @@ def install_hook(repo: Repo) -> str:
         style_line = "your own output style (%s) kept; /output-style %s switches to the tutor's" % (style, STYLE)
     write_text(path, json.dumps(data, indent=2) + "\n")
     return ("session-start hook written to .claude/settings.local.json, with the key guard that keeps item keys "
-            "out of searches and shell commands, and %s (all take effect in the next session)" % style_line)
+            "out of searches and shell commands, the study hooks (routing and !feedback, the Stop guard, compaction, "
+            "session end; CALAMITY_HOOKS=off turns them off) and %s (all take effect in the next session)" % style_line)
 
 
 def remove_hook(repo: Repo) -> str:
@@ -148,7 +155,7 @@ def remove_hook(repo: Repo) -> str:
     if not hooks:
         data.pop("hooks", None)
     write_text(path, json.dumps(data, indent=2) + "\n")
-    return "session-start hook removed, and the key guard and the tutor's output style with it"
+    return "session-start hook removed, and the key guard, the study hooks and the tutor's output style with it"
 
 
 def _short_path(path: str) -> str:
@@ -250,6 +257,17 @@ def hook_state(repo: Repo, event: str = "SessionStart") -> str:
             return "hook path could not be checked"
         return "ok"
     return "missing"
+
+
+def study_hooks_state(repo: Repo) -> str:
+    """'ok', or which of the study hooks are missing or wrong."""
+    bad = [(event, hook_state(repo, event)) for event in STUDY_HOOKS]
+    bad = [(e, s) for e, s in bad if s != "ok"]
+    if not bad:
+        return "ok"
+    if all(s == "missing" for _, s in bad):
+        return "missing" if len(bad) == len(STUDY_HOOKS) else "missing: %s" % ", ".join(e for e, _ in bad)
+    return "; ".join("%s %s" % (e, s) for e, s in bad)
 
 
 # ---------------------------------------------------------------- shell alias
@@ -357,6 +375,8 @@ def setup(repo: Repo, machine: str | None = None, hook: bool = False, statusline
         for event, label in (("SessionStart", "session-start hook"), ("PreToolUse", "key guard")):
             state = hook_state(repo, event)
             lines.append("%s: %s%s" % (label, state, "" if state == "ok" else " (install with: setup --hook)"))
+        study = study_hooks_state(repo)
+        lines.append("study hooks: %s%s" % (study, "" if study == "ok" else " (install with: setup --hook)"))
     if statusline:
         try:
             lines.append(install_statusline(repo))
@@ -465,6 +485,15 @@ def doctor(repo: Repo):
     add("OK" if state_g == "ok" else "WARN", "key guard",
         "" if state_g == "ok" else "%s; it keeps item keys out of searches and shell commands (setup --hook "
                                    "installs it)" % state_g)
+    from . import hooks
+
+    state_st = study_hooks_state(repo)
+    if hooks.off():
+        add("OK", "study hooks", "turned off for this shell (CALAMITY_HOOKS=off or CALAMITY_MAINTAIN=1)")
+    else:
+        add("OK" if state_st == "ok" else "WARN", "study hooks",
+            "routing and !feedback, the Stop guard, compaction, session end" if state_st == "ok" else
+            "%s; setup --hook installs them (CALAMITY_HOOKS=off turns them off)" % state_st)
     style_file = os.path.join(repo.root, ".claude", "output-styles", "calamity-tutor.md")
     try:
         style = _load_settings(_settings_path(repo)).get("outputStyle")

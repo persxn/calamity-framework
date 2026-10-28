@@ -26,6 +26,11 @@ study with Calamity, do it in a second clone whose `origin` is your own
 private repository (the sync skill sets one up) and whose `upstream` is the
 framework.
 
+A framework clone has no learner, so the study hooks and auto-start do
+nothing there. To maintain the framework from a study clone instead, start
+Claude Code with `CALAMITY_MAINTAIN=1` set: the hooks then stay out of the
+session (the key guard still holds).
+
 Turn on the git hooks once per clone:
 
 ```bash
