@@ -255,6 +255,26 @@ def icon(t: dict, size: int = 512) -> bytes:
 ICON = os.path.join(ROOT, ".claude-plugin", "icon.png")
 
 
+def png_pixels(data: bytes):
+    """(header, decompressed image data) of a PNG: compared instead of the bytes, which differ between zlib builds
+    (Python 3.14 on Windows ships zlib-ng) for the same pixels."""
+    import struct
+    import zlib
+
+    if not data.startswith(b"\x89PNG\r\n\x1a\n"):
+        raise ValueError("not a PNG")
+    pos, header, idat = 8, None, b""
+    while pos < len(data):
+        length, kind = struct.unpack(">I4s", data[pos:pos + 8])
+        body = data[pos + 8:pos + 8 + length]
+        if kind == b"IHDR":
+            header = body
+        elif kind == b"IDAT":
+            idat += body
+        pos += 12 + length
+    return header, zlib.decompress(idat)
+
+
 def outputs(t: dict) -> dict:
     return {"calamity.sty": sty(t), "calamity.css": css(t), "palette.svg": svg(t), "calamity-terminal.json": terminal(t)}
 
@@ -273,9 +293,9 @@ def stale() -> list:
         out.append(name)
     try:
         with open(ICON, "rb") as fh:
-            if fh.read() != icon(load()):
+            if png_pixels(fh.read()) != png_pixels(icon(load())):
                 out.append(".claude-plugin/icon.png")
-    except OSError:
+    except (OSError, ValueError):
         out.append(".claude-plugin/icon.png")
     return out
 
