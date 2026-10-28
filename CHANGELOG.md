@@ -107,6 +107,14 @@ changes their record in `learner/`.
   subject by subject, keeping every topic id. `syllabus check` refuses a
   learner syllabus that drops an id that lectures, items or the record
   use, and warns when one leaves out a shipped topic.
+- Practice sets, for questions from outside material: `practice add`,
+  `map`, `log`, `due`, `status` and `stats`, and the `/practice` skill.
+  Only metadata is kept (question numbers, topics, pages), never a
+  question's text. Every question comes back: wrong, guessed or skipped
+  after 2, 7 and 21 days, solved after 10 and 30, retiring after two
+  right revisits in a row; `next` serves revisits after due reviews and
+  before new material. A set with an official key (previous GATE papers)
+  credits its topics as evidence; other sets only schedule them.
 
 ### Development
 

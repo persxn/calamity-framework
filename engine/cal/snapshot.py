@@ -26,7 +26,7 @@ from datetime import datetime
 from . import fsrs
 from .store import Repo, log_text, write_text
 
-FORMAT = 5
+FORMAT = 6
 NAME = "replay.json"
 GLOBAL_TYPES = ("rename", "void", "errtag")  # events that change how earlier events are read
 
@@ -219,6 +219,9 @@ def encode_state(state) -> dict:
         "cp_credits": {k: _keys(dict(v)) for k, v in _keys(state.cp_credits).items()},
         "weights": {k: [v[0], v[1]] for k, v in _keys(state.weights).items()},
         "first_tries": [[_t(a), b] for a, b in state.first_tries], "review_secs": list(state.review_secs),
+        "practice": {sid: {"meta": p["meta"], "map": p["map"],
+                           "qs": {str(q): dict(r, last=_t(r.get("last")), due=_t(r.get("due"))) for q, r in p["qs"].items()}}
+                     for sid, p in _keys(state.practice).items()},
         "last_dt": _t(state.last_dt), "n_events": state.n_events, "n_voided": state.n_voided,
         "alias_topic": _keys(state._alias_topic), "alias_skill": _keys(state._alias_skill),
         "retag": _keys(state._retag),
@@ -278,6 +281,9 @@ def decode_state(state, data: dict) -> None:
     state.weights = {k: (v[0], v[1]) for k, v in data["weights"].items()}
     state.first_tries = [(_d(a), b) for a, b in data["first_tries"]]
     state.review_secs = list(data["review_secs"])
+    state.practice = {sid: {"meta": dict(p["meta"]), "map": [dict(r) for r in p["map"]],
+                            "qs": {int(q): dict(r, last=_d(r.get("last")), due=_d(r.get("due"))) for q, r in p["qs"].items()}}
+                      for sid, p in data["practice"].items()}
     state.last_dt = _d(data["last_dt"])
     state.n_events, state.n_voided = data["n_events"], data["n_voided"]
     state._alias_topic, state._alias_skill = dict(data["alias_topic"]), dict(data["alias_skill"])
