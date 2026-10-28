@@ -164,6 +164,15 @@ changes their record in `learner/`.
   requests to `/career`. Three evals hold it: paste-only sites are never
   fetched, résumé bullets add nothing the record lacks, and a career
   blackout is respected.
+- Calamity Paper, one design system (D12: Charter, Fira Sans, Fira Mono,
+  Charter maths). `framework/design/tokens.json` holds colours for light
+  and dark, fonts, type, spacing and thirteen callout kinds;
+  `tools/design.py` writes `calamity.sty` (a light `notebook` option and
+  a `book` option with tcolorbox, exercises and cleveref, sharing every
+  macro name: no more `\term` clash), `calamity.css`, an SVG palette and
+  two terminal colour schemes, and `--qa` builds a notebook and a book
+  chapter that use every macro. `tools/font_samples.py` renders the
+  candidate families.
 - Progress by date. `day <date>` adds what was recorded that day (time,
   answers, topics taught and secured, lectures, practice, workouts);
   `history --by day|week|month [--skill S] [--track T]` gives one row per
