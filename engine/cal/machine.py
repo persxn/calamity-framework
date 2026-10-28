@@ -408,6 +408,12 @@ def doctor(repo: Repo):
             repo.config_errors[0] + "; fix it with profile set cfg.<key> <value> or profile unset cfg.<key>")
     for problem in repo.file_problems:
         add("WARN", "learner file not readable as it is", problem)
+    from . import layout
+
+    n_old = layout.pending(repo)
+    add("WARN" if n_old else "OK", "learner store layout",
+        ("%d thing(s) still under learner/mastery/: layout migrate shows the moves, --write makes them" % n_old)
+        if n_old else "")
     files = repo.event_files()
     add("FAIL" if repo.event_errors else "OK", "event log: %d events in %d file(s)" % (state.n_events, len(files)),
         "; ".join(repo.event_errors[:3]))

@@ -134,6 +134,16 @@ changes their record in `learner/`.
   refuses one without a source, fetch date and terms note; `career list`
   and `career show` read them, and the gate-strategist places them in the
   mock calendar.
+- Progress by date. `day <date>` adds what was recorded that day (time,
+  answers, topics taught and secured, lectures, practice, workouts);
+  `history --by day|week|month [--skill S] [--track T]` gives one row per
+  period; `rebuild` writes `learner/journal/<YYYY-MM>.md`, a month on one
+  page, from the log alone, so every machine writes the same files.
+- The learner store's layout: deep coaching's narrative in
+  `learner/coach/<topic>/`, study books in `learner/books/<topic>/`,
+  projects in `learner/projects/<slug>/`. `layout migrate` moves an
+  older `learner/mastery/` (with `git mv`), and `doctor` warns until it
+  has.
 
 ### Development
 

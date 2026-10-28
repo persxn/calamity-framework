@@ -6,15 +6,15 @@ State makes the coaching continuous: recall, weak-spot tracking and resuming mid
 
 Before creating anything, look for an existing learner-state store in the repo: a framework README, a learner or progress directory, a skill tree file, or agent instructions that describe where progress lives (for example, the Calamity Framework). If you find one:
 
-- Read its conventions and **write inside the part of it that gets backed up.** In the Calamity Framework that is `learner/` (and nothing else): `/sync` runs `git add learner`, so only files under `learner/` reach the learner's own repository and their other machines. Keep all mastery state and books under `learner/mastery/<topic-slug>/`, using the layout below. A repo-root `.mastery/` would work for one session but is never synced, so progress and materials there are silently lost — do not use it when a `learner/` store exists.
-- Do **not** put the book under `learner/notes/`: that store belongs to the engine's `notes` skill and its `.gitignore` drops `main.tex` and the PDF (they are rebuilt from fragments). The mastery book's `main.tex` is hand-authored and must be kept, so it lives under `learner/mastery/`.
+- Read its conventions and **write inside the part of it that gets backed up.** In the Calamity Framework that is `learner/` (and nothing else): `/sync` runs `git add learner`, so only files under `learner/` reach the learner's own repository and their other machines. Keep all mastery state and books under `learner/coach/<topic-slug>/`, using the layout below. A repo-root `.mastery/` would work for one session but is never synced, so progress and materials there are silently lost — do not use it when a `learner/` store exists.
+- Do **not** put the book under `learner/notes/`: that store belongs to the engine's `notes` skill and its `.gitignore` drops `main.tex` and the PDF (they are rebuilt from fragments). The mastery book's `main.tex` is hand-authored and must be kept, so it lives under `learner/books/`.
 - Add only what the framework lacks, and say what you added.
 
 Only if nothing exists, use the layout below at the repo root instead.
 
 ## Default layout
 
-Inside Calamity, the root is `learner/mastery/` (synced). Standalone, the root is `.mastery/` at the repo root. The layout is the same:
+Inside Calamity, the root is `learner/coach/` (synced; books go to `learner/books/<topic-slug>/`). Standalone, the root is `.mastery/` at the repo root. The layout is the same:
 
 ```
 <root>/
@@ -37,7 +37,7 @@ When the repo is an engine-backed framework (Calamity) and the topic is one its 
 - `observe "<what was taught / how it went>" --tag coach --skill <skill> [--topic <key>]` after each unit, so the coaching is on the record and visible to the next session.
 - `quick <topic-key> pass|fail [--err KIND]` for an oral check when the learner explains an idea in their own words. It schedules the topic for review but never counts as mastery evidence — only the engine's blind-verified items do.
 
-Do this only for the framework's own learner and the skills its tree tracks. A different person, or a topic the tree does not track, stays in `learner/mastery/` alone — never write someone else's ad-hoc session into the tracked learner's event log.
+Do this only for the framework's own learner and the skills its tree tracks. A different person, or a topic the tree does not track, stays in `learner/coach/` alone — never write someone else's ad-hoc session into the tracked learner's event log.
 
 ### learner.md
 
@@ -52,7 +52,7 @@ Do this only for the framework's own learner and the skills its tree tracks. A d
 - notes on how they learn best: (as stated or as they confirm)
 ```
 
-`who` and `is the framework's own learner` keep a shared checkout honest. The default store (`learner/mastery/<topic>/`) is the framework's own learner; if you coach a **different** person in the same repo, namespace their state under `learner/mastery/people/<who-slug>/<topic>/` and never bridge their sessions into the engine — the roadmap, recall queue and event log belong to the one learner the engine tracks. A separate person studying seriously is better served by their own fresh install.
+`who` and `is the framework's own learner` keep a shared checkout honest. The default store (`learner/coach/<topic>/`) is the framework's own learner; if you coach a **different** person in the same repo, namespace their state under `learner/coach/people/<who-slug>/<topic>/` and never bridge their sessions into the engine — the roadmap, recall queue and event log belong to the one learner the engine tracks. A separate person studying seriously is better served by their own fresh install.
 
 ### log.md entry
 
