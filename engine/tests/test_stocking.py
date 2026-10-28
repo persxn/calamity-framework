@@ -92,7 +92,7 @@ class Nightly(Case):
         self.assertRegex(script, r"Bash\((python3|python|py -3) \.calamity/tmp/checker/\*\)")
         self.assertNotIn("Bash(calamity .calamity", script)                    # never the engine as an interpreter
         self.assertIn("CALAMITY_ROOT=", script)
-        self.assertRegex(script, r"PATH='[^']*/bin':\"\$HOME/\.local/bin\":\$PATH")
+        self.assertRegex(script, r"PATH='[^']*[\\/]bin':\"\$HOME/\.local/bin\":\$PATH")
         self.assertNotIn("Bash(*)", script)
         self.assertIn(os.path.join(".calamity", "logs"), script)
         cron = read(os.path.join(folder, "crontab.txt"))
