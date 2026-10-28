@@ -78,6 +78,11 @@ wait for what it uses without the whole skill depending on the other.
   strand shares, and items name the objectives they test by number, so
   `solid` needs 60% of a topic's objectives answered right and `mastered`
   all of them.
+- **Deepening a shipped syllabus** (GATE subjects): keep every topic id
+  and its keys, deepen only the objectives, 4 to 8 a topic. Lectures and
+  items point at the ids, so `syllabus check` refuses a learner syllabus
+  that drops an id they or the record use; a topic that must move is
+  renamed with `rename topic`, never by rewriting the file.
 - **Order by dependency.** List topics so that every `needs` comes earlier.
   `needs` names topic ids of the same skill only.
 - **Cover the whole scope**, and end with a topic that pulls the skill

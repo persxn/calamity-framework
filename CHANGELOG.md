@@ -100,6 +100,13 @@ changes their record in `learner/`.
   --at 23:45` writes an opt-in scheduler entry for a headless `claude -p
   "/stock"` with its tools limited to the engine, the agents' scratch and
   the web, started only when there is work, logging to `.calamity/logs/`.
+- `source show <id>` reads a source in slices (its sections, or the
+  lectures of a section, a topic or a skill, or those unmapped, at most
+  `--limit`), and the curriculum-architect maps lectures with it instead
+  of reading the whole file. Its new task deepens a shipped GATE syllabus
+  subject by subject, keeping every topic id. `syllabus check` refuses a
+  learner syllabus that drops an id that lectures, items or the record
+  use, and warns when one leaves out a shipped topic.
 
 ### Development
 

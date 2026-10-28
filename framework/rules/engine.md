@@ -90,6 +90,7 @@ cannot show them.
 | `source add ID --title "..." --kind course\|playlist\|book\|site\|other --url U --route api\|export\|browser-session\|paste\|manual-log --tracks a,b --note "what the terms allow"` | Register a source (`learner/sources/ID.md`). |
 | `source import ID --file F [--dry-run]` | Add or replace its lectures from a JSON list: `[{"id", "title", "topics": ["skill/topic"], "minutes", "order", "section", "url"}]`. `--dry-run` checks the list and says what would change, writing nothing. |
 | `source status [ID]`, `source check` | Progress and next lectures; validate topic mappings. |
+| `source show <id> [--section S] [--unmapped] [--topic K] [--limit N]` | A slice of a source: with no filter its sections with item and unmapped counts; with a filter the matching lectures (id, title, section, topics), at most N (40). Mapping and syllabus tasks read this, never the whole file. |
 | `log SOURCE ITEM [--undo] [--upto] [--score X] [--method manual\|manual-log\|paste\|screenshot\|api\|export\|browser-session]` | Mark a lecture done. ITEM is its id, its number, or a unique piece of its title. `--upto` logs everything up to it as watched earlier (it does not count as today's work). |
 
 ## GATE

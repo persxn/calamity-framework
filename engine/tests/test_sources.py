@@ -259,3 +259,68 @@ class Sources(Case):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class SourceSlices(Case):
+    """WP-12: a mapping or syllabus task reads a slice of a source, never the whole file."""
+
+    def setUp(self):
+        super().setUp()
+        sb = self.sb
+        sb.onboard(gate__year="2027", gate__papers="CS", tracks="gate-cs")
+        sb.run("enroll", "gate.cs.os")
+        sb.run("source", "add", "course", "--title", "GATE CS course", "--route", "paste", "--tracks", "gate-cs",
+               "--note", "paste and manual log")
+        rows = CATALOGUE + [{"id": "la-01", "title": "Rank", "section": "Linear Algebra", "order": 6,
+                             "topics": ["gate.cs.la/matrices"]}]
+        path = sb.path(".calamity", "tmp", "course.json")
+        write(path, json.dumps(rows))
+        sb.run("source", "import", "course", "--file", path)
+
+    def test_sections_then_items(self):
+        sb = self.sb
+        out = sb.run("source", "show", "course")
+        self.assertIn("source course | GATE CS course: 6 items, 2 unmapped", out)
+        self.assertIn("  Operating Systems (5, 2)", out)
+        self.assertIn("  Linear Algebra (1, 0)", out)
+        self.assertNotIn("Banker", out)                                   # no items without a filter
+        out = sb.run("source", "show", "course", "--unmapped")
+        self.assertIn("os-01 | Process states | Operating Systems | unmapped", out)
+        self.assertIn("2 item(s) match", out)
+        out = sb.run("source", "show", "course", "--section", "operating", "--limit", "2")
+        self.assertIn("5 item(s) match, showing 2", out)
+        self.assertIn("... 3 more: --limit 5", out)
+        out = sb.run("source", "show", "course", "--topic", "gate.cs.os")
+        self.assertIn("os-03 | Deadlock: Banker's algorithm | Operating Systems | gate.cs.os/deadlock", out)
+        self.assertNotIn("la-01", out)
+        self.assertIn("1 item(s) match", sb.run("source", "show", "course", "--topic", "gate.cs.os/paging"))
+        sb.run("source", "show", "course", "--topic", "gate.cs.os/nope", expect=2)
+
+    def test_a_deepened_syllabus_must_keep_the_ids_in_use(self):
+        sb = self.sb
+        deeper = """---
+skill: gate.cs.os
+written: 2026-03-02
+sources: [https://gate2027.iitr.ac.in/]
+---
+
+# Topics
+
+## deadlock | Deadlock
+level: 3
+- [T] explain the four conditions a deadlock needs and why removing any one prevents it
+- [N] run the Banker's algorithm on a 5-process table and find a safe sequence
+- [N] find the fewest resources that make a system deadlock-free
+
+## sched | CPU scheduling
+level: 3
+- [N] average waiting time under round robin with a given quantum
+"""
+        write(sb.path("learner", "syllabus", "gate.cs.os.md"), deeper)
+        out = sb.run("syllabus", "check", "gate.cs.os", expect=2)
+        self.assertIn("ERROR gate.cs.os/scheduling is used by lectures but is not in your syllabus", out)
+        self.assertIn("ERROR gate.cs.os/paging is used by lectures", out)
+        write(sb.path("learner", "syllabus", "gate.cs.os.md"),
+              deeper.replace("## sched | CPU scheduling", "## scheduling | CPU scheduling")
+              + "\n## paging | Paging\nlevel: 3\n- [N] effective access time with a TLB\n")
+        self.assertIn("ok: gate.cs.os has 3 topics (your syllabus)", sb.run("syllabus", "check", "gate.cs.os"))
