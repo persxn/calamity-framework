@@ -17,6 +17,7 @@ import os
 import re
 import subprocess
 import sys
+from datetime import timedelta
 
 from . import fm, items, plan, scratch, session, sources, tree as tree_mod
 from . import profile as profile_rules
@@ -1032,13 +1033,37 @@ def cmd_day(c, a):
     target = day.parse_day(words[0] if words else a.date, c.repo, c.when)
     v = day.view(c.repo, target, c.when)
     if c.repo.onboarded():
-        v["teaching"] = day.teaching_lines(c.state, target)
+        from . import journal
+
+        v["teaching"] = day.teaching_lines(c.state, target) + journal.day_lines(c.repo, c.tree, c.state, target)
     finish = None
     if target == day.learner_date(c.repo, c.when) and c.repo.onboarded():
         finish = plan.today_line(plan.today(c.repo, c.tree, c.state, c.when))
     if a.json:
         return 0, json.dumps(dict(v, finish=finish), ensure_ascii=False, indent=1)
     return 0, day.text(v, finish)
+
+
+def cmd_history(c, a):
+    from . import day, journal
+
+    start = day.parse_day(a.start, c.repo, c.when) if a.start else None
+    end = day.parse_day(a.end, c.repo, c.when) if a.end else None
+    if a.days and not start:
+        start = day.learner_date(c.repo, c.when) - timedelta(days=a.days - 1)
+    if start and end and start > end:
+        raise CalError("--from %s comes after --to %s" % (start, end))
+    return 0, journal.history(c.repo, c.tree, c.state, start, end, by=a.by, skill=a.skill, track=a.track)
+
+
+def cmd_layout(c, a):
+    from . import layout
+
+    if a.action == "check":
+        n = layout.pending(c.repo)
+        return 0, ("current layout" if not n else "%d thing(s) still under learner/mastery/: layout migrate shows "
+                                                  "the moves" % n)
+    return 0, layout.migrate(c.repo, write=a.write)
 
 
 def cmd_book(c, a):
@@ -1065,15 +1090,18 @@ def cmd_clean(c, a):
 
 
 def cmd_rebuild(c, a):
-    from . import progress, snapshot
+    from . import journal, progress, snapshot
 
     snapshot.discard(c.repo)  # rebuild means from scratch: the next snapshot is made from this replay
     errors, warnings = c.tree.check()
     state = c.state
     path = progress.write(c.repo, c.tree, state)
+    months = journal.write_all(c.repo, c.tree, state)
     lines = ["replayed %d event(s) from %d file(s)" % (state.n_events, len(c.repo.event_files())),
              "tree: %d error(s), %d warning(s)" % (len(errors), len(warnings)),
-             "wrote %s" % c.repo.rel(path)]
+             "wrote %s" % c.repo.rel(path),
+             "journal: %s" % ("%d month file(s) rewritten under learner/journal/" % len(months) if months
+                              else "up to date")]
     if c.repo.event_errors:
         lines.append("%d event line(s) could not be read:" % len(c.repo.event_errors))
         lines += ["  " + e for e in c.repo.event_errors[:5]]
@@ -1439,6 +1467,18 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("--block", help="goal: the block it belongs to")
     sp.add_argument("--json", action="store_true", help="the day as JSON (tools/timetable.py reads it)")
     sp.add_argument("--write", action="store_true", help="migrate: rewrite learner/schedule.md (default: show it)")
+    sp = add("history", cmd_history, "What was done, period by period: one row per day, week or month, for everything "
+                                      "or one skill or track.")
+    sp.add_argument("--from", dest="start", help="the first day (2026-10-01, yesterday, -30 ...); default: the start")
+    sp.add_argument("--to", dest="end", help="the last day (default: today)")
+    sp.add_argument("--days", type=_positive, help="the last N days (instead of --from)")
+    sp.add_argument("--by", default="week", choices=("day", "week", "month"))
+    sp.add_argument("--skill", help="only this skill's answers, teaching and consolidation")
+    sp.add_argument("--track", help="only this track's")
+    sp = add("layout", cmd_layout, "The learner store's folder layout: check it, or migrate learner/mastery/ to coach/, "
+                                   "books/ and projects/.")
+    sp.add_argument("action", choices=("check", "migrate"))
+    sp.add_argument("--write", action="store_true", help="migrate: make the moves (default: show them)")
     sp = add("book", cmd_book, "Study books: pdf turns a Markdown book (a file, or a folder of chapters) into a PDF.")
     sp.add_argument("action", choices=("pdf",))
     sp.add_argument("target", help="a .md file, or a book folder (README.md, then 01-*.md, 02-*.md ...)")

@@ -39,7 +39,8 @@ SKILLS = sorted({t.split("/")[0] for t in TOPICS}) + ["python", "capstone", "cp.
 VIEWS = (["brief"], ["today"], ["next"], ["dash", "all"], ["dash", "roadmap", "--all-tracks"], ["dash", "queue"],
          ["dash", "week"], ["item", "needs"], ["tree", "suggest"], ["stats", "patterns"], ["stats", "flags"],
          ["statusline"], ["remind", "check", "--always"], ["gate", "status"], ["gate", "triage"], ["source", "status"],
-         ["tree", "path", "capstone"], ["boss", "status"], ["observations"])
+         ["tree", "path", "capstone"], ["boss", "status"], ["observations"], ["history", "--by", "day"],
+         ["day", "yesterday"])
 CATALOGUE = [
     {"id": "l1", "title": "Intro", "order": 1, "minutes": 30, "topics": []},
     {"id": "l2", "title": "Scheduling", "order": 2, "minutes": 50, "topics": ["gate.cs.os/scheduling"]},
@@ -65,6 +66,19 @@ def run(sb, *args):
 
 
 snapshot_used = [0]
+
+
+def journal_text(root):
+    """Every month of the journal as rebuild would write it (cal.journal), from this root's log."""
+    from cal import journal
+
+    repo = Repo(root)
+    tree = Tree(repo)
+    state = State(repo, tree, use_cache=False)
+    months = {}
+    for key, rec in journal.records(repo, tree, state).items():
+        months.setdefault(key[:7], []).append(rec)
+    return [journal.render_month(m, rs, tree) for m, rs in sorted(months.items())]
 
 
 def one_run(seed, steps, shuffle=True):
@@ -311,6 +325,8 @@ def one_run(seed, steps, shuffle=True):
                     for name, content in buckets.items():
                         write(other.path("learner", "events", name), "\n".join(content) + "\n")
                     got = summary(other.root)
+                    if journal_text(other.root) != journal_text(sb.root):
+                        raise AssertionError("the journal differs when the same events sit in other files")
                     if got != reference:
                         diff = [k for k in reference if reference[k] != got[k]]
                         detail = ""

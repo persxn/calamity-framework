@@ -34,10 +34,10 @@ Respect the depth the learner asked for. In in-depth mode, never skip theory to 
 
 Mastery spans many sessions, and surprise recall only works if you remember what was taught. State is markdown so it travels with the repo and works on any machine. **Everything you teach, and every question you generate, is written down and saved** — nothing is lost between sessions or between machines.
 
-1. **Look for an existing learner-state store first, and keep state inside it.** If this repo is a learning framework (such as the Calamity Framework, with its `learner/` directory, skill tree and progress files), read its README and conventions and write there. In Calamity that means `learner/mastery/<topic-slug>/`: only `learner/` is carried by `/sync` to the learner's own repository, so state kept anywhere else (a repo-root `.mastery/`) is **not** backed up and is lost on another machine. Don't create a parallel store.
+1. **Look for an existing learner-state store first, and keep state inside it.** If this repo is a learning framework (such as the Calamity Framework, with its `learner/` directory, skill tree and progress files), read its README and conventions and write there. In Calamity that means `learner/coach/<topic-slug>/`: only `learner/` is carried by `/sync` to the learner's own repository, so state kept anywhere else (a repo-root `.mastery/`) is **not** backed up and is lost on another machine. Don't create a parallel store.
 2. **If none exists**, create `.mastery/` at the repo root using the layout in `references/state-format.md`.
 3. **Read the state at the start of every session, and write after every chunk**, not just at the end, because sessions get cut off. Record each question you ask and its result in `recall.md`; the companion book reads it.
-4. **Surface tracked topics into the engine too.** When the topic is one the framework tracks on its skill tree, also record — through the engine — that it was taught and how the checks went, so the work shows on the roadmap, recall queue and dashboards and lands in the synced event log. `references/state-format.md` has the exact commands. A topic the tree does not track stays in `learner/mastery/` only.
+4. **Surface tracked topics into the engine too.** When the topic is one the framework tracks on its skill tree, also record — through the engine — that it was taught and how the checks went, so the work shows on the roadmap, recall queue and dashboards and lands in the synced event log. `references/state-format.md` has the exact commands. A topic the tree does not track stays in `learner/coach/` only.
 
 Never hard-code anything about the learner. Ask, or read it from state.
 
@@ -133,7 +133,7 @@ Coaching is spoken; the book is the permanent, edited record of it. The two skil
 - **After a unit's teaching loop is done** (stage 4), hand that unit to the `mastery-textbook` skill so a chapter is written or extended for it. The book never gets ahead of what you have actually taught.
 - **Every question you generate goes into the book.** Write each recall and interview-grade question, with its worked answer, to `recall.md` as you ask it; mastery-textbook turns them into the chapter's graded exercises and solutions, so the whole question bank is captured.
 - **The ASCII diagrams, flag tables and traces** you drew while coaching become proper SVG figures and tables in the book.
-- The book lives beside this state, under `learner/mastery/<topic-slug>/book/` in Calamity, so `/sync` saves it with everything else.
+- The book lives beside this state, under `learner/books/<topic-slug>/` in Calamity, so `/sync` saves it with everything else.
 
 If the learner only wants to be coached, tell them the book is available and don't force it. Any request for notes, a PDF, a revision book or "add this to my notes" is mastery-textbook's job — invoke it.
 

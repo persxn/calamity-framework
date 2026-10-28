@@ -17,6 +17,7 @@ Pick the view from the argument or the question:
 | the Codeforces board | `python3 engine/calamity.py dash cp` |
 | the last seven days | `python3 engine/calamity.py dash week` |
 | everything at once | `python3 engine/calamity.py dash all` |
+| a past day, or what was done when ("what did I do in October?") | `python3 engine/calamity.py day 2026-10-12`, `python3 engine/calamity.py history --by month`, or read `learner/journal/<YYYY-MM>.md` (a month on one page) |
 | one skill in detail | `python3 engine/calamity.py tree show <skill>` |
 | the route to a goal | `python3 engine/calamity.py tree path <skill>` |
 

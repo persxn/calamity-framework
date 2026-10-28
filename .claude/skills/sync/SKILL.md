@@ -69,8 +69,8 @@ Commit first, pull second: git refuses to pull over uncommitted changes.
    Each machine writes its own event files, so the log itself does not
    conflict. If git does report a conflict in `learner/events/`, keep both
    sides (every line is one event). If the pull brought anything in, the
-   merged `learner/PROGRESS.md` holds lines from both laptops until it is
-   rebuilt:
+   merged `learner/PROGRESS.md` and `learner/journal/` hold lines from both
+   laptops until they are rebuilt:
 
        python3 engine/calamity.py rebuild
        python3 engine/calamity.py doctor
@@ -78,7 +78,7 @@ Commit first, pull second: git refuses to pull over uncommitted changes.
        git commit -m "Rebuild progress after merge"
 
    `rebuild` replays every event from both machines, so both laptops end
-   up with the same schedule and the same file.
+   up with the same schedule and the same files.
 
 4. Push:
 

@@ -25,8 +25,8 @@ Every step is written down as it happens, into the learner's synced store
 (`learner/`), never only in the conversation. Each answer is an engine event;
 each topic taught is recorded (`ask --topic <key> --taught`) and its notes
 fragment saved at once; what you learn about the learner goes in `observe`;
-the deep-coaching skills write their state and book under `learner/mastery/`
-after every chunk. Write as you go, not at the end — a session can be cut off
+the deep-coaching skills write their narrative under `learner/coach/` and
+their book under `learner/books/` after every chunk. Write as you go, not at the end — a session can be cut off
 mid-way, and whatever was not recorded is lost and cannot be synced to another
 machine. A skill or agent that produces something a later session or another
 tool will need (a taught topic, a question, a plan, a book) saves it where that

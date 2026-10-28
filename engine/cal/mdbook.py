@@ -274,7 +274,7 @@ def pdf(repo, source: str, out: str | None = None, base: str | None = None) -> s
     file's folder). Returns a one-line report."""
     path = os.path.abspath(source)
     if not os.path.isfile(path) or not path.lower().endswith((".md", ".markdown")):
-        raise CalError("give a Markdown file: book pdf learner/mastery/<topic>/book/book.md")
+        raise CalError("give a Markdown file: book pdf learner/books/<topic>/book.md")
     engine = unicode_engine()
     if not engine:
         raise CalError("no TeX engine that reads Unicode was found (Tectonic, XeLaTeX or LuaLaTeX); the Markdown "

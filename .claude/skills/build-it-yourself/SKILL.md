@@ -28,7 +28,7 @@ The learner may **unlock** a specific, named piece they've already mastered ("I 
 
 ## Project state
 
-Keep project state inside the learner's **synced** store so nothing is lost between sessions or machines. In the Calamity Framework that is `learner/mastery/projects/<project-slug>/` — under `learner/`, the only tree `/sync` commits — beside mastery-coach's topic state. Standalone, use `.mastery/projects/<project-slug>/`. Either way the layout is:
+Keep project state inside the learner's **synced** store so nothing is lost between sessions or machines. In the Calamity Framework that is `learner/projects/<project-slug>/` — under `learner/`, the only tree `/sync` commits — beside mastery-coach's topic state. Standalone, use `.mastery/projects/<project-slug>/`. Either way the layout is:
 
 ```
 brief.md        # what is being built and why; target type; learner goals; mode; architect level

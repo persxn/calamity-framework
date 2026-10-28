@@ -6,5 +6,6 @@
 # both added lines, keep both.
 learner/events/*.jsonl merge=union
 
-# A generated snapshot; `rebuild` rewrites it after a merge.
+# Generated snapshots; `rebuild` rewrites them after a merge.
 learner/PROGRESS.md merge=union
+learner/journal/*.md merge=union

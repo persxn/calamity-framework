@@ -27,7 +27,7 @@ ask again unless the learner raises it.
 
 - Notes: one section per topic, `learner/notes/<skill>/md/<topic>.md`,
   assembled by `notes assemble <skill>` into `<skill>-notes.md`.
-- A study book: `learner/mastery/<topic>/book/`, with `README.md` (title,
+- A study book: `learner/books/<topic>/`, with `README.md` (title,
   one paragraph on what the book covers, the contents as links) and one
   file per chapter, `01-<slug>.md`, `02-<slug>.md`, ... `book pdf` on the
   folder joins them in that order.

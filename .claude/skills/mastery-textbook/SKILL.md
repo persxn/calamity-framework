@@ -25,13 +25,13 @@ not set, ask once, before writing: "A well-structured Markdown file as your main
 default: quicker and much cheaper), or a typeset PDF?" Record the answer with
 `python3 engine/calamity.py profile set book.format markdown` (or `pdf`) and never ask again.
 
-- **Markdown (the default).** The book is `learner/mastery/<topic-slug>/book/README.md` (title,
+- **Markdown (the default).** The book is `learner/books/<topic-slug>/README.md` (title,
   what the book covers, contents) plus one chapter per file, `01-<slug>.md`, `02-<slug>.md`, ...,
   written to `framework/rules/markdown-books.md`: the same chapter anatomy, depth, exercises and
   verified references as below, in Markdown. There is no build, no page rendering and no visual
   review: check each chapter once against `references/writing-standard.md` and the rule book,
   update `book-state.md`, and deliver. A PDF of it, when asked for, is one command and no LaTeX:
-  `python3 engine/calamity.py book pdf learner/mastery/<topic-slug>/book`.
+  `python3 engine/calamity.py book pdf learner/books/<topic-slug>`.
 - **PDF.** Only when the learner chose `pdf` or explicitly asks for a typeset edition: the LaTeX
   workflow below (template, SVG figures, build, three review passes).
 
@@ -39,7 +39,7 @@ Change one chapter at a time; never rewrite a whole book to fix a section.
 
 ## Where the book lives
 
-1. **Adopt existing state first, inside the part that gets synced.** If the repo is a learning framework (such as the Calamity Framework) or already has mastery-coach state, put the book **beside that state, under the synced store**. In Calamity that is `learner/mastery/<topic-slug>/book/`: only `learner/` is carried by `/sync` to the learner's own repository and their other machines, so this is what keeps the book backed up. Do **not** put it under `learner/notes/` — that store is the engine's, and its `.gitignore` drops `main.tex` and the PDF because they are rebuilt from fragments; the book's `main.tex` is hand-authored and must be kept.
+1. **Adopt existing state first, inside the part that gets synced.** If the repo is a learning framework (such as the Calamity Framework) or already has mastery-coach state, put the book **beside that state, under the synced store**. In Calamity that is `learner/books/<topic-slug>/`: only `learner/` is carried by `/sync` to the learner's own repository and their other machines, so this is what keeps the book backed up. Do **not** put it under `learner/notes/` — that store is the engine's, and its `.gitignore` drops `main.tex` and the PDF because they are rebuilt from fragments; the book's `main.tex` is hand-authored and must be kept.
 2. **Otherwise** use `.mastery/topics/<topic-slug>/book/`.
 3. **Read the record of what was taught — from whichever path taught it.**
    - Taught through `mastery-coach`: read the topic's `curriculum.md`, `log.md`, `glossary.md` and `recall.md`. They tell you what was taught, in what order, with what terms and misses, and (in `log.md`) the actual models, examples and traces used — reproduce those faithfully. **Pull every question in `recall.md` into the chapter it belongs to**, as a graded exercise with its recorded answer worked out in the solutions.
@@ -75,7 +75,7 @@ A chapter usually covers one curriculum unit, or a few small related ones. Work 
    - **B. Visual**: open the page images and inspect every page of the new chapter, and at least every page the report lists as holding a figure or table. Check that figures are present, legible, unclipped and near where they're referenced; tables fit and align; listings don't overflow; boxes and headings break sensibly across pages.
    - **C. Quality**: score the chapter against the rubric and `benchmark.md`. Is it truly polished enough to sit beside the best-selling guide on this topic? If a reviewer subagent is available, use one that has seen only the rendered pages, the rubric and the benchmark, not your drafting context, so the work isn't grading itself.
 8. **Revise until it passes**: zero build errors, a visually clean layout, and every rubric dimension at 4 or above. Rebuild after each round of fixes.
-9. **Deliver.** Update `book-state.md` (with a changelog line) and write a line back into the coach's `log.md` saying which chapter now covers which unit, so the two stay in step. Send the learner the PDF with one line on what's new. Mention that the `.tex` sources are theirs to edit. The whole book lives under `learner/mastery/` (in Calamity), so `/sync` already backs it up.
+9. **Deliver.** Update `book-state.md` (with a changelog line) and write a line back into the coach's `log.md` saying which chapter now covers which unit, so the two stay in step. Send the learner the PDF with one line on what's new. Mention that the `.tex` sources are theirs to edit. The whole book lives under `learner/books/` (in Calamity), so `/sync` already backs it up.
 
 When a later unit changes how an earlier idea should be explained, for example a better mental model or a corrected simplification, revise the earlier chapter too, and note it in the changelog.
 

@@ -67,14 +67,17 @@ learner/                   everything about one learner; this is what they sync
   schedule.md              the current day shape, written with the learner (coach skill); its blocks drive `day`
   timetable.json           per-date notes, goals and shifted days (day note, day goal, tools/timetable.py)
   PROGRESS.md              generated snapshot of progress (never edited by hand)
+  journal/<YYYY-MM>.md     generated: a month on one page, a line per day (rebuild; never edited by hand)
   events/                  the append-only log: <YYYY-MM>.<machine>.jsonl (engine only)
   items/<skill>/           practice items with sealed keys (engine only; never read)
   syllabus/<skill>.md      this learner's syllabus for a skill
   tree/<skill>.md          skills this learner added, changed or dropped
   sources/<id>.md          a course, playlist or book: its lectures and the topics they cover
   notes/<skill>/           notes: <topic>.md fragments, tex/ sections, main.tex, the PDF
-  mastery/<topic>/         deep coaching: curriculum.md, recall.md, log.md and book/ (mastery-coach/-textbook)
-  mastery/projects/<slug>/ build-it-yourself: brief, teardown/design, skill-map, build-path, log
+  coach/<topic>/           deep coaching's narrative: curriculum.md, log.md, glossary, reading (mastery-coach)
+  books/<topic>/           a study book: README.md and one file per chapter (mastery-textbook)
+  projects/<slug>/         build-it-yourself: brief, teardown/design, skill-map, build-path, log
+  practice/<set>.md        a practice set's map and revisits (a view the engine writes)
   work/<skill>/            exercise and project workspaces
   cp/                      competitive programming: plan.md, solutions/, reviews/
   gate/                    plan.md, <year>.md corrections, mock reviews

@@ -40,8 +40,8 @@ one contract, and any future companion skill should too:
    fuller and quicker *write-ups* (see tiers below). A shallow summary is a
    failure of the standard, never a faster option.
 2. **One synced, learner-aware store.** All state and output go under
-   `learner/mastery/` (topics in `learner/mastery/<topic>/`, projects in
-   `learner/mastery/projects/<slug>/`), inside the only tree `/sync` commits,
+   `learner/coach/` (topics in `learner/coach/<topic>/`, projects in
+   `learner/projects/<slug>/`), inside the only tree `/sync` commits,
    written as the work happens. Never a repo-root `.mastery/`, which is not
    backed up. Record who the learner is in the store; a session for someone
    other than the framework's own learner stays in the store only.
@@ -79,7 +79,7 @@ outside the engine's event log and the blind examiner/checker verification
 pipeline. So:
 
 - Use `/mastery-coach` for coaching a topic deeply or ad hoc, including topics
-  the tree does not track. It keeps its state under `learner/mastery/<topic>/`
+  the tree does not track. It keeps its state under `learner/coach/<topic>/`
   — **inside Calamity's synced `learner/` store**, never a repo-root `.mastery/`
   — so `/sync` (which runs `git add learner`) backs every bit of it up and
   carries it to the learner's other machines.
@@ -88,7 +88,7 @@ pipeline. So:
   queue. `mastery-coach` does not write its own inline questions into the event
   log. But so that deep coaching still *shows* there, it bridges tracked topics
   into the engine with `observe --tag coach` (what was taught) and `quick`
-  (oral checks). Untracked or someone-else's sessions stay in `learner/mastery/`
+  (oral checks). Untracked or someone-else's sessions stay in `learner/coach/`
   alone, so they never pollute the tracked learner's record.
 
 ## The `mastery-textbook` skill (an added skill)
@@ -110,7 +110,7 @@ hands it each unit once taught and records every question it asked in
 `recall.md`; `mastery-textbook` turns each unit into a chapter and every
 question into a graded exercise with a worked solution, so nothing taught or
 asked is left only in chat. The book lives beside the coach state, under
-`learner/mastery/<topic>/book/`, so `/sync` saves it with the rest of
+`learner/books/<topic>/`, so `/sync` saves it with the rest of
 `learner/`; only its regenerable `book/build/` (PDF, page images, logs) is
 git-ignored — the `.tex` sources, SVG and figure PDFs, and `book-state.md` are
 kept and rebuild deterministically.
@@ -119,7 +119,7 @@ It **overlaps** the engine's `notes` skill and `notes-writer` agent (which also
 produce LaTeX notes and a PDF per skill): use `mastery-textbook` for a
 from-scratch, bestseller-standard book grown alongside `mastery-coach`; use
 `notes`/`notes-writer` for the engine-tracked per-topic notes fragments and
-skill PDFs. The two stores stay separate — `learner/mastery/` versus
+skill PDFs. The two stores stay separate — `learner/coach/` versus
 `learner/notes/` — because `learner/notes/`'s `.gitignore` drops the `main.tex`
 and PDF it rebuilds from fragments, which would delete the hand-authored book.
 
@@ -139,7 +139,7 @@ It sits on top of `mastery-coach` and `mastery-textbook`, not beside them: it
 decides *what* skills a project needs and *in what order*, hands the actual
 teaching to `mastery-coach` at each node's tier, and adds chapters through
 `mastery-textbook` on request. It follows the companion-skill contract above —
-state under `learner/mastery/projects/<slug>/` (the cloned source and binaries
+state under `learner/projects/<slug>/` (the cloned source and binaries
 are scratch, never committed), skills learned recorded as `mastery-coach`
 topics, and listed in `ADDED_SKILLS`.
 
