@@ -513,6 +513,12 @@ def next_text(repo: Repo, tree, state, when, action: dict) -> str:
                          "the answer exposes)" % key)
         else:
             lines.extend(teaching_lines(tree, state, topic))
+            if state.experiments:
+                from . import model
+
+                arm = model.next_arm_line(state, topic.skill)
+                if arm:
+                    lines.append(arm)
             lines.append("do: teach one small chunk, then: ask --topic %s --taught   (records the teaching and serves "
                          "the question)" % key)
     elif kind == "consolidate":

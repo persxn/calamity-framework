@@ -873,6 +873,26 @@ def cmd_observe(c, a):
     return 0, "noted (%s)" % (a.tag or "teaching")
 
 
+def cmd_model(c, a):
+    from . import model
+
+    return 0, model.text(c.repo, c.tree, c.state, c.when, days=a.days, skill=a.skill, track=a.track)
+
+
+def cmd_experiment(c, a):
+    from . import model
+
+    if a.action == "start":
+        if not a.id or not a.skill:
+            raise CalError("experiment start <id> --skill S --arms a,b --n 12 --desc \"...\"")
+        return 0, model.start(c.repo, c.tree, c.state, a.id, a.skill, a.arms, a.metric, a.n, a.desc)
+    if a.action == "stop":
+        if not a.id:
+            raise CalError("experiment stop <id>")
+        return 0, model.stop(c.repo, c.state, a.id)
+    return 0, model.status(c.state, a.id)
+
+
 def cmd_tasks(c, a):
     from . import tasks
 
@@ -1506,6 +1526,19 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("--pattern", help="the behaviour pattern id this raises (coach)")
     sp.add_argument("--skill")
     sp.add_argument("--topic")
+    sp = add("model", cmd_model, "The learner model: first-try accuracy, retention, time, hints, errors, consolidation "
+                                 "lag; teaching patterns, time of day, session length, ROI per track.")
+    sp.add_argument("--days", type=_positive, default=30)
+    sp.add_argument("--skill")
+    sp.add_argument("--track")
+    sp = add("experiment", cmd_experiment, "n-of-1 teaching experiments: start, status, stop.")
+    sp.add_argument("action", choices=("start", "status", "stop"))
+    sp.add_argument("id", nargs="?")
+    sp.add_argument("--skill")
+    sp.add_argument("--arms", help="start: two or more ways of teaching, e.g. theory-first,example-first")
+    sp.add_argument("--metric", default="first_try_acc", help="start: first_try_acc")
+    sp.add_argument("--n", type=_positive, default=12, help="start: how many new topics to measure")
+    sp.add_argument("--desc", help="start: the question, in a few words")
     sp = add("tasks", cmd_tasks, "Work around the studying that has fallen due (weekly review, plan reviews, stocking, "
                                  "notes, push, numericals, revision, mocks): list, done, snooze.")
     sp.add_argument("action", nargs="?", default="list", choices=("list", "done", "snooze"))

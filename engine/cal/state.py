@@ -163,6 +163,7 @@ class State:
         self.career = {}         # record id -> an opportunity record (career.py)
         self.tasks = {}          # task id -> the learner day until which it is hidden (tasks.py)
         self.last_task = {}      # task id -> the learner day it was last done
+        self.experiments = {}    # experiment id -> its arms, the topics assigned to each, their first tries (model.py)
         self.review_secs = []    # seconds the latest timed reviews took (the quota's review forecast)
         self.last_dt = None
         self.n_events = 0
@@ -369,7 +370,7 @@ class State:
         self.cp_marks, self.cp_credits, self.weights = {}, {}, {}
         self.first_tries, self.review_secs, self.practice = [], [], {}
         self.mistakes, self.passes, self.career = [], {}, {}
-        self.tasks, self.last_task = {}, {}
+        self.tasks, self.last_task, self.experiments = {}, {}, {}
         self.last_dt, self.n_events, self.n_voided = None, 0, 0
         self._alias_topic, self._alias_skill, self._retag = {}, {}, {}
         self._voided, self._handler_errors = set(), []
@@ -435,6 +436,8 @@ class State:
         ts = self.topic_state(self.canon(e["topic"]))
         if ts.covered_ts is None:
             ts.covered_ts, ts.covered_by = dt, e.get("by") or "tutor"
+            if self.experiments and ts.card is None:
+                self._exp_assign(ts.key)
         if e.get("parts") or e.get("minutes"):          # teaching telemetry (ask --taught --parts --minutes)
             self._day_stats(dt).taught.append([ts.key, list(e.get("parts") or []), e.get("minutes")])
 
@@ -490,6 +493,9 @@ class State:
                 if not c.get("eq") and not placement:
                     ts.first_day = day
                     if evidence and key == primary:
+                        if self.experiments:
+                            self._exp_assign(key)
+                            self._exp_result(key, good)
                         self.first_tries.append((dt, good))
                         if len(self.first_tries) > 200:
                             del self.first_tries[0]
@@ -570,6 +576,33 @@ class State:
 
         self.career.pop(e["id"], None)              # a newer fetch replaces the record, and moves it last
         self.career[e["id"]] = dict({k: e[k] for k in FIELDS if k in e}, id=e["id"])
+
+    def _on_experiment_start(self, e, dt):
+        self.experiments[str(e["exp"])] = {"id": str(e["exp"]), "skill": self.canon_skill(e["skill"]),
+                                          "arms": [str(a) for a in e["arms"]], "metric": e.get("metric"),
+                                          "n": int(e["n"]), "desc": e.get("desc"), "stopped": False,
+                                          "assigned": [], "results": {}}
+
+    def _on_experiment_stop(self, e, dt):
+        if str(e["exp"]) in self.experiments:
+            self.experiments[str(e["exp"])]["stopped"] = True
+
+    def _exp_assign(self, key: str) -> None:
+        """A topic of a skill with a running experiment is taught for the first time: it takes the next arm.
+        The order of first teachings decides, so a replay always assigns the same arms."""
+        skill = key.split("/", 1)[0]
+        for ex in self.experiments.values():
+            if ex["skill"] != skill or ex["stopped"] or len(ex["assigned"]) >= ex["n"]:
+                continue
+            if any(k == key for k, _ in ex["assigned"]):
+                return
+            ex["assigned"].append([key, ex["arms"][len(ex["assigned"]) % len(ex["arms"])]])
+            return
+
+    def _exp_result(self, key: str, good: bool) -> None:
+        for ex in self.experiments.values():
+            if key not in ex["results"] and any(k == key for k, _ in ex["assigned"]):
+                ex["results"][key] = bool(good)
 
     def _on_task(self, e, dt):
         tid = str(e["task"])

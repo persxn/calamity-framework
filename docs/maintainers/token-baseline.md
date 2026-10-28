@@ -33,7 +33,7 @@ less than 0.1%.
 |---|---|---|---|---|---|---|---|
 | recall: ten reviews, all right | 11 · 11 | 23 · 24 | 25.2k · 25.2k | 33.7k · 36.2k | 694k · 785k | 1.8k · 1.8k | 116k · 130k |
 | study: two new topics taught and tested | 11 · 14 | 23 · 26 | 26.6k · 26.6k | 50.1k · 51.8k | 931k · 1,091k | 12.1k · 13.4k | 171k · 191k |
-| review: the week, with the habit-coach agent | 3 · 3 | 8 · 8 | 25.2k · 25.2k | 35.9k · 36.2k | 230k · 231k | 5.8k · 7.2k | 101k · 102k |
+| review: the week, with the habit-coach agent (now `learning-analyst`) | 3 · 3 | 8 · 8 | 25.2k · 25.2k | 35.9k · 36.2k | 230k · 231k | 5.8k · 7.2k | 101k · 102k |
 
 Behaviour in the second run: recall 13 engine calls, 10 answers recorded;
 study 8 engine calls, 2 topics taught, 2 answers; review 1 engine call and
