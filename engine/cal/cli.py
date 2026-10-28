@@ -817,7 +817,8 @@ def cmd_cf(c, a):
         return 0, cf.credit(repo, tree, state, when, a.args[0], a.topic, a.also, a.hints, a.note)
     if a.action == "mark":
         if len(a.args) < 2:
-            raise CalError("usage: cf mark <problem> editorial|resolved|skip|subtag|note [--subtags a,b] [--note ...]")
+            raise CalError("usage: cf mark <problem> editorial|resolved|skip|subtag|note|recognized|missed "
+                           "[--subtags a,b] [--note ...]")
         return 0, cf.mark(repo, a.args[0], a.args[1], a.subtags, a.note)
     if a.action == "assign":
         return 0, cf.assign(repo, a.args, a.reason)

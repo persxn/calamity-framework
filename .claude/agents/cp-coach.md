@@ -40,6 +40,7 @@ analysis, the pace). Then gather the record:
     python3 engine/calamity.py tree list --track cp
     python3 engine/calamity.py profile show
     python3 engine/calamity.py observations
+    python3 engine/calamity.py practice status
 
 and the previous plan, if `learner/cp/plan.md` exists. The caller has
 synced this session; run `cf sync` yourself only if `cf status` shows data
@@ -67,6 +68,20 @@ data and say how old it is.
 6. **Pace.** The gap to the target, the points a month the target date
    needs, the pace of the last ninety days. If they do not match, say so
    and say what would have to change.
+7. **The phase.** Place the learner in a phase of the program in
+   `framework/rules/cp-planning.md` ("The program"), from the measures `cf
+   analyse` prints by band: median time to AC, wrong submissions before
+   AC, solves after an editorial, recognition on untagged sets, and
+   performance against rating. A phase ends on its own exit test, never on
+   the calendar. CSES, USACO and AtCoder sets (`practice status`) count as
+   volume and recognition practice, not as rating evidence.
+8. **The monthly checkpoint.** Once a month (the plan's `checkpoint`
+   date): the target from the profile (`cp.target_rating` by
+   `cp.target_date`), the expected rating on the straight line to it, and
+   the actual. Six weeks more than 100 points behind: replan with the
+   learner (the load, the band, the phase, or the date), and say so first.
+   While GATE comes first, the program runs at the profile's CP hours, not
+   at full intensity.
 
 ## Write `learner/cp/plan.md`
 
@@ -77,6 +92,8 @@ rating: <current>
 target: <rating> by <date>
 band: <low>-<high>
 review_on: <date, one to two weeks ahead>
+phase: <1-4, from the program>
+checkpoint: <date of the next monthly checkpoint>
 ---
 
 # Where things stand
@@ -97,6 +114,10 @@ review_on: <date, one to two weeks ahead>
 
 # Pace
 (gap, needed per month, last ninety days; stated plainly)
+
+# Phase and checkpoint
+(the phase, its exit test and how far from it, by the numbers; the last
+checkpoint's expected and actual rating)
 
 # Changes
 - <date>: ...

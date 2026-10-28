@@ -38,6 +38,9 @@ Sync once per session, before the first coaching turn, not on every turn:
 | a contest review | the review below |
 | what to upsolve | `cf upsolve` |
 | to count a solved problem | `cf credit <problem> --topic <skill>/<topic>` |
+| CSES, USACO or AtCoder problems | a practice set of that kind (the practice skill; `--kind cses`, numbered by the judge's list, mapped to `cp.*` topics); volume and recognition, never rating evidence |
+| a recognition set | `cf recommend --n 4` (tags hidden); before each solve the learner names the technique; record `cf mark <problem> recognized` or `cf mark <problem> missed` |
+| the program, the phase, the monthly checkpoint | the cp-coach ("the monthly checkpoint"); the phases are in `framework/rules/cp-planning.md` |
 
 All commands are `python3 engine/calamity.py cf ...`.
 
