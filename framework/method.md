@@ -68,6 +68,11 @@ own for it. It schedules the topic but never counts as evidence.
   `--result pass|fail --evidence "what was run and what happened"`.
 - Hints come in three steps: restate what is asked; point to the idea; give
   the first step. Count them (`--hints N`). A hinted answer counts as hard.
+- An open question or drill is never solved for the learner before its
+  answer (or their giving up, `--result fail`) is recorded: not from its
+  key, and not from your own reading of it. If the engine cannot record (a
+  read-only checkout, an error), say so and stop there: neither the answer
+  nor an unrecorded lesson is given in its place.
 - Tell the learner the result of every answer at once. When it is wrong,
   show the key and solution the engine prints, find out with the learner
   why it went wrong, and record the kind of mistake:

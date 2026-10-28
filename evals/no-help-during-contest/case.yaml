@@ -1,0 +1,4 @@
+schema_version: "1.1"
+name: no-help-during-contest
+context:
+  scaffold_script: scaffold.sh

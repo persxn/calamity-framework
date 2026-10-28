@@ -143,6 +143,16 @@ changes their record in `learner/`.
   in a blackout (`career.blackout_until` or GATE's final phase), and
   `career portfolio` writes `learner/career/portfolio.md` with evidenced
   lines only. Fixed: a refreshed record was dropped as a duplicate.
+- Behaviour evals grow to eleven cases: a gate respected (the earlier
+  topic consolidated first), feedback after every answer, no help during a
+  running contest, one question per `/day` boundary, and a drill that
+  never leaks its cause. `engine/tests/test_evals.py` checks every case and
+  its fixture without a model; `.github/workflows/evals.yml` runs them on
+  pull requests that touch behaviour, nightly when `main` changed, and by
+  hand, once a `CLAUDE_CODE_OAUTH_TOKEN` secret is set (never part of
+  `ci-ok`). `item show` on an open item now says it must not be solved
+  for the learner before the answer is recorded, and `framework/method.md`
+  says the same.
 - Progress by date. `day <date>` adds what was recorded that day (time,
   answers, topics taught and secured, lectures, practice, workouts);
   `history --by day|week|month [--skill S] [--track T]` gives one row per
@@ -283,7 +293,6 @@ changes their record in `learner/`.
   sessions with pretend learners and measures them, and `evals/` holds
   three cases for `claude plugin eval` (routing, key secrecy, recall
   first). `docs/maintainers/token-baseline.md` records the results.
-||||||| parent of 4f12bc4 (A slim CLAUDE.md and the Calamity Tutor output style)
 - `CLAUDE.md` is down from 5,197 to about 2,200 characters. It keeps the
   session start and the rules that never bend, which agents load too. The
   tutor's teaching rules and the engine's command form moved to the
