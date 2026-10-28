@@ -12,10 +12,11 @@ folder and removes it afterwards. Standard library only, like the engine.
 | `tools/bench.py` | Times commands on a long log, with and without the replay snapshot. | `python3 tools/bench.py <learner repository> --events 50000` |
 | `tools/tokens.py` | Token use of Claude Code sessions in a checkout, read from their transcripts: per session (the first request's context is the fixed cost of every request), per skill, per agent, and the largest tool results. Numbers and names only, never content. Read-only. | `python3 tools/tokens.py --skills` |
 | `tools/baseline.py` | Three scripted sessions (a recall round, a two-topic study block, a weekly review) with pretend learners in throwaway copies, measured with `tools/tokens.py`; `docs/maintainers/token-baseline.md` keeps the results. It runs Claude Code headless and spends plan usage, so it is run by hand, never in CI. | `python3 tools/baseline.py --model sonnet` |
+| `tools/evals.py` | The behaviour evals in `evals/` through `claude plugin eval`, on the Claude account Claude Code is logged into (no token): the cases the branch touches, or `--all`, or `--case <glob>`; once each on Sonnet, with each failing grader and its reason. It spends plan usage, so it is run by hand before merging a behaviour change, never in CI. | `python3 tools/evals.py` (`--dry-run` lists the cases) |
 
-`evals/` holds behaviour cases for `claude plugin eval` (routing, key
-secrecy, recall first); `evals/README.md` says how to run them. Like
-`tools/baseline.py` they call the model, so they are run by hand.
+`evals/` holds the behaviour cases (`evals/README.md` lists them);
+`tools/evals.py` runs them. Like `tools/baseline.py` they call the model,
+so they are run by hand.
 
 On Windows use `python` or `py -3` instead of `python3`.
 
