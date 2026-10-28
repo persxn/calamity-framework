@@ -846,6 +846,12 @@ def cmd_observe(c, a):
     return 0, "noted (%s)" % (a.tag or "teaching")
 
 
+def cmd_unit(c, a):
+    from . import coach
+
+    return 0, coach.unit_text(c.tree, c.state, a.skill, a.topics)
+
+
 def cmd_observations(c, a):
     notes_ = [n for n in c.state.notes if not a.tag or n.get("tag") == a.tag]
     if not notes_:
@@ -1421,10 +1427,14 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("--topic")
     sp = add("observe", cmd_observe, "Record an observation about what helps this learner.")
     sp.add_argument("text", nargs="+")
-    sp.add_argument("--tag", help="teaching (default) or coach")
+    sp.add_argument("--tag", help="teaching (default), coach, or explain (the learner explained a topic back)")
     sp.add_argument("--pattern", help="the behaviour pattern id this raises (coach)")
     sp.add_argument("--skill")
     sp.add_argument("--topic")
+    sp = add("unit", cmd_unit, "Whether a unit of deep coaching is done: each topic consolidating, and one "
+                               "explained back.")
+    sp.add_argument("skill")
+    sp.add_argument("topics", nargs="*", help="the unit's topics (ids or keys; default: all of the skill's)")
     sp = add("observations", cmd_observations, "Show recorded observations.")
     sp.add_argument("--tag")
     sp.add_argument("--n", type=_positive, default=15)

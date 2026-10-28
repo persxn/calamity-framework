@@ -32,6 +32,6 @@ Introduce 5–8 terms at a time, not the whole list at once. Check with quick "u
 
 ## Ongoing
 
-- Every unit adds its own terms to the glossary in state.
+- Every unit adds its own terms to `learner/coach/<topic>/glossary.md`.
 - Recall includes vocabulary items: describe a situation and ask for the term, or give a term and ask for a real example.
 - In the learner's own explanations, nudge vague phrasing towards the precise term: "you described a cascading failure — say it that way in an interview."

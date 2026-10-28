@@ -499,6 +499,13 @@ def doctor(repo: Repo):
     else:
         add("WARN", "shell alias", "%s (setup --alias writes it again, setup --remove-alias removes it)" % state_a)
 
+    from . import coach
+
+    dupes = coach.duplicates()
+    if dupes:
+        add("WARN", "account-level mastery-coach", "%s competes with this framework's engine-backed one for the same "
+            "requests; turn it off where it comes from (claude.ai Settings > Capabilities > Skills, or remove the "
+            "folder)" % _shown(dupes[0]))
     attrs = os.path.join(repo.root, ".gitattributes")
     has_union = os.path.isfile(attrs) and "merge=union" in read_text(attrs)
     add("OK" if has_union else "WARN", ".gitattributes union merge for the event log",

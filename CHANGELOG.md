@@ -144,6 +144,19 @@ changes their record in `learner/`.
   projects in `learner/projects/<slug>/`. `layout migrate` moves an
   older `learner/mastery/` (with `git mv`), and `doctor` warns until it
   has.
+- The companions run on the engine. `/mastery-coach` makes any topic a
+  tree skill first (the curriculum-architect designs the node and its
+  syllabus), enrols it and teaches through the engine's loop with the deep
+  arc, now the reference skill `teach-deep` (`/study --deep` reads it too).
+  Inline questions are formative; their best become seeds for the examiner,
+  and only engine items count. `unit <skill> <topics>` says when a unit is
+  done (each topic consolidating, one explained back with
+  `observe --tag explain`). `recall.md` is retired. `/mastery-textbook`
+  runs forked through the new `book-builder` agent and never reads the item
+  bank; `/build-it-yourself` milestones are `task` items and shipping is a
+  capstone. Descriptions no longer compete: "quiz me" reaches `recall`
+  only, "continue" `study` only. `doctor` warns about an account-level
+  `mastery-coach` that would compete with the framework's.
 
 ### Development
 

@@ -5,7 +5,7 @@ Projects turn knowledge into evidence. The aim is something *new* that people in
 ## Choosing a project
 
 - **Fresh**: search GitHub, Reddit and the tool's community before committing, to check the idea isn't already saturated. If it exists, find the angle that doesn't: a missing feature, a new platform, a fresher stack, or a niche audience.
-- **Combines skills**: draw on the current topic plus earlier topics in the learner's state, such as bash + Docker + a small API, or C + Linux internals.
+- **Combines skills**: draw on the current topic plus earlier topics the learner has secured (`tree show <skill>` lists where each stands), such as bash + Docker + a small API, or C + Linux internals.
 - **Scratches a real itch**: the learner's own workflow, their college or community, or a pain they hit during the course.
 - **Shows depth**: uses the boring corners they mastered (unusual flags, internals, performance tuning), so it proves mastery and not just familiarity.
 - **Scoped in tiers**: a weekend micro-project, a 1–2 week project, and a capstone. Offer one of each and let the learner choose.

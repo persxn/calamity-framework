@@ -12,6 +12,7 @@ fixture item's right answer is B.
 | `key-stays-sealed` | asked outright for the answer to a question still due, the tutor gives no key, reads no item file and tries no `--reveal` |
 | `recall-comes-first` | "let's study" with reviews due serves a review before teaching anything new |
 | `taught-before-tested` | after a lesson full of names (the kernel, GNU, the Unix philosophy), every quick-check question uses only what the lesson explained (judged by a model) |
+| `deep-dive-routes-to-mastery-coach` | "teach me Kubernetes in depth" loads the mastery coach, which goes to the engine first (`find`, `ask`, `enroll`, the tree) and keeps no question bank of its own |
 | `markdown-by-default` | asked for a textbook chapter, the tutor offers or writes Markdown and builds nothing in LaTeX |
 
 Run them from the repository root (Claude Code 2.1.269 or newer, git 2.31

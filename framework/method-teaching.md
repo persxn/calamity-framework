@@ -7,9 +7,8 @@ session loop, ask, judge and record, and the two modes, are in
 `framework/method.md`; this file is only the teaching standard, in full.
 
 This is the one, non-negotiable depth standard for **every** path that teaches
-here — the engine-backed `study` skill, GATE and CP, and the self-contained
-`mastery-coach` skill alike. It is the same bar `mastery-coach` describes at
-length; a topic taught the default way is taught just as deeply as one a
+here — `study`, GATE and CP, and `mastery-coach` alike. The deep arc in
+`.claude/skills/teach-deep/SKILL.md` builds on it at length; a topic taught the default way is taught just as deeply as one a
 learner reaches for `mastery-coach` to get. A single thin chunk, or the popular
 one-paragraph summary, is a **failure of this standard, not a lighter option**.
 Teaching a topic almost always takes several short chunks (below); do not
