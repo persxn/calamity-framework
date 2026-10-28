@@ -9,7 +9,7 @@ engineer (`engine/CLAUDE.md`), in a dev clone (`CONTRIBUTING.md`).
 ## Session start (main conversation only; agents skip this)
 
 - A hook adds a `=== CALAMITY BRIEF ===` block; if it is missing, run
-  `python3 engine/calamity.py brief` first.
+  `calamity brief` first.
 - `NOT ONBOARDED`: run the onboard skill. Otherwise greet the learner by
   name and run the study skill, unless they came with a request.
 - A `settings:` line suggests a `/model` and `/effort`: pass it on when it

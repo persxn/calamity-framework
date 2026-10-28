@@ -1,11 +1,18 @@
 # Engine reference
 
-Every command below is a subcommand of the engine:
+Every command below is a subcommand of the engine, the `calamity` command:
 
-    python3 engine/calamity.py <command> [options]        Linux, macOS
-    python engine/calamity.py <command> [options]         Windows (or: py -3 engine/calamity.py ...)
+    calamity <command> [options]
 
-Run it from the repository root. `<command> --help` prints the flags.
+The Calamity plugin puts `calamity` on the PATH of Claude Code's shell; in a
+clone, `setup --shim` writes it to `~/.local/bin` and `setup --alias` adds a
+shell function of the same name. It finds the learner's repository by
+itself (`CALAMITY_ROOT`, the plugin's `learner_dir` setting, the nearest
+folder holding `learner/profile.md`, or the current folder). Without it, run
+the engine from the repository root as `python3 engine/calamity.py
+<command>` (Windows: `python engine/calamity.py` or `py -3
+engine/calamity.py`); the brief names the form that works after `engine:`.
+`<command> --help` prints the flags.
 Requirements: Python 3.9 or newer; nothing to install.
 
 **Exit codes**: 0 done; 1 `doctor` found a problem; 2 an error (the message
@@ -154,7 +161,7 @@ cannot show them.
 | `career match [<id>] [--kind K]`, `career status [<id> found\|saved\|applied\|interviewing\|offer\|accepted\|rejected\|withdrawn [--note "..."]]`, `career nudge`, `career portfolio [--stdout]` | Readiness from the record for each record that names skills: a skill counts 1.0 when mastered, known or its boss is passed, else its topics' mean (mastered 1.0, solid 0.7, consolidating or learning 0.4); readiness = 0.75 of the must mean + 0.25 of the nice mean (one list alone takes all), capped at 0.6 while no must-skill has project evidence (a project or capstone boss, or a hands-on item passed); verdict apply now (0.8+), prepare (0.5-0.8, with the gaps and hours estimated from the tree), later, closed, or hold during a blackout. `status` lists the pipeline, or records a step. `nudge` lists what to act on (a deadline within 14 days at 0.7+, a saved record at 0.8+, a boss passed on a must-skill in 14 days), never during a blackout (`career.blackout_until`, or GATE's final phase); the `career` task shows it at most weekly. `portfolio` writes `learner/career/portfolio.md` from the log, evidenced lines only (`--stdout` prints it and writes nothing, for read-only agents); `rebuild` keeps it current once it exists. |
 | `stock render --at 23:45 [--model M] [--effort E] [--os ...]`, `stock remove [--os ...]` | Nightly stocking: write scheduler files for a headless `claude -p "/stock"` run (tools limited to the engine, the agents' scratch and the web; `--permission-mode dontAsk`) that starts only when `item needs --days 2 --per-topic 3` lists work, logging to `.calamity/logs/`; print how to install and remove it. `stock.at` in the profile holds the time. Nothing is installed by the engine. |
 | `remind check [--always]`, `remind render --times 09:00,20:30 [--os linux\|darwin\|windows]`, `remind remove [--os ...]` | Is anything due (for a scheduler); write scheduler files and print how to install and remove them; print the removal command again (no times needed). Files and task names carry a tag of this clone. Nothing is installed by the engine. |
-| `setup [--machine NAME] [--hook] [--statusline] [--alias] [--remove-hook] [--remove-statusline] [--remove-alias]` | Prepare this machine. `--hook` writes the session-start hook, the key guard and the study hooks (prompt, stop, compaction, session end), and selects the Calamity Tutor output style (a style the learner chose is kept), `--statusline` the status line, to `.claude/settings.local.json`; `--alias` adds a `calamity` alias to `~/.zshrc` or `~/.bashrc` (`~/.bash_profile` on macOS) that changes to this folder and runs `claude --dangerously-skip-permissions`; the `--remove-` flags take them out again. |
+| `setup [--machine NAME] [--hook] [--statusline] [--alias] [--shim] [--permissions] [--remove-hook] [--remove-statusline] [--remove-alias] [--remove-shim]` | Prepare this machine. `--hook` writes the session-start hook, the key guard and the study hooks (prompt, stop, compaction, session end), and selects the Calamity Tutor output style (a style the learner chose is kept), `--statusline` the status line, to `.claude/settings.local.json` (with the plugin, its `hooks/hooks.json` runs them and nothing is written); `--alias` adds the `calamity` shell function to `~/.zshrc` or `~/.bashrc` (`~/.bash_profile` on macOS): on its own it changes to this folder and runs `claude --dangerously-skip-permissions`, with arguments it runs the engine (D5); `--shim` writes the `calamity` command to `~/.local/bin` (never `sudo`); `--permissions` copies the framework's permission rules into this learner repository's `.claude/settings.json` (plugin mode: a plugin cannot ship them); the `--remove-` flags take them out again. |
 | `day [<day>] [--json]`, `day note <day> "..."`, `day goal "..." [--at HH:MM] [--block NAME] [--date D]`, `day done|undone N [--date D]`, `day migrate [--write]` | The day's shape from `learner/schedule.md` (blocks, the current one marked), the day's note and goals from `learner/timetable.json`, today's finish line, and what was recorded that day (time, answers, topics taught and secured, lectures, practice, workouts); `<day>` is today, tomorrow, yesterday, +N, mon..sun or YYYY-MM-DD. `migrate` turns a schedule written as weekday and weekend tables into front-matter blocks (shown first, written with `--write`). |
 | `history [--from D] [--to D] [--days N] [--by day\|week\|month] [--skill S\|--track T]` | What was done, one row per period: active days and time, answers and accuracy, new topics and reviews, topics taught and secured, lectures, practice, workouts. With a skill or a track, only its answers, teaching and consolidation. `day <date>` shows the same record for one day, under its shape. |
 | `layout check`, `layout migrate [--write]` | The learner store's layout. `migrate` moves what is still under `learner/mastery/` to `learner/coach/<topic>/`, `learner/books/<topic>/` (a topic's `book/`) and `learner/projects/<slug>/`, with `git mv` for tracked files; it shows the moves first, makes them with `--write`, and never overwrites a target. `doctor` warns while anything is left. |

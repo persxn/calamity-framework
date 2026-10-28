@@ -7,16 +7,16 @@ you need. Do not read whole directories into context.
 
 ## How to look something up
 
-1. **By name**: `python3 engine/calamity.py find <words>` searches skills
+1. **By name**: `calamity find <words>` searches skills
    (ids, titles, aliases), topics, lectures of connected sources, and notes.
-2. **A skill**: `python3 engine/calamity.py tree show <skill>` prints its
+2. **A skill**: `calamity tree show <skill>` prints its
    status, prerequisites, what it unlocks, and every topic with the
    learner's standing on it. The line `file:` names the markdown file behind
    it.
 3. **A topic**: its objectives are in the skill's syllabus (the `file:`
    above, or `learner/syllabus/<skill>.md`). The learner's own notes on it
    are in `learner/notes/<skill>/<topic>.md`. Their mistakes on it:
-   `python3 engine/calamity.py stats errors`.
+   `calamity stats errors`.
 4. **The learner right now**: `brief`, `today`, `dash`.
 5. **The learner over time**: `stats week`, `stats hours`, `observations`,
    and `learner/PROGRESS.md`.
@@ -46,7 +46,7 @@ engine/
   CLAUDE.md                guidance for maintainers; loads only when a session works in engine/
   calamity.py              entry point of the CLI
   cal/                     the engine (Python standard library only)
-  tests/                   run with: python3 engine/calamity.py selftest
+  tests/                   run with: calamity selftest
 tools/                     development checks: end-to-end run, fuzzer, sample output, timing, token use
   README.md                what each tool checks and how to run it
   git-hooks/               keep study records out of the framework repository (core.hooksPath)

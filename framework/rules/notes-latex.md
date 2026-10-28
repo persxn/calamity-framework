@@ -22,7 +22,7 @@ learner/notes/<skill>/
 
 For each topic taught or tested in the session:
 
-    python3 engine/calamity.py notes fragment <skill>/<topic>
+    calamity notes fragment <skill>/<topic>
 
 prints the path of the fragment and creates it with this skeleton if it is
 new. Fill it in, or add to it, in ten to twenty-five lines:
@@ -54,25 +54,25 @@ The Java service from today: Maven stage, then a JRE-only stage, 412 MB down to 
 - Write what this session established, in the learner's own words where
   they said it well. Use their example, their code, their numbers.
 - "Mistakes I made" comes from the session's wrong answers
-  (`python3 engine/calamity.py stats errors`). It is the most valuable part.
+  (`calamity stats errors`). It is the most valuable part.
 - Two to four recall prompts: questions only.
 - Update the `updated` date. A fragment is plain Markdown and is useful on
   its own; the learner can read it on GitHub.
 
 ## Step 2: the section (notes-writer agent, on request)
 
-    python3 engine/calamity.py notes status <skill>
+    calamity notes status <skill>
 
 lists each topic as `to write` (a fragment with no section), `stale` (the
 fragment changed since the section was written) or `ok`. For each one to
 write or rewrite, the `notes-writer` agent gets the path from
 
-    python3 engine/calamity.py notes section <skill>/<topic>
+    calamity notes section <skill>/<topic>
 
 and writes the section there. When the sections are done:
 
-    python3 engine/calamity.py notes stamp <skill>
-    python3 engine/calamity.py notes pdf <skill>
+    calamity notes stamp <skill>
+    calamity notes pdf <skill>
 
 `notes pdf` assembles `main.tex` and compiles it with the first TeX engine it
 finds (Tectonic, latexmk, pdfLaTeX, XeLaTeX, LuaLaTeX). If it fails it prints

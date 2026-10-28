@@ -15,7 +15,8 @@ from tests.helpers import REPO
 
 from cal import cli, fm
 
-PREFIX = re.compile(r"(?:python3|python|py -3) engine/calamity\.py\s+([^`\n]*)")
+PREFIX = re.compile(r"(?:(?:python3|python|py -3) engine/calamity\.py|(?:(?<=`)|(?<=^    )|(?<=^       ))calamity)[ \t]+([^`\n]*)",
+                    re.M)
 SPAN = re.compile(r"`([^`\n]+)`")
 
 # What ships. A learner may add skills and agents of their own next to these; the checks below
@@ -138,7 +139,7 @@ class Commands(unittest.TestCase):
             for match in SPAN.finditer(text):
                 span = match.group(1)
                 words = span.replace("\\|", "|").split()
-                if len(words) < 2 or words[0] not in self.table or "engine/calamity.py" in span:
+                if len(words) < 2 or words[0] not in self.table or "engine/calamity.py" in span or words[0] == "calamity":
                     continue
                 if words[0] in ("source", "version", "test", "find", "log") and not self.looks_like_engine(words):
                     continue

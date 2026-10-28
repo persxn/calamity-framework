@@ -47,10 +47,10 @@ Read `log.md` and `build-path.md` at the start of every session.
 
 The project is on the record like everything else, so its progress shows on the roadmap and in the log:
 
-- **Skills are tree skills.** Each node of the skill map is found with `python3 engine/calamity.py find <words>`, or designed by the `curriculum-architect` (a node and its syllabus, `tree add`). What the learner already knows is settled by a placement test, not by asking.
+- **Skills are tree skills.** Each node of the skill map is found with `calamity find <words>`, or designed by the `curriculum-architect` (a node and its syllabus, `tree add`). What the learner already knows is settled by a placement test, not by asking.
 - **The project is a tree skill.** The `curriculum-architect` adds it (`tree add project.<slug> --prereqs <its skills>`) with a topic per build milestone and shipping as its boss, so `tree path project.<slug>` shows the route.
-- **Each milestone's acceptance tests are a `task` item.** Pass the milestone's spec and tests to the `examiner` ("a task item for `project.<slug>/<milestone>`, its check is these acceptance tests"); the `checker` verifies the check runs and fails on an empty project. When the learner says it is done, `python3 engine/calamity.py item show <item> --check`, run it for real, and record `answer <item> --result pass|fail --evidence "what ran, what happened"`.
-- **Shipping is the capstone**: `python3 engine/calamity.py boss record project.<slug> pass --kind capstone --evidence "<where it is installed or deployed>"`.
+- **Each milestone's acceptance tests are a `task` item.** Pass the milestone's spec and tests to the `examiner` ("a task item for `project.<slug>/<milestone>`, its check is these acceptance tests"); the `checker` verifies the check runs and fails on an empty project. When the learner says it is done, `calamity item show <item> --check`, run it for real, and record `answer <item> --result pass|fail --evidence "what ran, what happened"`.
+- **Shipping is the capstone**: `calamity boss record project.<slug> pass --kind capstone --evidence "<where it is installed or deployed>"`.
 
 ## Reverse mode: two kinds of target
 

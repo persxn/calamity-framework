@@ -10,6 +10,7 @@ Outputs, all in framework/design/ (generated: never edit them, edit tokens.json 
     calamity.sty             the LaTeX package (notebook and book options), from src/calamity.sty.in
     calamity.css             custom properties for light and dark, fonts, type scale, callout classes
     palette.svg              every colour and callout, light and dark, labelled
+    ../../.claude-plugin/icon.png   the plugin's icon, from the accent and amber of the light palette
     calamity-terminal.json   two terminal colour schemes (Windows Terminal's scheme format; the 16 ANSI
                              colours in order, which other terminals take as well)
 
@@ -214,6 +215,46 @@ def terminal(t: dict) -> str:
                                "ones in the same order.", "schemes": schemes}, indent=2, ensure_ascii=False) + "\n"
 
 
+def icon(t: dict, size: int = 512) -> bytes:
+    """The plugin's icon (.claude-plugin/icon.png): a ring open to the right, a C, in the accent on the paper of the
+    light palette, with a small amber dot in the opening. A PNG written with zlib, antialiased by supersampling."""
+    import struct
+    import zlib
+
+    pal = t["palette"]["light"]
+    rgb = lambda h: tuple(int(h[i:i + 2], 16) for i in (0, 2, 4))      # noqa: E731
+    paper, accent, dot = rgb(pal["paper"]), rgb(pal["accent"]), rgb(pal["amber"])
+    c, outer, inner, dot_r = size / 2.0, size * 0.36, size * 0.24, size * 0.06
+    dot_c = (c + (outer + inner) / 2.0 * 0.92, c)
+    rows = []
+    for y in range(size):
+        row = bytearray([0])
+        for x in range(size):
+            acc = [0, 0, 0]
+            for sy in (0.25, 0.75):
+                for sx in (0.25, 0.75):
+                    px, py = x + sx - c, y + sy - c
+                    r = (px * px + py * py) ** 0.5
+                    colour = paper
+                    if inner <= r <= outer and not (px > 0 and abs(py) < size * 0.11):
+                        colour = accent
+                    dx, dy = x + sx - dot_c[0], y + sy - dot_c[1]
+                    if dx * dx + dy * dy <= dot_r * dot_r:
+                        colour = dot
+                    acc = [a + b for a, b in zip(acc, colour)]
+            row += bytes(round(v / 4) for v in acc)
+        rows.append(bytes(row))
+
+    def chunk(kind, data):
+        return struct.pack(">I", len(data)) + kind + data + struct.pack(">I", zlib.crc32(kind + data) & 0xFFFFFFFF)
+
+    return (b"\x89PNG\r\n\x1a\n" + chunk(b"IHDR", struct.pack(">IIBBBBB", size, size, 8, 2, 0, 0, 0))
+            + chunk(b"IDAT", zlib.compress(b"".join(rows), 9)) + chunk(b"IEND", b""))
+
+
+ICON = os.path.join(ROOT, ".claude-plugin", "icon.png")
+
+
 def outputs(t: dict) -> dict:
     return {"calamity.sty": sty(t), "calamity.css": css(t), "palette.svg": svg(t), "calamity-terminal.json": terminal(t)}
 
@@ -230,6 +271,12 @@ def stale() -> list:
         except OSError:
             pass
         out.append(name)
+    try:
+        with open(ICON, "rb") as fh:
+            if fh.read() != icon(load()):
+                out.append(".claude-plugin/icon.png")
+    except OSError:
+        out.append(".claude-plugin/icon.png")
     return out
 
 
@@ -291,6 +338,9 @@ def main(argv=None) -> int:
         with open(os.path.join(DESIGN, name), "w", encoding="utf-8", newline="\n") as fh:
             fh.write(text)
         print("wrote framework/design/%s" % name)
+    with open(ICON, "wb") as fh:
+        fh.write(icon(load()))
+    print("wrote .claude-plugin/icon.png")
     return 0
 
 

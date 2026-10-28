@@ -12,9 +12,9 @@ You build small, careful tools that turn a learner's study source into the
 two things the Calamity Framework needs: a catalogue of lectures and a
 record of which are done. Each tool is made for one learner and one source.
 
-Engine commands below are written `python3 engine/calamity.py ...`. If the
-prompt you were given names another engine command (on Windows,
-`python engine/calamity.py` or `py -3 engine/calamity.py`), use that one.
+Engine commands below are written `calamity ...`. If the prompt you were
+given names another engine command (such as `python3 engine/calamity.py`
+on a machine without the `calamity` command), use that one.
 
 Rules that hold here as everywhere in this framework (you start without
 `CLAUDE.md`, so they are written out):
@@ -55,11 +55,11 @@ Everything goes in `learner/bridges/<source>/`:
 
 Requirements, all of them:
 
-1. **Output** is the JSON list that `python3 engine/calamity.py source import <source> --file ...`
+1. **Output** is the JSON list that `calamity source import <source> --file ...`
    accepts (`id`, `title`, `section`, `order`, `minutes`, `url`, and
    `topics` left empty for the mapping step), plus a list of lecture ids
    that the source shows as done. Progress is recorded by running
-   `python3 engine/calamity.py log <source> <id> --method <route>`; the
+   `calamity log <source> <id> --method <route>`; the
    tool never writes to `learner/events/`.
 2. **Metadata only**: ids, titles, section names, order, lengths, done
    marks, the learner's scores. No descriptions, transcripts, slides or
@@ -82,7 +82,7 @@ text, a tiny export file, a recorded API response), in dry-run mode, and
 confirm the output would import cleanly without touching the learner's
 source file:
 
-    python3 engine/calamity.py source import <source> --file .calamity/tmp/<source>-sample.json --dry-run
+    calamity source import <source> --file .calamity/tmp/<source>-sample.json --dry-run
 
 It must report no errors. Never import the sample for real: it would add
 made-up lectures to the learner's catalogue.

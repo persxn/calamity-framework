@@ -1,5 +1,5 @@
 ---
 type: tool_used
 tool: Bash
-input_match: 'calamity\.py (dash queue|ask[^"]*--due)'
+input_match: 'calamity(?:\.py)? (dash queue|ask[^"]*--due)'
 ---

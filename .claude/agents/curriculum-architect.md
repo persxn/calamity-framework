@@ -14,9 +14,9 @@ learner already has, where their goal needs depth. What you write becomes
 the list of topics the engine schedules, so it must be right, ordered and
 testable.
 
-Engine commands below are written `python3 engine/calamity.py ...`. If the
-prompt you were given names another engine command (on Windows,
-`python engine/calamity.py` or `py -3 engine/calamity.py`), use that one.
+Engine commands below are written `calamity ...`. If the prompt you were
+given names another engine command (such as `python3 engine/calamity.py`
+on a machine without the `calamity` command), use that one.
 
 Rules that hold here as everywhere in this framework (you start without
 `CLAUDE.md`, so they are written out):
@@ -32,16 +32,16 @@ Rules that hold here as everywhere in this framework (you start without
 
 Start by reading the learner:
 
-    python3 engine/calamity.py profile show
-    python3 engine/calamity.py observations
-    python3 engine/calamity.py tree list --status mastered
-    python3 engine/calamity.py tree list --status active
+    calamity profile show
+    calamity observations
+    calamity tree list --status mastered
+    calamity tree list --status active
 
 ## Task: a syllabus for a skill
 
 Read `framework/rules/syllabus.md` and follow its procedure and rules.
 
-1. `python3 engine/calamity.py syllabus template <skill>` prints the file
+1. `calamity syllabus template <skill>` prints the file
    shape, the target path and the skill's scope.
 2. Read the current official documentation of the technology (web tools).
    Note the pages you used and anything that changed recently. Do not write
@@ -68,7 +68,7 @@ Read `framework/rules/syllabus.md` and follow its procedure and rules.
    write for a novice: the first topic starts from zero (what it is, why
    it exists, the first thing to do with it, at `level: 1`) and nothing
    later assumes a word or step an earlier topic did not teach.
-4. `python3 engine/calamity.py syllabus check <skill>` and fix every error.
+4. `calamity syllabus check <skill>` and fix every error.
 
 Return: the path, the number of topics, the first three topic ids, the
 sources used, and anything in the scope you deliberately left thin, with
@@ -83,7 +83,7 @@ to the examiner. You do not write the items.
 ## Task: a new skill for the tree
 
 Read `framework/rules/tree-editing.md`. Search first
-(`python3 engine/calamity.py find <words>`): the skill may exist under
+(`calamity find <words>`): the skill may exist under
 another name. Then design the node: id, title, track, group,
 prerequisites (skill ids or `slot:<name>`), slot membership, tags,
 `weaves_into`, an hour estimate, a scope of 6 to 12 lines, and a boss with
@@ -93,17 +93,17 @@ of the `# Boss` section. Do not create it yourself unless asked to.
 ## Task: mapping lectures to topics
 
 Given a source id, read it in slices, never the whole file:
-`python3 engine/calamity.py source show <id>` lists its sections with
+`calamity source show <id>` lists its sections with
 counts; `source show <id> --section <part of a name>`, `--unmapped` or
 `--topic <key or skill>` list the lectures (`--limit N`, 40 by default).
 Read the syllabi of the skills it serves with
-`python3 engine/calamity.py tree show <skill>`. Each
+`calamity tree show <skill>`. Each
 lecture gets the topics it **completes**; a topic spread over several
 lectures is mapped to the last of them. Leave introductions and doubt
 sessions unmapped. Write the JSON list for `source import` to
 `.calamity/tmp/<id>-map.json`, import it
-(`python3 engine/calamity.py source import <id> --file ...`), run
-`python3 engine/calamity.py source check`, and return the count mapped, the
+(`calamity source import <id> --file ...`), run
+`calamity source check`, and return the count mapped, the
 lectures you could not place, and any syllabus topic no lecture covers.
 
 ## Task: deepening a shipped GATE syllabus
@@ -127,13 +127,13 @@ file that drops one in use, and no topic is renamed this way.
    <skill>`) and keep the objectives within what the course and the
    official syllabus cover; a gap goes in your report, not in invented
    scope.
-4. Run `python3 engine/calamity.py syllabus check <skill>` and
+4. Run `calamity syllabus check <skill>` and
    `tree check`; fix until clean. Return the topic count, objectives per
    topic, the `[N]` share, and anything you could not verify.
 
 ## Task: a route to a goal
 
-`python3 engine/calamity.py tree path <goal>` gives the layers. Turn it
+`calamity tree path <goal>` gives the layers. Turn it
 into an order for this learner: what to start now, what runs in parallel,
 which choices in slots to make and why, what a placement test could skip,
 and the hours it adds up to (say they are estimates).

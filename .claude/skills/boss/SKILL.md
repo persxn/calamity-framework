@@ -12,8 +12,8 @@ A boss comes up when every topic of a skill is solid. Passing it is the
 last step to mastery, and it is what unlocks a capstone. How to ask and
 judge is in `framework/method.md`; read it if it is not in context yet.
 
-    python3 engine/calamity.py boss status            # which are due
-    python3 engine/calamity.py boss status <skill>    # one specification
+    calamity boss status            # which are due
+    calamity boss status <skill>    # one specification
 
 If the state is "not due yet", say how many topics are still short and
 offer a study session instead. The learner may attempt it early if they
@@ -28,7 +28,7 @@ insist; a failed attempt costs nothing.
    if the learner knows git. They build it. You may answer questions about
    concepts and review what they wrote; you do not write the solution, and
    you do not give the steps.
-3. Weave: ask `python3 engine/calamity.py weave <skill>` and require the
+3. Weave: ask `calamity weave <skill>` and require the
    earlier skills it names where they fit naturally (a Dockerfile, tests, a
    pipeline, a commit history).
 4. When they say it is done, check **every** line under "Passes when" by
@@ -36,8 +36,8 @@ insist; a failed attempt costs nothing.
    bosses".
 5. Record the outcome with what was run:
 
-       python3 engine/calamity.py boss record <skill> pass --evidence "repo path; each check and its result"
-       python3 engine/calamity.py boss record <skill> fail --evidence "which check failed and how"
+       calamity boss record <skill> pass --evidence "repo path; each check and its result"
+       calamity boss record <skill> fail --evidence "which check failed and how"
 
    One failed check is a fail. Say exactly which check failed and what it
    showed; they fix it and you check again.
@@ -46,22 +46,22 @@ insist; a failed attempt costs nothing.
 
 A timed mixed test of the skill stands in.
 
-    python3 engine/calamity.py test build --skills <skill> --n 10 --minutes 25 --label "boss: <skill>"
+    calamity test build --skills <skill> --n 10 --minutes 25 --label "boss: <skill>"
 
 - Exit code 4: the bank is short. Send the printed list to the `examiner`
   agent, the new ids to the `checker` agent, then build again.
 - Exam conditions: no hints, no feedback between questions. For each item
-  in order: `python3 engine/calamity.py ask --id <item> --test <test>`,
-  then `python3 engine/calamity.py answer <item> --answer "..."`; for a
+  in order: `calamity ask --id <item> --test <test>`,
+  then `calamity answer <item> --answer "..."`; for a
   code, task or open item, run its check (`item show <item> --check`) and
   record `answer <item> --result pass|fail --evidence "..."`. A skipped
   question is simply not answered.
-- When they finish or time is up: `python3 engine/calamity.py test finish <test>`.
+- When they finish or time is up: `calamity test finish <test>`.
   It prints the score (with GATE marking where it applies) and the
   solutions of the missed items. Go through those with the learner and
-  record each kind of mistake: `python3 engine/calamity.py mistake <item> <kind>`.
+  record each kind of mistake: `calamity mistake <item> <kind>`.
 - Pass mark: 80% for a skill test, unless the learner's plan sets another.
-  Record it: `python3 engine/calamity.py boss record <skill> pass --kind test --evidence "test <id>: 8.67 of 10"`.
+  Record it: `calamity boss record <skill> pass --kind test --evidence "test <id>: 8.67 of 10"`.
 
 ## A capstone milestone
 
@@ -72,11 +72,11 @@ as a project boss over several sessions. Agree the scope in writing first
 at each session without taking over.
 
 Rating milestones of the competitive-programming track are recorded by
-`python3 engine/calamity.py cf sync` when Codeforces shows the rating; they
+`calamity cf sync` when Codeforces shows the rating; they
 are not attempted here.
 
 ## Afterwards
 
 Show what passing unlocked (the engine prints it) and the next suggestion
-(`python3 engine/calamity.py tree suggest`). Save a notes fragment about
+(`calamity tree suggest`). Save a notes fragment about
 the project: what was built, what broke, what they would do differently.

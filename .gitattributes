@@ -9,3 +9,6 @@ learner/events/*.jsonl merge=union
 # Generated snapshots; `rebuild` rewrites them after a merge.
 learner/PROGRESS.md merge=union
 learner/journal/*.md merge=union
+
+# Windows runs batch files with CRLF line endings
+*.cmd text eol=crlf

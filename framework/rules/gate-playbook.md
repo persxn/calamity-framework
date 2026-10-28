@@ -16,7 +16,7 @@ target, the plan, phases and triage in `framework/rules/gate-planning.md`.
 ## The daily loop
 
 1. Surprise recall across all subjects.
-2. Lecture from the source, then `python3 engine/calamity.py log <source> <lecture>`,
+2. Lecture from the source, then `calamity log <source> <lecture>`,
    then its test straight away. `next` surfaces it as "lecture logged, not
    tested yet". Teach only what the test exposes; the course did the
    teaching.
@@ -24,7 +24,7 @@ target, the plan, phases and triage in `framework/rules/gate-planning.md`.
 4. `today` for the finish line; `gate status` once a week.
 
 A learner who studies other tracks as well gets GATE and the others in
-turn. `python3 engine/calamity.py profile set focus gate` puts GATE ahead of
+turn. `calamity profile set focus gate` puts GATE ahead of
 everything else, which is the right setting for the revision and final
 phases.
 
@@ -36,13 +36,13 @@ cost nothing). The engine applies it in tests and in every marks line.
 
 - **Record every mock**, full or sectional:
 
-      python3 engine/calamity.py gate mock CS 54.33 --source "series name, full test 3" --sections "GA=11.33,EM=8,OS=5.67"
+      calamity gate mock CS 54.33 --source "series name, full test 3" --sections "GA=11.33,EM=8,OS=5.67"
 
 - **Review within a day.** For each question that was wrong or guessed:
   find its topic (`find <words>`), name the kind of error, and bring the
   topic back:
 
-      python3 engine/calamity.py quick gate.cs.operating-systems/deadlock fail --err concept --note "mock 3 Q41: Banker's safe sequence"
+      calamity quick gate.cs.operating-systems/deadlock fail --err concept --note "mock 3 Q41: Banker's safe sequence"
 
   `gate errors` then shows where the marks are leaking. Careless and
   misread errors are fixed by exam habits (re-read the last line, check

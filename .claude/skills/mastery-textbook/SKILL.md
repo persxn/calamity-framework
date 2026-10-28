@@ -21,7 +21,7 @@ The book shares mastery-coach's philosophy:
 
 You run forked, as the `book-builder` agent: you cannot ask the learner anything, and the conversation gets back only your last message. So:
 
-- **`book.format` must already be set** (`python3 engine/calamity.py profile get book.format`). If it is not, write nothing and return `ASK book.format: Markdown (the default) or PDF?`; the tutor asks and records it, then calls you again.
+- **`book.format` must already be set** (`calamity profile get book.format`). If it is not, write nothing and return `ASK book.format: Markdown (the default) or PDF?`; the tutor asks and records it, then calls you again.
 - Return at most ten lines: what was written or changed (paths), the build or review result, anything that could not be checked. Never paste a chapter back.
 
 The coach hands you each unit once it is done (`unit` prints `UNIT DONE`); you turn it into a chapter, then write back into the coach's `log.md` which chapter covers which unit. Nothing taught is left only in chat.
@@ -30,7 +30,7 @@ The coach hands you each unit once it is done (`unit` prints `UNIT DONE`); you t
 
 ## Format first: Markdown unless the learner chose PDF
 
-The learner's `book.format` decides (`python3 engine/calamity.py profile get book.format`); the tutor
+The learner's `book.format` decides (`calamity profile get book.format`); the tutor
 asks once and records it with `profile set book.format markdown` (or `pdf`) before calling you.
 
 - **Markdown (the default).** The book is `learner/books/<topic-slug>/README.md` (title,
@@ -39,7 +39,7 @@ asks once and records it with `profile set book.format markdown` (or `pdf`) befo
   verified references as below, in Markdown. There is no build, no page rendering and no visual
   review: check each chapter once against `references/writing-standard.md` and the rule book,
   update `book-state.md`, and deliver. A PDF of it, when asked for, is one command and no LaTeX:
-  `python3 engine/calamity.py book pdf learner/books/<topic-slug>`.
+  `calamity book pdf learner/books/<topic-slug>`.
 - **PDF.** Only when the learner chose `pdf` or explicitly asks for a typeset edition: the LaTeX
   workflow below (template, SVG figures, build, three review passes).
 
@@ -51,7 +51,7 @@ Change one chapter at a time; never rewrite a whole book to fix a section.
 2. **Outside Calamity** use `.mastery/topics/<topic-slug>/book/`.
 3. **Read the record of what was taught — from whichever path taught it.**
    - Taught through `mastery-coach`: read `learner/coach/<topic>/` — `curriculum.md`, `log.md`, `glossary.md`, `seeds.md`. They tell you what was taught, in what order, with what terms and misses, and (in `log.md`) the actual models, examples and traces used — reproduce those faithfully. Seeds are question ideas: write your own exercises in their spirit, with worked answers.
-   - Taught on the engine's `/study` path: build from the notes fragments under `learner/notes/<skill>/` and the syllabus. Read the topic's objectives with `python3 engine/calamity.py tree show <skill>`, and what was taught when with `python3 engine/calamity.py history --skill <skill> --by day`.
+   - Taught on the engine's `/study` path: build from the notes fragments under `learner/notes/<skill>/` and the syllabus. Read the topic's objectives with `calamity tree show <skill>`, and what was taught when with `calamity history --skill <skill> --by day`.
 
    Either way, the book is one deluxe tier above the per-skill notes: same depth bar (`framework/method-teaching.md`), fuller treatment. Misses recorded in the coach's log become *Common misconception* boxes and extra exercises, written generally, never naming the learner.
 

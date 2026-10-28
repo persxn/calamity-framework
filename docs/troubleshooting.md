@@ -21,7 +21,7 @@ Windows use `python engine/calamity.py doctor` or `py -3 engine/calamity.py doct
 | `python3` opens the Microsoft Store, or is not found, on Windows | Use `python` or `py -3` instead. Onboarding records which works, and the brief names it after `engine:`. |
 | `error: Calamity needs Python 3.9 or newer` | Install a newer Python (python.org, your package manager, or Homebrew) and use it. |
 | Every engine command asks for permission | The folder is not trusted yet: Claude Code ignores the rules in `.claude/settings.json` until you accept the trust prompt. Quit, start `claude` in the folder again and accept. Commands in another form (with `cd`, pipes or a full path) also ask; Claude is told to use the plain form. |
-| No brief at the start of a session | The hook is not installed on this computer. Run `/onboard machine` (or `python3 engine/calamity.py setup --hook`); until then Claude runs the brief by hand. |
+| No brief at the start of a session | The hook is not installed on this computer. Run `/onboard machine` (or `calamity setup --hook`); until then Claude runs the brief by hand. |
 | `doctor`: "hook points at a Python that no longer exists" or "at a different copy of the repository" | Python was upgraded, or the folder was moved or copied. Run `setup --hook` again in this folder. |
 | `doctor`: "key guard ... missing" | The guard came with the framework after this computer was set up. Run `setup --hook` again; it takes effect in the next session. |
 | `doctor`: "scratch folder ... older than a day" | An agent's work was left behind, and it may hold worked answers. Run `clean tmp`. |
@@ -45,7 +45,7 @@ Windows use `python engine/calamity.py doctor` or `py -3 engine/calamity.py doct
 | Symptom | Cause and fix |
 |---|---|
 | `doctor` FAIL: event lines could not be read | A line in `learner/events/` is damaged (an editor, a merge conflict marker). The engine skips it and reports where it is. If it came from a merge, keep both sides of the conflict: every line is one event. |
-| `learner/PROGRESS.md` looks garbled after a merge | Git merges it line by line (`merge=union`), so both sides end up in it. It is a generated snapshot: `python3 engine/calamity.py rebuild` rewrites it. |
+| `learner/PROGRESS.md` looks garbled after a merge | Git merges it line by line (`merge=union`), so both sides end up in it. It is a generated snapshot: `calamity rebuild` rewrites it. |
 | Two laptops disagree | Sync both (commit, pull, push), then `rebuild` on each: replay gives both the same state. |
 | "another Calamity command is still writing" | Another engine command (often a background agent) held the write lock for over 15 seconds, on any system. Try again; if nothing else is running, delete `.calamity/write.lock`. |
 | A "not UTF-8 text" note for `learner/profile.md` | An editor saved it in another encoding (Windows Notepad's ANSI, for example). The engine reads what it can and changes nothing in that file until it is saved again as UTF-8. |
@@ -76,8 +76,8 @@ Windows use `python engine/calamity.py doctor` or `py -3 engine/calamity.py doct
 | Reminders stopped after moving the folder | The scheduler holds absolute paths: run `/remind` again in the new place. |
 | No notification on macOS | Check the LaunchAgent with `launchctl list` (its label starts `com.calamity.remind.`). If the folder is under Documents, Desktop, Downloads or iCloud Drive, macOS privacy protection may stop launchd from running the script: a clone elsewhere (for example `~/calamity`) avoids that. |
 | No notification on Windows | Open Task Scheduler: the tasks are named `Calamity Remind <tag> <time>` in the top folder. Run `install.cmd` again after `remind render`; it replaces this folder's tasks. Untested on a real machine so far. |
-| Taking reminders out | `python3 engine/calamity.py remind remove` prints the command for this computer; it needs no times and touches only this folder's reminders. |
-| What would a reminder say now? | `python3 engine/calamity.py remind check --always` |
+| Taking reminders out | `calamity remind remove` prints the command for this computer; it needs no times and touches only this folder's reminders. |
+| What would a reminder say now? | `calamity remind check --always` |
 
 ## Still stuck
 

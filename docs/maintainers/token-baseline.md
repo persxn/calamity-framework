@@ -12,7 +12,7 @@ nothing here comes from what a learner said.
 python3 tools/baseline.py --model sonnet            # three sessions, a few million mostly cached tokens
 python3 tools/tokens.py --skills                    # this checkout's own sessions, per skill
 claude plugin eval . --scaffold --trust-plugin --ablation none \
-  --allow-tools "Bash(python3 engine/calamity.py *)" --model sonnet --no-publish
+  --allow-tools "Bash(calamity *)" --model sonnet --no-publish
 ```
 
 Compare runs made with the same model on the same Claude Code version.

@@ -25,11 +25,11 @@ lives in `learner/syllabus/<skill>.md`.
 ## Looking around
 
 ```bash
-python3 engine/calamity.py dash roadmap --all-tracks   # every skill, by track and group
-python3 engine/calamity.py tree show docker             # one skill: needs, unlocks, topics, your standing
-python3 engine/calamity.py tree path mern-stack         # the route to a goal, in layers
-python3 engine/calamity.py tree suggest                 # what to start next
-python3 engine/calamity.py find containers              # search skills, topics, lectures, notes
+calamity dash roadmap --all-tracks   # every skill, by track and group
+calamity tree show docker             # one skill: needs, unlocks, topics, your standing
+calamity tree path mern-stack         # the route to a goal, in layers
+calamity tree suggest                 # what to start next
+calamity find containers              # search skills, topics, lectures, notes
 ```
 
 Or ask: "what does Kubernetes need?", "how do I get to full-stack?", "what

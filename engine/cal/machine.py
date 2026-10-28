@@ -2,8 +2,16 @@
 
 `setup` prepares this machine: a machine id, the learner folders and, when
 asked, the session-start hook in .claude/settings.local.json (a file that is
-never committed) and a `calamity` alias in the shell's start-up file.
-`doctor` reports what is and is not in order.
+never committed), the `calamity` shell function in the shell's start-up file
+(no arguments: open Claude Code here with permission prompts off; arguments:
+the engine), the `calamity` command in ~/.local/bin, and the permission rules
+in a plugin learner's .claude/settings.json. `doctor` reports what is and is
+not in order.
+
+Plugin mode (the framework installed as a Claude Code plugin, the learner's
+repository elsewhere): bin/calamity is on the shell's PATH, hooks/hooks.json
+runs the hooks, and the session-start hook exports CALAMITY_ROOT for the rest
+of the session through CLAUDE_ENV_FILE.
 """
 from __future__ import annotations
 
@@ -23,6 +31,74 @@ def _script(repo: Repo) -> str:
     return os.path.join(repo.root, "engine", "calamity.py")
 
 
+def framework_root() -> str:
+    """The folder this engine came from: the clone, or the plugin's installed copy."""
+    return os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+
+def plugin_mode() -> bool:
+    """Whether this engine runs as the Claude Code plugin (its hooks set CLAUDE_PLUGIN_ROOT to our folder)."""
+    root = os.environ.get("CLAUDE_PLUGIN_ROOT")
+    if not root:
+        return False
+    try:
+        return os.path.samefile(root, framework_root())
+    except OSError:
+        return False
+
+
+def link_framework(repo: Repo) -> str:
+    """Plugin mode: a link `framework` in the learner's repository to the plugin's framework/, so the skills' and
+    rules' relative paths (framework/method.md, framework/rules/...) resolve there too. Re-pointed when the plugin
+    moves (an update installs it under a new version); a real framework/ folder is never touched. Git-ignored."""
+    if not separate_engine(repo):
+        return "framework: this clone's own"
+    target = os.path.join(framework_root(), "framework")
+    link = os.path.join(repo.root, "framework")
+    try:
+        if os.path.islink(link):
+            if os.path.realpath(link) == os.path.realpath(target):
+                return "framework: linked"
+            os.remove(link)
+        elif os.path.exists(link):
+            return "framework: a framework/ folder of this repository's own is kept"
+        try:
+            os.symlink(target, link, target_is_directory=True)
+        except (OSError, NotImplementedError):
+            if not platform.system().lower().startswith("win"):
+                raise
+            import subprocess                      # Windows without the right to make symbolic links: a junction
+
+            subprocess.run(["cmd", "/c", "mklink", "/J", link, target], check=True, stdout=subprocess.DEVNULL,
+                           stderr=subprocess.DEVNULL)
+        ignore = os.path.join(repo.root, ".gitignore")
+        text = read_text(ignore) if os.path.isfile(ignore) else ""
+        if "/framework\n" not in text:
+            write_text(ignore, text + ("" if not text or text.endswith("\n") else "\n") +
+                       "# the Calamity plugin's framework, linked by the engine (never committed)\n/framework\n")
+        return "framework: linked to the plugin's (%s)" % target
+    except Exception as exc:                       # never break a session over the link
+        return "framework: NOT linked (%s); the skills cannot read framework/ files here" % exc
+
+
+def export_root(repo: Repo) -> bool:
+    """In plugin mode at session start, keep CALAMITY_ROOT for the session's shell (Claude Code sources the
+    file CLAUDE_ENV_FILE names before each command), so `calamity` finds this learner from any folder."""
+    if separate_engine(repo):
+        link_framework(repo)
+    path = os.environ.get("CLAUDE_ENV_FILE")
+    if not path or not plugin_mode():
+        return False
+    line = "export CALAMITY_ROOT=%s\n" % shlex.quote(repo.root)
+    try:
+        old = read_text(path) if os.path.isfile(path) else ""
+        if line not in old:
+            write_text(path, old + ("" if not old or old.endswith("\n") else "\n") + line)
+        return True
+    except (OSError, CalError):
+        return False
+
+
 def _machine_json(repo: Repo) -> dict:
     try:
         with open(os.path.join(repo.local, "machine.json"), "r", encoding="utf-8") as fh:
@@ -33,8 +109,11 @@ def _machine_json(repo: Repo) -> dict:
 
 
 def engine_cmd(repo: Repo) -> str:
-    """How to call the engine on this machine, as typed from the repository root. Worked out once
-    and kept in .calamity/machine.json, next to the machine id."""
+    """How to call the engine on this machine. `calamity` when the plugin's shim or `setup --shim` put it on the
+    PATH; otherwise the form typed from the repository root, worked out once and kept in .calamity/machine.json,
+    next to the machine id."""
+    if plugin_mode() or shutil.which("calamity"):
+        return "calamity"
     cmd = _machine_json(repo).get("cmd")
     if isinstance(cmd, str) and cmd:
         return cmd
@@ -109,8 +188,19 @@ def _is_ours(entry, event: str = "SessionStart") -> bool:
     return False
 
 
+def separate_engine(repo: Repo) -> bool:
+    """Whether the engine lives outside the learner's repository (the plugin), so hooks come from hooks/hooks.json."""
+    try:
+        return not os.path.samefile(framework_root(), repo.root)
+    except OSError:
+        return True
+
+
 def install_hook(repo: Repo) -> str:
     """Add (or refresh) the SessionStart hook that prints the brief and the PreToolUse key guard."""
+    if plugin_mode():
+        return ("hooks: the plugin runs them (its hooks/hooks.json: the brief, the key guard and the study hooks); "
+                "nothing written to .claude/settings.local.json")
     path = _settings_path(repo)
     data = _load_settings(path)
     hooks = data.setdefault("hooks", {})
@@ -296,8 +386,14 @@ def _shown(path: str) -> str:
 
 
 def alias_line(repo: Repo) -> str:
-    """`calamity` in a terminal: go to this repository and open Claude Code there without permission prompts."""
-    return "alias calamity=%s" % shlex.quote("cd -- %s && claude --dangerously-skip-permissions" % shlex.quote(repo.root))
+    """`calamity` in a terminal (D5): with no arguments, go to this repository and open Claude Code there without
+    permission prompts; with arguments, run the engine for this repository (`calamity today`). A function, not an
+    alias, so it does both, and Claude Code's shell, which keeps the learner's functions, reaches the engine by
+    the same name the skills use."""
+    root = shlex.quote(repo.root)
+    return ("calamity() { if [ \"$#\" -eq 0 ]; then cd -- %s && claude --dangerously-skip-permissions; "
+            "else ( [ -n \"${CALAMITY_ROOT:-}\" ] || CALAMITY_ROOT=%s; export CALAMITY_ROOT; exec %s \"$@\" ); fi; }"
+            % (root, root, shlex.quote(os.path.join(framework_root(), "bin", "calamity"))))
 
 
 def _without_alias(text: str):
@@ -331,9 +427,11 @@ def install_alias(repo: Repo) -> str:
     text, _ = _without_alias(read_text(rc) if os.path.isfile(rc) else "")
     if text and not text.endswith("\n"):
         text += "\n"
-    _write_rc(rc, text + "%s\n%s\n%s\n" % (ALIAS_START, alias_line(repo), ALIAS_END))
-    return ("alias written to %s: `calamity` opens Claude Code in this folder with permission prompts off "
-            "(takes effect in a new terminal)" % _shown(rc))
+    # the old block was an alias of the same name; unalias it first or the function cannot be defined
+    _write_rc(rc, text + "%s\n%s\n%s\n%s\n" % (ALIAS_START, "unalias calamity 2>/dev/null || true",
+                                                 alias_line(repo), ALIAS_END))
+    return ("`calamity` written to %s: on its own it opens Claude Code in this folder with permission prompts off; "
+            "`calamity <command>` runs the engine (takes effect in a new terminal)" % _shown(rc))
 
 
 def remove_alias(repo: Repo) -> str:
@@ -358,11 +456,84 @@ def alias_state(repo: Repo) -> str:
         return "%s cannot be read" % _shown(rc)
     if block is None:
         return "missing"
-    return "ok" if block == [alias_line(repo)] else "alias points at a different copy of the repository"
+    if block == ["unalias calamity 2>/dev/null || true", alias_line(repo)]:
+        return "ok"
+    if len(block) == 1 and block[0].startswith("alias calamity="):
+        return "the old alias: setup --alias writes the function that also runs the engine"
+    return "alias points at a different copy of the repository"
+
+
+# ---------------------------------------------------------------- the calamity command, permissions
+
+
+def shim_path() -> str:
+    name = "calamity.cmd" if platform.system().lower().startswith("win") else "calamity"
+    return os.path.join(os.path.expanduser("~"), ".local", "bin", name)
+
+
+def _shim_text(repo: Repo) -> str:
+    target = os.path.join(framework_root(), "bin", "calamity")
+    if platform.system().lower().startswith("win"):
+        return '@echo off\r\nif not defined CALAMITY_ROOT set "CALAMITY_ROOT=%s"\r\n"%s.cmd" %%*\r\n' % (repo.root, target)
+    return ("#!/bin/sh\n# Written by calamity setup --shim: the engine for %s from any folder.\n"
+            "[ -n \"${CALAMITY_ROOT:-}\" ] || CALAMITY_ROOT=%s\nexport CALAMITY_ROOT\nexec %s \"$@\"\n"
+            % (repo.root, shlex.quote(repo.root), shlex.quote(target)))
+
+
+def install_shim(repo: Repo) -> str:
+    """`calamity` on the PATH outside the plugin: a small script in ~/.local/bin (never sudo) that runs this
+    repository's engine, for headless runs (stock, reminders) and shells without the function."""
+    path = shim_path()
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    write_text(path, _shim_text(repo))
+    if not path.endswith(".cmd"):
+        os.chmod(path, 0o755)
+    on_path = os.path.dirname(path) in os.environ.get("PATH", "").split(os.pathsep)
+    return "`calamity` written to %s%s" % (_shown(path), "" if on_path else
+                                           " (that folder is not on PATH: add it in your shell's start-up file)")
+
+
+def remove_shim(repo: Repo) -> str:
+    path = shim_path()
+    if os.path.isfile(path) and (path.endswith(".cmd") or "calamity setup --shim" in read_text(path)):
+        os.remove(path)
+        return "removed %s" % _shown(path)
+    return "no calamity command written by setup was found"
+
+
+def shim_state(repo: Repo) -> str:
+    if plugin_mode():
+        return "ok (the plugin's bin/calamity)"
+    path = shim_path()
+    if os.path.isfile(path):
+        return "ok" if os.path.abspath(repo.root) in read_text(path) else "points at a different copy of the repository"
+    return "ok (on PATH)" if shutil.which("calamity") else "missing"
+
+
+def install_permissions(repo: Repo) -> str:
+    """Copy the framework's permission rules into the learner's .claude/settings.json (a plugin cannot ship
+    permissions). In a clone the rules are already the repository's own."""
+    source = os.path.join(framework_root(), ".claude", "settings.json")
+    target = os.path.join(repo.root, ".claude", "settings.json")
+    if os.path.abspath(source) == os.path.abspath(target):
+        return "permissions: this clone's .claude/settings.json already holds them"
+    linked = link_framework(repo)
+    rules = (_load_settings(source).get("permissions") or {})
+    data = _load_settings(target)
+    perms = data.setdefault("permissions", {})
+    added = 0
+    for kind in ("allow", "ask", "deny"):
+        have = perms.setdefault(kind, [])
+        for rule in rules.get(kind, []):
+            if rule not in have:
+                have.append(rule)
+                added += 1
+    write_text(target, json.dumps(data, indent=2) + "\n")
+    return "permissions: %d rule(s) added to %s (allow, ask, deny)\n%s" % (added, repo.rel(target), linked)
 
 
 def setup(repo: Repo, machine: str | None = None, hook: bool = False, statusline: bool = False,
-          alias: bool = False) -> str:
+          alias: bool = False, shim: bool = False, permissions: bool = False) -> str:
     repo.ensure_dirs()
     ident = repo.set_machine(machine) if machine else repo.machine()
     cmd = guess_cmd()
@@ -387,6 +558,10 @@ def setup(repo: Repo, machine: str | None = None, hook: bool = False, statusline
             lines.append(install_alias(repo))
         except CalError as exc:
             lines.append("alias NOT written: %s" % exc)
+    if shim:
+        lines.append(install_shim(repo))
+    if permissions:
+        lines.append(install_permissions(repo))
     lines.append("learner folders ready under learner/")
     return "\n".join(lines)
 
@@ -527,6 +702,12 @@ def doctor(repo: Repo):
                                   "unsupported": "not available for this shell"}[state_a])
     else:
         add("WARN", "shell alias", "%s (setup --alias writes it again, setup --remove-alias removes it)" % state_a)
+    state_s = shim_state(repo)
+    if state_s.startswith("ok"):
+        add("OK", "calamity command", state_s)
+    else:
+        add("WARN", "calamity command", "%s: skills call `calamity <command>`; setup --shim writes it to ~/.local/bin "
+                                        "(until then they use the engine command the brief names)" % state_s)
 
     from . import coach
 

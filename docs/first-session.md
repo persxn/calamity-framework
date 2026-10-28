@@ -53,7 +53,7 @@ They are stored in `learner/profile.md`. Claude records a group of answers
 in one engine call, for example:
 
 ```
-python3 engine/calamity.py profile set name=Sam tracks=10x goals=mern-stack mode.default=mastery
+calamity profile set name=Sam tracks=10x goals=mern-stack mode.default=mastery
 ```
 
 ## 3. Each track you chose

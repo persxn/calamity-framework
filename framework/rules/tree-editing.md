@@ -192,7 +192,7 @@ level: 2
 
 Have the `curriculum-architect` agent design it, then:
 
-    python3 engine/calamity.py tree add --id htmx --title "htmx" --track 10x --group frontend \
+    calamity tree add --id htmx --title "htmx" --track 10x --group frontend \
         --prereqs html-css,slot:backend-framework --slot frontend-framework --tags frontend \
         --weaves-into frontend --hours 15 --summary "Server-rendered interactivity without a JavaScript framework." \
         --scope "- attributes for requests and swaps
@@ -201,9 +201,9 @@ Have the `curriculum-architect` agent design it, then:
 The engine writes `learner/tree/htmx.md` and refuses the change if it would
 break the tree (unknown prerequisite, a cycle). Then open the file and write
 the `# Boss` section with checks that can be run, and `# Weave` if it
-applies. Finish with `python3 engine/calamity.py tree check`.
+applies. Finish with `calamity tree check`.
 
-Before adding, search: `python3 engine/calamity.py find <words>`. The skill
+Before adding, search: `calamity find <words>`. The skill
 may already exist under another name or alias.
 
 ## Alternatives: slots
@@ -248,9 +248,9 @@ two.
 
 ## Changing a skill
 
-    python3 engine/calamity.py tree set <skill> --prereqs a,b --hours 30
-    python3 engine/calamity.py tree set <skill> --slot ci
-    python3 engine/calamity.py tree set <skill> --clear-slot --not-optional
+    calamity tree set <skill> --prereqs a,b --hours 30
+    calamity tree set <skill> --slot ci
+    calamity tree set <skill> --clear-slot --not-optional
 
 For a shipped skill this writes a full copy into `learner/tree/` with the
 change applied; edit that copy for anything `tree set` has no flag for
@@ -259,14 +259,14 @@ what the prerequisite covered, so say what will be missing.
 
 ## Dropping and restoring
 
-    python3 engine/calamity.py tree drop <skill>
+    calamity tree drop <skill>
 
 - If other skills depend on it, the engine refuses and lists them. Show the
   learner that list and what each will be missing. Only after they confirm:
   `tree drop <skill> --yes`.
 - A dropped prerequisite counts as met for the skills that needed it.
   Progress on the dropped skill is kept.
-- `python3 engine/calamity.py tree restore <skill>` brings it back.
+- `calamity tree restore <skill>` brings it back.
 
 Dropping is how a learner removes a skill from their path, for example
 `vue` and `svelte` when React is their framework, or `terraform` when
@@ -278,7 +278,7 @@ infrastructure is not their goal. It is their decision; give the numbers
 - Prerequisites are the only ordering. Skills in the same layer of
   `tree path <goal>` can be studied in parallel.
 - To take a skill before its prerequisites:
-  `python3 engine/calamity.py enroll <skill> --force`. The engine notes the
+  `calamity enroll <skill> --force`. The engine notes the
   unmet prerequisites; weave their basics into early exercises.
 - To skip a skill the learner already has, use a placement test
   (`framework/rules/syllabus.md`).
@@ -286,4 +286,4 @@ infrastructure is not their goal. It is their decision; give the numbers
 ## After any change
 
 Run `tree check`, show the learner `tree path <their goal>`, and record why
-the change was made: `python3 engine/calamity.py observe "dropped terraform: not doing infrastructure" --skill terraform`.
+the change was made: `calamity observe "dropped terraform: not doing infrastructure" --skill terraform`.

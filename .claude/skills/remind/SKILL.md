@@ -17,11 +17,11 @@ window and once the day's finish line is reached. They are per machine.
 1. Agree the times with the learner (they are the learner's choice) and
    store them:
 
-       python3 engine/calamity.py profile set reminders.times 09:00,14:00,21:00
+       calamity profile set reminders.times 09:00,14:00,21:00
 
 2. Write the scheduler files:
 
-       python3 engine/calamity.py remind render
+       calamity remind render
 
    This creates files under `.calamity/reminders/` and prints two commands:
    one that installs the reminders and one that removes them (cron on
@@ -30,12 +30,12 @@ window and once the day's finish line is reached. They are per machine.
 
 3. Show the learner the install command and say what it does: it adds
    entries to their own user's scheduler that run
-   `python3 engine/calamity.py remind check` at those times. Run it only
+   `calamity remind check` at those times. Run it only
    when they agree; it will ask for approval as any system command does.
 
 4. Test it once:
 
-       python3 engine/calamity.py remind check --always
+       calamity remind check --always
 
    prints what a reminder would say right now.
 
@@ -44,7 +44,7 @@ entries.
 
 ## Remove
 
-    python3 engine/calamity.py remind remove
+    calamity remind remove
 
 prints the command that removes this folder's reminders (no times needed;
 other clones' reminders are left alone). Run it with the learner's

@@ -29,7 +29,7 @@ EVALS = os.path.join(ROOT, "evals")
 # Changes that can move every case: what the tutor reads, and how the cases are set up.
 BROAD = (".claude/", ".claude-plugin/", "framework/rules/", "framework/method.md", "framework/method-teaching.md",
          "evals/fixture.py", "tools/baseline.py")
-ALLOW = ["Bash(python3 engine/calamity.py *)", "WebFetch", "WebSearch"]
+ALLOW = ["Bash(calamity *)", "Bash(python3 engine/calamity.py *)", "WebFetch", "WebSearch"]
 
 
 def all_cases() -> list:

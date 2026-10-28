@@ -61,27 +61,27 @@ watch them being watched.
 3. **Choose the route** from the ladder and tell the learner why.
 4. **Register the source:**
 
-       python3 engine/calamity.py source add gate-course --title "GATE CS course" --kind course \
+       calamity source add gate-course --title "GATE CS course" --kind course \
            --url https://example.com/course --route paste --tracks gate-cs \
            --note "robots.txt disallows automated access (read 2026-10-11): paste and manual log only"
 
 5. **Build the catalogue.** Turn the pasted page, export file or API result
    into a JSON list and import it:
 
-       python3 engine/calamity.py source import gate-course --file .calamity/tmp/gate-course.json
+       calamity source import gate-course --file .calamity/tmp/gate-course.json
 
    Each entry: `{"id": "os-014", "title": "Semaphores", "section": "Operating Systems", "order": 214, "minutes": 55, "topics": ["gate.cs.operating-systems/concurrency-synchronization"]}`.
    Ids are short and stable (a section prefix and a number work well).
 6. **Map lectures to topics** (below), then run
-   `python3 engine/calamity.py source check` until it reports no errors.
+   `calamity source check` until it reports no errors.
 7. **Catch up.** If the learner has already watched part of the source:
 
-       python3 engine/calamity.py log gate-course os-014 --upto
+       calamity log gate-course os-014 --upto
 
    marks everything up to that lecture as watched earlier. Those topics
    become ready to be tested; they are not counted as known. Assume the
    learner is at the start unless the source shows otherwise.
-8. **Show the result:** `python3 engine/calamity.py source status gate-course`.
+8. **Show the result:** `calamity source status gate-course`.
 
 ## Mapping lectures to topics
 
@@ -91,7 +91,7 @@ watch them being watched.
 - A lecture may complete several topics, or none (an introduction, a
   doubt-clearing session): leave `topics` empty for those.
 - Use the keys of the learner's syllabus exactly
-  (`python3 engine/calamity.py tree show <skill>` lists them). Have the
+  (`calamity tree show <skill>` lists them). Have the
   `curriculum-architect` agent do the mapping for a long catalogue and
   list the lectures it could not place.
 - A course that covers something the syllabus lacks is a reason to look at

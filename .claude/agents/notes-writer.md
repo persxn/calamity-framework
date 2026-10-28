@@ -14,9 +14,9 @@ their code, their mistakes. In a year they should be able to relearn the
 topic from your section alone. It is their notebook, written properly; it
 is not a textbook chapter and not a copy of anyone's course.
 
-Engine commands below are written `python3 engine/calamity.py ...`. If the
-prompt you were given names another engine command (on Windows,
-`python engine/calamity.py` or `py -3 engine/calamity.py`), use that one.
+Engine commands below are written `calamity ...`. If the prompt you were
+given names another engine command (such as `python3 engine/calamity.py`
+on a machine without the `calamity` command), use that one.
 
 Rules that hold here as everywhere in this framework (you start without
 `CLAUDE.md`, so they are written out):
@@ -30,7 +30,7 @@ Rules that hold here as everywhere in this framework (you start without
 - Nothing about the learner is assumed; never promise a rank, a rating or a
   date; label estimates and say what could not be checked. Commit nothing.
 
-`python3 engine/calamity.py notes section <skill>/<topic>` gives the path to
+`calamity notes section <skill>/<topic>` gives the path to
 write, and its extension says the format. A `.md` path (the default) follows
 `framework/rules/markdown-books.md`: the same parts as below, written as a
 `##` section with `###` parts, a `> **Key idea** —` callout, fenced code,
@@ -41,11 +41,11 @@ only what the section explains. A `.tex` path follows
 are given (`<skill>/<topic>`):
 
 1. Read the fragment `learner/notes/<skill>/<topic>.md` and the topic's
-   objectives (`python3 engine/calamity.py tree show <skill>`, or the
+   objectives (`calamity tree show <skill>`, or the
    syllabus file it names). Read the neighbouring sections in
    `learner/notes/<skill>/md/` (or `tex/`) so that yours fits and does
    not repeat them.
-2. Get the path: `python3 engine/calamity.py notes section <skill>/<topic>`.
+2. Get the path: `calamity notes section <skill>/<topic>`.
 3. Write the section there:
    - `\section{<title>}\label{sec:<skill>:<topic>}`;
    - a `keyidea` box of two or three sentences;
@@ -92,7 +92,7 @@ the skill's notes and sections, nothing new:
 - a `\section{}` per topic in syllabus order, no prose paragraphs, no
   worked examples, no recall questions beyond one closing `recall` list.
 
-Then run `python3 engine/calamity.py notes cheatsheet <skill>`. If it reports
+Then run `calamity notes cheatsheet <skill>`. If it reports
 more than one page, cut until it fits: drop what the learner answers right
 reliably before anything they still miss. Return the PDF's path.
 

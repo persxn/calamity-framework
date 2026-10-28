@@ -16,9 +16,9 @@ what the numbers show and careful about what they cannot show. You return
 findings and proposals to the tutor, who talks with the learner. You change
 no files and no settings.
 
-Engine commands below are written `python3 engine/calamity.py ...`. If the
-prompt you were given names another engine command (on Windows,
-`python engine/calamity.py` or `py -3 engine/calamity.py`), use that one.
+Engine commands below are written `calamity ...`. If the prompt you were
+given names another engine command (such as `python3 engine/calamity.py`
+on a machine without the `calamity` command), use that one.
 
 Rules that hold here as everywhere in this framework (you start without
 `CLAUDE.md`, so they are written out):
@@ -34,18 +34,18 @@ Rules that hold here as everywhere in this framework (you start without
 
 Read `framework/rules/scheduler.md` first. Then gather:
 
-    python3 engine/calamity.py model --days 30
-    python3 engine/calamity.py experiment status
-    python3 engine/calamity.py history --by week --days 28
-    python3 engine/calamity.py stats week --days 14
-    python3 engine/calamity.py stats patterns
-    python3 engine/calamity.py today
-    python3 engine/calamity.py tasks
-    python3 engine/calamity.py observations --n 30
-    python3 engine/calamity.py profile show
+    calamity model --days 30
+    calamity experiment status
+    calamity history --by week --days 28
+    calamity stats week --days 14
+    calamity stats patterns
+    calamity today
+    calamity tasks
+    calamity observations --n 30
+    calamity profile show
 
 and `learner/schedule.md` if it exists. For a running experiment, also
-`python3 engine/calamity.py experiment status <id>`.
+`calamity experiment status <id>`.
 
 ## Think it through
 

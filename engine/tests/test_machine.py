@@ -168,14 +168,15 @@ class Setup(Case):
         os.makedirs(home)
         os.symlink(dotfiles, os.path.join(home, ".zshrc"))
         self.assertIn("not installed (optional: setup --alias)", sb.run("doctor", expect=None))
-        self.assertIn("alias written to ~/.zshrc", sb.run("setup", "--alias"))
+        self.assertIn("`calamity` written to ~/.zshrc", sb.run("setup", "--alias"))
         sb.run("setup", "--alias")                                     # installing again does not duplicate it
         self.assertTrue(os.path.islink(os.path.join(home, ".zshrc")))
         self.assertEqual(os.stat(dotfiles).st_mode & 0o777, 0o640)
         with open(dotfiles, "r", encoding="utf-8") as fh:
             text = fh.read()
-        self.assertTrue(text.startswith("export EDITOR=vim\n# >>> calamity alias >>>\nalias calamity="))
-        self.assertEqual(text.count("alias calamity="), 1)
+        self.assertTrue(text.startswith("export EDITOR=vim\n# >>> calamity alias >>>\n"
+                                        "unalias calamity 2>/dev/null || true\ncalamity() {"))
+        self.assertEqual(text.count("calamity() {"), 1)
         self.assertIn("claude --dangerously-skip-permissions", text)
         self.assertRegex(sb.run("doctor", expect=None), r"OK +shell alias +installed \(~/\.zshrc\)")
 
@@ -205,6 +206,12 @@ class Setup(Case):
                  % machine.alias_line(Odd)
         proc = subprocess.run(["bash", "-c", script], stdout=subprocess.PIPE, cwd=self.sb.root, timeout=30)
         self.assertEqual(proc.stdout.decode("utf-8"), "%s|--dangerously-skip-permissions" % Odd.root)
+        # D5: with arguments the same name runs the engine, for that repository, from any folder
+        script = "%s\ncd /\ncalamity profile set name Odd >/dev/null && cat \"$1/learner/profile.md\"\n" \
+                 % machine.alias_line(Odd)
+        proc = subprocess.run(["bash", "-c", script, "calamity", Odd.root], stdout=subprocess.PIPE, timeout=60,
+                              env={k: v for k, v in os.environ.items() if not k.startswith("CALAMITY_")})
+        self.assertIn("name: Odd", proc.stdout.decode("utf-8"))
 
     def test_doctor(self):
         sb = self.sb

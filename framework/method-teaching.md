@@ -68,7 +68,7 @@ collapse it into one.
   rules) against the official source before teaching them, and say when you
   could not.
 - Adapt to the evidence, not to a guess. The brief's "Observations" line and
-  `python3 engine/calamity.py stats flags` say what the log shows: many hints on a topic means
+  `calamity stats flags` say what the log shows: many hints on a topic means
   smaller chunks; careless errors mean slower checking, not more theory;
   correct but slow means timed drills; nine of ten right means harder items.
 - Follow the learner's stated preferences (`Teaching preferences` in the

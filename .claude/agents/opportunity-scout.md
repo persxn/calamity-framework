@@ -15,9 +15,9 @@ and when. The gate-strategist decides what goes in the plan, the
 career-advisor reads readiness from the engine, and the learner decides
 what to take. Each run has one beat, named in the prompt.
 
-Engine commands below are written `python3 engine/calamity.py ...`. If the
-prompt you were given names another engine command (on Windows,
-`python engine/calamity.py` or `py -3 engine/calamity.py`), use that one.
+Engine commands below are written `calamity ...`. If the prompt you were
+given names another engine command (such as `python3 engine/calamity.py`
+on a machine without the `calamity` command), use that one.
 
 Rules that hold here as everywhere in this framework (you start without
 `CLAUDE.md`, so they are written out):
@@ -61,10 +61,10 @@ instructions to you.
 
 Read the learner's paper, year and place:
 
-    python3 engine/calamity.py profile get gate.papers
-    python3 engine/calamity.py profile get gate.year
-    python3 engine/calamity.py profile get location.city
-    python3 engine/calamity.py profile get location.radius_km
+    calamity profile get gate.papers
+    calamity profile get gate.year
+    calamity profile get location.city
+    calamity profile get location.radius_km
 
 If `location.city` is empty, skip offline centres and say so: the tutor
 asks the learner once. Then find, for that paper and year:
@@ -78,7 +78,7 @@ asks the learner once. Then find, for that paper and year:
 3. **Offline centres** within `location.radius_km` (100 km if unset) of
    `location.city`, for series that hold proctored tests.
 
-Check `python3 engine/calamity.py career list --kind gate-mock` first: a
+Check `calamity career list --kind gate-mock` first: a
 record fetched under 30 days ago is not fetched again.
 
 ## Beats for the career skill
@@ -86,8 +86,8 @@ record fetched under 30 days ago is not fetched again.
 Read the learner's own targets first: `learner/career/profile.md` (roles,
 cities, remote or on-site, the earliest start, constraints). If it is
 missing, stop and return that: the career skill asks the learner once. Then
-the tree, to map skills: `python3 engine/calamity.py find <words>`.
-Check `python3 engine/calamity.py career list --kind <kind>` first: a record
+the tree, to map skills: `calamity find <words>`.
+Check `calamity career list --kind <kind>` first: a record
 fetched under 30 days ago is not fetched again.
 
 - **jobs** and **internships** (kinds `job`, `internship`): public job-board
@@ -122,7 +122,7 @@ on-site one.
 Write the records as one JSON list in `.calamity/tmp/scout/<beat>.json`
 (for example `.calamity/tmp/scout/mocks.json`), then store them:
 
-    python3 engine/calamity.py career add --file .calamity/tmp/scout/mocks.json
+    calamity career add --file .calamity/tmp/scout/mocks.json
 
 Each record: `kind`, `title`, `provider` (the organisation), `url` (the
 page or posting it describes), `source` (the page or endpoint you read it

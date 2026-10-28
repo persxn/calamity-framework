@@ -31,5 +31,14 @@
     "./.claude/agents/book-builder.md",
     "./.claude/agents/opportunity-scout.md",
     "./.claude/agents/career-advisor.md"
-  ]
+  ],
+  "outputStyles": "./.claude/output-styles/",
+  "userConfig": {
+    "learner_dir": {
+      "type": "directory",
+      "title": "Learner repository",
+      "description": "The folder that holds your learner/ record (your own private repository). Leave empty to use the folder Claude Code is opened in.",
+      "required": false
+    }
+  }
 }

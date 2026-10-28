@@ -29,7 +29,7 @@ engine):
 
 ```bash
 claude plugin eval . --scaffold --trust-plugin --ablation none \
-  --allow-tools "Bash(python3 engine/calamity.py *)" WebFetch WebSearch \
+  --allow-tools "Bash(calamity *)" "Bash(python3 engine/calamity.py *)" WebFetch WebSearch \
   --model sonnet --no-publish
 ```
 

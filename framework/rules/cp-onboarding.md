@@ -16,17 +16,17 @@ Ask, then record:
 
 Then read the record before planning anything:
 
-    python3 engine/calamity.py cf status
-    python3 engine/calamity.py cf analyse
-    python3 engine/calamity.py cf rating
-    python3 engine/calamity.py cf upsolve
+    calamity cf status
+    calamity cf analyse
+    calamity cf rating
+    calamity cf upsolve
 
 Place the learner in the tree from that record. A skill may be recorded as
 known without a separate test when Codeforces has already tested it: its
 band is at least 200 below the learner's rating and its tags show fifteen or
 more solves at that band or above.
 
-    python3 engine/calamity.py placement cp.implementation --result known --note "CF 1540, 96 implementation solves, level 1500"
+    calamity placement cp.implementation --result known --note "CF 1540, 96 implementation solves, level 1500"
 
 Everything else is tested or learnt. A newcomer with no handle starts at
 `cp.cpp` and makes an account when they are ready for a first contest.

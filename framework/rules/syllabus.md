@@ -9,7 +9,7 @@ starts the skill, so that it fits them and matches today's documentation.
 
 ## When a syllabus is written
 
-- A skill is enrolled and `python3 engine/calamity.py tree show <skill>`
+- A skill is enrolled and `calamity tree show <skill>`
   reports "no syllabus yet".
 - The learner asks for a different shape (shorter, deeper, another order).
 - The official documentation has moved and a topic no longer matches it.
@@ -19,14 +19,14 @@ what is known about the learner; it reads the rest itself.
 
 ## Procedure
 
-1. Run `python3 engine/calamity.py syllabus template <skill>`. It prints the
+1. Run `calamity syllabus template <skill>`. It prints the
    exact file shape, the target path and the scope.
 2. Read the learner's side: `profile show`, `observations`, the skills they
    already have (`tree list --status mastered`, `--status known`,
    `--status ready`) and their goals.
 3. Read the current official documentation for the skill and note the
    pages used. Do not rely on memory for versions, commands or APIs.
-4. Write the file, then run `python3 engine/calamity.py syllabus check <skill>`
+4. Write the file, then run `calamity syllabus check <skill>`
    and fix every error it reports.
 
 ```markdown
@@ -125,7 +125,7 @@ start of a brush-up.
    Without it, every miss comes back as a failed review ten minutes later.
 3. Record the outcome with topic ids:
 
-       python3 engine/calamity.py placement <skill> --known a,b,c --gaps d,e
+       calamity placement <skill> --known a,b,c --gaps d,e
 
    - Topics answered correctly already carry their own evidence. List under
      `--known` those and any topic that a correct answer clearly implies.
@@ -144,7 +144,7 @@ rather than as known.
 
 - **Add** topics freely.
 - **Rename** a topic id: change it in the file, then run
-  `python3 engine/calamity.py rename topic <skill>/<old> <skill>/<new>` so
+  `calamity rename topic <skill>/<old> <skill>/<new>` so
   its history follows.
 - **Split** a topic: keep the old id for the part closest to what was
   tested, add new ids for the rest.

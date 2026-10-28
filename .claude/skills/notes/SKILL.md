@@ -11,19 +11,19 @@ The long form follows the learner's `book.format`: `markdown` (the
 default, `framework/rules/markdown-books.md`) or `pdf` (LaTeX,
 `framework/rules/notes-latex.md`). If the brief says the format is not
 chosen, ask once before writing anything long and record it with
-`python3 engine/calamity.py profile set book.format markdown` (or `pdf`).
+`calamity profile set book.format markdown` (or `pdf`).
 
 ## After a session: fragments
 
 For each topic taught or tested today:
 
-    python3 engine/calamity.py notes fragment <skill>/<topic>
+    calamity notes fragment <skill>/<topic>
 
 Open the file it names and fill in or extend the five parts: Idea, Worked
 example, My code, Mistakes I made, Recall prompts. Ten to twenty-five
 lines, from this session: the learner's example, their code as it finally
 passed, the mistakes they actually made
-(`python3 engine/calamity.py stats errors` lists them), two to four
+(`calamity stats errors` lists them), two to four
 questions for later. Set `updated` to today. Do not pad a fragment with
 textbook material; that belongs in the section. For a GATE topic, add a
 `## Formulas` section with the formulas and results worth knowing by
@@ -34,7 +34,7 @@ subject's formula sheet.
 
 1. See what needs writing:
 
-       python3 engine/calamity.py notes status <skill>
+       calamity notes status <skill>
 
 2. For every topic marked `to write` or `stale`, delegate to the
    `notes-writer` agent: "Write the section for `<skill>/<topic>` from its
@@ -44,14 +44,14 @@ subject's formula sheet.
 
 3. Mark them current and put the book together:
 
-       python3 engine/calamity.py notes stamp <skill>
-       python3 engine/calamity.py notes assemble <skill>
+       calamity notes stamp <skill>
+       calamity notes assemble <skill>
 
    In Markdown that writes `<skill>-notes.md`, and that is the book: tell
    the learner where it is. Build a PDF only when they ask for one, or
    when their format is `pdf`:
 
-       python3 engine/calamity.py notes pdf <skill>
+       calamity notes pdf <skill>
 
    - Success prints the path of `<skill>-notes.pdf`: tell the learner
      where it is.
@@ -68,13 +68,13 @@ before an exam, or when asked): the `notes-writer` agent in its cheat-sheet
 mode ("cheat sheet for `<skill>`") writes `learner/notes/<skill>/cheatsheet.tex`
 from the skill's notes, then
 
-    python3 engine/calamity.py notes cheatsheet <skill>
+    calamity notes cheatsheet <skill>
 
 builds `<skill>-cheatsheet.pdf`. If it says the page runs over, send it back
 to the agent to cut.
 ## Asked for "all my notes"
 
-    python3 engine/calamity.py notes status
+    calamity notes status
 
 lists every skill that has notes; build each in turn.
 

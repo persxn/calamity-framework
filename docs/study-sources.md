@@ -61,11 +61,11 @@ watching them.
 ## Day to day
 
 ```bash
-python3 engine/calamity.py log gate-course os-14          # by id
-python3 engine/calamity.py log gate-course 14             # by its number
-python3 engine/calamity.py log gate-course semaphores     # by a unique piece of its title
-python3 engine/calamity.py log gate-course os-30 --upto   # everything up to os-30, watched earlier
-python3 engine/calamity.py source status gate-course      # how far you are, what is next
+calamity log gate-course os-14          # by id
+calamity log gate-course 14             # by its number
+calamity log gate-course semaphores     # by a unique piece of its title
+calamity log gate-course os-30 --upto   # everything up to os-30, watched earlier
+calamity source status gate-course      # how far you are, what is next
 ```
 
 Or just tell Claude: "I finished lecture 14". It logs the lecture and

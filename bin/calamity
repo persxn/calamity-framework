@@ -1,0 +1,32 @@
+#!/bin/sh
+# calamity: run the Calamity engine from anywhere.
+#
+# The learner's repository (where learner/ lives) is, in order: $CALAMITY_ROOT; the plugin's learner_dir
+# setting ($CLAUDE_PLUGIN_OPTION_LEARNER_DIR); the nearest folder from here up holding learner/profile.md; the
+# current folder when it is outside this framework copy (a new learner in plugin mode); else this copy (a clone).
+# The plugin puts this file on the PATH of Claude Code's shell; in a clone, `setup --shim` links it into
+# ~/.local/bin. Never edit it per learner.
+here=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd -P)
+if [ -z "${CALAMITY_ROOT:-}" ] && [ -n "${CLAUDE_PLUGIN_OPTION_LEARNER_DIR:-}" ]; then
+  CALAMITY_ROOT=$CLAUDE_PLUGIN_OPTION_LEARNER_DIR
+fi
+if [ -z "${CALAMITY_ROOT:-}" ]; then
+  dir=$(pwd -P)
+  while :; do
+    if [ -f "$dir/learner/profile.md" ]; then CALAMITY_ROOT=$dir; break; fi
+    [ "$dir" = "/" ] && break
+    dir=$(dirname -- "$dir")
+  done
+fi
+if [ -z "${CALAMITY_ROOT:-}" ]; then
+  case "$(pwd -P)/" in
+    "$here"/*) ;;                                # inside this copy: the engine's own root
+    *) CALAMITY_ROOT=$(pwd -P) ;;
+  esac
+fi
+[ -n "${CALAMITY_ROOT:-}" ] && export CALAMITY_ROOT
+for py in python3 python; do
+  if command -v "$py" >/dev/null 2>&1; then exec "$py" "$here/engine/calamity.py" "$@"; fi
+done
+echo "calamity: Python 3.9 or newer is needed (python3 or python on the PATH)" >&2
+exit 127
