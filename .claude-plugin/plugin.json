@@ -29,6 +29,7 @@
     "./.claude/agents/bridge-engineer.md",
     "./.claude/agents/notes-writer.md",
     "./.claude/agents/book-builder.md",
-    "./.claude/agents/opportunity-scout.md"
+    "./.claude/agents/opportunity-scout.md",
+    "./.claude/agents/career-advisor.md"
   ]
 }

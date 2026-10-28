@@ -45,6 +45,8 @@ ROUTES = (
     (r"\b(sync|save|back ?up|push) (my )?(progress|record|study log)\b", "sync", "save progress to the learner's repository"),
     (r"\b(remind me|reminders?|notifications?)\b", "remind", "study reminders"),
     (r"\bmocks?\b|\btest series\b|\bgate (plan|target|countdown)\b", "gate", "the GATE companion"),
+    (r"\b(jobs?|internships?|placements?|hackathons?|r[eé]sum[eé] (bullets?|points?)|my r[eé]sum[eé]|résumé|"
+     r"gsoc|outreachy|open[- ]source programs?|m\.?tech admissions?|psu recruitment)\b", "career", "the career companion"),
     (r"\bcodeforces\b|\bcontest\b|\bcf rating\b|\bupsolve\b", "cp", "the competitive programming coach"),
 )
 

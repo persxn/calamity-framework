@@ -31,6 +31,9 @@ class Hooks(Case):
         self.assertIn("/log", self.context(self.prompt("I watched lecture 12 of the OS course")))
         self.assertIn("/recall", self.context(self.prompt("quiz me")))
         self.assertIn("/practice", self.context(self.prompt("solved questions 1-10 from the PYQ book")))
+        self.assertIn("/career", self.context(self.prompt("find me backend internships")))
+        self.assertIn("/gate", self.context(self.prompt("find mocks near me")))
+        self.assertEqual(self.prompt("let's resume where we stopped"), "")    # resume is not a résumé
         self.assertEqual(self.prompt("what is a pipe?"), "")                 # nothing matched: silence
         self.assertEqual(self.prompt("/recall quiz me"), "")                 # a slash command routes itself
 

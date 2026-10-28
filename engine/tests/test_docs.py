@@ -20,10 +20,10 @@ SPAN = re.compile(r"`([^`\n]+)`")
 
 # What ships. A learner may add skills and agents of their own next to these; the checks below
 # look only at the framework's files, so the self-test keeps passing in a customised checkout.
-SKILLS = ("boss", "bridge", "build-it-yourself", "coach", "cp", "dash", "day", "gate", "log", "mastery-coach", "mastery-textbook",
+SKILLS = ("boss", "bridge", "build-it-yourself", "career", "coach", "cp", "dash", "day", "gate", "log", "mastery-coach", "mastery-textbook",
           "notes", "onboard", "practice", "recall", "remind", "stock", "study", "sync", "teach-deep", "today", "tree",
           "update-framework")
-AGENTS = ("book-builder", "bridge-engineer", "checker", "cp-coach", "curriculum-architect", "drill-smith", "examiner",
+AGENTS = ("book-builder", "bridge-engineer", "career-advisor", "checker", "cp-coach", "curriculum-architect", "drill-smith", "examiner",
           "gate-strategist",
           "learning-analyst", "notes-writer", "opportunity-scout")
 # Reference files of the companion skills that quote engine commands: checked like the skills themselves.
@@ -34,7 +34,7 @@ SKILL_DOCS = (("mastery-coach", os.path.join("references", "state-format.md")),
               ("teach-deep", os.path.join("references", "modes.md")))
 # Requests that must reach exactly one skill: the word may appear in that skill's description or when_to_use
 # and in no other's (WP-16: the companions no longer compete with recall and study).
-ROUTES = {"quiz me": "recall", "continue": "study"}
+ROUTES = {"quiz me": "recall", "continue": "study", "internships": "career"}
 
 
 def documents():

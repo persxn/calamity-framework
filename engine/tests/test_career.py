@@ -188,3 +188,4 @@ class Readiness(Case):
                 self.assertRegex(line, r"\d{4}-\d{2}-\d{2}|placement test|it-[a-z0-9]{10}", line)
         sb.run("rebuild")
         self.assertEqual(read(sb.path("learner", "career", "portfolio.md")), text)
+        self.assertEqual(sb.run("career", "portfolio", "--stdout").rstrip("\n"), text.rstrip("\n"))   # prints, writes nothing new
