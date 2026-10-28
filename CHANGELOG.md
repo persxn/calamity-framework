@@ -189,6 +189,19 @@ changes their record in `learner/`.
   prints two lines. A failing notes PDF build goes to the notes writer and
   a source update to the bridge engineer, so logs and pasted pages stay out
   of the tutor's conversation.
+- The learner model and n-of-1 experiments. `model` measures, from the
+  log, first-try accuracy, 7- and 30-day retention, answer time, hints,
+  error kinds and days to consolidate per track and skill; first-try
+  accuracy by the parts taught; accuracy by part of day and session minute
+  (with where it falls); and topics secured per hour per track, every rate
+  with its count. `experiment start|status|stop` alternates two or more
+  teaching arms over a skill's next N new topics (the same on every
+  replay), `NEXT: new` names the arm, and `status` gives P(B better than A)
+  only once N topics are measured. `habit-coach` is now the
+  `learning-analyst` (decision D11): habits, the model and experiments,
+  at most three proposals with their numbers, for the weekly review; the
+  learner decides every change. The plugin manifest lists every agent
+  again (the scout and the book builder were missing), held by a test.
 
 ### Development
 

@@ -198,7 +198,7 @@ How to raise one:
   schedule) in the same turn. If they decide not to, record that and drop
   it.
 
-The `habit-coach` agent does the weekly version of this: it reads the week,
+The `learning-analyst` agent does the weekly version of this, with the learner model (`model`) and any experiment beside it: it reads the week,
 compares it with the schedule and proposes at most three changes with the
 evidence for each. It changes nothing itself. The coach skill puts the
 proposals to the learner and edits `learner/schedule.md` for the ones they

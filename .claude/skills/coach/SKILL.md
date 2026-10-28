@@ -13,10 +13,10 @@ asks before it judges, and changes one thing at a time.
 
 ## A weekly review
 
-Delegate the reading to the `habit-coach` agent ("review the last seven
-days against `learner/schedule.md` and propose at most three changes, each
-with its evidence"). It returns findings; it changes nothing. Then, with
-the learner:
+Delegate the reading to the `learning-analyst` agent ("the weekly review:
+the last weeks against `learner/schedule.md` and the learner model; at most
+three proposals, each with its numbers"). It returns findings; it changes
+nothing. Then, with the learner:
 
 1. Show the week as it was: print `python3 engine/calamity.py stats week`
    in a code block.
@@ -27,6 +27,11 @@ the learner:
    - the day shape: edit the blocks in `learner/schedule.md`'s front matter
      (the format is in `framework/rules/scheduler.md`; `python3 engine/calamity.py day`
      shows the result) and add a dated line under `# Changes` with the reason;
+   - a teaching style (`profile set teach.style "..."`), only with the
+     learner's yes, and only from a measured pattern or a finished
+     experiment (`experiment status <id>`);
+   - an experiment to run: `python3 engine/calamity.py experiment start <id> --skill <skill> --arms a,b --n 12 --desc "..."`;
+     from then on `NEXT: new` names the arm to teach each topic with;
    - one day only (an exam, travel, lost time):
      `python3 engine/calamity.py day note <day> "..."`;
    - a number: `python3 engine/calamity.py profile set cfg.new_per_day_max 6`

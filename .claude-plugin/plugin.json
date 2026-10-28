@@ -4,17 +4,30 @@
   "displayName": "Calamity Framework",
   "version": "1.0.0",
   "description": "An engine-backed learning system: an adaptive tutor, a GATE companion and a competitive-programming coach that teach from the basics, test at once, weave earlier skills back in, and keep an honest, evidence-based record.",
-  "author": { "name": "Calamity Framework" },
-  "keywords": ["learning", "tutor", "spaced-repetition", "gate", "competitive-programming", "study"],
-  "skills": ["./.claude/skills/"],
+  "author": {
+    "name": "Calamity Framework"
+  },
+  "keywords": [
+    "learning",
+    "tutor",
+    "spaced-repetition",
+    "gate",
+    "competitive-programming",
+    "study"
+  ],
+  "skills": [
+    "./.claude/skills/"
+  ],
   "agents": [
     "./.claude/agents/examiner.md",
     "./.claude/agents/checker.md",
     "./.claude/agents/curriculum-architect.md",
     "./.claude/agents/cp-coach.md",
     "./.claude/agents/gate-strategist.md",
-    "./.claude/agents/habit-coach.md",
+    "./.claude/agents/learning-analyst.md",
     "./.claude/agents/bridge-engineer.md",
-    "./.claude/agents/notes-writer.md"
+    "./.claude/agents/notes-writer.md",
+    "./.claude/agents/book-builder.md",
+    "./.claude/agents/opportunity-scout.md"
   ]
 }

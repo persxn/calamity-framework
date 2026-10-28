@@ -24,7 +24,7 @@ SKILLS = ("boss", "bridge", "build-it-yourself", "coach", "cp", "dash", "day", "
           "notes", "onboard", "practice", "recall", "remind", "stock", "study", "sync", "teach-deep", "today", "tree",
           "update-framework")
 AGENTS = ("book-builder", "bridge-engineer", "checker", "cp-coach", "curriculum-architect", "examiner", "gate-strategist",
-          "habit-coach", "notes-writer", "opportunity-scout")
+          "learning-analyst", "notes-writer", "opportunity-scout")
 # Reference files of the companion skills that quote engine commands: checked like the skills themselves.
 # A learner's own added skills are not checked.
 SKILL_DOCS = (("mastery-coach", os.path.join("references", "state-format.md")),
@@ -193,7 +193,7 @@ class Structure(unittest.TestCase):
             self.assertEqual(meta.get("model"), "inherit", "%s: pinning a model can fail on plans without it" % name)
             # D8: every agent inherits the model and is tiered by effort. Verification, item writing, syllabi,
             # plans and source tools need the depth; writing up, reading computed numbers and searching do not.
-            medium = ("notes-writer", "habit-coach", "learning-analyst", "book-builder", "opportunity-scout")
+            medium = ("notes-writer", "learning-analyst", "book-builder", "opportunity-scout")
             self.assertEqual(meta.get("effort"), "medium" if name in medium else "high", name)
             # WP-19: agents start without CLAUDE.md, so the rules they need are in their own prompt, and a
             # runaway loop is capped.
@@ -394,7 +394,10 @@ class Structure(unittest.TestCase):
         with open(os.path.join(REPO, "framework", "VERSION"), "r", encoding="utf-8") as fh:
             version = fh.read().strip()
         with open(os.path.join(REPO, ".claude-plugin", "plugin.json"), "r", encoding="utf-8") as fh:
-            self.assertEqual(json.load(fh)["version"], version, ".claude-plugin/plugin.json")
+            manifest = json.load(fh)
+        self.assertEqual(manifest["version"], version, ".claude-plugin/plugin.json")
+        listed = sorted(os.path.basename(a)[:-3] for a in manifest["agents"])
+        self.assertEqual(listed, sorted(AGENTS), "the plugin manifest lists every shipped agent, and only those")
         with open(os.path.join(REPO, ".claude-plugin", "marketplace.json"), "r", encoding="utf-8") as fh:
             self.assertEqual(json.load(fh)["metadata"]["version"], version, ".claude-plugin/marketplace.json")
 

@@ -144,7 +144,7 @@ beside them and are not listed here.
 | `curriculum-architect` | syllabi, placement tests, new tree nodes, lecture mappings |
 | `cp-coach` | the Codeforces training plan from the learner's record |
 | `gate-strategist` | the GATE plan back from the exam date, triage, targets |
-| `habit-coach` | how the learner actually works, against their schedule |
+| `learning-analyst` | how the learner works and learns (habits, the learner model, experiments), with at most three proposals |
 | `bridge-engineer` | the one-off tool that connects a study source |
 | `notes-writer` | long-form sections (Markdown, or LaTeX) from a topic's notes fragment |
 | `book-builder` | writes and builds a topic's study book, forked from the tutor (`mastery-textbook`) |
