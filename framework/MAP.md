@@ -122,6 +122,7 @@ beside them and are not listed here.
 | `cp` | the competitive programming coach on Codeforces |
 | `coach` | the weekly review and the day shape in `learner/schedule.md` |
 | `remind` | study reminders from the operating system |
+| `stock` | stock the item bank ahead, headless at night (`stock render`); run by the learner or the scheduler only |
 | `bridge` | connect a course, playlist or book by a route its terms allow |
 | `log` | record study done outside the session: a lecture, a chapter, a workout |
 | `sync` | save progress to the learner's own repository and merge other laptops |

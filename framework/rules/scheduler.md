@@ -218,6 +218,23 @@ installs them itself: show the learner the install command and run it only
 when they say so. Reminders are per machine; set them up again on a second
 laptop.
 
+## Nightly stocking (opt-in)
+
+A study session that meets `NEED_ITEM` waits while two agents write and
+check an item. Stocking ahead moves that work to the night:
+
+    python3 engine/calamity.py stock render --at 23:45
+
+writes a scheduler entry, installed the same way as reminders and only
+with the learner's yes, that runs `item needs --days 2 --per-topic 3`
+and, when it lists work, a headless `claude -p "/stock"`: the examiner
+writes a family of 3 items for each topic coming up (different
+objectives and depths), and the checker verifies them blind. It uses the
+learner's plan usage while it runs, so the time and whether to run it at
+all are theirs to choose (after the day's close block suits it). The
+headless run may use only the engine, the agents' scratch folders and
+the web; it logs to `.calamity/logs/`. `stock remove` takes it out.
+
 ## What is not built in
 
 No points, no levels, no streaks, no leaderboards. Motivation here comes

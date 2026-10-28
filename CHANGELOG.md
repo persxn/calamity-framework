@@ -90,6 +90,16 @@ changes their record in `learner/`.
   `day` shows it, and a warning (never a block) names the parts a topic's
   level asks for that were left out. `feedback pace=slow depth=more
   clarity=low --topic K` records the learner's word on the teaching.
+- Item families and nightly stocking. `item needs --days 2 --per-topic 3`
+  simulates the next days' plan and lists, per topic, how many more items
+  to write, the drafts waiting for the checker and the objectives no item
+  tests yet. The examiner writes families of 3 to 5 across objectives and
+  depths (at most 8 topics a run) and keeps a local memory of the
+  checker's rejection patterns, never learner data. The `/stock` skill
+  (never invoked by the model) runs examiner then checker; `stock render
+  --at 23:45` writes an opt-in scheduler entry for a headless `claude -p
+  "/stock"` with its tools limited to the engine, the agents' scratch and
+  the web, started only when there is work, logging to `.calamity/logs/`.
 
 ### Development
 

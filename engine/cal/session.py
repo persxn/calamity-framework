@@ -5,6 +5,8 @@ here from correctness, hints and time taken; nobody types a grade in.
 """
 from __future__ import annotations
 
+from datetime import timedelta
+
 from . import fsrs, items, plan
 from .state import State
 from .store import Repo
@@ -162,47 +164,82 @@ def unseen_stock(state, key: str) -> int:
     return sum(1 for it in items.candidates(state, key) if it.n_shown == 0)
 
 
-def needed_topics(repo: Repo, tree, state, when, skill: str | None = None, n: int = 6) -> list:
-    """[(topic key, 'review'|'new')] coming up that have no unseen verified item."""
+def untested_objectives(tree, state, key: str) -> list:
+    """The numbers of a topic's objectives that no verified or drafted item is tagged with yet."""
+    goals = tree.topic(key).objectives()
+    tested = set()
+    for it in state.items.values():
+        if it.status in ("verified", "draft") and it.topics and it.topics[0] == key:
+            tested.update(it.objectives)
+    return [o["n"] for o in goals if o["n"] not in tested]
+
+
+def drafts_waiting(state, key: str) -> int:
+    return sum(1 for it in state.items.values() if it.status == "draft" and it.topics and it.topics[0] == key)
+
+
+def needed_topics(repo: Repo, tree, state, when, skill: str | None = None, n: int = 6, days: int = 1,
+                  per_topic: int = 1) -> list:
+    """[(topic key, 'review'|'consolidate'|'new')] coming up that have fewer than `per_topic` unseen verified
+    items. `days` looks that many learner days ahead: the reviews due by then and the new topics the daily
+    quota would open meanwhile (a simulation of the plan, not a promise)."""
     rows, seen = [], set()
 
     def add(key, purpose):
         if key in seen or not tree.has_topic(key):
             return
         seen.add(key)
-        if unseen_stock(state, key) == 0:
+        if unseen_stock(state, key) < per_topic:
             rows.append((key, purpose))
 
     _, day_end = plan.day_end(repo, when)
-    for key, _ in state.due(when, until=day_end):
+    until = day_end + timedelta(days=max(1, days) - 1)
+    for key, _ in state.due(when, until=until):
         if not skill or key.split("/", 1)[0] == skill:
             add(key, "review")
     ready, later = plan.consolidations(state, when, skill)
     for _, key, _ in ready + later:
         add(key, "consolidate")
-    for cand in plan.new_candidates(repo, tree, state, when, skill=skill, limit=max(n, 4) + 4, lookahead=True):
+    limit = max(n, 4) + 4 if days <= 1 else max(n, 4, state.new_quota(when)["quota"] * days) + 4
+    for cand in plan.new_candidates(repo, tree, state, when, skill=skill, limit=limit, lookahead=True):
         add(cand["key"], "new")
     return rows
 
 
-def needs_text(repo: Repo, tree, state, when, skill: str | None = None, n: int = 6, full: bool = False) -> str:
+def needs_text(repo: Repo, tree, state, when, skill: str | None = None, n: int = 6, full: bool = False,
+               days: int = 1, per_topic: int = 1) -> str:
     """The upcoming topics that have no unseen verified item: the examiner's work list.
 
     The tutor only needs to know whether there is work and for which topics; the examiner reads
-    the details (objectives, difficulty, format, topics to weave in) with `full`."""
+    the details (objectives, difficulty, format, topics to weave in) with `full`. `days` and
+    `per_topic` turn it into the list for stocking ahead: item families for the next days."""
     if skill:
         tree.get(skill)
-    rows = needed_topics(repo, tree, state, when, skill, n)
+    rows = needed_topics(repo, tree, state, when, skill, n, days=days, per_topic=per_topic)
+    ahead = days > 1 or per_topic > 1
+    scope = (" in %s" % skill if skill else "") + (" over the next %d day(s)" % days if days > 1 else "")
     if not rows:
-        return "ITEMS: stocked\nEvery topic coming up%s has an unseen verified item." % (
-            (" in %s" % skill) if skill else "")
-    out = ["ITEMS NEEDED: %d topic(s)%s (showing %d)" % (len(rows), (" in %s" % skill) if skill else "", min(n, len(rows)))]
+        return "ITEMS: stocked\nEvery topic coming up%s has %s." % (
+            scope, "an unseen verified item" if per_topic <= 1 else "%d unseen verified items" % per_topic)
+    out = ["ITEMS NEEDED: %d topic(s)%s (showing %d)" % (len(rows), scope, min(n, len(rows)))]
+
+    def family(key):
+        """', 2 more (1 draft waiting); objectives untested: 2, 4' for stocking ahead."""
+        want = max(0, per_topic - unseen_stock(state, key) - drafts_waiting(state, key))
+        waiting = drafts_waiting(state, key)
+        bits = ["%d more" % want] + (["%d draft%s waiting for the checker" % (waiting, "" if waiting == 1 else "s")]
+                                     if waiting else [])
+        gap = untested_objectives(tree, state, key)
+        return ", " + ", ".join(bits) + ("; objectives untested: %s" % ", ".join(map(str, gap)) if gap else "")
+
     if not full:
         from . import advise
 
-        out.extend("  %s (%s)" % (key, purpose) for key, purpose in rows[:n])
+        out.extend("  %s (%s%s)" % (key, purpose, family(key) if ahead else "") for key, purpose in rows[:n])
+        flags = ((" --skill %s" % skill) if skill else "") + ((" --days %d" % days) if days > 1 else "") + \
+            ((" --per-topic %d" % per_topic) if per_topic > 1 else "")
         out.append("Ask the examiner agent to stock them: it reads the details with `item needs --full%s` and "
-                   "returns item ids for the checker agent." % ((" --skill %s" % skill) if skill else ""))
+                   "returns item ids for the checker agent." % flags)
         hint = advise.line(repo, "stock", then="review")
         if hint:
             out.append(hint)
@@ -210,9 +247,16 @@ def needs_text(repo: Repo, tree, state, when, skill: str | None = None, n: int =
     for key, purpose in rows[:n]:
         out.append("")
         out.extend(need_item_text(repo, tree, state, key, when, purpose).split("\n")[1:-1])
+        if ahead:
+            out.append("family: write%s, across its objectives and depths" % family(key)[1:])
     out.append("")
-    out.append("Draft one item per topic, store them with: item import --file <path> --by examiner, and return "
-               "the new ids for the checker agent.")
+    if ahead:
+        out.append("Write each topic's family (different objectives and depths; a hands-on item for a runnable "
+                   "skill), store them with: item import --file <path> --by examiner, and return the new ids for "
+                   "the checker agent.")
+    else:
+        out.append("Draft one item per topic, store them with: item import --file <path> --by examiner, and "
+                   "return the new ids for the checker agent.")
     return "\n".join(out)
 
 
