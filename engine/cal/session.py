@@ -133,7 +133,8 @@ def need_item_text(repo: Repo, tree, state, key: str, when, purpose: str) -> str
         lines.append("format: GATE style - mcq, msq or nat, with marks 1 or 2")
     else:
         lines.append("format: whichever tests the skill best - mcq, msq, nat, short, code, task or open "
-                     "(hands-on for tools and frameworks)")
+                     "(hands-on for tools and frameworks); developer drills (debug, read, audit, ...) come from the "
+                     "drill-smith")
     goals = topic.objectives()
     if goals:
         lines.append("objectives (tag the item with the numbers it tests: \"objectives\": [2]):")
@@ -283,6 +284,11 @@ def ask(repo: Repo, tree, state, when, topic: str | None = None, item_id: str | 
         st = state.items.get(item_id)
         if st is None or st.status != "verified":
             raise CalError("item %s is %s; only verified items can be asked" % (item_id, st.status if st else "unknown"))
+        from . import drills
+
+        why = drills.locked(state, tree, st)
+        if why:
+            raise CalError("%s is not open yet: %s" % (item_id, why))
         key = (st.topics or [state.canon(item["topics"][0])])[0]
     else:
         if topic:

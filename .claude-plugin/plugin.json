@@ -21,6 +21,7 @@
   "agents": [
     "./.claude/agents/examiner.md",
     "./.claude/agents/checker.md",
+    "./.claude/agents/drill-smith.md",
     "./.claude/agents/curriculum-architect.md",
     "./.claude/agents/cp-coach.md",
     "./.claude/agents/gate-strategist.md",

@@ -26,7 +26,7 @@ store it with `item import --file <path> --by examiner`.
 
 | Field | Rule |
 |---|---|
-| `type` | `mcq`, `msq`, `nat`, `short` (graded by the engine) or `code`, `task`, `open` (judged by running a check). |
+| `type` | `mcq`, `msq`, `nat`, `short` (graded by the engine) or `code`, `task`, `open` (judged by running a check); developer drills `debug`, `debug-docs`, `read`, `audit`, `prompt`, `chaos` (see Drills). |
 | `topics` | Full keys. The first is the primary topic and decides the skill. Further topics are woven in: one correct answer credits them all. List a topic only if the item cannot be answered without it. |
 | `difficulty` | 1 to 5 (see below). Use the one the work list asks for. |
 | `stem` | The whole question. Markdown allowed. Everything needed to answer is in it. |
@@ -122,6 +122,27 @@ done, not described.
 - `open` items ask for an explanation or a design; the rubric lists what a
   correct answer contains. Use them sparingly: they are the weakest
   evidence.
+
+## Drills
+
+Developer drills are written by the `drill-smith` (`--by drill-smith`) and
+verified blind by the checker like any item. Extra fields by type:
+
+| Type | Fields | Opens when |
+|---|---|---|
+| `debug` | `fixture` (folder under `learner/work/<skill>/drills/`), `bounds` (files the fix may change, never tests), `check` | the topic is consolidating |
+| `debug-docs` | as `debug`, plus `docs` (the official page the fix needs) | the skill is ready (60% solid) |
+| `read` | `repo`, `commit` (pinned), `answer` (one or more `path:symbol` forms) | any time; tag an `[I]` objective |
+| `audit` | `flaws` (how many are seeded), `rubric` (what a full answer contains, never where the flaws are) | topics at level 2 and up |
+| `prompt` | `rubric` | `ai-pair-engineering` topics |
+| `chaos` | `project` (the learner's own, under `learner/projects/` or `learner/work/`), `check` (how to inject and how to confirm the fix) | after a project milestone |
+
+Every drill seals its `solution` (the cause and the fix, the flaws, or a
+model answer). A drill that changes code is verified on both halves: the
+check fails on the fixture as given and passes once the checker fixed it
+(`item verify ... --ran --unfixed-fails`). The engine serves a drill only
+once it opens. Fixtures hold no hint of the bug; read drills never copy a
+third party's code into `learner/`.
 
 ## Weaving
 

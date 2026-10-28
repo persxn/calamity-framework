@@ -10,6 +10,7 @@ the engine has stored or checked them. `setup --hook` installs it as a PreToolUs
     learner/items/            nobody: the engine reads it, and agents see items through `item show`
     .calamity/tmp/examiner/   the examiner
     .calamity/tmp/checker/    the checker
+    .calamity/tmp/drill-smith/ the drill-smith
 
 It stops slips and instructions planted in pages or files, not a determined person at the keyboard.
 
@@ -47,7 +48,8 @@ def _areas(root: str):
     """(area, the agent allowed in it or None, how it is named in a command)."""
     return [(os.path.join(root, "learner", "items"), None, "learner/items"),
             (os.path.join(root, ".calamity", "tmp", "examiner"), "examiner", ".calamity/tmp/examiner"),
-            (os.path.join(root, ".calamity", "tmp", "checker"), "checker", ".calamity/tmp/checker")]
+            (os.path.join(root, ".calamity", "tmp", "checker"), "checker", ".calamity/tmp/checker"),
+            (os.path.join(root, ".calamity", "tmp", "drill-smith"), "drill-smith", ".calamity/tmp/drill-smith")]
 
 
 def _occupied(area: str) -> bool:

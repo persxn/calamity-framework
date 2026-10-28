@@ -99,6 +99,28 @@ Rules that hold here as everywhere in this framework (you start without
 For an `open` item, check each rubric point against the official source
 and record the sources in the evidence.
 
+### Drills (written by the drill-smith)
+
+- **`debug`, `debug-docs`, `chaos`**: copy the fixture (or, for chaos, the
+  project with the injection the check describes) into
+  `.calamity/tmp/checker/<item>/`. Run the check as given: it must **fail**.
+  Find and fix the bug yourself, blind (for `debug-docs`, from the named
+  docs page only), touching only the files in `bounds`, and never a test.
+  Run the check again: it must **pass**. Record both halves:
+
+      python3 engine/calamity.py item verify <item> --ran --unfixed-fails --evidence "before: <the failure>; after: <what passed>; fix in <file>" --by checker
+
+  A drill you could not fix within its bounds, or whose tests pass
+  unfixed, fails: `item verify <item> --fail --evidence "<why>" --by checker`.
+- **`read`**: clone the repository at the commit into
+  `.calamity/scratch/` (`git clone`, then `git checkout <commit>`), answer
+  blind as `path:symbol`, and verify with `--answer`, like any auto-graded
+  item.
+- **`audit`, `prompt`**: write your own answer against the rubric (for an
+  audit, find the flaws; their number is given); record with `--ran
+  --evidence` naming what you found, or `--fail` if the rubric cannot be
+  met or misleads.
+
 ## A disputed key
 
 When the caller asks you to re-solve a disputed item, solve it blind as

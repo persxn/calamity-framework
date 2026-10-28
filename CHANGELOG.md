@@ -227,6 +227,17 @@ changes their record in `learner/`.
   and solves after an editorial, and recognition on untagged sets
   (`cf mark <problem> recognized|missed`). CSES, USACO and AtCoder are
   practice-set kinds (volume, not evidence).
+- Developer drills, written by the new `drill-smith` agent and verified
+  blind by the checker: `debug` (a seeded bug, tests untouched, the fix
+  within `bounds`), `debug-docs` (the fix needs one page of the official
+  docs; hints point only there), `read` (a real repository at a pinned
+  commit, answered as `path:symbol` and graded by the engine), `audit`
+  (AI-style code with seeded flaws), `prompt` (a specification for an
+  agent) and `chaos` (a failure injected in a copy of the learner's
+  project). A drill that changes code is verified on both halves
+  (`item verify --ran --unfixed-fails`), and each opens only when it should
+  (`debug-docs` once the skill is ready). Two new 10x skills with syllabi
+  and bosses (decision D10): `codebase-reading` and `ai-pair-engineering`.
 
 ### Development
 

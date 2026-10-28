@@ -96,6 +96,20 @@ and record `--result pass|fail --evidence "what was run and what happened"`.
 If it fails, say what the check showed, not how to fix it; let them try
 again, or record the failure with `--err <kind>` and then explain.
 
+**Drills** (written by the `drill-smith`; `framework/rules/items.md`,
+"Drills"). `debug`, `debug-docs`: the learner copies the fixture to a
+folder of their own under `learner/work/<skill>/` and fixes it there; pass
+means the check passes, no test file changed (`git diff --stat`) and the
+diff stays inside `bounds`. In `debug-docs` every hint points to the docs
+page (page, then section, then paragraph) and nothing else; record it with
+`--note no-ai`. `read`: time it from the moment the question is shown and
+record the location the learner gives with `--answer "path:symbol"`.
+`audit`, `prompt`: judge the answer against the rubric (for an audit, each
+flaw found and why it is wrong), then `--result`. `chaos`: make a throwaway
+copy of the project (`git worktree add`), apply the injection that
+`item show <item> --check` describes, and let the learner diagnose from the
+logs alone. For a missing drill, ask the `drill-smith`, not the examiner.
+
 **After every answer**, before anything else: say whether it was right, in
 one line. When it was wrong, show the key and the solution as the engine
 printed them, find the cause (one question, unless the learner already

@@ -18,13 +18,14 @@ import os
 import re
 from fractions import Fraction
 
+from .drills import DRILL_TYPES, EXPECT
 from .store import Repo, write_text
 from .util import CalError, csv_list, iso, now, short_id
 
-TYPES = ("mcq", "msq", "nat", "short", "code", "task", "open")
-AUTO_TYPES = ("mcq", "msq", "nat", "short")
+TYPES = ("mcq", "msq", "nat", "short", "code", "task", "open") + DRILL_TYPES
+AUTO_TYPES = ("mcq", "msq", "nat", "short", "read")
 SOURCE_KINDS = ("generated", "official", "imported", "manual")
-DEFAULT_EXPECT = {"mcq": 90, "msq": 120, "nat": 150, "short": 60, "code": 900, "task": 900, "open": 300}
+DEFAULT_EXPECT = dict({"mcq": 90, "msq": 120, "nat": 150, "short": 60, "code": 900, "task": 900, "open": 300}, **EXPECT)
 
 _LETTER_RE = re.compile(r"^\W*(?:option\s*)?([A-Za-z])\W*$", re.I)
 _NUM_RE = re.compile(r"^\s*=?\s*([+-]?(?:\d+\.?\d*|\.\d+)(?:[eE][+-]?\d+)?)\s*$")
@@ -164,6 +165,10 @@ def grade(item: dict, raw) -> tuple:
         given = parse_number(raw)
         eps = 1e-9 * max(1.0, abs(key["min"]), abs(key["max"]))
         return key["min"] - eps <= given <= key["max"] + eps, given
+    if kind == "read":
+        from . import drills
+
+        return drills.grade(key, raw)
     given = norm_text(raw)
     if given in key["accept"]:
         return True, given
@@ -291,6 +296,13 @@ def validate_draft(data, tree) -> dict:
         if "answer" not in data:
             raise CalError("short items need an 'answer' (text, a list of accepted texts, or {accept, regex})")
         sealed["answer"] = _short_key(data["answer"])
+    elif kind in DRILL_TYPES:
+        from . import drills
+
+        drills.validate(kind, data, tree, topics, public, sealed)
+        if "learner/work" in str(public.get("check", "")).replace("\\", "/"):
+            raise CalError("a check runs from inside the drill's folder: give its commands without a path into "
+                           "learner/work/ (the fixture field names the folder)")
     else:
         check = str(data.get("check") or "").strip()
         rubric = [str(r).strip() for r in (data.get("rubric") or []) if str(r).strip()]
@@ -383,6 +395,10 @@ def blind_text(item: dict, tree, with_check: bool = False) -> str:
         lines.append("(one or more options may be correct; no partial credit)")
     if item["type"] == "nat":
         lines.append("(numeric answer)")
+    if item["type"] in DRILL_TYPES:
+        from . import drills
+
+        lines.extend(drills.blind_lines(item))
     text = "\n".join(lines).rstrip()
     if with_check and item["type"] not in AUTO_TYPES:
         # below a second line of dashes: the question above is for the learner, this part is not
@@ -406,7 +422,7 @@ def reveal_text(item: dict) -> str:
             shown = _fmt_num(lo) if lo == hi else "%s to %s" % (_fmt_num(lo), _fmt_num(hi))
         elif item["type"] == "msq":
             shown = ", ".join(ans)
-        elif item["type"] == "short":
+        elif item["type"] in ("short", "read"):
             shown = " | ".join(ans["accept"]) or ("pattern " + str(ans.get("regex")))
         else:
             shown = str(ans)
@@ -437,8 +453,10 @@ def pick(repo: Repo, state, topic_key: str, when, difficulty: int | None = None,
     """
     today = state.day(when)
     rows = []
+    from . import drills
+
     for it in candidates(state, topic_key):
-        if it.id in exclude:
+        if it.id in exclude or drills.locked(state, state.tree, it):
             continue
         if it.last_ok is False and it.fail_day != today:
             bucket = 0

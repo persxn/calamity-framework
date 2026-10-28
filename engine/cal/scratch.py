@@ -1,6 +1,7 @@
 """The scratch folder, .calamity/tmp: where agents work out answers before the engine stores them.
 
-The examiner works in .calamity/tmp/examiner/<batch>/ and the checker in .calamity/tmp/checker/<item>/.
+The examiner works in .calamity/tmp/examiner/<batch>/ (the drill-smith in .calamity/tmp/drill-smith/<batch>/)
+and the checker in .calamity/tmp/checker/<item>/.
 Both may hold the computed answer to a sealed item, so the engine removes a batch once `item import`
 has stored it and an item's folder once `item verify` (or `item reject`) has recorded it; `doctor`
 warns about anything left for more than a day, and `clean tmp` removes everything. Other tools
@@ -13,7 +14,7 @@ import shutil
 import time
 
 STALE_HOURS = 24
-AGENTS = ("examiner", "checker")  # agents with a folder of their own
+AGENTS = ("examiner", "checker", "drill-smith")  # agents with a folder of their own
 
 
 def folder(repo) -> str:
@@ -40,10 +41,11 @@ def discard_import(repo, path: str | None, batch: bool = False) -> None:
         real = os.path.realpath(path)
         if not os.path.isfile(real) or not _inside(real, os.path.realpath(folder(repo))):
             return
-        examiner = os.path.realpath(agent_folder(repo, "examiner"))
-        if batch and _inside(real, examiner) and os.path.dirname(real) != examiner:
-            batch = os.path.join(examiner, os.path.relpath(real, examiner).split(os.sep)[0])
-            shutil.rmtree(batch, ignore_errors=True)
+        for author in ("examiner", "drill-smith"):
+            base = os.path.realpath(agent_folder(repo, author))
+            if batch and _inside(real, base) and os.path.dirname(real) != base:
+                shutil.rmtree(os.path.join(base, os.path.relpath(real, base).split(os.sep)[0]), ignore_errors=True)
+                break
         else:
             os.remove(real)
     except (OSError, ValueError):
