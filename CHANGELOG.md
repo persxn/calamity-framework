@@ -202,6 +202,14 @@ changes their record in `learner/`.
   at most three proposals with their numbers, for the weekly review; the
   learner decides every change. The plugin manifest lists every agent
   again (the scout and the book builder were missing), held by a test.
+- Integration projects and the frontier. `project suggest` finds two
+  active skills that belong together (one weaves into the other, or a
+  later skill needs both), each half consolidated, and names the topics
+  one `task` item should span so a single pass credits both. `tree
+  frontier` ranks skills not started by what the learner's own work feeds,
+  what else they combine with, shared ground and the route to a goal, each
+  with its reasons ("builds on React (100% secured)"). Weaving now picks
+  the topics most at risk of being forgotten first.
 
 ### Development
 

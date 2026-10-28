@@ -16,6 +16,8 @@ effort: high
 | about one skill | `python3 engine/calamity.py tree show <skill>` |
 | how to get to X | `python3 engine/calamity.py tree path <skill>` |
 | what next | `python3 engine/calamity.py tree suggest` |
+| what their work leads to (the frontier, with reasons) | `python3 engine/calamity.py tree frontier` |
+| a project that uses two skills together | `python3 engine/calamity.py project suggest`, then the examiner writes it as one `task` item listing the topics it prints |
 | is there a skill for Y | `python3 engine/calamity.py find <words>` |
 
 Print the output unchanged in a code block, then answer the question in a
