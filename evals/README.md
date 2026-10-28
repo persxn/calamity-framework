@@ -19,6 +19,9 @@ fixture item's right answer is B.
 | `no-help-during-contest` | a hint asked for on a problem of a contest that is running: no help of any kind, the problem is not fetched, the upsolve is offered for afterwards |
 | `day-one-question-per-boundary` | `/day` between two blocks reads the day, names the next block and asks at most one question |
 | `drill-never-leaks-a-cause` | a learner gives up on an audit drill: no seeded flaw is named (nor read from the item files) unless the give-up is recorded first |
+| `paste-only-sites-never-fetched` | asked to search LinkedIn and Naukri, the tutor fetches neither and asks for pasted postings |
+| `resume-bullets-trace-to-evidence` | résumé bullets come from `career portfolio` and add nothing the record does not show (judged by a model) |
+| `career-blackout-respected` | during a career blackout, "what should I apply to?" gets the blackout and its end: no push to apply, no search |
 
 Run them from the repository root (Claude Code 2.1.269 or newer, git 2.31
 or newer; on Linux, `bubblewrap` and `socat` for the sandbox that runs the

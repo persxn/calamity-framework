@@ -153,6 +153,18 @@ changes their record in `learner/`.
   `ci-ok`). `item show` on an open item now says it must not be solved
   for the learner before the answer is recorded, and `framework/method.md`
   says the same.
+- The career companion. `/career` reads the blackout first, keeps the
+  learner's own `learner/career/profile.md`, and records postings from
+  paste-only sites (LinkedIn, Naukri, Indeed and the like) from the
+  learner's paste, never by fetching them. The `opportunity-scout` gains
+  the beats jobs, internships, oss-programs, hackathons and gate-score,
+  with a source ladder (public job-board APIs, then official pages
+  robots.txt allows); the new `career-advisor` turns computed readiness
+  into at most three actions and writes résumé bullets only from the
+  portfolio (`career portfolio --stdout`). The prompt router sends career
+  requests to `/career`. Three evals hold it: paste-only sites are never
+  fetched, résumé bullets add nothing the record lacks, and a career
+  blackout is respected.
 - Progress by date. `day <date>` adds what was recorded that day (time,
   answers, topics taught and secured, lectures, practice, workouts);
   `history --by day|week|month [--skill S] [--track T]` gives one row per

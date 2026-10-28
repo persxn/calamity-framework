@@ -1311,6 +1311,8 @@ def cmd_career(c, a):
     if a.action == "nudge":
         return 0, career.nudge_text(c.repo, c.tree, c.state, c.when)
     if a.action == "portfolio":
+        if a.stdout:
+            return 0, career.portfolio(c.repo, c.tree, c.state)
         path = career.write_portfolio(c.repo, c.tree, c.state)
         return 0, career.portfolio(c.repo, c.tree, c.state) + "\nwrote %s" % c.repo.rel(path)
     return 0, career.list_text(c.state, c.when, a.kind)
@@ -1703,6 +1705,7 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("value", nargs="?", help="status: the step taken (saved, applied, interviewing, offer, ...)")
     sp.add_argument("--kind", help="list, match: only this kind (gate-mock, job, internship, ...)")
     sp.add_argument("--note", help="status: one line on the step")
+    sp.add_argument("--stdout", action="store_true", help="portfolio: print it and write nothing")
     sp.add_argument("--file")
     sp.add_argument("--stdin", action="store_true")
     sp = add("stock", cmd_stock, "Nightly bank stocking: render scheduler files for a headless /stock run, or remove them.")

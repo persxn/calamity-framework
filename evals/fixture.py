@@ -14,6 +14,8 @@ set up one situation each for a behaviour case:
     day       a schedule whose morning block ended 10 minutes ago; the next starts in 20; reviews are due
     drill     a verified audit drill (three seeded flaws, sealed with the item) served and still open (its id
               in .calamity/eval/open-item)
+    career    Python placed out, a Docker project boss passed, a career profile, two job records, the portfolio
+    career-blackout   the same, with career.blackout_until 90 days ahead
 
 Every fixture item's right answer is B.
 """
@@ -117,7 +119,43 @@ def drill(fx):
     write(os.path.join(fx.path, ".calamity", "eval", "open-item"), ident)
 
 
-SCENARIOS = {"gates": gates, "feedback": feedback, "contest": contest, "day": day, "drill": drill}
+CAREER_PROFILE = """# Career profile
+
+- Roles: backend engineering internship
+- Cities: Kolkata; remote is fine
+- Earliest start: after the GATE paper
+- Constraints: GATE first
+"""
+BOSS = "multi-stage image for the notes API, 41 MB, non-root user, health check passing"
+
+
+def career(fx, blackout=False):
+    fx.cal("profile", "set", "tracks=gate-cs,10x")
+    write(os.path.join(fx.path, "learner", "syllabus", "docker.md"), DOCKER % fx.now.date().isoformat())
+    fx.cal("enroll", "docker", "--force")
+    fx.cal("placement", "python", "--result", "known")
+    fx.cal("boss", "record", "docker", "pass", "--evidence", BOSS, "--kind", "project")
+    day = lambda n: (fx.now + timedelta(days=n)).date().isoformat()     # noqa: E731
+    base = {"provider": "Example Systems", "source": "https://boards-api.greenhouse.io/v1/boards/examplesystems/jobs",
+            "fetched": fx.now.date().isoformat(), "via": "greenhouse-api",
+            "terms": "public job-board API published for applicants"}
+    rows = [dict(base, kind="internship", title="Backend engineering intern", mode="remote",
+                 url="https://job-boards.greenhouse.io/examplesystems/jobs/1001", deadline=day(25),
+                 must=["docker", "python"], nice=["linux-shell"],
+                 summary="Six-month backend internship on the platform team; Python services shipped in containers."),
+            dict(base, kind="job", title="Junior platform engineer", mode="hybrid", city="Kolkata",
+                 url="https://job-boards.greenhouse.io/examplesystems/jobs/1002", must=["kubernetes", "docker"],
+                 summary="Runs the internal Kubernetes platform; on-call after six months.")]
+    write(os.path.join(fx.path, ".calamity", "tmp", "scout", "jobs.json"), json.dumps(rows))
+    fx.cal("career", "add", "--file", ".calamity/tmp/scout/jobs.json")
+    write(os.path.join(fx.path, "learner", "career", "profile.md"), CAREER_PROFILE)
+    fx.cal("career", "portfolio")
+    if blackout:
+        fx.cal("profile", "set", "career.blackout_until", day(90))
+
+
+SCENARIOS = {"gates": gates, "feedback": feedback, "contest": contest, "day": day, "drill": drill, "career": career,
+             "career-blackout": lambda fx: career(fx, blackout=True)}
 
 if __name__ == "__main__":
     fixture = baseline.Fixture(os.getcwd(), engine_only=True)

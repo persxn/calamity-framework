@@ -127,6 +127,7 @@ beside them and are not listed here.
 | `coach` | the weekly review and the day shape in `learner/schedule.md` |
 | `remind` | study reminders from the operating system |
 | `practice` | questions from outside material (previous papers, a book, a PDF): log them, revisit each |
+| `career` | jobs, internships, open-source programmes, hackathons, GATE-score routes: records, readiness, pipeline, portfolio |
 | `stock` | stock the item bank ahead, headless at night (`stock render`); run by the learner or the scheduler only |
 | `bridge` | connect a course, playlist or book by a route its terms allow |
 | `log` | record study done outside the session: a lecture, a chapter, a workout |
@@ -149,7 +150,8 @@ beside them and are not listed here.
 | `bridge-engineer` | the one-off tool that connects a study source |
 | `notes-writer` | long-form sections (Markdown, or LaTeX) from a topic's notes fragment |
 | `book-builder` | writes and builds a topic's study book, forked from the tutor (`mastery-textbook`) |
-| `opportunity-scout` | finds GATE mocks on the web (official, all-India, offline near the learner), each recorded with source, date and terms |
+| `opportunity-scout` | finds opportunities on the web, one beat a run (GATE mocks, jobs, internships, open-source programmes, hackathons, GATE-score routes), each recorded with source, date and terms; never fetches paste-only sites |
+| `career-advisor` | at most three actions from computed readiness (apply, prepare, hold); résumé bullets only from the evidenced portfolio; read-only |
 
 ## Rule books
 
