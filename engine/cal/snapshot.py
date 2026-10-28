@@ -26,7 +26,7 @@ from datetime import datetime
 from . import fsrs
 from .store import Repo, log_text, write_text
 
-FORMAT = 7
+FORMAT = 8
 NAME = "replay.json"
 GLOBAL_TYPES = ("rename", "void", "errtag")  # events that change how earlier events are read
 
@@ -220,6 +220,7 @@ def encode_state(state) -> dict:
         "weights": {k: [v[0], v[1]] for k, v in _keys(state.weights).items()},
         "first_tries": [[_t(a), b] for a, b in state.first_tries], "review_secs": list(state.review_secs),
         "mistakes": [dict(m, ts=_t(m["ts"])) for m in state.mistakes],
+        "career": {k: dict(v) for k, v in _keys(state.career).items()},
         "passes": {k: _keys(dict(v)) for k, v in _keys(state.passes).items()},
         "practice": {sid: {"meta": p["meta"], "map": p["map"],
                            "qs": {str(q): dict(r, last=_t(r.get("last")), due=_t(r.get("due"))) for q, r in p["qs"].items()}}
@@ -284,6 +285,7 @@ def decode_state(state, data: dict) -> None:
     state.first_tries = [(_d(a), b) for a, b in data["first_tries"]]
     state.review_secs = list(data["review_secs"])
     state.mistakes = [dict(m, ts=_d(m["ts"])) for m in data["mistakes"]]
+    state.career = {k: dict(v) for k, v in data["career"].items()}
     state.passes = {k: {n: dict(r) for n, r in v.items()} for k, v in data["passes"].items()}
     state.practice = {sid: {"meta": dict(p["meta"]), "map": [dict(r) for r in p["map"]],
                             "qs": {int(q): dict(r, last=_d(r.get("last")), due=_d(r.get("due"))) for q, r in p["qs"].items()}}

@@ -22,6 +22,7 @@ series" in `framework/rules/gate-playbook.md`. Then gather:
     python3 engine/calamity.py gate status
     python3 engine/calamity.py gate triage
     python3 engine/calamity.py gate mocks
+    python3 engine/calamity.py career list --kind gate-mock
     python3 engine/calamity.py gate errors
     python3 engine/calamity.py source status
     python3 engine/calamity.py stats week
@@ -51,6 +52,12 @@ if it exists), and the previous plan (`learner/gate/plan.md`).
    against what they have been doing.
 7. **Mocks.** The calendar from the phase table in `gate-planning.md`, with
    official past papers of the most recent years kept unseen for the end.
+   Place the real mocks the opportunity-scout recorded (`career list
+   --kind gate-mock`; `career show <id>` for one) on their published
+   dates, each with its record id and fetch date, the official mock test
+   included; an offline centre only if the learner said they would
+   travel to it. A record older than 30 days is marked "check again".
+   Choose none by name for the learner: lay out the options.
 8. **Revision passes.** Plan at least two spaced passes for at least five
    subjects (the highest marks per hour first): pass 1 when a subject's
    lectures are done, pass 2 at least three weeks later and before the

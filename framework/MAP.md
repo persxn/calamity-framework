@@ -142,6 +142,7 @@ beside them and are not listed here.
 | `habit-coach` | how the learner actually works, against their schedule |
 | `bridge-engineer` | the one-off tool that connects a study source |
 | `notes-writer` | long-form LaTeX sections from a topic's notes |
+| `opportunity-scout` | finds GATE mocks on the web (official, all-India, offline near the learner), each recorded with source, date and terms |
 
 ## Rule books
 
