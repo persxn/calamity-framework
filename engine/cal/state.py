@@ -160,6 +160,7 @@ class State:
         self.practice = {}       # practice set id -> {meta, map, qs: {question: record}} (practice.py)
         self.mistakes = []       # wrong answers for the error book: {ts, topic, err, note, src, id}
         self.passes = {}         # GATE subject -> {pass number: {"planned": date, "done": date}}
+        self.career = {}         # record id -> an opportunity record (career.py)
         self.review_secs = []    # seconds the latest timed reviews took (the quota's review forecast)
         self.last_dt = None
         self.n_events = 0
@@ -365,7 +366,7 @@ class State:
         self.mocks, self.notes, self.cp_assigned = [], [], []
         self.cp_marks, self.cp_credits, self.weights = {}, {}, {}
         self.first_tries, self.review_secs, self.practice = [], [], {}
-        self.mistakes, self.passes = [], {}
+        self.mistakes, self.passes, self.career = [], {}, {}
         self.last_dt, self.n_events, self.n_voided = None, 0, 0
         self._alias_topic, self._alias_skill, self._retag = {}, {}, {}
         self._voided, self._handler_errors = set(), []
@@ -560,6 +561,12 @@ class State:
                 m["err"] = e.get("err") or m["err"]
                 m["note"] = e.get("note") or m["note"]
                 break
+
+    def _on_career_add(self, e, dt):
+        from .career import FIELDS
+
+        self.career.pop(e["id"], None)              # a newer fetch replaces the record, and moves it last
+        self.career[e["id"]] = dict({k: e[k] for k in FIELDS if k in e}, id=e["id"])
 
     def _on_gate_pass(self, e, dt):
         rec = self.passes.setdefault(self.canon_skill(e["skill"]), {}).setdefault(str(e["n"]), {})

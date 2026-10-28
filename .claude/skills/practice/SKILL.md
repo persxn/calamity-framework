@@ -30,7 +30,7 @@ unofficial key can be wrong).
 Ranges of questions to topics, type and pages, as a JSON list in
 `.calamity/tmp/<id>-map.json`:
 
-    [{"from": 1, "to": 12, "topics": ["gate.cs.os/scheduling"], "type": "nat", "pages": "41-44"}]
+    [{"from": 1, "to": 12, "topics": ["gate.cs.operating-systems/cpu-scheduling"], "type": "nat", "pages": "41-44"}]
 
 then `python3 engine/calamity.py practice map <id> --file .calamity/tmp/<id>-map.json`.
 For a PDF, read **only** its contents and heading pages, with

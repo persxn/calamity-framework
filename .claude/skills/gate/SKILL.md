@@ -31,6 +31,7 @@ follow `framework/rules/gate-onboarding.md` first.
 | lectures to rewatch | `python3 engine/calamity.py source revise` |
 | a revision pack | `python3 engine/calamity.py gate pack <subject> [--pdf]`: formula sheet and error book (no keys) |
 | questions from a book or past papers | the `practice` skill |
+| to find mocks | ask the city once if `location.city` is not set (`profile set location.city "..."`, and `location.radius_km` if they would travel), then the `opportunity-scout` agent ("gate-mocks beat"), then the `gate-strategist` to put them in the mock calendar; `career list --kind gate-mock` shows what was found |
 | to add past papers | "Past questions" in the playbook, then `item import --official`, the new ids to the `checker` agent, and `gate weights --apply` |
 | a target in marks | "The target" in `framework/rules/gate-planning.md`; the strategist researches it and records the source |
 | to drop or pause a subject | show `gate triage`, state the cost in marks, then `pause <subject>` if they decide |

@@ -16,7 +16,7 @@ from .util import CalError, csv_list, parse_hhmm
 # Lists: comma-separated words become a list.
 LIST_KEYS = ("tracks", "goals", "focus", "gate.papers", "reminders.times")
 # Free text: stored exactly as given, commas and all.
-TEXT_KEYS = ("name", "teach.style", "gate.target_source", "cp.language", "cp.handle")
+TEXT_KEYS = ("name", "teach.style", "gate.target_source", "cp.language", "cp.handle", "location.city")
 
 _DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 
@@ -119,7 +119,8 @@ def _plain(x):
 KNOWN_KEYS = ("name", "onboarded", "tracks", "goals", "focus", "mode.default", "teach.style", "sleep.start",
               "sleep.end", "workout.minutes", "daily.target_hours", "reminders.times", "gate.year", "gate.papers",
               "gate.registered", "gate.target_rank", "gate.target_source", "cp.handle", "cp.target_rating",
-              "cp.target_date", "cp.language", "book.format", "stock.at")
+              "cp.target_date", "cp.language", "book.format", "stock.at", "location.city",
+              "location.radius_km")
 KNOWN_PREFIXES = ("cfg.", "gate.target_marks.", "gate.exam_date.")
 
 
@@ -172,6 +173,8 @@ def parse(key: str, words, text: bool, defaults: dict):
         return joined
     if key == "workout.minutes":
         return _number(key, joined, 0, 600, whole=True)
+    if key == "location.radius_km":
+        return _number(key, joined, 1, 2000, whole=True)
     if key == "daily.target_hours":
         return _number(key, joined, 0, 24)
     if key == "gate.year":

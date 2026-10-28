@@ -20,10 +20,10 @@ SPAN = re.compile(r"`([^`\n]+)`")
 
 # What ships. A learner may add skills and agents of their own next to these; the checks below
 # look only at the framework's files, so the self-test keeps passing in a customised checkout.
-SKILLS = ("boss", "bridge", "coach", "cp", "dash", "gate", "log", "notes", "onboard", "recall", "remind", "study",
+SKILLS = ("boss", "bridge", "coach", "cp", "dash", "gate", "log", "notes", "onboard", "practice", "recall", "remind", "stock", "study",
           "sync", "today", "tree", "update-framework")
 AGENTS = ("bridge-engineer", "checker", "cp-coach", "curriculum-architect", "examiner", "gate-strategist",
-          "habit-coach", "notes-writer")
+          "habit-coach", "notes-writer", "opportunity-scout")
 # Companion skills that ship with the framework but run their own loop and state, outside the engine's
 # event log and the examiner/checker pipeline. They are not in SKILLS (the engine's self-test set), but
 # they are still the framework's, so they are held to the same doc standard: valid front matter, and every

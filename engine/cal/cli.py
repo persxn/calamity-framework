@@ -1128,6 +1128,18 @@ def cmd_practice(c, a):
     return 0, practice.log(c.repo, c.tree, c.state, c.when, a.set, a.rest[0], a.rest[1], a.err, a.secs, a.note)
 
 
+def cmd_career(c, a):
+    from . import career
+
+    if a.action == "add":
+        return 0, career.add(c.repo, _read_json(a), c.when)
+    if a.action == "show":
+        if not a.id:
+            raise CalError("career show <id> (ids from career list)")
+        return 0, career.show_text(c.state, a.id)
+    return 0, career.list_text(c.state, c.when, a.kind)
+
+
 def cmd_stock(c, a):
     from . import stock
 
@@ -1460,6 +1472,12 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("--err", help="log: the error kind of a wrong answer")
     sp.add_argument("--secs", type=_positive, help="log: seconds it took")
     sp.add_argument("--note", help="log: one line on the mistake, never the question")
+    sp = add("career", cmd_career, "Opportunity records found on the web (for now GATE mocks): add, list, show.")
+    sp.add_argument("action", choices=("add", "list", "show"))
+    sp.add_argument("id", nargs="?")
+    sp.add_argument("--kind", help="list: only this kind (gate-mock)")
+    sp.add_argument("--file")
+    sp.add_argument("--stdin", action="store_true")
     sp = add("stock", cmd_stock, "Nightly bank stocking: render scheduler files for a headless /stock run, or remove them.")
     sp.add_argument("action", choices=("render", "remove"))
     sp.add_argument("--at", help="render: the time of night, e.g. 23:45 (default: stock.at in the profile)")

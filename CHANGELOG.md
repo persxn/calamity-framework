@@ -126,6 +126,14 @@ changes their record in `learner/`.
   skill syncs the course tracker with them. `gate pack <subject> [--pdf]`
   writes a revision pack: a formula sheet from the notes' `## Formulas`
   sections and an error book of recorded mistakes, with no item keys.
+- Mock scouting. The `opportunity-scout` agent (web only,
+  `omitClaudeMd`, 40 turns) has one beat, `gate-mocks`: the official mock
+  test, all-India series and offline centres near `location.city`
+  (asked once). It reads robots.txt and the terms before fetching and
+  never fetches a disallowed site. Records go through `career add`, which
+  refuses one without a source, fetch date and terms note; `career list`
+  and `career show` read them, and the gate-strategist places them in the
+  mock calendar.
 
 ### Development
 
