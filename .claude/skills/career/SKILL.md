@@ -42,7 +42,7 @@ with exactly what they said (rule 1: nothing assumed). The scout reads it.
 | advice: apply, prepare or wait | the `career-advisor` agent; relay its three lines at most, unchanged in substance |
 | to record a step | `python3 engine/calamity.py career status <id> saved\|applied\|interviewing\|offer\|accepted\|rejected\|withdrawn [--note "..."]` |
 | the portfolio | `python3 engine/calamity.py career portfolio`: writes `learner/career/portfolio.md` from the log |
-| résumé bullets | the `career-advisor` agent: every bullet traces to a line of the portfolio |
+| résumé bullets | the `career-advisor` agent: every bullet traces to a line of `python3 engine/calamity.py career portfolio --stdout` |
 | to close a gap | the gap skills from `career match` become goals only if they say so (`profile set goals ...`), then `/tree` shows the route |
 | interview preparation | the `career-advisor` plans it from the items and drills the record already has; drills that are missing come from the `drill-smith` |
 
