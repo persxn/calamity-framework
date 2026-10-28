@@ -20,7 +20,7 @@ import urllib.request
 from datetime import datetime, timedelta
 
 from .store import Repo
-from .util import CalError, csv_list, fmt_delta, iso, now, parse_ts, table
+from .util import CalError, csv_list, fmt_delta, iso, now, parse_ts, pct, table
 
 API = "https://codeforces.com/api/"
 HANDLE_RE = re.compile(r"^[A-Za-z0-9_.-]{3,24}$")
@@ -228,7 +228,7 @@ def problems_seen(data: dict) -> dict:
                               "tags": list(problem.get("tags") or []), "contest": problem.get("contestId"),
                               "index": problem.get("index"), "first": sub.get("creationTimeSeconds", 0),
                               "last": 0, "ac": None, "tries": 0, "tries_before_ac": 0, "in_contest": False,
-                              "ac_in_contest": False}
+                              "ac_in_contest": False, "ac_rel": None}
         rec["last"] = sub.get("creationTimeSeconds", 0)
         ptype = (sub.get("author") or {}).get("participantType")
         live = ptype in CONTEST_TYPES
@@ -241,6 +241,9 @@ def problems_seen(data: dict) -> dict:
             if rec["ac"] is None:
                 rec["ac"] = sub.get("creationTimeSeconds", 0)
                 rec["ac_in_contest"] = live
+                rel = sub.get("relativeTimeSeconds")
+                if live and isinstance(rel, int) and 0 <= rel < 10 ** 6:
+                    rec["ac_rel"] = rel     # seconds from the contest's start to the accepted submission
         elif rec["ac"] is None and verdict != "COMPILATION_ERROR":
             rec["tries_before_ac"] += 1
     return out
@@ -451,6 +454,18 @@ def analyse_text(repo: Repo, tree, state, when, days: int = 180) -> str:
         lines.append("")
         lines.append("sub-tags recorded by the coach: " + ", ".join(
             "%s x%d" % (t, len(v)) for t, v in sorted(subtags.items(), key=lambda kv: (-len(kv[1]), kv[0]))))
+    prog = program_rows(state, seen, since)
+    if prog:
+        lines.append("")
+        lines.append("program measures by band (last %d days; time = contest start or assignment to AC, where known)" % days)
+        lines.append(table([[r["rating"], r["n"], ("%.0f min (%d)" % (r["median_min"], r["n_timed"])) if r["median_min"]
+                             is not None else "-", "%.1f" % r["wrong"], pct(r["editorial"])] for r in prog],
+                           ["band", "solved", "median time to AC", "wrong before AC", "after an editorial"],
+                           aligns="rrrrr"))
+    got, total = recognition(state, when - timedelta(days=days))
+    if total:
+        lines.append("recognition on untagged sets: %d of %d named the right technique first (%s)" % (
+            got, total, pct(got / float(total))))
     lines.append("synced %s" % fmt_delta(parse_ts(data["fetched"]) - when))
     return "\n".join(lines)
 
@@ -702,10 +717,56 @@ def _check_problem(key: str) -> str:
     return key
 
 
+# recognized / missed: on an untagged set, whether the learner named the right technique before solving
+MARKS = ("editorial", "resolved", "skip", "subtag", "note", "recognized", "missed")
+
+
+def program_rows(state, seen: dict, since: int) -> list:
+    """Per rating band (the problem's rating) over the period: solves, median minutes to AC, mean wrong
+    submissions before AC, and the share of solves that followed an editorial (§6.9's measures)."""
+    assigned = {}
+    for a in state.cp_assigned:
+        assigned.setdefault(a["problem"], a["ts"].timestamp())
+    bands = {}
+    for p in seen.values():
+        if not p["ac"] or p["ac"] < since or not p["rating"]:
+            continue
+        b = bands.setdefault(p["rating"], {"n": 0, "mins": [], "wrong": 0, "editorial": 0})
+        b["n"] += 1
+        b["wrong"] += p["tries_before_ac"]
+        if p["ac_rel"] is not None:
+            b["mins"].append(p["ac_rel"] / 60.0)
+        elif p["key"] in assigned and 0 < p["ac"] - assigned[p["key"]] < 3 * 86400:
+            b["mins"].append((p["ac"] - assigned[p["key"]]) / 60.0)
+        marks = state.cp_marks.get(p["key"], {}).get("marks", [])
+        if any(m[1] == "editorial" and m[0].timestamp() <= p["ac"] + 60 for m in marks):
+            b["editorial"] += 1
+    rows = []
+    for rating in sorted(bands):
+        b = bands[rating]
+        mins = sorted(b["mins"])
+        med = (mins[len(mins) // 2] if len(mins) % 2 else (mins[len(mins) // 2 - 1] + mins[len(mins) // 2]) / 2.0) \
+            if mins else None
+        rows.append({"rating": rating, "n": b["n"], "median_min": med, "n_timed": len(mins),
+                     "wrong": b["wrong"] / float(b["n"]), "editorial": b["editorial"] / float(b["n"])})
+    return rows
+
+
+def recognition(state, since_dt) -> tuple:
+    """(recognized, marked) on untagged sets since `since_dt`."""
+    got = total = 0
+    for rec in state.cp_marks.values():
+        for when, what, _ in rec["marks"]:
+            if what in ("recognized", "missed") and when >= since_dt:
+                total += 1
+                got += what == "recognized"
+    return got, total
+
+
 def mark(repo: Repo, problem: str, what: str, subtags=None, note: str | None = None) -> str:
     key = _check_problem(problem)
-    if what not in ("editorial", "resolved", "skip", "subtag", "note"):
-        raise CalError("mark is one of: editorial, resolved, skip, subtag, note")
+    if what not in MARKS:
+        raise CalError("mark is one of: %s" % ", ".join(MARKS))
     tags = [t.lower() for t in csv_list(subtags)]
     if what == "subtag" and not tags:
         raise CalError("give the sub-tags: cf mark %s subtag --subtags dp-knapsack,dp-bitmask" % key)

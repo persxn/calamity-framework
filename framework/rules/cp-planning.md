@@ -59,6 +59,42 @@ when the tree says it is due at this rating.
 - Use sub-tags to see inside a broad tag: "dp" hides knapsack, bitmask and
   digit DP, and a learner is rarely weak at all of them.
 
+The analysis ends with the program's measures, by the problems' rating
+band: solves, the median time to an accepted submission (from the contest's
+start, or from `cf assign`, where known), wrong submissions before it, and
+the share solved after an editorial (`cf mark <problem> editorial`). On an
+untagged set the learner names the technique before solving, and the tutor
+records whether it was right: `cf mark <problem> recognized|missed`. The
+recognition line is that share.
+
+## The program
+
+A training plan and a pace check, not a promise: rating gains vary widely.
+The USACO Guide is the backbone, with CSES and Codeforces; the doctrine's
+six practice stages and 25-minute rule hold throughout. While GATE comes
+first the program runs at the learner's CP hours; full intensity fits from
+late February 2027 (decision D7 kept the target at the profile's
+`cp.target_rating` by `cp.target_date`).
+
+| Phase | Focus | Weekly volume | Moves on when |
+|---|---|---|---|
+| 1 (weeks 1-4) | placement; C++ and STL just in time; implementation speed; ad-hoc and maths basics | 30-40 problems at 800-1100; 1-2 virtual Div. 3/4 | median time to AC on 1000-rated problems is 20 minutes or less |
+| 2 (weeks 5-12) | sorting and greedy, prefix sums and two pointers, binary search, number theory basics, constructive, bits | 25 in the band (rating +100 to +300); 2 contests; upsolve to performance +300 | 60% or more of the band solved without an editorial |
+| 3 (weeks 13-24) | graphs (BFS/DFS, shortest paths, DSU, trees), DP basics to intermediate, combinatorics; untagged recognition sets | 25 in the band; 2 contests; a weekly recognition set | performance 1500 or more in 3 of the last 5 contests |
+| 4 (weeks 25-34) | advanced DP, segment tree and BIT, strings, game theory basics; contest craft (A-C under 45 minutes) | 20 in the band plus speed drills; 2 contests | a performance trend of 1650 or more; then hold |
+
+- **Every week:** 4 practice days, 2 contests (live or virtual), 1 review
+  day (upsolving and the re-solve queue), 1 rest day.
+- **Outside Codeforces:** CSES, USACO and AtCoder problem sets are practice
+  sets (`practice add cses --kind cses --items 300 --key none`, then
+  `practice map`), numbered by their place in the judge's list. They count
+  as volume and recognition practice; they schedule topics but are not
+  rating evidence.
+- **The monthly checkpoint:** the expected rating on the straight line from
+  the plan's start to the target against the actual. Six weeks more than
+  100 points behind: replan with the learner (load, band, phase or date).
+  The phase's exit test, not the calendar, moves it on.
+
 ## Pace, and telling the truth about it
 
 `cf rating` shows the gap to the target, the points a month the target

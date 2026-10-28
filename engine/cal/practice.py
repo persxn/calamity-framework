@@ -22,7 +22,10 @@ from . import fsrs
 from .store import Repo, write_text
 from .util import SKILL_ID_RE, CalError, csv_list, fmt_delta, table
 
-KINDS = ("pyq", "book", "sheet", "course", "other")
+KINDS = ("pyq", "book", "sheet", "course", "cses", "usaco", "atcoder", "other")
+# Online judges' problem sets: the learner's own accepted solutions, mapped to cp.* topics. Schedules only by
+# default (--key none): a judge's verdict is real, but the engine sees only what the learner logs.
+JUDGE_KINDS = ("cses", "usaco", "atcoder")
 KEYS = ("official", "unofficial", "none")
 RESULTS = ("solved", "wrong", "guessed", "skipped")
 TYPES = ("mcq", "msq", "nat", "short", "code", "proof", "other")
@@ -112,8 +115,12 @@ def add(repo: Repo, state, ident: str, title: str | None, kind: str, items, key:
                 source=meta["source"])
     write_view(repo, ident, meta, old["map"] if old else [])
     verb = "changed" if old else "added"
-    return ("practice set %s: %s (%d questions, %s key)\nmap its questions to topics: practice map %s --file "
-            "<ranges.json>" % (verb, ident, n, key, ident))
+    out = ("practice set %s: %s (%d questions, %s key)\nmap its questions to topics: practice map %s --file "
+           "<ranges.json>" % (verb, ident, n, key, ident))
+    if kind in JUDGE_KINDS:
+        out += ("\na judge's problem set: number the problems by their place in the judge's own list, map them to "
+                "cp.* topics, and log only what the judge accepted")
+    return out
 
 
 def map_ranges(repo: Repo, tree, state, ident: str, rows) -> str:

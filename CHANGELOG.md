@@ -218,6 +218,15 @@ changes their record in `learner/`.
   new optional skill, `eng-vocab`, holds the vocabulary in seven families
   (reliability, distributed systems, data, performance, architecture,
   operations, security).
+- Competitive programming as a program (decision D7: the target stays at
+  the profile's, 1600 by 2027-07-31). `framework/rules/cp-planning.md`
+  holds four phases with exit tests, the weekly rhythm and a monthly
+  checkpoint that replans six weeks behind; the cp-coach places the learner
+  in a phase. `cf analyse` adds, per rating band, the median time to AC
+  (from a contest's start or an assignment), wrong submissions before AC
+  and solves after an editorial, and recognition on untagged sets
+  (`cf mark <problem> recognized|missed`). CSES, USACO and AtCoder are
+  practice-set kinds (volume, not evidence).
 
 ### Development
 
