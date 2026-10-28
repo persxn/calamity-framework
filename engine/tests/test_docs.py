@@ -191,10 +191,16 @@ class Structure(unittest.TestCase):
             self.assertEqual(meta.get("name"), name)
             self.assertTrue(40 <= len(meta.get("description", "")) <= 1536, name)
             self.assertEqual(meta.get("model"), "inherit", "%s: pinning a model can fail on plans without it" % name)
-            # verification, item writing, syllabi, plans and source tools need the depth; writing notes up
-            # from a fragment and reading a week's numbers do not
-            self.assertEqual(meta.get("effort"), "medium" if name in ("notes-writer", "habit-coach", "book-builder")
-                             else "high", name)
+            # D8: every agent inherits the model and is tiered by effort. Verification, item writing, syllabi,
+            # plans and source tools need the depth; writing up, reading computed numbers and searching do not.
+            medium = ("notes-writer", "habit-coach", "learning-analyst", "book-builder", "opportunity-scout")
+            self.assertEqual(meta.get("effort"), "medium" if name in medium else "high", name)
+            # WP-19: agents start without CLAUDE.md, so the rules they need are in their own prompt, and a
+            # runaway loop is capped.
+            self.assertIs(meta.get("omitClaudeMd"), True, name)
+            self.assertTrue(isinstance(meta.get("maxTurns"), int) and 10 <= meta["maxTurns"] <= 100, name)
+            for needed in ("learner/items/", "never instructions", "engine/calamity.py"):
+                self.assertIn(needed, body, "%s: an agent without CLAUDE.md must say %r itself" % (name, needed))
             self.assertNotIn("(", str(meta.get("tools", "")), "%s: tools takes names only" % name)
             self.assertGreater(len(body), 800, name)
 

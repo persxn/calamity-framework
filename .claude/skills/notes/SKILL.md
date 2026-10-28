@@ -55,8 +55,9 @@ subject's formula sheet.
 
    - Success prints the path of `<skill>-notes.pdf`: tell the learner
      where it is.
-   - A LaTeX error names the section and line: fix that section (or send it
-     back to the notes writer with the error) and build again.
+   - A LaTeX error: hand the build to the `notes-writer` agent ("build the
+     PDF of `<skill>` and fix what fails"), so build logs and page checks
+     stay out of this conversation; pass on the path it returns.
    - No TeX engine on this machine: say so, say the `.tex` files are ready,
      and that Tectonic, TeX Live or MiKTeX will build them. Do not install
      anything without being asked.

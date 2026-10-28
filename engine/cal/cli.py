@@ -287,6 +287,10 @@ def cmd_test(c, a):
 
 def cmd_item(c, a):
     repo, tree = c.repo, c.tree
+    if a.action == "needs" and a.compact:
+        rows = session.needed_topics(repo, tree, c.state, c.when, a.skill, a.n, days=a.days or 1,
+                                     per_topic=a.per_topic)
+        return 0, ("ITEMS NEEDED: %d topic(s): %s" % (len(rows), ", ".join(k for k, _ in rows))) if rows else "ITEMS: stocked"
     if a.action == "needs":
         return 0, session.needs_text(repo, tree, c.state, c.when, a.skill, a.n, full=a.full, days=a.days or 1,
                                      per_topic=a.per_topic)
@@ -851,6 +855,8 @@ def cmd_stats(c, a):
         return 0, stats.patterns_text(c.repo, c.tree, c.state, c.when)
     if a.action == "errors":
         return 0, stats.errors_text(c.repo, c.tree, c.state, a.track)
+    if a.action == "brief":
+        return 0, stats.brief_text(c.repo, c.tree, c.state, c.when, a.days)
     flags = stats.flags(c.repo, c.tree, c.state, c.when)
     return 0, "\n".join(flags) if flags else "No teaching observation stands out yet."
 
@@ -903,6 +909,12 @@ def cmd_workout(c, a):
 
 
 def cmd_dash(c, a):
+    if a.html:
+        from . import dash
+
+        a.html = False
+        code, text = cmd_dash(c, a)
+        return code, dash.write_html(c.repo, a.view, text)
     from . import dash
 
     width = a.width or term_width()
@@ -1372,6 +1384,7 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("--status", choices=("draft", "verified", "rejected", "disputed"))
     sp.add_argument("--n", type=_positive, default=6, help="needs: how many topics to list")
     sp.add_argument("--full", action="store_true", help="needs: with objectives, difficulty, format and topics to weave")
+    sp.add_argument("--compact", action="store_true", help="needs: one line, for the tutor (is there work, for which topics)")
     sp.add_argument("--days", type=_positive, help="needs: look this many learner days ahead (stocking ahead)")
     sp.add_argument("--per-topic", type=_positive, default=1, dest="per_topic",
                     help="needs: unseen verified items wanted per topic (an item family: 3)")
@@ -1481,7 +1494,7 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("target", nargs="?", help="a skill, or <skill>/<topic> for fragment and section")
 
     sp = add("stats", cmd_stats, "How the learner works: week, hours, patterns, errors, flags.")
-    sp.add_argument("action", nargs="?", default="flags", choices=("flags", "week", "hours", "patterns", "errors"))
+    sp.add_argument("action", nargs="?", default="flags", choices=("flags", "brief", "week", "hours", "patterns", "errors"))
     sp.add_argument("--days", type=_positive, default=7)
     sp.add_argument("--track")
     sp = add("feedback", cmd_feedback, "Record the learner's word on the teaching: pace, depth, clarity.")
@@ -1515,6 +1528,7 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("--ascii", action="store_true")
     sp.add_argument("--track")
     sp.add_argument("--all-tracks", dest="all_tracks", action="store_true")
+    sp.add_argument("--html", action="store_true", help="write the view to .calamity/dash/<view>.html and print two lines")
     sp = add("statusline", cmd_statusline, "One line for the Claude Code status line.")
     sp.add_argument("--stdin", action="store_true",
                     help="read the session data Claude Code passes (its model and effort) from standard input")

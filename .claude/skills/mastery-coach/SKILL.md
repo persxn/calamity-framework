@@ -44,7 +44,7 @@ grouped into units in `learner/coach/<topic>/curriculum.md`. Show the roadmap be
 
 ## 4. The session loop
 
-1. **Stock the bank in the background.** `python3 engine/calamity.py item needs --skill <skill>`; if it
+1. **Stock the bank in the background.** `python3 engine/calamity.py item needs --skill <skill> --compact`; if it
    lists topics, ask the `examiner` to stock them, passing the seeds you have
    (`learner/coach/<topic>/seeds.md`), then the ids it returns to the `checker`. Never write or verify an
    item yourself.

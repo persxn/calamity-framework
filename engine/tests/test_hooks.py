@@ -146,3 +146,22 @@ class BigFiles(Case):
         self.assertIsNone(guard.decide(dict(call, tool_input={"file_path": big, "limit": 40}), sb.root))
         self.assertIsNone(guard.decide(dict(call, tool_input={"file_path": small}), sb.root))
         self.assertIsNone(guard.decide(dict(call, tool_input={"file_path": notes}), sb.root))   # notes are the learner's
+
+
+class Slices(Case):
+    def test_compact_needs_brief_stats_and_html_dashboards(self):
+        sb = self.sb
+        sb.onboard()
+        sb.run("enroll", "shell")
+        out = sb.run("item", "needs", "--compact")
+        self.assertRegex(out, r"^ITEMS NEEDED: \d+ topic\(s\): shell/pipes")
+        self.assertEqual(len(out.strip().split("\n")), 1)
+        sb.run("workout", "30")
+        brief = sb.run("stats", "brief")
+        self.assertIn("last 7 days: 1 active", brief)
+        self.assertLessEqual(len(brief.strip().split("\n")), 2)
+        two = sb.run("dash", "queue", "--html").strip().split("\n")
+        self.assertEqual(len(two), 2)
+        page = two[1].split(" written to ")[1].split(" (open")[0]
+        self.assertTrue(page.endswith(os.path.join("dash", "queue.html")))
+        self.assertIn("<pre>", read(page))

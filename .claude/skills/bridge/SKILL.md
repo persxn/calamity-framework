@@ -64,9 +64,11 @@ gate; the learner sees what will run.
 
 ## Update or reconcile
 
-The learner pastes the page again. Import the list again (existing ids are
-replaced, new ones added), re-run `source check`, and log anything the page
-shows as done that the log does not.
+The learner pastes the page again. Hand the paste to the `bridge-engineer`
+agent ("update `<source>` from this paste": it parses it, runs
+`source import <source> --file F --dry-run`, then the import, `source check`,
+and logs what the page shows as done that the log does not), so the page
+itself never sits in this conversation; pass on the counts it returns.
 
 ## When they ask for more
 
