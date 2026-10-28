@@ -648,6 +648,12 @@ def brief(repo: Repo, tree, state, when, engine_cmd: str = "", current=None) -> 
     out = ["=== CALAMITY BRIEF ==="]
     stamp = when.strftime("%a %Y-%m-%d %H:%M %z")
     out.append("Time: %s · machine: %s%s" % (stamp, repo.machine(), (" · engine: " + engine_cmd) if engine_cmd else ""))
+    from . import machine as machine_mod
+
+    if machine_mod.old_alias():
+        out.append("Shell: `calamity` is still the 1.x alias that opens Claude Code. Use the engine command above, never "
+                   "`calamity <command>`, until the learner runs `python3 engine/calamity.py setup --alias` (it becomes "
+                   "the function that also runs the engine) and opens a new terminal.")
     if not repo.onboarded():
         live = tree.live()
         out.append("State: NOT ONBOARDED (no learner profile yet).")

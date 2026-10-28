@@ -4,7 +4,25 @@ All notable changes to the Calamity Framework. The version is in
 `framework/VERSION`; learners update with `/update-framework`, which never
 changes their record in `learner/`.
 
-## Unreleased
+## 2.0.0 (2026-10-28)
+
+Calamity 2.0: mastery paced by evidence, GATE and competitive programming
+carried through practice sets, mocks and contests, a developer track with
+drills and integration projects, a career layer, one design system for every
+document, and the framework installable as a Claude Code plugin. Moving a
+1.x study clone: `docs/migrating-to-2.0.md` (`doctor` lists each step until
+it is done).
+
+### Moving from 1.x
+
+- `docs/migrating-to-2.0.md`, tested on a copy of a real 1.x study clone:
+  save, update, replace the shell alias (`setup --alias --shim`), install
+  the hooks again, `layout migrate`, `day migrate`, `rebuild`.
+- While the 1.x alias is still in the shell, the brief names the full
+  engine command and warns that `calamity` would open Claude Code instead
+  of the engine; `/update-framework` verifies with the command the brief
+  names and walks the learner through the guide.
+
 
 ### The learning system
 
