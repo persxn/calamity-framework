@@ -91,7 +91,9 @@ cannot show them.
 | `source import ID --file F [--dry-run]` | Add or replace its lectures from a JSON list: `[{"id", "title", "topics": ["skill/topic"], "minutes", "order", "section", "url"}]`. `--dry-run` checks the list and says what would change, writing nothing. |
 | `source status [ID]`, `source check` | Progress and next lectures; validate topic mappings. |
 | `source show <id> [--section S] [--unmapped] [--topic K] [--limit N]` | A slice of a source: with no filter its sections with item and unmapped counts; with a filter the matching lectures (id, title, section, topics), at most N (40). Mapping and syllabus tasks read this, never the whole file. |
-| `log SOURCE ITEM [--undo] [--upto] [--score X] [--method manual\|manual-log\|paste\|screenshot\|api\|export\|browser-session]` | Mark a lecture done. ITEM is its id, its number, or a unique piece of its title. `--upto` logs everything up to it as watched earlier (it does not count as today's work). |
+| `source revise [--limit N]` | Watched lectures whose topics have fallen below 85% recall, most faded first: what to rewatch or reread (8 by default). |
+| `log SOURCE ITEM [--undo] [--upto] [--at ISO] [--score X] [--method manual\|manual-log\|paste\|screenshot\|api\|export\|browser-session]` | Mark a lecture done. ITEM is its id, its number, or a unique piece of its title. `--upto` logs everything up to it as watched earlier (it does not count as today's work). `--at` backdates it to when it was watched. |
+| `log SOURCE --file ticks.json` | Log many lectures at the times they were ticked: a JSON list `[{"item": "ak-593", "at": "2026-10-23T21:10:00+05:30"}]` or an object `{"ak-593": "<ISO time>"}` (as a tracker stores it; `true` means now). Lectures already logged are skipped, so a sync can run again. |
 
 ## GATE
 
@@ -104,6 +106,9 @@ cannot show them.
 | `gate errors` | Topics with the most wrong answers, with error kinds. |
 | `gate weight SUBJECT MARKS --source "..."` | Replace a subject's prior weight. |
 | `gate weights [--apply]` | Average marks per subject from fully imported official papers. |
+| `gate pass SUBJECT N --planned YYYY-MM-DD`, `gate pass SUBJECT N --done [--date D]` | Plan or mark a revision pass of a subject; `gate status` shows passes done of planned. |
+| `gate numericals [SUBJECT]` | Per topic with `[N]` objectives: numerical questions solved (verified `nat` items answered right, `nat` practice questions solved) against `numericals.target` (10), to reach before the final phase. A topic far behind is raised once as the `numericals-low` pattern. |
+| `gate pack SUBJECT [--pdf]` | A revision pack, `learner/notes/<subject>/revision-pack.md`: a formula sheet from the `## Formulas` sections of the subject's notes fragments and an error book of the recorded mistakes (date, topic, kind, the learner's note, where). No key or solution: those items come back. `--pdf` also builds a PDF (needs a TeX engine). |
 
 ## Codeforces
 
@@ -153,7 +158,7 @@ cannot show them.
 `daily.target_hours`, `reminders.times`, `gate.year`, `gate.papers`,
 `gate.registered`, `gate.target_rank`, `gate.target_marks.<PAPER>`,
 `gate.target_source`, `gate.exam_date.<PAPER>`, `cp.handle`, `book.format`,
-`cp.target_rating`, `cp.target_date`, `cp.language`, and `cfg.<key>` to
+`cp.target_rating`, `cp.target_date`, `cp.language`, `stock.at`, and `cfg.<key>` to
 override any default in `framework/config.md` (for example
 `cfg.advice false` to turn off the model suggestions, or
 `cfg.advice.heavy "opus xhigh"`).

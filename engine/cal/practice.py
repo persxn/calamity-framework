@@ -180,7 +180,7 @@ def log(repo: Repo, tree, state, when, ident: str, questions, result: str, err: 
             session._record(repo, tree, state, when, key, [key], good, grade, 0, None,
                             practice="%s:%s" % (ident, _ranges(qq)), verified=official or None,
                             quick=None if official else True, err=(err or "unclassified") if not good else None,
-                            kind="practice")
+                            note=note if not good else None, kind="practice")
         if by_topic:
             lines.append("%s: %s" % ("evidence for" if official else "scheduled (not evidence: the key is not "
                                      "official)", ", ".join(sorted(by_topic))))

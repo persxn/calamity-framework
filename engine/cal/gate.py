@@ -331,16 +331,25 @@ def status_text(repo: Repo, tree, state, when) -> str:
         nums = subject_numbers(repo, tree, state, node)
         marks, source = weight(state, node)
         sk = state.skills.get(node.id)
+        done = sum(1 for r in (state.passes.get(node.id) or {}).values() if r.get("done"))
+        planned = len(state.passes.get(node.id) or {})
         rows.append([node.id, node.paper or "all", "%.1f%s" % (marks, "*" if source == "prior" else ""),
                      "%d/%d" % (nums["covered"], nums["total"]), "%d/%d" % (nums["tested"], nums["total"]),
                      "%d/%d" % (nums["solid"], nums["total"]),
                      pct(nums["raw_acc"]) if nums["raw_acc"] is not None else "-",
+                     ("%d/%d" % (done, planned)) if planned else "-",
                      "yes" if (sk and sk.enrolled) else "no"])
     out.append("")
-    out.append(table(rows, ["subject", "paper", "marks", "covered", "tested", "solid", "accuracy", "enrolled"],
-                     aligns="llrrrrrl"))
+    out.append(table(rows, ["subject", "paper", "marks", "covered", "tested", "solid", "accuracy", "passes",
+                            "enrolled"], aligns="llrrrrrrl"))
     out.append("* prior weight. 'backed by practice' = weight x share of topics tested x accuracy on verified practice:"
                " a measure of coverage, not a forecast. A timed full mock is the real measure.")
+    from .revision import pass_text
+
+    planned = [(node.id, pass_text(state, node.id)) for node in gate_nodes(repo, tree) if state.passes.get(node.id)]
+    if planned:
+        out.append("revision passes (done/planned above):")
+        out.extend("  %s: %s" % row for row in planned)
     return "\n".join(out)
 
 
