@@ -61,6 +61,10 @@ framework/                 shipped with the framework; the same for every learne
   tree/<track>/<skill>.md  one file per skill: prerequisites, scope, boss, weave, topics
   gate/<year>.md           what the organisers published for that year
   notes/preamble.tex       LaTeX preamble for study notes
+  design/tokens.json       Calamity Paper: colours, fonts (Charter, Fira Sans, Fira Mono), type, callouts
+  design/calamity.sty      generated: the LaTeX package (notebook and book options); calamity.css,
+                           palette.svg and calamity-terminal.json beside it (tools/design.py writes them)
+  design/src/, design/qa/  the package's source template; QA documents that use every macro
 learner/                   everything about one learner; this is what they sync
   README.md                what each folder holds (ships with the framework)
   profile.md               answers from onboarding (keys) and free notes about the learner

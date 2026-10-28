@@ -1,0 +1,43 @@
+% QA chapter for calamity.sty, book option: every environment and macro the study books use.
+% Built by: python3 tools/design.py --qa <out folder>
+\documentclass[11pt,oneside]{book}
+\usepackage[book]{calamity}
+\begin{document}
+\chapter{Containers from first principles}\label{ch:one}
+\section{Why containers exist}
+A \term{container} is a process with its own view of the system. Run \cmd{docker run --rm -it debian:12}; the
+file \file{/etc/hosts} and the flag \flag{--network=host} stay literal. See \cref{ex:ns}.
+\begin{definition}{namespace}A kernel feature that gives a process its own view of one resource.\end{definition}
+\begin{keyidea}[the one thing]A container is not a small VM.\end{keyidea}
+\begin{plainwords}It is a fenced-off process.\end{plainwords}
+\begin{underthehood}\code{clone(CLONE_NEWPID)} makes the new PID namespace.\end{underthehood}
+\begin{designnote}Layers are content-addressed so they can be shared.\end{designnote}
+\begin{gotcha}\code{COPY .env} bakes secrets into a layer.\end{gotcha}
+\begin{misconception}Containers are secure by default.\end{misconception}
+\begin{origin}chroot, 1979.\end{origin}
+\begin{scale}One registry serves billions of pulls.\end{scale}
+\begin{vocab}Image, layer, registry, digest.\end{vocab}
+\begin{outage}A full disk of dangling layers.\end{outage}
+\begin{aiwatch}The model suggested \flag{--privileged}.\end{aiwatch}
+\begin{interview}What does PID 1 do in a container?\end{interview}
+\begin{tryit}List namespaces with \cmd{lsns}.\end{tryit}
+\begin{example}A two-stage build.\end{example}
+\begin{shell}
+$ docker build -t notes-api .
+$ docker images --filter reference=notes-api
+\end{shell}
+\begin{codeblock}[language=Dockerfile]
+FROM python:3.12-slim AS build
+RUN pip install --no-cache-dir -r requirements.txt
+\end{codeblock}
+\svgfigure{layers}{The layers of an image.}{fig:layers}
+\chaptersummary
+A container is a process with namespaces and cgroups.
+\chaptervocab
+\begin{vocablist}\item[Layer] A filesystem diff, content-addressed.\end{vocablist}
+\chapterexercises
+\begin{exercise}[3]{ex:ns}Explain why PID 1 matters in a container.\end{exercise}
+\begin{solution}{ex:ns}It reaps orphans and receives signals.\end{solution}
+\begin{mistakes}\item Ran as root.\end{mistakes}
+\begin{recall}\item What does a layer hold?\end{recall}
+\end{document}

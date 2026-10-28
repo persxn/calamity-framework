@@ -1,0 +1,40 @@
+% QA page for calamity.sty, notebook option: every environment and macro the notes use.
+% Built by: python3 tools/design.py --qa <out folder>
+\documentclass[11pt,a4paper]{article}
+\usepackage{calamity}
+\title{Paging and the TLB}
+\author{Calamity Paper QA \\ \small study notes}
+\date{}
+\begin{document}
+\maketitle
+\section{Why paging exists}
+A process sees one flat \term{virtual address space}. A call such as \code{mmap(NULL, 4096, PROT_READ, fd, 0)}
+adds entries; \cmd{ls -la --block-size=K} and \flag{--force} stay literal; press \key{Ctrl}+\key{C}.
+Searching is \bigO{n \log n}.
+\begin{definition}{effective access time}
+With hit ratio $h$: $\mathrm{EAT} = h(t_{\mathrm{TLB}} + t_m) + (1-h)(t_{\mathrm{TLB}} + 2t_m)$.
+\end{definition}
+\begin{keyidea}The hit ratio decides the speed, not the table size.\end{keyidea}
+\begin{pitfall}[the TLB time]Counting the TLB lookup only on a hit.\end{pitfall}
+\begin{gotcha}An alias of pitfall.\end{gotcha}
+\begin{underthehood}The MMU walks the table in hardware.\end{underthehood}
+\begin{misconception}A bigger page is always faster.\end{misconception}
+\begin{origin}Atlas, 1962.\end{origin}
+\begin{outage}A TLB shootdown storm.\end{outage}
+\begin{aiwatch}The model forgot the second memory access.\end{aiwatch}
+\begin{interview}Why is a TLB fully associative?\end{interview}
+\begin{tryit}Run \code{getconf PAGESIZE}.\end{tryit}
+\begin{example}At $h=0.98$: $112$\,ns.\end{example}
+\[ P(A\mid B)=\frac{P(B\mid A)P(A)}{\sum_i P(B\mid A_i)P(A_i)},\qquad \int_0^\infty \lambda e^{-\lambda x}\,dx=1,\qquad \mathbb{R}^{n}. \]
+\begin{tabular}{@{}lrr@{}}\toprule Page & Bits & Entries\\\midrule 4 KiB & 12 & 1\,048\,576\\\bottomrule\end{tabular}
+\begin{lstlisting}[language=Python,caption={A translation}]
+def translate(va, table):   # two levels
+    return (table[va >> 12] << 12) | (va & 0xFFF)
+\end{lstlisting}
+\begin{lstlisting}[language=Dockerfile]
+FROM debian:12-slim
+USER app
+\end{lstlisting}
+\begin{mistakes}\item Forgot the offset bits.\end{mistakes}
+\begin{recall}\item Why no external fragmentation?\end{recall}
+\end{document}
