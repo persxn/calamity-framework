@@ -108,11 +108,27 @@ def _machine_json(repo: Repo) -> dict:
         return {}
 
 
+def ours_on_path() -> bool:
+    """Whether the `calamity` on the PATH runs this framework copy: its bin/calamity, or a `setup --shim` script
+    that points at it. Another copy's command (a study clone's, seen from a dev clone) would run that copy."""
+    found = shutil.which("calamity")
+    if not found:
+        return False
+    mine = os.path.join(framework_root(), "bin")
+    try:
+        if os.path.realpath(os.path.dirname(found)) == os.path.realpath(mine):
+            return True
+        with open(found, "r", encoding="utf-8", errors="replace") as fh:
+            return os.path.join(mine, "calamity") in fh.read(4096)
+    except OSError:
+        return False
+
+
 def engine_cmd(repo: Repo) -> str:
     """How to call the engine on this machine. `calamity` when the plugin's shim or `setup --shim` put it on the
     PATH; otherwise the form typed from the repository root, worked out once and kept in .calamity/machine.json,
     next to the machine id."""
-    if plugin_mode() or (shutil.which("calamity") and not old_alias()):
+    if plugin_mode() or (ours_on_path() and not old_alias()):
         return "calamity"
     cmd = _machine_json(repo).get("cmd")
     if isinstance(cmd, str) and cmd:
@@ -519,7 +535,7 @@ def shim_state(repo: Repo) -> str:
     path = shim_path()
     if os.path.isfile(path):
         return "ok" if os.path.abspath(repo.root) in read_text(path) else "points at a different copy of the repository"
-    return "ok (on PATH)" if shutil.which("calamity") else "missing"
+    return "ok (on PATH)" if ours_on_path() else ("another copy's (setup --shim writes this one's)" if shutil.which("calamity") else "missing")
 
 
 def install_permissions(repo: Repo) -> str:

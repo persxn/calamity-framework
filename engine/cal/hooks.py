@@ -61,6 +61,7 @@ TOKENS = {
                                      "formative ones"),
     "!easier": ({"level": "easier"}, "easier: step back to the prerequisite, then build up again"),
 }
+NOTICE = re.compile(r"<task-notification>|^\s*\[SYSTEM NOTIFICATION")
 CF_LINK = re.compile(r"codeforces\.com/(?:contest|gym)/(\d+)/problem/|codeforces\.com/problemset/problem/(\d+)/")
 
 
@@ -110,6 +111,8 @@ def session_rec(data: dict, sid: str, when) -> dict:
 def prompt(repo, tree, payload: dict, when) -> str | None:
     """Context for this prompt (or None), after recording what it says about the session."""
     text = str(payload.get("prompt") or "")
+    if NOTICE.search(text):           # Claude Code's own notices (a background task ended): not the learner's words
+        return None
     data = load_sessions(repo)
     rec = session_rec(data, str(payload.get("session_id") or ""), when)
     rec["prompt_ts"] = iso(when)
