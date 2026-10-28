@@ -147,10 +147,9 @@ changes their record in `learner/`.
   topic consolidated first), feedback after every answer, no help during a
   running contest, one question per `/day` boundary, and a drill that
   never leaks its cause. `engine/tests/test_evals.py` checks every case and
-  its fixture without a model; `.github/workflows/evals.yml` runs them on
-  pull requests that touch behaviour, nightly when `main` changed, and by
-  hand, once a `CLAUDE_CODE_OAUTH_TOKEN` secret is set (never part of
-  `ci-ok`). `item show` on an open item now says it must not be solved
+  its fixture without a model; `python3 tools/evals.py` runs the cases a
+  branch touches (or `--all`) on the Claude account this machine is
+  logged into, with no token or CI job. `item show` on an open item now says it must not be solved
   for the learner before the answer is recorded, and `framework/method.md`
   says the same.
 - The career companion. `/career` reads the blackout first, keeps the

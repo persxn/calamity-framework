@@ -57,11 +57,14 @@ the engine's writes.
 front matter, grader types and patterns, the README row, and that the
 cheap fixtures put the engine where the graders assume.
 
-**In CI** (`.github/workflows/evals.yml`): one run per case with Sonnet
-(also as judge) on pull requests that touch `.claude/`, the plugin
-manifest, `framework/rules/`, `framework/method.md` or `evals/`, nightly
-on `main` when it changed that day, and by hand (`workflow_dispatch`, with
-an optional case glob). It needs a `CLAUDE_CODE_OAUTH_TOKEN` repository
-secret (made with `claude setup-token`) and is skipped without one. It is
-not part of `ci-ok`, so it never blocks a merge: read its result on the
-pull request. Every run spends plan usage.
+**Run them here, never in CI.** The evals run on the Claude account this
+machine's Claude Code is logged into: no token, no secret, nothing to set
+up. `python3 tools/evals.py` runs the cases the current branch touches
+(its own case folders; every case when it changes `.claude/`, the plugin
+manifest, `framework/rules/`, `framework/method*.md`, `evals/fixture.py`
+or `tools/baseline.py`), once each with Sonnet as model and judge, and
+prints each failing grader with its reason. `--all` runs every case,
+`--case <glob>` the ones named, `--dry-run` only lists them. Run it
+before merging a pull request that changes behaviour, and say the result
+in the pull request. Every case spends plan usage (about $0.07–0.15 with
+Sonnet).

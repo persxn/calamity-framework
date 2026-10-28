@@ -55,6 +55,25 @@ class Cases(unittest.TestCase):
                 self.assertIn("scaffold_script: scaffold.sh", read(os.path.join(folder, "case.yaml")), case)
 
 
+class Runner(unittest.TestCase):
+    """tools/evals.py picks the cases a branch touches; nothing here calls a model."""
+
+    def test_a_branch_runs_the_cases_it_touches(self):
+        import importlib.util
+
+        spec = importlib.util.spec_from_file_location("eval_runner", os.path.join(REPO, "tools", "evals.py"))
+        runner = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(runner)
+        cases = runner.all_cases()
+        self.assertEqual(runner.select(["evals/gates-respected/graders/consolidate-first.md", "README.md"], cases),
+                         ["gates-respected"])
+        self.assertEqual(runner.select([".claude/skills/study/SKILL.md"], cases), cases)
+        self.assertEqual(runner.select(["framework/method.md"], cases), cases)
+        self.assertEqual(runner.select(["engine/cal/career.py", "CHANGELOG.md"], cases), [])
+        self.assertFalse(os.path.exists(os.path.join(REPO, ".github", "workflows", "evals.yml")),
+                         "evals run on this machine's Claude login (tools/evals.py), never in CI")
+
+
 class Fixtures(unittest.TestCase):
     """The cheap scenarios, built for real: what the engine says there is what the graders expect."""
 
