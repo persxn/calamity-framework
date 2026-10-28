@@ -38,7 +38,7 @@ name that command in every prompt you give an agent.
 
 ## 1. Stock the item bank, in the background
 
-    python3 engine/calamity.py item needs --skill <skill>
+    python3 engine/calamity.py item needs --skill <skill> --compact
 
 (without `--skill` for a session across everything). If it lists topics,
 ask the `examiner` agent to stock them ("stock the item bank for

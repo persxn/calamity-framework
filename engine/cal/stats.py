@@ -253,6 +253,21 @@ def week_text(repo: Repo, state, when, days: int = 7) -> str:
     return text + tail
 
 
+def brief_text(repo: Repo, tree, state, when, days: int = 7) -> str:
+    """The last days in two lines, for a prompt or an agent that needs the gist, not the table."""
+    recent = [ds for _, ds in _recent_days(state, when, days) if ds is not None]
+    if not recent:
+        return "last %d days: nothing recorded" % days
+    n = sum(ds.attempts for ds in recent)
+    ok = sum(ds.ok for ds in recent)
+    line = "last %d days: %d active · %s accounted · %d answers%s · %d new · %d reviews · %d lectures" % (
+        days, len(recent), fmt_minutes(sum(accounted(ds) for ds in recent)), n,
+        (" (%s right)" % pct(ok / float(n))) if n else "", sum(ds.new for ds in recent),
+        sum(ds.reviews for ds in recent), sum(ds.src_done for ds in recent))
+    raised = flags(repo, tree, state, when)
+    return line + ("\n" + " · ".join(raised[:3]) if raised else "")
+
+
 def hours_text(repo: Repo, state, when, days: int = 14) -> str:
     parts = day_parts(state, when, days)
     rows = []

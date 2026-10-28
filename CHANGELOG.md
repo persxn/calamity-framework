@@ -179,6 +179,16 @@ changes their record in `learner/`.
   cooldowns; the brief and `today` show the top two. Every skill now says
   what it is in its `description` and when to use it in `when_to_use`, 250
   characters each and about 5,100 in all (a test holds them under 6,000).
+- Agents on a context diet (decision D8: every agent inherits the
+  session's model and is tiered by effort, medium for the notes writer,
+  the book builder, the habit coach and the scout). Every agent starts
+  without `CLAUDE.md` (`omitClaudeMd`), with the rules it needs written
+  into its own prompt, and has a `maxTurns` cap; a test holds all three.
+  Shorter engine answers for prompts: `item needs --compact`,
+  `stats brief`, and `dash --html`, which writes the view to a page and
+  prints two lines. A failing notes PDF build goes to the notes writer and
+  a source update to the bridge engineer, so logs and pasted pages stay out
+  of the tutor's conversation.
 
 ### Development
 

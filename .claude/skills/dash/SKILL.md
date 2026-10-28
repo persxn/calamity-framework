@@ -24,8 +24,12 @@ Pick the view from the argument or the question:
 
 Rules:
 
-- Print the engine's output unchanged inside a code block. Do not redraw
-  it, reorder it or convert it to a table.
+- Add `--html` to the command: the engine writes the view to a page and
+  prints two lines (its headline and the page's path). Pass on those two
+  lines and nothing more; the learner opens the page. Print the view in the
+  chat instead (without `--html`, unchanged, inside a code block, never
+  redrawn) only when the learner asks to see it here or has no browser at
+  hand (a phone over Remote Control).
 - On a narrow screen (a phone over Remote Control) add `--width 60`. If the
   glyphs do not display, add `--ascii`.
 - After the block, at most two lines: the one thing that stands out and the

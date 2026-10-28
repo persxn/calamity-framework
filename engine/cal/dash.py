@@ -218,3 +218,23 @@ def statusline(repo: Repo, tree, state, when, current=None) -> str:
         if hint:
             parts.append(hint)
     return " · ".join(parts)
+
+
+def write_html(repo, view: str, text: str) -> str:
+    """The view as a page in .calamity/dash/<view>.html (the same text, in a monospace block), and two lines:
+    its first line and where the page is. The conversation never carries the table."""
+    import html
+    import os
+
+    from .store import write_text
+
+    folder = os.path.join(repo.local, "dash")
+    path = os.path.join(folder, "%s.html" % view)
+    page = ("<!doctype html>\n<html><head><meta charset=\"utf-8\"><title>Calamity: %s</title>\n<style>"
+            "body{font:14px/1.45 ui-monospace,Menlo,Consolas,monospace;margin:24px;background:#fbfaf7;color:#222}"
+            "@media (prefers-color-scheme:dark){body{background:#16161a;color:#e8e6e1}}"
+            "pre{white-space:pre;overflow-x:auto}</style></head>\n<body><pre>%s</pre></body></html>\n"
+            % (html.escape(view), html.escape(text)))
+    write_text(path, page, durable=False)
+    first = next((line for line in text.split("\n") if line.strip()), "")
+    return "%s\n%s view written to %s (open it in a browser)" % (first.strip()[:160], view, path)
