@@ -2,7 +2,7 @@
 
     python3 tools/design.py            write the outputs
     python3 tools/design.py --check    exit 1 when an output differs from what the tokens give (the tests run this)
-    python3 tools/design.py --qa DIR   build qa/notebook.tex and qa/book.tex with every TeX engine installed
+    python3 tools/design.py --qa DIR   build qa/notebook.tex, qa/book.tex and qa/cheatsheet.tex with every TeX engine installed
                                        (Tectonic, pdfLaTeX, XeLaTeX, LuaLaTeX) into DIR, with a PNG of each page
 
 Outputs, all in framework/design/ (generated: never edit them, edit tokens.json or src/):
@@ -247,7 +247,7 @@ def qa(out: str) -> int:
         return 2
     os.makedirs(out, exist_ok=True)
     failed = 0
-    for doc in ("notebook", "book"):
+    for doc in ("notebook", "book", "cheatsheet"):
         for name, argv in found:
             work = tempfile.mkdtemp(prefix="calamity-qa-")
             try:

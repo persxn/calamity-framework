@@ -182,6 +182,10 @@ changes their record in `learner/`.
   environments, with code blocks now `codeblock`; figures take the token
   palette and Fira Sans; `build.sh` falls back to Tectonic when TeX Live
   is missing.
+  One-page cheat sheets: the notes-writer's cheat-sheet mode writes
+  `cheatsheet.tex` and `notes cheatsheet <skill>` builds it in the
+  `cheatsheet` option (landscape, three columns), saying so when it runs
+  past a page. `dash --html` pages wear `calamity.css`.
 - Progress by date. `day <date>` adds what was recorded that day (time,
   answers, topics taught and secured, lectures, practice, workouts);
   `history --by day|week|month [--skill S] [--track T]` gives one row per

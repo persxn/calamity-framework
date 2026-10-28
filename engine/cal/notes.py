@@ -8,6 +8,7 @@ Layout, inside learner/notes/<skill>/:
     main.tex              assembled from tex/ (never hand-edited)
     calamity.sty          copied from framework/design/calamity.sty (Calamity Paper, notebook option)
     <skill>-notes.pdf     built on demand; needs a TeX engine on the machine
+    cheatsheet.tex        one revision page, by the notes-writer; notes cheatsheet builds <skill>-cheatsheet.pdf
 
 The writing is done by the tutor and the notes-writer agent. This module only
 keeps the structure straight: paths, order, staleness, assembly, compilation.
@@ -252,8 +253,8 @@ def tex_engine():
     return None
 
 
-def _log_errors(base: str) -> list:
-    log = os.path.join(base, "main.log")
+def _log_errors(base: str, stem: str = "main") -> list:
+    log = os.path.join(base, "%s.log" % stem)
     if not os.path.isfile(log):
         return []
     try:
@@ -288,7 +289,16 @@ def pdf(repo: Repo, tree, skill_id: str) -> str:
         return ("main.tex is assembled at %s, but no TeX engine is installed on this machine.\n"
                 "Install one (tectonic is the smallest; TeX Live or MiKTeX also work), then run: notes pdf %s"
                 % (repo.rel(os.path.join(base, "main.tex")), skill_id))
+    final = os.path.join(base, "%s-notes.pdf" % skill_id.replace(".", "-"))
+    name, pages = _compile(repo, base, "main", engine, final, "notes pdf %s" % skill_id)
+    return "built %s with %s%s" % (repo.rel(final), name, (", %d pages" % pages) if pages else "")
+
+
+def _compile(repo: Repo, base: str, stem: str, engine, final: str, again: str):
+    """Compile <base>/<stem>.tex with the engine found and copy the PDF to `final`. Returns (engine, pages or None);
+    raises CalError with the first errors from the log."""
     name, argv = engine
+    argv = [("%s.tex" % stem) if arg == "main.tex" else arg for arg in argv]   # tex_engine() names main.tex
     passes = 1 if name in ("tectonic", "latexmk") else 2
     last = None
     for _ in range(passes):
@@ -300,28 +310,75 @@ def pdf(repo: Repo, tree, skill_id: str) -> str:
             raise CalError("could not run %s: %s" % (name, exc))
         if last.returncode != 0:
             break
-    built = os.path.join(base, "main.pdf")
+    built = os.path.join(base, "%s.pdf" % stem)
     if last is None or last.returncode != 0 or not os.path.isfile(built):
-        errors = _log_errors(base)
+        errors = _log_errors(base, stem)
         tail = (last.stdout.decode("utf-8", "replace")[-600:] if last is not None else "")
         msg = ["PDF build failed (%s)." % name]
         msg += ["  " + e for e in errors] or ["  " + tail.strip()]
         if any("not found" in e and (".sty" in e or ".cls" in e or ".def" in e) for e in errors):
             msg.append("This TeX installation lacks a LaTeX package the notes need. Install the recommended LaTeX "
                        "collection (TeX Live: latex-recommended; MiKTeX installs packages on demand) or use Tectonic, "
-                       "which fetches what it needs. Then run: notes pdf %s" % skill_id)
+                       "which fetches what it needs. Then run: %s" % again)
         else:
-            msg.append("Fix the section named in the error, then run: notes pdf %s" % skill_id)
+            msg.append("Fix the section named in the error, then run: %s" % again)
         raise CalError("\n".join(msg))
-    final = os.path.join(base, "%s-notes.pdf" % skill_id.replace(".", "-"))
     try:
         shutil.copyfile(built, final)
     except OSError as exc:  # on Windows, a PDF viewer holding the old file open blocks the copy
         raise CalError("the PDF was built (%s) but could not be copied to %s: %s. If it is open in a PDF "
-                       "viewer, close it and run: notes pdf %s" % (repo.rel(built), repo.rel(final),
-                                                                   exc.strerror or exc, skill_id))
-    pages = ""
+                       "viewer, close it and run: %s" % (repo.rel(built), repo.rel(final), exc.strerror or exc, again))
     m = re.search(r"\((\d+) pages?", last.stdout.decode("utf-8", "replace"))
-    if m:
-        pages = ", %s pages" % m.group(1)
-    return "built %s with %s%s" % (repo.rel(final), name, pages)
+    if not m:
+        log = os.path.join(base, "%s.log" % stem)
+        try:
+            with open(log, "r", encoding="utf-8", errors="replace") as fh:
+                m = re.search(r"\((\d+) pages?", fh.read())
+        except OSError:
+            m = None
+    return name, (int(m.group(1)) if m else None)
+
+
+SHEET = "cheatsheet.tex"
+
+
+def cheatsheet(repo: Repo, tree, skill_id: str) -> str:
+    """One landscape page for revision: the notes-writer's cheatsheet.tex in the cheatsheet option of calamity.sty."""
+    node = tree.get(skill_id)
+    base = skill_dir(repo, skill_id)
+    body = os.path.join(base, SHEET)
+    if not os.path.isfile(body):
+        raise CalError("no cheat sheet yet: ask the notes-writer agent for one (\"cheat sheet for %s\"); it writes %s"
+                       % (skill_id, repo.rel(body)))
+    style = os.path.join(repo.framework, "design", "calamity.sty")
+    if not os.path.isfile(style):
+        raise CalError("framework/design/calamity.sty is missing")
+    write_text(os.path.join(base, "calamity.sty"), read_text(style))
+    learner = repo.prof_text("name")
+    lines = [
+        "% Assembled by the Calamity engine (notes cheatsheet). Do not edit: edit cheatsheet.tex.",
+        r"\documentclass[10pt]{article}",
+        r"\usepackage[cheatsheet]{calamity}",
+        r"\begin{document}",
+        r"\noindent{\sffamily\bfseries\large %s \textperiodcentered{} cheat sheet}\hfill"
+        r"{\sffamily\small\color{calMuted}%s%s}\par\vspace{2pt}{\color{calRule}\hrule}\vspace{4pt}"
+        % (tex_escape(node.title), (tex_escape(learner) + r" \textperiodcentered{} ") if learner else "",
+           now().strftime("%d %B %Y")),
+        r"\begin{multicols*}{3}",
+        r"\input{cheatsheet}",
+        r"\end{multicols*}",
+        r"\end{document}",
+    ]
+    write_text(os.path.join(base, "cheatsheet-main.tex"), "\n".join(lines) + "\n")
+    engine = tex_engine()
+    if engine is None:
+        return ("cheatsheet-main.tex is assembled at %s, but no TeX engine is installed on this machine.\n"
+                "Install one (tectonic is the smallest), then run: notes cheatsheet %s"
+                % (repo.rel(base), skill_id))
+    final = os.path.join(base, "%s-cheatsheet.pdf" % skill_id.replace(".", "-"))
+    name, pages = _compile(repo, base, "cheatsheet-main", engine, final, "notes cheatsheet %s" % skill_id)
+    out = "built %s with %s%s" % (repo.rel(final), name, (", %d pages" % pages) if pages else "")
+    if pages and pages > 1:
+        out += ("\nA cheat sheet is one page: this one runs to %d. Ask the notes-writer to cut %s to what is looked "
+                "up during revision, then run notes cheatsheet %s again." % (pages, SHEET, skill_id))
+    return out

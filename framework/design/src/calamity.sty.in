@@ -4,6 +4,7 @@
 %
 %   \usepackage{calamity}          the notebook: light dependencies, builds on pdfLaTeX, XeLaTeX, LuaLaTeX, Tectonic
 %   \usepackage[book]{calamity}    the book: tcolorbox callouts, chapters, exercises, cleveref, natbib
+%   \usepackage[cheatsheet]{calamity}  one landscape page in three columns (multicols), small type; the notebook's names
 %
 % Fonts: %%FONTNAMES%%; each falls back to Latin Modern when it is not installed, so a minimal
 % TeX still builds. Both options define the same names (callouts, \term, \code, \cmd, recall, mistakes),
@@ -12,8 +13,10 @@
 \ProvidesPackage{calamity}[%%DATE%% Calamity Paper v%%VERSION%%]
 
 \newif\ifcal@book
-\DeclareOption{notebook}{\cal@bookfalse}
-\DeclareOption{book}{\cal@booktrue}
+\newif\ifcal@sheet
+\DeclareOption{notebook}{\cal@bookfalse\cal@sheetfalse}
+\DeclareOption{book}{\cal@booktrue\cal@sheetfalse}
+\DeclareOption{cheatsheet}{\cal@bookfalse\cal@sheettrue}
 \ProcessOptions\relax
 
 % ---------------------------------------------------------------- fonts
@@ -55,9 +58,13 @@
   \RequirePackage{tabularx,longtable,array,enumitem,caption,float,etoolbox,titlesec}
   \RequirePackage[numbers,sort&compress]{natbib}
   \RequirePackage[skins,breakable]{tcolorbox}
+\else\ifcal@sheet
+  \RequirePackage[a4paper,landscape,margin=9mm]{geometry}
+  \RequirePackage{multicol}
+  \setlength{\columnsep}{6mm}\setlength{\columnseprule}{0.3pt}\def\columnseprulecolor{\color{calRule}}
 \else
   \RequirePackage[a4paper,margin=2.3cm,headheight=14pt]{geometry}
-\fi
+\fi\fi
 \color{calInk}
 \setlength{\parindent}{0pt}
 \setlength{\parskip}{0.5em plus 1pt}
@@ -91,6 +98,16 @@
   \fancyhead[L]{\sffamily\small\color{calSlate}\nouppercase{\leftmark}}
   \fancyhead[R]{\sffamily\small\color{calSlate}\thepage}
   \renewcommand{\headrulewidth}{0.3pt}
+  \ifcal@sheet                      % a cheat sheet: tight headings, no running heads, small type
+    \renewcommand\section{\@startsection{section}{1}{\z@}{-0.7em plus -0.2em}{0.15em}%
+      {\normalfont\sffamily\normalsize\bfseries\color{calAccent}}}
+    \renewcommand\subsection{\@startsection{subsection}{2}{\z@}{-0.5em plus -0.1em}{0.1em}%
+      {\normalfont\sffamily\small\bfseries}}
+    \setcounter{secnumdepth}{0}
+    \pagestyle{empty}
+    \setlength{\parskip}{0.25em plus 1pt}
+    \AtBeginDocument{\footnotesize}
+  \fi
   % the title block: sans, left-aligned, the author and date muted under it
   \renewcommand{\@maketitle}{\null\vskip 0.5em{\sffamily\bfseries\LARGE\@title\par}\vskip 0.4em
     {\sffamily\color{calMuted}\@author\par}\ifx\@date\@empty\else{\small\sffamily\color{calMuted}\@date\par}\fi
@@ -152,6 +169,7 @@
   belowskip=0.6em,captionpos=b,keywordstyle=\color{calCodeKeyword}\bfseries,stringstyle=\color{calCodeString},
   commentstyle=\color{calCodeComment}\itshape,numberstyle=\tiny\color{calRule}}
 \lstset{style=calcode}
+\ifcal@sheet\lstset{basicstyle=\ttfamily\scriptsize,aboveskip=0.3em,belowskip=0.2em}\fi
 \ifcal@book
   \lstdefinestyle{calshell}{style=calcode,language=bash,keywordstyle=\color{calInk},
     moredelim=[il][\color{calGreen}\bfseries]{\$\ },literate={\$}{{\textcolor{calGreen}{\$}}}1}

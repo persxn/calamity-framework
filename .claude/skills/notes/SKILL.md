@@ -62,6 +62,16 @@ subject's formula sheet.
      and that Tectonic, TeX Live or MiKTeX will build them. Do not install
      anything without being asked.
 
+
+**A cheat sheet** (one landscape page for revision; when a skill is ready, or
+before an exam, or when asked): the `notes-writer` agent in its cheat-sheet
+mode ("cheat sheet for `<skill>`") writes `learner/notes/<skill>/cheatsheet.tex`
+from the skill's notes, then
+
+    python3 engine/calamity.py notes cheatsheet <skill>
+
+builds `<skill>-cheatsheet.pdf`. If it says the page runs over, send it back
+to the agent to cut.
 ## Asked for "all my notes"
 
     python3 engine/calamity.py notes status

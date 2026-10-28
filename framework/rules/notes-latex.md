@@ -171,6 +171,14 @@ XeLaTeX, LuaLaTeX and Tectonic alike, without shell escape.
 - One file per topic, named after the topic id. Never edit `main.tex` or
   `calamity.sty`: the engine rewrites them.
 
+## A cheat sheet
+
+`learner/notes/<skill>/cheatsheet.tex` is the body of one landscape page
+(`notes cheatsheet <skill>` wraps it in three columns with the skill's
+title; never edit `cheatsheet-main.tex`). It follows the LaTeX rules above,
+uses `\section{}` per topic, and holds only what is looked up during
+revision; the notes-writer agent's cheat-sheet mode says what goes in.
+
 ## What is committed
 
 Fragments, sections and `stamps.json` are the learner's notes and are
