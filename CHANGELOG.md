@@ -177,6 +177,11 @@ changes their record in `learner/`.
   notes load `\usepackage{calamity}` instead of the old preamble (its
   environments are all still there, with eleven more callouts), and a
   Markdown book's block quotes take their callout's colour.
+  Study books (`mastery-textbook`, LaTeX edition) use
+  `\usepackage[book]{calamity}` instead of `mastery-book.sty`: the same
+  environments, with code blocks now `codeblock`; figures take the token
+  palette and Fira Sans; `build.sh` falls back to Tectonic when TeX Live
+  is missing.
 - Progress by date. `day <date>` adds what was recorded that day (time,
   answers, topics taught and secured, lectures, practice, workouts);
   `history --by day|week|month [--skill S] [--track T]` gives one row per

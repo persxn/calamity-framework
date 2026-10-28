@@ -11,7 +11,7 @@ Each figure teaches **one idea**. Its caption says what to notice: "Notice that 
 ## Authoring rules (these make the PDF conversion reliable)
 
 - **Canvas**: `viewBox="0 0 800 H"`, with `width="800" height="H"`. 800 wide maps to the text width. Keep a 20-unit margin inside the edges, and make sure nothing sits outside the viewBox (it gets clipped, and the check flags it).
-- **Text**: put `font-family="Helvetica, Arial, sans-serif"` on the root `<svg>`. Labels are 14–16, titles 18, and **nothing below 14**: at 800 wide, 14 units is about 7pt on the page (the check warns below that). For code inside figures, use `font-family="Courier New, monospace"` at 14 or more.
+- **Text**: put `font-family="Fira Sans, Helvetica, Arial, sans-serif"` on the root `<svg>` (Fira Sans is the books' heading face; the others stand in where it is not installed). Labels are 14–16, titles 18, and **nothing below 14**: at 800 wide, 14 units is about 7pt on the page (the check warns below that). For code inside figures, use `font-family="Fira Mono, Courier New, monospace"` at 14 or more.
 - **Supported features only**: basic shapes, `<path>`, `<text>`, `<g>`, `<defs>` with `<marker>` for arrowheads, `<linearGradient>` sparingly, and `transform`. **Not allowed**: `<foreignObject>`, CSS variables (`var(--x)`), `@import` or web fonts, external `href`s, embedded scripts, filters and blur (converters vary).
 - **Explicit colours** on every element (`fill`, `stroke`). Give the root a white background `<rect>`.
 - **Arrows**: define one `<marker id="arrow">` in `<defs>` and use `marker-end="url(#arrow)"`. Leave a 2–4 unit gap between an arrow's end and its target.
@@ -22,12 +22,15 @@ Each figure teaches **one idea**. Its caption says what to notice: "Notice that 
 
 | Role | Stroke | Fill |
 |---|---|---|
-| Primary structure (blue) | `#1D4E89` | `#EEF2F8` |
-| Mechanism or internals (teal) | `#0F766E` | `#ECFDF5` |
-| Data or storage (amber) | `#B45309` | `#FFF7ED` |
-| Danger, failure, the key insight (red) | `#B91C1C` | `#FEF2F2` |
-| Neutral, arrows, notes (slate) | `#475569` | `#F8FAFC` |
-| Text | `#1F2933` | — |
+| Primary structure (blue) | `#1F4E8C` | `#EFF3F7` |
+| Mechanism or internals (teal) | `#0F766E` | `#EEF5F5` |
+| Data or storage (amber) | `#A4511B` | `#F9F3EF` |
+| Danger, failure, the key insight (red) | `#B42318` | `#FAF0EF` |
+| Neutral, arrows, notes (slate) | `#475569` | `#F2F3F4` |
+| Success, a result (green) | `#3B6E3B` | `#F1F5F1` |
+| Text | `#1F2328` | — |
+
+These are the Calamity Paper tokens (`framework/design/tokens.json`; `framework/design/palette.svg` shows them all), so a figure matches the callouts beside it.
 
 Colour should carry meaning, used the same way in every figure. The figure must still read in greyscale, so use labels and shapes as well as colour.
 

@@ -114,7 +114,8 @@ th, td { padding: 3px 10px 3px 0; } tr:last-child td { border-bottom: 1px solid 
 .callout.underthehood, .callout.mechanism { --edge: var(--cal-teal); --edge-tint: var(--cal-teal-tint); }
 .callout.designnote, .callout.design { --edge: var(--cal-teal); --edge-tint: var(--cal-teal-tint); }
 .callout.tryit, .callout.example { --edge: var(--cal-green); --edge-tint: var(--cal-green-tint); }
-.callout.pitfall, .callout.pitfall, .callout.gotcha { --edge: var(--cal-amber); --edge-tint: var(--cal-amber-tint); }
+.callout.pitfall, .callout.pitfall { --edge: var(--cal-amber); --edge-tint: var(--cal-amber-tint); }
+.callout.gotcha, .callout.gotcha { --edge: var(--cal-amber); --edge-tint: var(--cal-amber-tint); }
 .callout.misconception, .callout.misconception { --edge: var(--cal-amber); --edge-tint: var(--cal-amber-tint); }
 .callout.origin, .callout.history { --edge: var(--cal-slate); --edge-tint: var(--cal-slate-tint); }
 .callout.scale, .callout.scale { --edge: var(--cal-slate); --edge-tint: var(--cal-slate-tint); }

@@ -73,10 +73,11 @@
 <rect x="372" y="538" width="136" height="20" fill="#EEF5F5"/><rect x="372" y="538" width="3" height="20" fill="#0F766E"/><text x="380" y="552" fill="#0F766E" font-weight="600">Designer&#8217;s note</text>
 <rect x="516" y="538" width="64" height="20" fill="#F1F5F1"/><rect x="516" y="538" width="3" height="20" fill="#3B6E3B"/><text x="524" y="552" fill="#3B6E3B" font-weight="600">Try it</text>
 <rect x="588" y="538" width="72" height="20" fill="#F9F3EF"/><rect x="588" y="538" width="3" height="20" fill="#A4511B"/><text x="596" y="552" fill="#A4511B" font-weight="600">Pitfall</text>
-<rect x="12" y="564" width="176" height="20" fill="#F9F3EF"/><rect x="12" y="564" width="3" height="20" fill="#A4511B"/><text x="20" y="578" fill="#A4511B" font-weight="600">Common misconception</text>
-<rect x="196" y="564" width="112" height="20" fill="#F2F3F4"/><rect x="196" y="564" width="3" height="20" fill="#475569"/><text x="204" y="578" fill="#475569" font-weight="600">Origin story</text>
-<rect x="316" y="564" width="80" height="20" fill="#F2F3F4"/><rect x="316" y="564" width="3" height="20" fill="#475569"/><text x="324" y="578" fill="#475569" font-weight="600">At scale</text>
-<rect x="404" y="564" width="96" height="20" fill="#F2F3F4"/><rect x="404" y="564" width="3" height="20" fill="#475569"/><text x="412" y="578" fill="#475569" font-weight="600">Vocabulary</text>
+<rect x="12" y="564" width="64" height="20" fill="#F9F3EF"/><rect x="12" y="564" width="3" height="20" fill="#A4511B"/><text x="20" y="578" fill="#A4511B" font-weight="600">Gotcha</text>
+<rect x="84" y="564" width="176" height="20" fill="#F9F3EF"/><rect x="84" y="564" width="3" height="20" fill="#A4511B"/><text x="92" y="578" fill="#A4511B" font-weight="600">Common misconception</text>
+<rect x="268" y="564" width="112" height="20" fill="#F2F3F4"/><rect x="268" y="564" width="3" height="20" fill="#475569"/><text x="276" y="578" fill="#475569" font-weight="600">Origin story</text>
+<rect x="388" y="564" width="80" height="20" fill="#F2F3F4"/><rect x="388" y="564" width="3" height="20" fill="#475569"/><text x="396" y="578" fill="#475569" font-weight="600">At scale</text>
+<rect x="476" y="564" width="96" height="20" fill="#F2F3F4"/><rect x="476" y="564" width="3" height="20" fill="#475569"/><text x="484" y="578" fill="#475569" font-weight="600">Vocabulary</text>
 <rect x="12" y="590" width="184" height="20" fill="#FAF0EF"/><rect x="12" y="590" width="3" height="20" fill="#B42318"/><text x="20" y="604" fill="#B42318" font-weight="600">From the outage files</text>
 <rect x="204" y="590" width="216" height="20" fill="#FAF0EF"/><rect x="204" y="590" width="3" height="20" fill="#B42318"/><text x="212" y="604" fill="#B42318" font-weight="600">When the AI gets it wrong</text>
 <rect x="428" y="590" width="144" height="20" fill="#F5F0FC"/><rect x="428" y="590" width="3" height="20" fill="#6D28D9"/><text x="436" y="604" fill="#6D28D9" font-weight="600">Interview corner</text>
