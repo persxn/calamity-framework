@@ -1,6 +1,7 @@
 ---
 name: onboard
-description: "First-run setup for a new learner, a new track or a new machine. Use when the brief says NOT ONBOARDED, when the learner adds GATE, competitive programming, the developer path or AI, or on a laptop not set up yet."
+description: "First-run setup: a new learner, a new track (GATE, CP, the developer path, AI) or a new machine."
+when_to_use: "When the brief says NOT ONBOARDED, the learner adds a track, or this laptop is not set up yet."
 argument-hint: "[machine | gate | cp | 10x | ai]"
 effort: high
 ---

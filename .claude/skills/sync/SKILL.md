@@ -1,6 +1,7 @@
 ---
 name: sync
-description: "Save the learner's progress to their own git repository and bring in another laptop's work: commit learner/, pull, rebuild, push. Use only when the learner asks to save, sync, back up, commit or push progress, or to set up their repository."
+description: "Save progress to the learner's own git repository and bring in another laptop's work: commit learner/, pull, rebuild, push."
+when_to_use: "Only when the learner asks to save, sync, back up, commit or push progress, or to set up their repository."
 argument-hint: "[pull | push | setup]"
 ---
 

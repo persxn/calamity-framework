@@ -1,6 +1,7 @@
 ---
 name: study
-description: "A study session: surprise recall first, then one small chunk at a time, each tested at once, earlier skills woven in. Use when the learner wants to study, learn, continue, practise or be taught a skill or topic, or says \"let's start\"."
+description: "A study session: surprise recall, then one small chunk at a time, each tested at once, earlier skills woven in."
+when_to_use: "When the learner wants to study, learn, continue, practise or be taught a skill or topic, or says \"let's start\"."
 argument-hint: "[skill or topic] [--deep]"
 ---
 

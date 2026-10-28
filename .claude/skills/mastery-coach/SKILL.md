@@ -1,7 +1,7 @@
 ---
 name: mastery-coach
-description: "Deep coaching to complete mastery of any tool, technology or CS topic (Docker, C pointers, Linux, React, Kubernetes, SQL, Git): history first, a gap-free map, the designer's lens, every flag, interview-grade drills. Tracked and tested by the engine."
-when_to_use: "When the learner asks to master, deeply understand, go in depth on, learn the internals of, or prepare for interviews in a tool or topic, including one the skill tree does not have yet. Not for a quick quiz (recall) or for carrying on the day's study (study)."
+description: "Deep coaching to complete mastery of a tool or topic, on the engine: history first, a gap-free map, the designer's lens, every flag."
+when_to_use: "When the learner asks to master, go in depth on, learn the internals of, or prepare for interviews in a tool or topic, even one the tree lacks."
 argument-hint: "<topic> [in-depth | balanced | brush-up]"
 ---
 

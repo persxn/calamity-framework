@@ -20,7 +20,7 @@ SPAN = re.compile(r"`([^`\n]+)`")
 
 # What ships. A learner may add skills and agents of their own next to these; the checks below
 # look only at the framework's files, so the self-test keeps passing in a customised checkout.
-SKILLS = ("boss", "bridge", "build-it-yourself", "coach", "cp", "dash", "gate", "log", "mastery-coach", "mastery-textbook",
+SKILLS = ("boss", "bridge", "build-it-yourself", "coach", "cp", "dash", "day", "gate", "log", "mastery-coach", "mastery-textbook",
           "notes", "onboard", "practice", "recall", "remind", "stock", "study", "sync", "teach-deep", "today", "tree",
           "update-framework")
 AGENTS = ("book-builder", "bridge-engineer", "checker", "cp-coach", "curriculum-architect", "examiner", "gate-strategist",
@@ -179,7 +179,10 @@ class Structure(unittest.TestCase):
             meta, body = fm.load(os.path.join(REPO, ".claude", "skills", name, "SKILL.md"))
             self.assertEqual(meta.get("name"), name)
             self.assertNotIn(name, builtin, "%s collides with a built-in command" % name)
-            self.assertTrue(40 <= len(meta.get("description", "")) <= 1536, name)
+            # Descriptions load into every request: what the skill is in the description, when to use it in
+            # when_to_use, each 250 characters at most (WP-18).
+            self.assertTrue(40 <= len(meta.get("description", "")) <= 250, name)
+            self.assertTrue(20 <= len(str(meta.get("when_to_use", ""))) <= 250, name)
             self.assertLess(len(body), 16000, "%s is too long to survive compaction whole" % name)
             self.assertNotRegex(body, r"(?m)^!`", "%s uses command injection, which aborts the skill when it fails" % name)
             self.assertIn(meta.get("effort"), (None, "low", "medium", "high", "xhigh", "max"))
@@ -194,6 +197,13 @@ class Structure(unittest.TestCase):
                              else "high", name)
             self.assertNotIn("(", str(meta.get("tools", "")), "%s: tools takes names only" % name)
             self.assertGreater(len(body), 800, name)
+
+    def test_skill_listings_stay_small(self):
+        total = 0
+        for name in SKILLS:
+            meta, _ = fm.load(os.path.join(REPO, ".claude", "skills", name, "SKILL.md"))
+            total += len(meta.get("description", "")) + len(str(meta.get("when_to_use", "")))
+        self.assertLessEqual(total, 6000, "skill descriptions load into every request")
 
     def test_requests_route_to_one_skill(self):
         """A request word that belongs to one skill appears in no other skill's description or when_to_use."""

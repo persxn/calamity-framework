@@ -1,7 +1,7 @@
 ---
 name: mastery-textbook
-description: "Builds and grows a study book for one topic as the learner progresses: Markdown chapters by default (diagrams, flag tables, real output, graded exercises, verified references), a typeset PDF edition when asked. Runs forked, through the book-builder agent."
-when_to_use: "When the learner asks for a book, a textbook, a revision book or a PDF of a whole topic, or a mastery-coach unit is done and its chapter is due. Per-topic notes fragments and per-skill notes belong to the notes skill."
+description: "A study book per topic that grows as units are done: Markdown chapters (a PDF edition when chosen), written forked by book-builder."
+when_to_use: "When the learner asks for a book, a textbook or a PDF of a whole topic, or a deep-coaching unit is done and its chapter is due."
 context: fork
 agent: book-builder
 ---

@@ -75,7 +75,10 @@ if it exists), and the previous plan (`learner/gate/plan.md`).
 
 Use the section headings given in `gate-planning.md` (Position; Target and its
 basis; Hours: available, needed, gap; Subject order and dates; Cuts
-considered; This fortnight; Mock calendar; Changes). Dates are real dates.
+considered; This fortnight; Mock calendar; Changes), under front matter that
+holds `updated: <date>` and `review_on: <date, about two weeks ahead, or the day
+after the next mock>` (the engine's `tasks` brings the review back then). Dates
+are real dates.
 Every number that is an estimate is labelled as one. Keep earlier entries
 under `# Changes`.
 

@@ -705,6 +705,11 @@ def brief(repo: Repo, tree, state, when, engine_cmd: str = "", current=None) -> 
 
     action = next_action(repo, tree, state, when)
     out.append("Next action: %s" % action_label(action))
+    from . import tasks
+
+    task_line = tasks.brief_line(repo, tree, state, when)
+    if task_line:
+        out.append(task_line)
     from . import advise
 
     if advise.enabled(repo):

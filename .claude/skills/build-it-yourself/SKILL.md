@@ -1,7 +1,7 @@
 ---
 name: build-it-yourself
-description: "Turns a project into a learning path the learner builds and ships with their own hands, without AI writing the code: reverse mode tears down a repo or shipped app (desktop, Electron, APK/IPA, CLI, web, game) with recon and REA; idea mode architects their own idea."
-when_to_use: "When the learner wants to understand how an app or repo was built, rebuild or clone an app to learn, reverse engineer software, turn an idea into a project they build themselves, or get the roadmap of skills behind a project."
+description: "Learn a project by building and shipping it with your own hands: tear down a repo or shipped app, or architect your own idea."
+when_to_use: "When the learner wants to know how an app or repo was built, rebuild or reverse engineer one to learn, or turn an idea into a project they build."
 ---
 
 # Build It Yourself

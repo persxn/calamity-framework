@@ -1,6 +1,7 @@
 ---
 name: practice
-description: "Track questions the learner works from outside material (a previous-paper book, a PDF of questions, a problem sheet): add and map a set, log what they did, and bring every question back for revisits. Use when the learner says they solved, got wrong or skipped questions from a book, a PDF or previous papers, or asks what to redo."
+description: "Questions from outside material (previous-paper books, PDFs, sheets) as metadata: map a set, log results, revisit every one."
+when_to_use: "When the learner says they solved, got wrong or skipped questions from a book, a PDF or previous papers, or asks what to redo."
 argument-hint: "[set id | due | log ...]"
 ---
 

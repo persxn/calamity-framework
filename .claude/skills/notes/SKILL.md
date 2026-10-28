@@ -1,6 +1,7 @@
 ---
 name: notes
-description: "Turn what was studied into notes: a Markdown fragment per topic after a session, and on request a long-form book per skill, in Markdown by default (a PDF only when asked). Use when the learner asks to save notes, write up a topic, update study material or make a PDF."
+description: "Notes from what was studied: a fragment per topic, and on request a long-form notebook per skill (Markdown, or PDF)."
+when_to_use: "When the learner asks to save notes, write up a topic, update study material or make a PDF of a skill's notes."
 argument-hint: "[skill | skill/topic | pdf <skill>]"
 ---
 

@@ -167,6 +167,11 @@ def cmd_today(c, a):
         elif s["in_guard"]:
             lines.append("new material is paused until tomorrow: sleep window starts at %s" % s["start"])
     lines.append("next: " + plan.action_label(action))
+    from . import tasks
+
+    task_line = tasks.brief_line(c.repo, c.tree, c.state, c.when)
+    if task_line:
+        lines.append(task_line[0].lower() + task_line[1:])
     from . import advise
 
     hint = advise.line(c.repo, action["action"])
@@ -862,6 +867,16 @@ def cmd_observe(c, a):
     return 0, "noted (%s)" % (a.tag or "teaching")
 
 
+def cmd_tasks(c, a):
+    from . import tasks
+
+    if a.action in ("done", "snooze"):
+        if not a.task:
+            raise CalError("tasks %s <id> (tasks lists them)" % a.action)
+        return 0, tasks.mark(c.repo, c.tree, c.state, c.when, a.task, a.action, a.days)
+    return 0, tasks.text(c.repo, c.tree, c.state, c.when)
+
+
 def cmd_unit(c, a):
     from . import coach
 
@@ -1478,6 +1493,11 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("--pattern", help="the behaviour pattern id this raises (coach)")
     sp.add_argument("--skill")
     sp.add_argument("--topic")
+    sp = add("tasks", cmd_tasks, "Work around the studying that has fallen due (weekly review, plan reviews, stocking, "
+                                 "notes, push, numericals, revision, mocks): list, done, snooze.")
+    sp.add_argument("action", nargs="?", default="list", choices=("list", "done", "snooze"))
+    sp.add_argument("task", nargs="?")
+    sp.add_argument("--days", type=_positive, help="done or snooze: hide it for this many days")
     sp = add("unit", cmd_unit, "Whether a unit of deep coaching is done: each topic consolidating, and one "
                                "explained back.")
     sp.add_argument("skill")

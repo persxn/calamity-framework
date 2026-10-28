@@ -1,6 +1,7 @@
 ---
 name: recall
-description: "A rapid review round: only questions that are due, most forgotten first, from every skill, no new material. Use for a quick revision, a recall round, a warm-up, \"quiz me\", or when the learner has a few minutes."
+description: "A rapid review round: only what is due, most forgotten first, from every skill, no new material."
+when_to_use: "For a quick revision, a recall round, a warm-up, \"quiz me\", or when the learner has a few minutes."
 argument-hint: "[how many | skill]"
 ---
 

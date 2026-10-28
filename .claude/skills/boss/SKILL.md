@@ -1,6 +1,7 @@
 ---
 name: boss
-description: "Run a boss, the project or timed test that proves a skill, or a capstone milestone. Use when a boss is due or the learner wants to prove or finish a skill, or asks for a project, mock or final test on one."
+description: "The project or timed test that proves a skill, or a capstone milestone: run it and record the result."
+when_to_use: "When a boss is due (NEXT: boss), or the learner wants to prove or finish a skill, or asks for a final project or test on one."
 argument-hint: "[skill]"
 effort: high
 ---

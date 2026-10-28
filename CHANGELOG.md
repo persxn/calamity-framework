@@ -170,6 +170,15 @@ changes their record in `learner/`.
   (sources, the event log, PROGRESS.md) are read as engine slices, not
   whole. With `profile set auto.start true` a new session opens with
   `/day`, never in a clone without a learner.
+- `/day` runs the day: the block under way, at most one due task, surprise
+  recall, then the block's own skill, one question per block boundary, and
+  the close. `tasks` is the engine's queue of work around the studying
+  (weekly review, GATE and CP plan reviews from `review_on`, stocking for
+  the next two days, notes to write, unpushed progress, numericals, faded
+  lectures, stale mock records), with `tasks done|snooze <id>` and
+  cooldowns; the brief and `today` show the top two. Every skill now says
+  what it is in its `description` and when to use it in `when_to_use`, 250
+  characters each and about 5,100 in all (a test holds them under 6,000).
 
 ### Development
 

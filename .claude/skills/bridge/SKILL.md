@@ -1,6 +1,7 @@
 ---
 name: bridge
-description: "Connect a study source (course site, YouTube playlist, MOOC, book) by a route its terms allow, so its lectures enter the plan. Use when the learner names what they study from, wants course progress tracked, or a source needs updating."
+description: "Connect a study source (course site, playlist, MOOC, book) by a route its terms allow, so its lectures enter the plan."
+when_to_use: "When the learner names what they study from, wants a course's progress tracked, or a connected source needs updating."
 argument-hint: "[source name or address | update <source> | status]"
 effort: high
 ---

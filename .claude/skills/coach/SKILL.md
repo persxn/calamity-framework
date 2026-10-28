@@ -1,6 +1,7 @@
 ---
 name: coach
-description: "Review how the learner has actually been working and adjust the day shape in learner/schedule.md. Use for a weekly review, a schedule or routine, when the plan is not working or they feel behind or overloaded, or to change sleep, workout or daily hours."
+description: "The weekly review of how the learner actually works, and changes to the day shape in learner/schedule.md."
+when_to_use: "For a weekly review, a schedule or routine, when the plan is not working or they feel behind or overloaded, or to change sleep, workouts or hours."
 argument-hint: "[week | schedule | patterns]"
 effort: high
 ---
@@ -35,6 +36,7 @@ the learner:
 4. Record what was decided:
 
        python3 engine/calamity.py observe "weekly review: moved deep block to mornings; new topics 8 -> 6" --tag coach
+       python3 engine/calamity.py tasks done weekly-review
 
 ## A single pattern
 

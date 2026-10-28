@@ -1,6 +1,7 @@
 ---
 name: remind
-description: "Set up, change or remove study reminders on this laptop: notifications that fire only when work is due. Use when the learner asks for reminders, notifications or nudges, or wants them gone."
+description: "Study reminders on this laptop that fire only when work is due: set, change or remove them."
+when_to_use: "When the learner asks for reminders, notifications or nudges, or wants them gone."
 argument-hint: "[times like 09:00,14:00,21:00 | off | check]"
 ---
 

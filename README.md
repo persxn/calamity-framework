@@ -344,6 +344,7 @@ terminal.
 | `/study` | You want to learn. Opens with a few recall questions, then teaches one small chunk at a time and tests each at once | `/study`, `/study docker`, `/study git-gh` |
 | `/recall` | You have ten minutes: only the questions that are due, no new material | `/recall`, `/recall 5`, `/recall docker` |
 | `/today` | You want today's finish line and the one next thing to do | `/today` |
+| `/day` | You want Claude to run the day with you: the block you are in, one due task, recall, the block's work, the close (`profile set auto.start true` opens every new session with it) | `/day`, "just run the day" |
 | `/dash` | You want to see progress: the whole picture, the route ahead, the revision queue, the week, GATE or Codeforces | `/dash`, `/dash roadmap`, `/dash queue`, `/dash week` |
 | `/tree` | You are choosing what to learn: what a skill covers, the route to a goal, what is open next; adding, swapping or dropping skills | `/tree path mern-stack`, `/tree next`, `/tree add rust`, `/tree drop terraform` |
 | `/boss` | A skill is nearly done and you want to prove it with a project or a timed test | `/boss docker` |

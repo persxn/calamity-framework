@@ -1,6 +1,7 @@
 ---
 name: stock
-description: "Stock the item bank ahead: item families for the rest of today and tomorrow, written by the examiner and verified blind by the checker. Run by the nightly scheduler (stock render) or by hand; never during a study session."
+description: "Stock the item bank ahead (families for today and tomorrow, examiner then checker), headless at night or by hand."
+when_to_use: "Run by the nightly scheduler (stock render) or by the learner; never during a study session."
 disable-model-invocation: true
 ---
 
