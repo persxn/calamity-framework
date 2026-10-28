@@ -607,11 +607,12 @@ def weave_candidates(repo: Repo, tree, state, when, skill_id: str, n: int | None
         node = tree.nodes[other]
         if not set(node.weaves_into) & accept:
             continue
-        rows.append((0 if ts.card.due <= when else 1, state.retrievability(key, when), key))
+        # Rescue weaving: the topics most at risk of being forgotten go into the exercise first.
+        rows.append((state.retrievability(key, when), key))
     rows.sort()
     picked, used = [], set()
     for round_no in (0, 1):
-        for _, r, key in rows:
+        for r, key in rows:
             if len(picked) >= n:
                 break
             other = key.split("/", 1)[0]

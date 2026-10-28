@@ -44,7 +44,7 @@ measured; `cfg.advice false` turns it off).
 | `mistake ITEM KIND [--note "..."]` | Say what kind of mistake the last wrong answer to an item was, once the cause is clear: `concept`, `method`, `memory`, `careless`, `misread`, `time`, `syntax` or `guess`. It replaces whatever was recorded with the answer. |
 | `quick K pass\|fail [--err KIND] [--hints N] [--note]` | An oral check. Schedules the topic; never counts as mastery evidence. A `fail` is refused for a topic that was never taught or answered: there is nothing to bring back yet. |
 | `covered K [K ...] [--by tutor\|self\|source]` | Mark topics as taught and ready for their first test. |
-| `weave S [--n N]` | Earlier topics worth embedding in the next exercise for skill S. |
+| `weave S [--n N]` | Earlier topics worth embedding in the next exercise for skill S. Topics most at risk of being forgotten (lowest recall chance) come first: rescue weaving. |
 
 ## Skills and the tree
 
@@ -58,6 +58,8 @@ measured; `cfg.advice false` turns it off).
 | `test build --skills a,b --n 10 --minutes 25 [--label "..."]` | Assemble a timed mixed test from verified items. Then `ask --id ITEM --test T` and `answer` for each, and `test finish T`. `test show T` lists its items. |
 | `tree list [--track T] [--group G] [--status S]` | All skills with status and progress. |
 | `tree show S`, `tree path S`, `tree suggest [--n N]`, `tree check` | One skill in full; the route to a goal in layers that can run in parallel; what to start next; validate the tree. |
+| `tree frontier [--n N]` | Skills not started whose prerequisites are met or well under way (at least half their topics consolidating), ranked by what the learner's own work feeds, what else they combine with that the learner has, shared ground (tags) and the route to a goal, each with its summary and reasons ("builds on React (100% secured); with TypeScript, which you have; opens once Express.js is ready"). |
+| `project suggest [--n 3]` | Integration projects: two active skills that belong together (one weaves into the other, or a later skill or milestone needs both), each with at least half its topics consolidating (`project.share`), with the topics to span. The examiner writes the project as one `task` item listing those topics, so one pass credits both skills. |
 | `tree add --id ID --title "..." [--track --group --prereqs a,slot:x --slot --tags --weaves-into --aliases --summary --scope "- ..." --hours N --optional --kind milestone]` | Add a skill for this learner (`learner/tree/ID.md`). |
 | `tree set S [same options] [--clear-slot] [--not-optional]` | Change a skill. Shipped skills are overridden in `learner/tree/`, not edited. |
 | `tree drop S [--yes]`, `tree restore S` | Drop a skill from this learner's tree (its prerequisite role counts as met) or bring it back. |

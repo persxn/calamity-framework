@@ -56,6 +56,7 @@ brushup.ready_share: 0.5
 # --- the session loop
 recall_n: 3                  # surprise-recall questions at the start of a session
 weave_n: 2                   # earlier topics embedded in one exercise
+project.share: 0.5             # integration projects: share of each skill's topics consolidating first
 
 # --- GATE
 gate.daily_hours: 6          # study hours a day assumed by triage

@@ -556,6 +556,10 @@ def cmd_tree(c, a):
         return 0, treeview.path_text(repo, tree, state, a.skill, a.ascii)
     if a.action == "suggest":
         return 0, treeview.suggest_text(repo, tree, state, a.n, a.ascii)
+    if a.action == "frontier":
+        from . import frontier
+
+        return 0, frontier.frontier_text(repo, tree, state, a.n)
     raise CalError("unknown tree action")
 
 
@@ -891,6 +895,12 @@ def cmd_experiment(c, a):
             raise CalError("experiment stop <id>")
         return 0, model.stop(c.repo, c.state, a.id)
     return 0, model.status(c.state, a.id)
+
+
+def cmd_project(c, a):
+    from . import frontier
+
+    return 0, frontier.projects_text(c.repo, c.tree, c.state, c.when, a.n)
 
 
 def cmd_tasks(c, a):
@@ -1413,8 +1423,9 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("--strand", help="tag: T (theory), P (practice), I (implementation) or N (numerical)")
     sp.add_argument("--depth", help="tag: recall, apply, analyse or transfer")
 
-    sp = add("tree", cmd_tree, "The skill tree: list, show, path, suggest, check, add, set, drop, restore.")
-    sp.add_argument("action", choices=("list", "show", "path", "suggest", "check", "add", "set", "drop", "restore"))
+    sp = add("tree", cmd_tree, "The skill tree: list, show, path, suggest, frontier, check, add, set, drop, restore.")
+    sp.add_argument("action", choices=("list", "show", "path", "suggest", "frontier", "check", "add", "set", "drop",
+                                       "restore"))
     sp.add_argument("skill", nargs="?")
     sp.add_argument("--id")
     sp.add_argument("--title")
@@ -1539,6 +1550,9 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("--metric", default="first_try_acc", help="start: first_try_acc")
     sp.add_argument("--n", type=_positive, default=12, help="start: how many new topics to measure")
     sp.add_argument("--desc", help="start: the question, in a few words")
+    sp = add("project", cmd_project, "Integration projects: a build that uses two skills learnt side by side.")
+    sp.add_argument("action", choices=("suggest",))
+    sp.add_argument("--n", type=_positive, default=3)
     sp = add("tasks", cmd_tasks, "Work around the studying that has fallen due (weekly review, plan reviews, stocking, "
                                  "notes, push, numericals, revision, mocks): list, done, snooze.")
     sp.add_argument("action", nargs="?", default="list", choices=("list", "done", "snooze"))
