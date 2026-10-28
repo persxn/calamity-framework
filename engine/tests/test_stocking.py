@@ -88,6 +88,11 @@ class Nightly(Case):
         self.assertIn('"ITEMS NEEDED"*) ;;', script)                    # anything else: no Claude run
         self.assertIn("'-p' '/stock' '--permission-mode' 'dontAsk'", script)
         self.assertRegex(script, r"Bash\((python3|python|py -3) engine/calamity\.py \*\)")
+        self.assertIn("Bash(calamity *)", script)                              # the 2.0 form the skills write
+        self.assertRegex(script, r"Bash\((python3|python|py -3) \.calamity/tmp/checker/\*\)")
+        self.assertNotIn("Bash(calamity .calamity", script)                    # never the engine as an interpreter
+        self.assertIn("CALAMITY_ROOT=", script)
+        self.assertRegex(script, r"PATH='[^']*/bin':\"\$HOME/\.local/bin\":\$PATH")
         self.assertNotIn("Bash(*)", script)
         self.assertIn(os.path.join(".calamity", "logs"), script)
         cron = read(os.path.join(folder, "crontab.txt"))

@@ -4,6 +4,24 @@ All notable changes to the Calamity Framework. The version is in
 `framework/VERSION`; learners update with `/update-framework`, which never
 changes their record in `learner/`.
 
+## 2.0.1 (2026-10-28)
+
+- Fixed: nightly stocking after the move to `calamity <command>`. The
+  headless run's allowed tools took the engine command's first word as the
+  Python interpreter, which made `Bash(calamity .calamity/tmp/...)` rules;
+  they now allow the engine as `calamity` and in its full form, and the
+  real interpreter for the agents' scratch scripts. The script also sets
+  `CALAMITY_ROOT` and puts the framework's `bin/` on the scheduler's short
+  PATH, so `calamity` is found at night. Render the files again
+  (`calamity stock render`) and install them as it prints.
+- Fixed: the brief says `engine: calamity` only when the `calamity` on the
+  PATH runs this same framework copy (from a dev clone, a study clone's
+  command would run the study clone's engine); `doctor` names another
+  copy's command as such.
+- Fixed: the prompt router skipped nothing: a background-task notice that
+  Claude Code passes through the prompt hook could be routed as a request
+  (its word "notification" read as /remind). Such notices are now ignored.
+
 ## 2.0.0 (2026-10-28)
 
 Calamity 2.0: mastery paced by evidence, GATE and competitive programming

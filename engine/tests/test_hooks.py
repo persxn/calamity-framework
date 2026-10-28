@@ -34,6 +34,8 @@ class Hooks(Case):
         self.assertIn("/career", self.context(self.prompt("find me backend internships")))
         self.assertIn("/gate", self.context(self.prompt("find mocks near me")))
         self.assertEqual(self.prompt("let's resume where we stopped"), "")    # resume is not a résumé
+        self.assertEqual(self.prompt("[SYSTEM NOTIFICATION - NOT USER INPUT] <task-notification>reminders</task-notification>"),
+                         "")                                                  # Claude Code's own notices are not routed
         self.assertEqual(self.prompt("what is a pipe?"), "")                 # nothing matched: silence
         self.assertEqual(self.prompt("/recall quiz me"), "")                 # a slash command routes itself
 
