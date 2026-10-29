@@ -1,0 +1,31 @@
+/* Calamity Paper for Obsidian — drop this into learner/.obsidian/snippets/calamity.css
+   and enable it under Settings → Appearance → CSS snippets. Colours and fonts match the
+   Calamity books and dashboards (framework/design/tokens.json). Light and dark follow the theme. */
+
+.theme-light {
+  --cal-ink: #1F2328; --cal-muted: #57606A; --cal-rule: #8A8F98;
+  --cal-paper: #FFFFFF; --cal-surface: #F6F6F4; --cal-accent: #1F4E8C;
+}
+.theme-dark {
+  --cal-ink: #E6E4DF; --cal-muted: #A3A9B1; --cal-rule: #5A606A;
+  --cal-paper: #16171A; --cal-surface: #202226; --cal-accent: #7FA7DB;
+}
+
+body {
+  --font-text: Charter, "Bitstream Charter", "Sitka Text", Cambria, Georgia, serif;
+  --font-monospace: "Fira Mono", ui-monospace, Menlo, Consolas, monospace;
+  --text-normal: var(--cal-ink);
+  --text-muted: var(--cal-muted);
+  --background-primary: var(--cal-paper);
+  --background-secondary: var(--cal-surface);
+  --interactive-accent: var(--cal-accent);
+  --h1-color: var(--cal-ink);
+  --h2-color: var(--cal-accent);
+}
+
+/* Readable measure for the reading view, like the books. */
+.markdown-preview-view, .markdown-rendered { max-width: 42rem; margin: 0 auto; }
+
+/* The daily-goals dashboard: set its note title to "Today" to pick this up. */
+.markdown-preview-view h1 { border-bottom: 1px solid var(--cal-rule); padding-bottom: .2em; }
+.markdown-rendered blockquote { border-left: 3px solid var(--cal-accent); color: var(--cal-muted); }

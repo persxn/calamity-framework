@@ -120,7 +120,7 @@ KNOWN_KEYS = ("name", "onboarded", "tracks", "goals", "focus", "mode.default", "
               "sleep.end", "workout.minutes", "daily.target_hours", "reminders.times", "gate.year", "gate.papers",
               "gate.registered", "gate.target_rank", "gate.target_source", "cp.handle", "cp.target_rating",
               "cp.target_date", "cp.language", "book.format", "stock.at", "location.city",
-              "location.radius_km", "auto.start", "career.blackout_until")
+              "location.radius_km", "auto.start", "career.blackout_until", "obsidian")
 KNOWN_PREFIXES = ("cfg.", "gate.target_marks.", "gate.exam_date.")
 
 
@@ -158,7 +158,7 @@ def parse(key: str, words, text: bool, defaults: dict):
         if parse_hhmm(joined) is None:
             raise CalError("%s is a time like 23:30, got %r" % (key, joined))
         return joined
-    if key in ("onboarded", "gate.registered", "auto.start"):
+    if key in ("onboarded", "gate.registered", "auto.start", "obsidian"):
         value = fm.parse_value(joined)
         if not isinstance(value, bool):
             raise CalError("%s is true or false, got %r" % (key, joined))

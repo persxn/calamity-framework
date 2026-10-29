@@ -125,6 +125,8 @@ def cmd_brief(c, a):
             src = src[:20]
             if c.repo.onboarded() and not hooks.off():
                 c.repo.append("session", when=c.when, src=src)
+                from . import obsidian
+                obsidian.render_if_enabled(c.repo, c.tree, c.state, c.when)   # refresh the vault views; never raises
             machine.export_root(c.repo)        # plugin mode: `calamity` finds this learner for the whole session
             # The hook input may name the model and effort (optional fields): the advice line uses them.
             text = plan.brief(c.repo, c.tree, c.state, c.when, machine.engine_cmd(c.repo), current=data)
@@ -987,6 +989,28 @@ def cmd_dash(c, a):
     return 0, dash.progress(repo, tree, state, when, width, a.ascii)
 
 
+def cmd_obsidian(c, a):
+    from . import obsidian
+
+    repo, tree, state, when = c.repo, c.tree, c.state, c.when
+    if a.off:
+        repo.set_profile("obsidian", False)
+        return 0, ("Obsidian session-start refresh off (profile obsidian=false). The files already written "
+                   "stay in place; remove them by hand if you want them gone.")
+    first = not obsidian.enabled(repo)
+    if first:
+        repo.set_profile("obsidian", True)
+    result = obsidian.render(repo, tree, state, when)
+    lines = ["Wrote %d Obsidian view(s) under learner/:" % len(result["written"])]
+    lines += ["  " + os.path.relpath(p, repo.root) for p in result["written"][:12]]
+    if len(result["written"]) > 12:
+        lines.append("  ... and %d more" % (len(result["written"]) - 12))
+    if first:
+        lines.append("Session-start refresh on (profile obsidian=true): Today.md is rebuilt at the start of each session.")
+    lines.append("Open the learner/ folder as an Obsidian vault. Setup and the one-sync rule are in docs/obsidian.md.")
+    return 0, "\n".join(lines)
+
+
 def _inputs_stamp(repo) -> str:
     """One hash over the name, size and modification time of every file a view is worked out from."""
     seen = []
@@ -1623,6 +1647,10 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("--track")
     sp.add_argument("--all-tracks", dest="all_tracks", action="store_true")
     sp.add_argument("--html", action="store_true", help="write the view to .calamity/dash/<view>.html and print two lines")
+
+    sp = add("obsidian", cmd_obsidian, "Write the Obsidian vault views under learner/ (the daily-goals dashboard "
+                                       "Today.md, each book's MOC and the book index) and turn on the session-start refresh.")
+    sp.add_argument("--off", action="store_true", help="turn the session-start refresh off (leaves the files in place)")
     sp = add("statusline", cmd_statusline, "One line for the Claude Code status line.")
     sp.add_argument("--stdin", action="store_true",
                     help="read the session data Claude Code passes (its model and effort) from standard input")

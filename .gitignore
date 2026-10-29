@@ -35,6 +35,11 @@ learner/notes/**/*.xdv
 
 # Study books: build products only (tex sources, figures/build PDFs,
 # book-state.md and the coach's markdown state are all kept and synced)
+# Obsidian: the daily-goals dashboard is machine-local, regenerated each session
+learner/Today.md
+learner/.obsidian/workspace*.json
+learner/.obsidian/cache
+
 learner/books/**/build/
 learner/books/**/book.pdf
 learner/mastery/**/book/build/
