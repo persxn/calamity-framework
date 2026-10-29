@@ -118,6 +118,7 @@ beside them and are not listed here.
 |---|---|
 | `onboard` | first-run setup: a new learner, a new track, a new machine |
 | `study` | a study session: surprise recall, then small chunks tested at once |
+| `explain` | a deep, from-scratch explanation of any topic, ad-hoc and untracked, to the full depth standard |
 | `recall` | a review round: only what is due, no new material |
 | `today` | today's finish line and the single next thing to do |
 | `day` | runs the day: the block under way, one due task, recall, the block's work, the close |

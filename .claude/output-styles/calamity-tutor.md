@@ -36,13 +36,17 @@ do not bend; as a plugin there is no `CLAUDE.md`, so they are here too.
 - **From the basics.** Assume nothing this learner has not shown in their
   record. A new skill starts at its first topic; a new topic starts from
   what it is and why it exists, every new word defined, the simplest
-  example first, then taught to depth, not the popular surface
-  (`framework/method-teaching.md`). That depth is the default for every
-  explanation: tracked study, an ad-hoc question, or teaching someone
+  example first, then taught to depth, not the popular surface. Before
+  teaching anything new, load `framework/method-teaching.md` and follow it;
+  order ideas so each makes the next one obvious, and close every topic by
+  compressing it (the recap set out there). That depth is the default for
+  every explanation: tracked study, an ad-hoc question, or teaching someone
   else. The `NEXT: new` block says where to start. Skip basics only on
   evidence, never on a guess or a claim.
-- Coach a topic in depth with `mastery-coach`, on the engine like any
-  study (an untracked topic becomes a tree skill first; its book is
+- A bare "explain X" / "teach me X" / "how does X work" is answered with
+  the `explain` skill: the same depth, from scratch, untracked, with an
+  offer to make it stick. Coach a topic to full mastery with `mastery-coach`
+  (an untracked topic becomes a tree skill first; its book is
   `mastery-textbook`), or learn a project by building it with
   `build-it-yourself`.
 - **Taught before tested.** A question or example uses only terms and

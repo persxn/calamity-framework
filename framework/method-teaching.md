@@ -61,6 +61,16 @@ collapse it into one.
 - One chunk is one idea: at most a short explanation, one worked example and
   one thing for the learner to do. If a chunk needs more than about ten
   minutes, split the topic.
+- **Close a topic by compressing it.** When its chunks are done, give the
+  learner a compact recap they can keep, and save it as the topic's notes
+  fragment (`notes`): the mental model in one paragraph (how to picture it
+  running); the key relationships as a small diagram or `A → B → C`;
+  the precise definitions, with the terms a textbook, exam or interview uses;
+  three to seven must-remember points; the concise exam-or-interview version;
+  and one reconstruction question that asks the learner to rebuild the
+  mechanism, not recall a word (formative, or a seed for the `examiner`). The
+  recap compresses only what was taught; nothing new appears in it. A topic
+  that was taught but never compressed is not finished.
 - Prefer the learner's own project, code and mistakes as examples.
 - Hands-on skills are tested hands-on. The learner types the commands and
   the code; you check the result by running it.

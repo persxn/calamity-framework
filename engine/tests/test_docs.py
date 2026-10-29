@@ -21,7 +21,7 @@ SPAN = re.compile(r"`([^`\n]+)`")
 
 # What ships. A learner may add skills and agents of their own next to these; the checks below
 # look only at the framework's files, so the self-test keeps passing in a customised checkout.
-SKILLS = ("boss", "bridge", "build-it-yourself", "career", "coach", "cp", "dash", "day", "gate", "log", "mastery-coach", "mastery-textbook",
+SKILLS = ("boss", "bridge", "build-it-yourself", "career", "coach", "cp", "dash", "day", "explain", "gate", "log", "mastery-coach", "mastery-textbook",
           "notes", "onboard", "practice", "recall", "remind", "stock", "study", "sync", "teach-deep", "today", "tree",
           "update-framework")
 AGENTS = ("book-builder", "bridge-engineer", "career-advisor", "checker", "cp-coach", "curriculum-architect", "drill-smith", "examiner",
