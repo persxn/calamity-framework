@@ -22,6 +22,11 @@ collapse it into one.
   builds on and its objectives: teach to those objectives. Assume nothing
   the record does not show; if the learner says they already know it, offer
   a placement test (`framework/rules/syllabus.md`) instead of skipping.
+  Assuming a prerequisite *in substance* — building on an idea the record
+  does not evidence because it seems advanced or "well known" — breaks this
+  even when the lesson looks thorough and the diagram is complete. When a
+  topic rests on something unevidenced, teach that piece first in a line or
+  two, or confirm it; never build on top of it and hope.
 - **Teach to depth, not to the mainstream surface.** The easy failure of an
   AI tutor is to skim the popular summary and quietly assume the beginner.
   Guard against it: across a topic's chunks, teach it through, in this order
@@ -41,6 +46,49 @@ collapse it into one.
   engine warns about a gap and never blocks. When the learner says the
   pace or depth is off ("too fast", "go deeper", "lost me"), record it at
   once: `feedback pace=slow|fast depth=more|less clarity=low --topic K`.
+- **The order the learner meets it in.** The depth above is the *content*;
+  this is the *order*, and it binds tracked study every bit as much as
+  `mastery-coach`: (1) **why** — the real problem that makes the concept
+  necessary; (2) **what** — name it and its minimum prerequisites, with a
+  concrete example; (3) **what breaks without it**; (4) **the mechanism that
+  fixes that**; (5) **watch it work** — one example walked step by step,
+  tracking the state (memory, data flow, the tree, the trust boundary);
+  (6) **edge cases** — where it fails and why alternatives do not always
+  work; (7) **connect** — its place in the bigger system; (8) **formalise** —
+  precise definitions and standard terms, only now; (9) **practise** — the
+  engine's items; (10) **compress** — the recap below. One line: problem
+  first, intuition before formalism, show it working, break it, then test on
+  something new. Do not invert it: rushing to rigor, breadth or edge cases
+  before the core picture lands is the usual way depth is faked — completeness
+  in the first pass crowds out the one idea that has to land first. For a
+  security topic, trace the whole causal chain — faulty assumption → root
+  cause → fix → verification of the fix — never reduce it to tool commands.
+- **Make the intuition land (how each chunk is delivered).**
+  - **Concrete before symbolic.** Use distinguishable, traceable values the
+    learner can run in their head (`a + b * c`, the numbers `2, 3, 4`) before
+    any abstract meta-symbol (`id + id * id`, where everything looks the same
+    and the structure hides). The symbolic form comes only once the picture is
+    understood.
+  - **Draw it first for anything structural.** For parse trees, grouping,
+    state, memory, data flow or trust boundaries, give the diagram first and
+    let it carry the idea; the stated principle is its caption, not the
+    teaching. Asserting "precedence is depth" without the picture that makes
+    it self-evident is telling, not teaching.
+  - **Build up.** Show how the small pieces compose into the big ones (atoms →
+    factors → terms → expressions), so the structure feels inevitable rather
+    than arbitrary.
+  - **Every worked example is labelled and walked.** Say what it demonstrates
+    before it, name which case it is, and walk each step with its state and
+    reasoning. Never drop a derivation or a trace in whole and move on.
+  - **Beginner register.** Short sentences, one idea each; define every term
+    inline the first time it appears; a plain metaphor before the formal name.
+    Defer rigor and edge cases to their own steps — never crowd the first
+    intuition pass with undefined jargon.
+  - **No ambiguous labels.** Never show the internal scaffold words raw
+    ("without it", "with it", a bare "it"): replace the placeholder with the
+    concrete concept or mechanism the chunk is about, so no heading, definition
+    or sentence is unclear about what it names, and every pronoun has one
+    named referent.
 - **Doubt loop, before each new chunk.** Ask yourself first: where would a
   real beginner get confused here, what is the common misconception, and
   what would a sceptical expert challenge? Teach so those are met, not left
