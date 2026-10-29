@@ -1,7 +1,7 @@
 import os
 import unittest
 
-from tests.helpers import Case, write
+from tests.helpers import Case, read, write
 
 
 class Obsidian(Case):
@@ -28,7 +28,7 @@ class Obsidian(Case):
         self.assertIn("Today.md", out)
         today = self.sb.path("learner", "Today.md")
         self.assertTrue(os.path.isfile(today))
-        text = open(today, encoding="utf-8").read()
+        text = read(today)
         self.assertIn("# Today —", text)
         self.assertIn("## Finish line", text)
         self.assertIn("## Next action", text)
@@ -44,20 +44,39 @@ class Obsidian(Case):
         moc = self.sb.path("learner", "books", "shell", "_MOC.md")
         index = self.sb.path("learner", "books", "_Index.md")
         self.assertTrue(os.path.isfile(moc) and os.path.isfile(index))
-        moc_text = open(moc, encoding="utf-8").read()
+        moc_text = read(moc)
         self.assertIn("[[01-files|Files and paths]]", moc_text)
         self.assertIn("[[02-pipes|Pipes and redirection]]", moc_text)
-        chapter = open(self.sb.path("learner", "books", "shell", "01-files.md"), encoding="utf-8").read()
+        chapter = read(self.sb.path("learner", "books", "shell", "01-files.md"))
         self.assertTrue(chapter.startswith("---"))
         self.assertIn("calamity: book-chapter", chapter)
         self.assertIn("chapter: 1", chapter)
+        index_text = read(index)
+        self.assertIn("```dataview", index_text)                       # optional nav block, clearly labelled
+        self.assertIn("requires the Dataview plugin", index_text)
+
+    def test_refresh_is_a_noop_when_off(self):
+        self.sb.onboard(tracks="dev")
+        out = self.sb.run("obsidian", "--refresh")
+        self.assertIn("off", out)
+        self.assertFalse(os.path.isfile(self.sb.path("learner", "Today.md")))
+        self.assertEqual(self.sb.run("profile", "get", "obsidian").strip(), "")   # the flag is not turned on
+
+    def test_refresh_renders_when_on(self):
+        self.sb.onboard(tracks="dev")
+        self.sb.run("obsidian")                       # enable + render
+        today = self.sb.path("learner", "Today.md")
+        os.remove(today)
+        self.sb.run("obsidian", "--refresh")
+        self.assertTrue(os.path.isfile(today))
+        self.assertEqual(self.sb.run("profile", "get", "obsidian").strip(), "true")
 
     def test_frontmatter_never_clobbers_an_existing_block(self):
         self.setup_books()
         hand = self.sb.path("learner", "books", "shell", "01-files.md")
         write(hand, "---\nmine: keep this\n---\n# Files and paths\n\nMy own edits.\n")
         self.sb.run("obsidian")
-        text = open(hand, encoding="utf-8").read()
+        text = read(hand)
         self.assertIn("mine: keep this", text)
         self.assertNotIn("calamity: book-chapter", text)   # a chapter with its own frontmatter is left alone
 

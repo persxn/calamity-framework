@@ -30,7 +30,11 @@ changes their record in `learner/`.
   it when the profile key `obsidian` is on; `--off` stops it. Progress still
   changes only through the engine; Obsidian never writes back. A Calamity Paper
   CSS snippet (`framework/design/obsidian.css`) and a setup guide (`docs/obsidian.md`)
-  ship with it.
+  ship with it. The nightly `stock` scheduler refreshes the views too
+  (`calamity obsidian --refresh`, a no-op when off); the book index carries an
+  optional Dataview navigation table; and the guide covers mobile over the same
+  git repo (obsidian-git, no second sync) and PDF-edition books (the Markdown
+  chapter sources are what the vault uses).
 - Added: the `sec` track, "Offensive Security & Research" — a
   prerequisite-aware skill tree for authorised, sandbox-first security
   learning. Five foundations (programming and debugging, OS internals,

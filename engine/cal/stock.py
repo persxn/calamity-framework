@@ -153,6 +153,7 @@ CALAMITY_ROOT=%(root)s; export CALAMITY_ROOT
 PATH=%(bin)s:"$HOME/.local/bin":$PATH; export PATH
 mkdir -p %(logs)s
 LOG=%(logs)s/stock-$(date +%%Y-%%m-%%d).log
+%(python)s %(engine)s obsidian --refresh >> "$LOG" 2>&1  # refresh the Obsidian vault views if enabled
 NEED=$(%(python)s %(engine)s item needs %(look)s 2>&1)
 case "$NEED" in
   "ITEMS NEEDED"*) ;;
@@ -170,6 +171,7 @@ $env:CALAMITY_ROOT = '%(root)s'
 $env:PATH = '%(bin)s;' + $env:PATH
 New-Item -ItemType Directory -Force -Path '%(logs)s' | Out-Null
 $log = Join-Path '%(logs)s' ("stock-" + (Get-Date -Format 'yyyy-MM-dd') + ".log")
+& "%(python)s" "%(engine)s" obsidian --refresh *>> $log  # refresh the Obsidian vault views if enabled
 $need = & "%(python)s" "%(engine)s" item needs %(look)s 2>&1 | Out-String
 if (-not $need.StartsWith('ITEMS NEEDED')) { Add-Content $log ((Get-Date -Format 'HH:mm') + ' nothing to stock: ' + ($need -split "`n")[0]); exit 0 }
 if (-not (Get-Command '%(claude)s' -ErrorAction SilentlyContinue)) { Add-Content $log 'Claude Code was not found: render again'; exit 0 }
