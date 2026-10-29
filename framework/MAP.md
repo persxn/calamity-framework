@@ -90,9 +90,9 @@ learner/                   everything about one learner; this is what they sync
 ```
 
 Tracks shipped: `10x` (the developer path), `ai` (maths, ML, LLM
-engineering), `cp` (competitive programming), `gate` (General Aptitude),
-`gate-cs` and `gate-da` (the two papers). A learner's own skills may use
-these or any new track name.
+engineering), `sec` (offensive security and research), `cp` (competitive
+programming), `gate` (General Aptitude), `gate-cs` and `gate-da` (the two
+papers). A learner's own skills may use these or any new track name.
 
 ## What is stored where, and why
 
@@ -173,5 +173,6 @@ beside them and are not listed here.
 | `framework/rules/cp-onboarding.md` | setting up a Codeforces learner, placement from the record |
 | `framework/rules/cp-planning.md` | CP levels, the week, reading `cf analyse`, pace |
 | `framework/rules/cp-playbook.md` | a CP coaching turn: one problem, contests, teaching |
+| `framework/rules/sec-authorization.md` | teaching, building or testing anything in the `sec` track: authorised scope, sandbox-first, disclosure |
 | `framework/rules/markdown-books.md` | writing study books and long-form notes in Markdown (the default format) |
 | `framework/rules/notes-latex.md` | writing notes fragments, LaTeX sections and PDFs (`book.format pdf`) |
