@@ -48,7 +48,9 @@ the format and the quality bar for each type.
   `fixture`, the `bounds` (the files the fix may touch; never a test
   file), the `check` (the test command), and seals the cause and the fix
   as its `solution`. Run the check yourself in a copy under your folder:
-  it must fail as given and pass with your fix.
+  it must fail as given and pass with your fix. A fixture is complete code
+  by design (the bug is the exercise); a drill that asks the learner to
+  write new code is briefed as `framework/rules/hands-on-coding.md` says.
 - **`debug-docs`** (opens once the skill is ready). As `debug`, but the fix
   needs one section of the official documentation (a changed default, a
   subtle contract), named in `docs` (the page's URL, which you opened and

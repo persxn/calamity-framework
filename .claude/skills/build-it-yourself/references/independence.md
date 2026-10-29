@@ -30,6 +30,10 @@ When the learner is stuck, go one rung at a time, and wait for them to try befor
 
 Time-box it: suggest the learner tries for about 30–45 minutes before asking for the next rung. Struggle is useful up to the point where it becomes discouraging. Watch for frustration and step in a rung earlier when you see it.
 
+## The live watch
+
+While the learner builds, watch the files they are working on (`framework/rules/hands-on-coding.md`, section 5: the Monitor tool and `framework/scripts/watch.py`, every 30 seconds). On each change read the file and say one thing, at most three lines: the next step, a bug named by its place and its concept, or a question. That is rung 1 to 3 of the stuck protocol in small doses, never rung 6 and never code. Say nothing when the work is going the right way. A learner who would rather work in silence says "quiet", and the watch stops.
+
 ## Techniques that replace AI help (teach these explicitly)
 
 - **Docs-first search**: the official docs, then the library's source, then its issue tracker, then forum answers, checked against the version in use.

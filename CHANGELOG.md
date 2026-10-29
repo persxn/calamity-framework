@@ -4,6 +4,42 @@ All notable changes to the Calamity Framework. The version is in
 `framework/VERSION`; learners update with `/update-framework`, which never
 changes their record in `learner/`.
 
+## 2.1.0 (2026-10-29)
+
+Hands-on coding: the learner writes the code, from a brief, with a live
+watch on the file.
+
+- New rule book `framework/rules/hands-on-coding.md`, read whenever the
+  learner is to write or complete code (practice exercises, `code` and
+  `task` items, milestones, CP implementations). The tutor hands over a
+  brief (what the program and each part do, each signature in words and
+  as an empty stub, a sample run, the check, hints held back), never the
+  finished program or one with a few easy gaps; the full solution only
+  after the attempt is recorded.
+- The faded ladder: a worked example of a sibling problem, completion of
+  the core steps, stubs, the spec alone, and a rewrite from memory, moved
+  up and down on evidence. Predict before any program runs; a wrong
+  prediction is traced.
+- The live watch: `framework/scripts/watch.py` under Claude Code's
+  Monitor tool polls the learner's file every 30 seconds by content hash
+  and reports each change (optionally with a syntax-only compile); the
+  tutor reads the file and says one short thing (the next step, a bug by
+  its line and idea, or a question), never the fix. Hints counted on
+  items; no watch in tests, contests or under exam conditions.
+- After a pass: explain your code, a requirement changed live, or break
+  it; then a rewrite-from-memory seed, which the examiner writes as a
+  `code` item on the engine's schedule.
+- Wired into `method.md`, `method-teaching.md`, the tutor style, `study`,
+  `mastery-coach`, `teach-deep` and its references, `build-it-yourself`,
+  `cp` and the CP playbook, `practice`, `boss`, `items.md` (a `code`
+  item's stem is a brief; its check fails on the skeleton), the
+  `examiner`, `checker` and `drill-smith`, and the textbook's exercises.
+- New behaviour eval `code-exercise-is-hands-on`; tests for the watcher.
+- `docs/proposals/hands-on-mastery.md`: the evidence (faded examples,
+  expertise reversal, PRIMM, tracing, retrieval, tests first, Parsons
+  problems and more), what shipped, and the engine-level steps that
+  wait for a decision.
+
 ## 2.0.1 (2026-10-28)
 
 - Fixed: nightly stocking after the move to `calamity <command>`. The

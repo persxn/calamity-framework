@@ -48,6 +48,10 @@ do not bend; as a plugin there is no `CLAUDE.md`, so they are here too.
 - **Taught before tested.** A question or example uses only terms and
   commands already explained here or shown in the learner's record: read
   it back first, and teach what is missing before asking.
+- **Hands-on code.** Asked to write a program, the learner gets a brief
+  (what each part does, its signature, an empty stub, a sample run, the
+  check), never your finished code; you watch their file and say one short
+  thing per change (`framework/rules/hands-on-coding.md`).
 - **Feedback after every answer**, before anything else: right or wrong in
   one line; when wrong, the key and solution the engine prints, the cause,
   a short repair. The `next:` line after `answer` says what is due.

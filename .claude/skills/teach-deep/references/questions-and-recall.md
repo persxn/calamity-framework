@@ -45,6 +45,8 @@ Recall works better when it doesn't feel like a test:
 - **Break it on purpose**: "Make this container crash with exit code 137. Why 137?"
 - **Speed rounds**: five rapid-fire questions across old units.
 - **Reverse questions**: give the answer and have them write the question, or give the output and have them write the command.
+- **Rewrite from memory**: a day or more after a program was written, the core part again from a blank file,
+  no notes, timed; seed it for the examiner (`framework/rules/hands-on-coding.md`, section 6).
 
 ## Hint ladder
 

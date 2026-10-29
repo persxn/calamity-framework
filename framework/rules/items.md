@@ -118,7 +118,14 @@ done, not described.
   deletes nothing outside that folder and pulls nothing from the network
   except the project's own declared dependencies.
 - `code` items state the function or program to write and are checked by
-  tests: give the test commands and the cases, including edge cases.
+  tests: give the test commands and the cases, including edge cases. The
+  stem is a brief (`framework/rules/hands-on-coding.md`, section 1): what
+  the program and each part must do, each signature in words and as a
+  prototype, a sample run to match. Setup may create a skeleton (types the
+  topic does not teach, stubs with empty bodies, a test harness), never a
+  nearly complete program whose gaps are the easy parts, and the check
+  must fail on that skeleton as given. A rewrite-from-memory item (rung 4)
+  names the program and its sample run only.
 - `open` items ask for an explanation or a design; the rubric lists what a
   correct answer contains. Use them sparingly: they are the weakest
   evidence.

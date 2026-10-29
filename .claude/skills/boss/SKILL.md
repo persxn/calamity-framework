@@ -27,7 +27,9 @@ insist; a failed attempt costs nothing.
 2. The work goes in `learner/work/<skill>/boss/`, in its own git history
    if the learner knows git. They build it. You may answer questions about
    concepts and review what they wrote; you do not write the solution, and
-   you do not give the steps.
+   you do not give the steps. No live suggestions while they build
+   (`framework/rules/hands-on-coding.md`, section 5): a watch only if they
+   ask for one, and then it reports the build status alone.
 3. Weave: ask `calamity weave <skill>` and require the
    earlier skills it names where they fit naturally (a Dockerfile, tests, a
    pipeline, a commit history).
@@ -50,8 +52,8 @@ A timed mixed test of the skill stands in.
 
 - Exit code 4: the bank is short. Send the printed list to the `examiner`
   agent, the new ids to the `checker` agent, then build again.
-- Exam conditions: no hints, no feedback between questions. For each item
-  in order: `calamity ask --id <item> --test <test>`,
+- Exam conditions: no hints, no feedback between questions, no live
+  watch. For each item in order: `calamity ask --id <item> --test <test>`,
   then `calamity answer <item> --answer "..."`; for a
   code, task or open item, run its check (`item show <item> --check`) and
   record `answer <item> --result pass|fail --evidence "..."`. A skipped

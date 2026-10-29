@@ -46,6 +46,10 @@ Stages 1–3 happen once per skill; stage 4 is the loop the engine drives; 5–8
    before moving on (`references/questions-and-recall.md`). Never push past a shaky answer: explain
    again from another angle. Then record the teaching and take the engine's question:
    `ask --topic <key> --taught --parts <parts> --minutes <n>`. Unit exercises are the engine's items.
+   When a chunk or an item asks the learner to write code, it is hands-on in full
+   (`framework/rules/hands-on-coding.md`): a brief, signatures and empty stubs, never the finished
+   program; predict before run; the live watch on their file; a rung of the faded ladder chosen from the
+   record.
 5. **Field reading** (`references/field-reading.md`), about every unit or two: a section of the
    official docs, a write-up of a system at scale, an outage post-mortem, engineers worth following,
    what is new — each checked with a search when you assign it. Keep the list in `reading.md`.
@@ -92,3 +96,4 @@ right, and have them try again.
 - `references/vocabulary.md`, `references/field-reading.md`, `references/debugging-literacy.md`,
   `references/ai-era.md`, `references/projects.md`
 - `references/modes.md` — balanced and brush-up
+- `framework/rules/hands-on-coding.md` — every coding exercise: the brief, the faded ladder, the live watch

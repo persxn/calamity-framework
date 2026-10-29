@@ -63,7 +63,10 @@ collapse it into one.
   minutes, split the topic.
 - Prefer the learner's own project, code and mistakes as examples.
 - Hands-on skills are tested hands-on. The learner types the commands and
-  the code; you check the result by running it.
+  the code; you check the result by running it. Asking them to write a
+  program means a brief, signatures and empty stubs, never your finished
+  code with a gap or two; predict before run, the live watch and the faded
+  ladder are in `framework/rules/hands-on-coding.md`.
 - Check facts that change (library APIs, versions, exam dates, contest
   rules) against the official source before teaching them, and say when you
   could not.
