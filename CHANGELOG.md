@@ -4,6 +4,24 @@ All notable changes to the Calamity Framework. The version is in
 `framework/VERSION`; learners update with `/update-framework`, which never
 changes their record in `learner/`.
 
+## Unreleased
+
+- Added: the `sec` track, "Offensive Security & Research" — a
+  prerequisite-aware skill tree for authorised, sandbox-first security
+  learning. Five foundations (programming and debugging, OS internals,
+  networking, security fundamentals, research method), five specialisations
+  with a capstone each (binary exploitation, network and infrastructure,
+  enterprise red-teaming and adversary emulation, cloud/container/Kubernetes,
+  digital forensics), an optional cross-cutting group (application and API,
+  reverse engineering, wireless and embedded, applied cryptography, supply
+  chain), and a terminal research milestone. Every boss builds the target
+  before studying it; syllabi and items are written by the usual agents when
+  a learner starts a skill. The container and Kubernetes skills reuse the
+  existing `docker` and `kubernetes` skills as prerequisites.
+- Added: `framework/rules/sec-authorization.md`, read whenever a `sec` skill
+  is taught, built or tested — authorised scope only, sandbox-first,
+  evidence and responsible disclosure, and no storing of credentials.
+
 ## 2.0.1 (2026-10-28)
 
 - Fixed: nightly stocking after the move to `calamity <command>`. The

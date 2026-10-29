@@ -242,7 +242,8 @@ id, its group, its track, and its tags. `any` matches everything.
 Shipped tags: `runnable` (produces a program or service worth
 containerising and testing), `language`, `js-ecosystem`, `frontend`,
 `backend`, `backend-framework`, `database`, `api`, `android`, `flutter`,
-`ai`, `ml`, `llm`, `math`, `cp`, `gate`. Give a new skill the tags that
+`ai`, `ml`, `llm`, `math`, `cp`, `gate`, `sec` (offensive security and
+research). Give a new skill the tags that
 describe it, and `weaves_into` only where practitioners really combine the
 two.
 

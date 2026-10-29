@@ -187,7 +187,7 @@ class ShippedTree(unittest.TestCase):
         self.assertEqual(warnings, [])
 
     def test_tracks_and_groups_are_declared(self):
-        self.assertEqual(self.tree.tracks, ["10x", "ai", "cp", "gate", "gate-cs", "gate-da"])
+        self.assertEqual(self.tree.tracks, ["10x", "ai", "sec", "cp", "gate", "gate-cs", "gate-da"])
         for node in self.tree.nodes.values():
             declared = self.tree.track_meta.get(node.track + ".groups")
             self.assertIn(node.group, declared, "%s: group %r is not listed in tracks.md" % (node.id, node.group))
@@ -216,7 +216,7 @@ class ShippedTree(unittest.TestCase):
 
     def test_developer_skills_have_scope_and_boss(self):
         for node in self.tree.nodes.values():
-            if node.track in ("10x", "ai"):
+            if node.track in ("10x", "ai", "sec"):
                 self.assertTrue(node.has_boss, "%s has no boss" % node.id)
                 if node.kind == "skill":
                     self.assertTrue(node.section("Scope"), "%s has no scope" % node.id)
