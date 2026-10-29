@@ -76,6 +76,25 @@ already gitignored (`workspace*.json`, `cache`).
 
 ## Mobile
 
-This is desktop-first. Obsidian mobile cannot open a git-synced folder without a
-git plugin or Obsidian Sync, both of which reintroduce the double-sync risk. If
-you need the vault on your phone, raise it — it needs its own careful setup.
+Desktop-first, but you can have the vault on your phone **without** breaking the
+one-sync rule by using the community plugin **obsidian-git** — it syncs over the
+*same* git repository, not a second system. Set it to pull on open and commit on a
+delay, and always let it finish pulling before you edit. Only touch your own notes
+in `learner/vault/` on mobile; leave the engine-owned views (`Today.md`, the MOCs)
+to regenerate on the desktop. `Today.md` is gitignored, so it never conflicts.
+
+Obsidian Sync, iCloud or Dropbox over `learner/` are still off-limits — those are a
+*second* sync over the git tree and will corrupt it.
+
+## PDF-edition learners (`book.format pdf`)
+
+Nothing extra to do. Even with the PDF edition, mastery-textbook keeps the Markdown
+chapter sources on disk (the PDF is built from them), so the vault, MOCs and
+frontmatter work exactly the same; the `.pdf` is just an additional artifact.
+
+## Keeping it fresh
+
+`Today.md` rebuilds at the start of every session (the SessionStart hook). If you
+run nightly stocking (`calamity stock render`), that scheduled job also refreshes
+the views each night, so the dashboard is current even before you open a session.
+Run `calamity obsidian` any time to refresh on demand.

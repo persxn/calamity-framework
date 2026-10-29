@@ -993,6 +993,11 @@ def cmd_obsidian(c, a):
     from . import obsidian
 
     repo, tree, state, when = c.repo, c.tree, c.state, c.when
+    if a.refresh:   # for automation (the nightly scheduler): render only if already on, never change the flag
+        if not obsidian.enabled(repo):
+            return 0, "Obsidian is off; nothing to refresh (turn it on with: obsidian)."
+        obsidian.render(repo, tree, state, when)
+        return 0, "Obsidian views refreshed."
     if a.off:
         repo.set_profile("obsidian", False)
         return 0, ("Obsidian session-start refresh off (profile obsidian=false). The files already written "
@@ -1651,6 +1656,7 @@ def build_parser() -> argparse.ArgumentParser:
     sp = add("obsidian", cmd_obsidian, "Write the Obsidian vault views under learner/ (the daily-goals dashboard "
                                        "Today.md, each book's MOC and the book index) and turn on the session-start refresh.")
     sp.add_argument("--off", action="store_true", help="turn the session-start refresh off (leaves the files in place)")
+    sp.add_argument("--refresh", action="store_true", help="re-render the views only if already enabled, without changing the setting (for the nightly scheduler)")
     sp = add("statusline", cmd_statusline, "One line for the Claude Code status line.")
     sp.add_argument("--stdin", action="store_true",
                     help="read the session data Claude Code passes (its model and effort) from standard input")
