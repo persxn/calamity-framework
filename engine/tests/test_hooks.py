@@ -33,10 +33,17 @@ class Hooks(Case):
         self.assertIn("/practice", self.context(self.prompt("solved questions 1-10 from the PYQ book")))
         self.assertIn("/career", self.context(self.prompt("find me backend internships")))
         self.assertIn("/gate", self.context(self.prompt("find mocks near me")))
+        self.assertIn("/explain", self.context(self.prompt("what is a pipe?")))          # an ad-hoc teaching ask
+        self.assertIn("/explain", self.context(self.prompt("explain how a hashmap works")))
+        self.assertIn("/explain", self.context(self.prompt("teach me about TCP")))
+        self.assertIn("/explain", self.context(self.prompt("I don't understand recursion")))
+        self.assertIn("/explain", self.context(self.prompt("I'm confused about closures")))
+        self.assertIn("/explain", self.context(self.prompt("break down how TLS works")))
+        self.assertIn("/mastery-coach", self.context(self.prompt("I want to master Rust")))  # mastery wins over explain
         self.assertEqual(self.prompt("let's resume where we stopped"), "")    # resume is not a résumé
+        self.assertEqual(self.prompt("what is my rating"), "")               # a possessive, not a concept: silence
         self.assertEqual(self.prompt("[SYSTEM NOTIFICATION - NOT USER INPUT] <task-notification>reminders</task-notification>"),
                          "")                                                  # Claude Code's own notices are not routed
-        self.assertEqual(self.prompt("what is a pipe?"), "")                 # nothing matched: silence
         self.assertEqual(self.prompt("/recall quiz me"), "")                 # a slash command routes itself
 
     def test_feedback_tokens_are_recorded(self):

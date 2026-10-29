@@ -37,6 +37,15 @@ One unit is taught as a sequence of chunks. Each chunk covers one idea and ends 
 
 10. **Unit exercises.** See `questions-and-recall.md`.
 
+11. **The compression.** Close the unit with a compact representation the learner keeps, saved as the topic's notes fragment:
+   - **Mental model** — one paragraph: how to picture the mechanism running.
+   - **Key relationships** — a small diagram, or `A → B → C`.
+   - **Formal definitions** — short and precise, with the textbook and exam terms.
+   - **Must remember** — three to seven points, no more.
+   - **Exam / interview version** — the concise technical explanation.
+   - **One reconstruction question** — rebuild the mechanism, not recall a word (formative, or a seed for the examiner).
+   It compresses only what the unit taught; nothing new appears here. A unit taught but never compressed is not finished.
+
 ## Chunking
 
 - One chunk is one idea: usually one diagram's worth, or one group of flags.

@@ -39,7 +39,7 @@ ROUTES = (
      "practice", "log questions from outside material"),
     (r"\bwhat (should i do|to do|now|next)\b|\bwhat'?s (left|next) today\b|\bfinish line\b", "today",
      "today's finish line and the next thing"),
-    (r"\b(in depth|deep dive|internals of|master(ing)? (docker|linux|git|react|kubernetes|sql|c\b))", "mastery-coach",
+    (r"\b(in depth|deep dive|internals of)\b|\bmaster(ing)? [a-z]", "mastery-coach",
      "deep coaching of a tool or topic"),
     (r"\b(dashboard|my progress|roadmap|revision queue|how did (my|the) week go)\b", "dash", "a dashboard"),
     (r"\b(sync|save|back ?up|push) (my )?(progress|record|study log)\b", "sync", "save progress to the learner's repository"),
@@ -48,6 +48,12 @@ ROUTES = (
     (r"\b(jobs?|internships?|placements?|hackathons?|r[eé]sum[eé] (bullets?|points?)|my r[eé]sum[eé]|résumé|"
      r"gsoc|outreachy|open[- ]source programs?|m\.?tech admissions?|psu recruitment)\b", "career", "the career companion"),
     (r"\bcodeforces\b|\bcontest\b|\bcf rating\b|\bupsolve\b", "cp", "the competitive programming coach"),
+    (r"\b(explain|teach me|teach myself|eli5|walk me through|help me (understand|learn|with)|break ?down"
+     r"|make sense of|get (really )?good at)\b"
+     r"|\b(i )?(don'?t|do not|can'?t|cannot) (get|understand|follow|grasp) \w"
+     r"|\bconfused about\b"
+     r"|\bhow (does|do|did) .{2,60}\bwork(s|ing)?\b|\bwhat (is|are|was|were) (a|an|the) \w", "explain",
+     "a deep, from-scratch explanation of a topic"),
 )
 
 # Feedback the learner can type into any message: what it records, and the line the tutor gets.

@@ -21,6 +21,33 @@ changes their record in `learner/`.
 - Added: `framework/rules/sec-authorization.md`, read whenever a `sec` skill
   is taught, built or tested — authorised scope only, sandbox-first,
   evidence and responsible disclosure, and no storing of credentials.
+- Added: a required compression close to the teaching standard. Every topic
+  (and every deep-mode unit) now ends with a compact recap saved as the
+  topic's notes fragment — mental model, key relationships, precise
+  definitions, three to seven must-remember points, the exam/interview
+  version, and one reconstruction question — so a topic taught but never
+  compressed is not finished (`framework/method-teaching.md`,
+  `.claude/skills/teach-deep/references/lesson-anatomy.md`).
+- Added: the `explain` skill, so an ad-hoc "explain X / teach me X / how does
+  X work" gets the full Calamity depth standard instead of a shallow summary.
+  It is user- and model-invocable, loads `framework/method-teaching.md` (and
+  the `teach-deep` arc for mastery), teaches why-before-what in layman's words
+  with the inner mechanics and a compression close, stays untracked, and
+  offers `/study`, `/mastery-coach` or `/notes` to make it stick.
+- Changed: the prompt router now recognises teaching-shaped prompts (`explain`,
+  `teach me`, `how does … work`, `what is a/an/the …`) and points them at the
+  `explain` skill, and the `master(ing) …` / `in depth` / `internals of`
+  patterns route any topic (not a fixed tool list) to `mastery-coach`. The
+  router runs as a plugin hook, so this reaches casual use that never invokes
+  a skill — the main reason deep teaching was being skipped.
+- Added: robustness around the above. The router also recognises confusion and
+  help phrasings ("I don't get X", "I'm confused about X", "break down …",
+  "help me with …") and routes them to `explain`. The session brief now warns,
+  in a clone, when the active output style is not the tutor's (teaching would
+  then run without the always-on depth contract) and names `/output-style
+  Calamity Tutor`. A new eval, `explain-teaches-ad-hoc-deeply`, holds a bare
+  "explain X" to the depth standard: routed to `explain`, taught
+  why-before-what with the mechanics and a compression close.
 
 ## 2.0.1 (2026-10-28)
 
