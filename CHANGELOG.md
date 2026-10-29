@@ -6,6 +6,17 @@ changes their record in `learner/`.
 
 ## Unreleased
 
+- Added: opt-in **Obsidian integration** (`calamity obsidian`). Opens `learner/`
+  as an Obsidian vault with git as the only sync, and writes engine-owned views
+  under `learner/`: a daily-goals dashboard `Today.md` (the finish line as
+  checkboxes, the `Now:` block, due reviews, tasks, the next action — gitignored
+  and rebuilt each session), a per-book `_MOC.md` and a `books/_Index.md`, and
+  stable `calamity: book-chapter` frontmatter on chapters that have none (never
+  clobbering a chapter that already has its own). The session-start hook refreshes
+  it when the profile key `obsidian` is on; `--off` stops it. Progress still
+  changes only through the engine; Obsidian never writes back. A Calamity Paper
+  CSS snippet (`framework/design/obsidian.css`) and a setup guide (`docs/obsidian.md`)
+  ship with it.
 - Added: the `sec` track, "Offensive Security & Research" — a
   prerequisite-aware skill tree for authorised, sandbox-first security
   learning. Five foundations (programming and debugging, OS internals,
