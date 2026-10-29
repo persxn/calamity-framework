@@ -740,6 +740,12 @@ def brief(repo: Repo, tree, state, when, engine_cmd: str = "", current=None) -> 
     flags = stats.flags(repo, tree, state, when)
     if flags:
         out.append("Observations: " + " · ".join(flags[:4]))
+    chosen_style = machine_mod.active_output_style(repo)
+    if chosen_style and chosen_style != machine_mod.STYLE:
+        out.append("Output style: %s, not the tutor's (%s). Teaching runs without the tutor's always-on depth "
+                   "contract, so explanations can fall to the shallow surface; `/output-style %s` selects it. The "
+                   "brief, the prompt router and the explain skill still work without it."
+                   % (chosen_style, machine_mod.STYLE, machine_mod.STYLE))
     if not repo.prof("book.format"):
         out.append("Study books: format not chosen. Before writing study material, ask once: Markdown (the default) "
                    "or PDF; then profile set book.format markdown|pdf")

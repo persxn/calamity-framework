@@ -40,6 +40,14 @@ changes their record in `learner/`.
   patterns route any topic (not a fixed tool list) to `mastery-coach`. The
   router runs as a plugin hook, so this reaches casual use that never invokes
   a skill — the main reason deep teaching was being skipped.
+- Added: robustness around the above. The router also recognises confusion and
+  help phrasings ("I don't get X", "I'm confused about X", "break down …",
+  "help me with …") and routes them to `explain`. The session brief now warns,
+  in a clone, when the active output style is not the tutor's (teaching would
+  then run without the always-on depth contract) and names `/output-style
+  Calamity Tutor`. A new eval, `explain-teaches-ad-hoc-deeply`, holds a bare
+  "explain X" to the depth standard: routed to `explain`, taught
+  why-before-what with the mechanics and a compression close.
 
 ## 2.0.1 (2026-10-28)
 

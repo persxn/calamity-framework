@@ -36,6 +36,9 @@ class Hooks(Case):
         self.assertIn("/explain", self.context(self.prompt("what is a pipe?")))          # an ad-hoc teaching ask
         self.assertIn("/explain", self.context(self.prompt("explain how a hashmap works")))
         self.assertIn("/explain", self.context(self.prompt("teach me about TCP")))
+        self.assertIn("/explain", self.context(self.prompt("I don't understand recursion")))
+        self.assertIn("/explain", self.context(self.prompt("I'm confused about closures")))
+        self.assertIn("/explain", self.context(self.prompt("break down how TLS works")))
         self.assertIn("/mastery-coach", self.context(self.prompt("I want to master Rust")))  # mastery wins over explain
         self.assertEqual(self.prompt("let's resume where we stopped"), "")    # resume is not a résumé
         self.assertEqual(self.prompt("what is my rating"), "")               # a possessive, not a concept: silence

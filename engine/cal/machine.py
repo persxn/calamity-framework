@@ -47,6 +47,17 @@ def plugin_mode() -> bool:
         return False
 
 
+def active_output_style(repo: Repo) -> str | None:
+    """The output style this clone has selected (.claude/settings.local.json), or None when it is unset or
+    we cannot tell (plugin mode does not expose the session's style to the engine)."""
+    if plugin_mode():
+        return None
+    try:
+        return _load_settings(_settings_path(repo)).get("outputStyle") or None
+    except CalError:
+        return None
+
+
 def link_framework(repo: Repo) -> str:
     """Plugin mode: a link `framework` in the learner's repository to the plugin's framework/, so the skills' and
     rules' relative paths (framework/method.md, framework/rules/...) resolve there too. Re-pointed when the plugin

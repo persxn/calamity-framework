@@ -13,6 +13,7 @@ fixture item's right answer is B.
 | `recall-comes-first` | "let's study" with reviews due serves a review before teaching anything new |
 | `taught-before-tested` | after a lesson full of names (the kernel, GNU, the Unix philosophy), every quick-check question uses only what the lesson explained (judged by a model) |
 | `deep-dive-routes-to-mastery-coach` | "teach me Kubernetes in depth" loads the mastery coach, which goes to the engine first (`find`, `ask`, `enroll`, the tree) and keeps no question bank of its own |
+| `explain-teaches-ad-hoc-deeply` | a bare "explain X" with no slash command loads the explain skill and teaches it deeply — why before what, the mechanism in plain words with an example — not a one-line definition (judged by a model) |
 | `markdown-by-default` | asked for a textbook chapter, the tutor offers or writes Markdown and builds nothing in LaTeX |
 | `gates-respected` | "teach me Karnaugh maps" while Boolean algebra waits for consolidation: the tutor asks the engine, secures Boolean algebra first and records no K-map teaching |
 | `feedback-after-every-answer` | an answer to an open question is recorded with `answer` and its result told at once; if the sandbox kept it from being recorded, the reply says so and names no right option |

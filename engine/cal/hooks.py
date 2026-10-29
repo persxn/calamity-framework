@@ -48,7 +48,10 @@ ROUTES = (
     (r"\b(jobs?|internships?|placements?|hackathons?|r[eé]sum[eé] (bullets?|points?)|my r[eé]sum[eé]|résumé|"
      r"gsoc|outreachy|open[- ]source programs?|m\.?tech admissions?|psu recruitment)\b", "career", "the career companion"),
     (r"\bcodeforces\b|\bcontest\b|\bcf rating\b|\bupsolve\b", "cp", "the competitive programming coach"),
-    (r"\b(explain|teach me|teach myself|eli5|walk me through|help me understand|get (really )?good at)\b"
+    (r"\b(explain|teach me|teach myself|eli5|walk me through|help me (understand|learn|with)|break ?down"
+     r"|make sense of|get (really )?good at)\b"
+     r"|\b(i )?(don'?t|do not|can'?t|cannot) (get|understand|follow|grasp) \w"
+     r"|\bconfused about\b"
      r"|\bhow (does|do|did) .{2,60}\bwork(s|ing)?\b|\bwhat (is|are|was|were) (a|an|the) \w", "explain",
      "a deep, from-scratch explanation of a topic"),
 )
