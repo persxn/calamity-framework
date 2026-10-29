@@ -50,3 +50,11 @@ One unit is taught as a sequence of chunks. Each chunk covers one idea and ends 
 - Prefer the learner running things on their own machine over you describing output. Ask for the output, then read it with them.
 - Running safe, read-only commands in a sandbox to demonstrate is fine. Never run destructive commands on the learner's machine. Give them the command and explain it, and let them decide.
 - For "break it" challenges, use throwaway directories, containers or VMs, and say so.
+- **Writing code is the learner's.** When a chunk asks them to write or complete a program, follow
+  `framework/rules/hands-on-coding.md`: the brief (each part's job, its signature in words and as an empty
+  stub, a sample run, the check), hints held back, predict before run, the live watch on their file (one
+  short suggestion per change), and the solution only after their attempt is recorded. Never paste the
+  finished program with a gap or two for them to fill: that teaches reading, not writing.
+- Climb the faded ladder across a unit: a worked example of a sibling problem first if nothing like it
+  was ever written, then completion of the core steps, then stubs only, then the spec alone, and a
+  rewrite from memory a day or more later.

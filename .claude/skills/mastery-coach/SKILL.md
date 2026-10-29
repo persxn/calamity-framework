@@ -56,9 +56,13 @@ grouped into units in `learner/coach/<topic>/curriculum.md`. Show the roadmap be
    through, `calamity ask --topic <key> --taught --parts <parts> --minutes <n>` records
    the teaching and serves the first question that counts. Show questions exactly as the engine prints
    them and record answers with `answer` (`--hints N`, `mistake` after a miss), as in the study skill.
-   Drop surprise recall (`ask --due`) at natural pauses.
+   Drop surprise recall (`ask --due`) at natural pauses. Every exercise in which the learner writes code
+   follows `framework/rules/hands-on-coding.md`: a brief with signatures and empty stubs on the rung of the
+   faded ladder the record supports, predict before run, the live watch on their file, and the full
+   solution only after their attempt is recorded.
 4. **Seeds.** Your best formative questions go to `seeds.md` (question idea, type, topic keys, never an
-   answer) and to the examiner with the next stocking.
+   answer) and to the examiner with the next stocking; after a code topic passes, add a rewrite-from-memory
+   seed for it (`framework/rules/hands-on-coding.md`, section 6).
 5. **Close a unit.** `calamity unit <skill> <topics of the unit>`. `UNIT OPEN` names
    what is missing: topics not yet consolidated (their second item comes from `ask`), or an explain-back.
    For the explain-back, the learner explains one idea of the unit in their own words; judge it against

@@ -87,7 +87,7 @@ The developer track's own practice, run as one session each (`/practice <type>`)
 | `system-day` | a real system the learner did not choose (the tutor names it: Discord's message store, Stripe's idempotency, Netflix's CDN), taken apart from its constraints: what it must do, what breaks at its scale, the design, each trade-off | a one-page design sketch in the learner's words |
 | `classic` | a classic read: a paper, an RFC or an engineering post (the tutor checks it exists and links the original) | at least three new ideas, each in a sentence of the learner's own |
 | `outage` | a real, published post-mortem: the failure chain rebuilt link by link, the decision behind each, what the learner would have done | the chain written as trigger → causes → impact → fix |
-| `oss` | open-source immersion: a repository cloned into `.calamity/scratch/` (never committed), built, run, traced, changed in one small way | the change, and a `path:symbol` map of what was read |
+| `oss` | open-source immersion: a repository cloned into `.calamity/scratch/` (never committed), built, run, traced, changed in one small way (the learner writes the change: `framework/rules/hands-on-coding.md`) | the change, and a `path:symbol` map of what was read |
 | `vocab` | about five terms of `eng-vocab` (enrol it once), each with its mental model, a real example, where it bites, and a check | the terms in the topic's notes fragment |
 
 For every session:

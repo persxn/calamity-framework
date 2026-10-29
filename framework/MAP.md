@@ -32,6 +32,7 @@ CLAUDE.md                  what loads every session, agents included: session st
 README.md                  for people: what it is, installation, first session, daily use
 docs/                      guides for people: setup per system, daily use, the three tools, troubleshooting
   maintainers/             token-baseline.md: what sessions cost, measured with tools/baseline.py
+  proposals/               design proposals awaiting a decision (hands-on-mastery.md)
 evals/                     behaviour cases for claude plugin eval (README.md says how to run them)
 CONTRIBUTING.md            for contributors: checks and rules; SECURITY.md: what runs where, reporting
 CHANGELOG.md               what changed in each version (framework/VERSION); LICENSE: MIT
@@ -57,6 +58,7 @@ framework/                 shipped with the framework; the same for every learne
   config.md                default numbers; a learner overrides with cfg.<key> in the profile
   VERSION
   rules/                   rule books, loaded by the skills that need them
+  scripts/watch.py         the live watch of a coding exercise (run under the Monitor tool; hands-on-coding.md)
   tree/tracks.md           the tracks and the order of their groups
   tree/<track>/<skill>.md  one file per skill: prerequisites, scope, boss, weave, topics
   gate/<year>.md           what the organisers published for that year
@@ -162,6 +164,7 @@ beside them and are not listed here.
 |---|---|
 | `framework/rules/engine.md` | you need a command, a flag or an exit code |
 | `framework/rules/verification.md` | making, checking or disputing an item; judging hands-on work; recording a boss |
+| `framework/rules/hands-on-coding.md` | the learner is to write or complete code: the brief, the faded ladder, predict before run, the live watch, rewrite from memory |
 | `framework/rules/items.md` | writing an item draft (format, types, quality bar) |
 | `framework/rules/syllabus.md` | writing a learner's syllabus for a skill; placement tests; renaming topics |
 | `framework/rules/tree-editing.md` | adding, changing, dropping or restoring a skill; the four skill-file shapes; slots and weaving |

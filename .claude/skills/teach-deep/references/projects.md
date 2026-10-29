@@ -29,4 +29,6 @@ A project nobody sees doesn't build a reputation. Guide the learner to:
 - share it where this tool's community actually gathers: find the relevant subreddits, Discord servers and Slack communities with a search, and **read each community's self-promotion rules** before posting
 - write a short post about one interesting decision or bug from building it. This doubles as interview material.
 
-Review their code as a senior engineer would, and tie review comments back to curriculum units.
+Review their code as a senior engineer would, and tie review comments back to curriculum units. The
+learner writes every line: milestones are handed over as briefs and watched as they are written
+(`framework/rules/hands-on-coding.md`); a full project goes through `/build-it-yourself`.

@@ -66,6 +66,11 @@ own for it. It schedules the topic but never counts as evidence.
   the engine. For code, task and open items you judge: get the check with
   `calamity item show <item> --check`, run it for real, and record
   `--result pass|fail --evidence "what was run and what happened"`.
+- A coding exercise, an item or a practice one, is handed over as a brief
+  (what each part does, its signature, a stub with an empty body, a sample
+  run, the check), never as the finished program; the file is watched
+  while the learner writes it, and the full solution waits until their
+  attempt is recorded: `framework/rules/hands-on-coding.md`.
 - Hints come in three steps: restate what is asked; point to the idea; give
   the first step. Count them (`--hints N`). A hinted answer counts as hard.
 - An open question or drill is never solved for the learner before its

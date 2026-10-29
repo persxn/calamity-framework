@@ -16,7 +16,7 @@ The build path turns the teardown or design into **milestones the learner builds
 1. **Goal**: one sentence, user-visible.
 2. **Why now**: what it unlocks, and what the original did at this stage (reverse mode).
 3. **Skills needed**: skill-map IDs. Unknown ones are taught first, with mastery-coach.
-4. **Spec**: behaviour, interfaces, constraints, and non-goals for this milestone.
+4. **Spec**: behaviour, interfaces, constraints, and non-goals for this milestone. Interfaces are given in words and as signatures with empty bodies, never as implementations (the brief in `framework/rules/hands-on-coding.md`).
 5. **Acceptance criteria and test cases**: the copyable blocks. For UI, a scripted manual checklist.
 6. **Hints available**: the stuck-protocol ladder, prepared in advance but revealed one rung at a time.
 7. **Stretch goals**: for the learner who finishes early.

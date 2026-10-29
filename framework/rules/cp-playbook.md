@@ -65,7 +65,9 @@ shows it.
 
 `cp.cpp` and `cp.stl` are taught like every other skill: one small chunk,
 then a `code` item compiled with `g++ -std=c++17 -O2 -Wall -Wextra` (plus
-`-fsanitize=address,undefined` while learning) and run against cases. Teach
+`-fsanitize=address,undefined` while learning) and run against cases. The
+learner writes it from a brief and stubs, never from finished code
+(`framework/rules/hands-on-coding.md`). Teach
 a technique when it is what blocks problems in the learner's band. A
 topic's own `band` says when a harder part of a skill starts to matter.
 With a linked handle the engine leaves those parts for later by itself: a

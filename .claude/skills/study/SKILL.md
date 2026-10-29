@@ -97,7 +97,12 @@ one line, then show the question below `=== NEXT`, treating it as the
 output of `ask`. After a wrong answer it serves nothing; repair first,
 then `ask`.
 For a hands-on item (code, task, open) the learner works in
-`learner/work/<skill>/...`; when they are done, get the check with
+`learner/work/<skill>/...`. Whenever they are to write code, here or in a
+practice exercise while teaching, read `framework/rules/hands-on-coding.md`
+first: hand over a brief (each part's job, its signature, an empty stub, a
+sample run, the check), never the finished program; arm the live watch on
+their file and say one short thing per change (a suggestion that points to
+the idea or names a bug counts as a hint). When they are done, get the check with
 `calamity item show <item> --check`, run it for real,
 and record `--result pass|fail --evidence "what was run and what happened"`.
 If it fails, say what the check showed, not how to fix it; let them try

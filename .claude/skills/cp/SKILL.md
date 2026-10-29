@@ -80,7 +80,12 @@ C++, the STL and every technique in the `cp` track are taught with the
 normal session loop (`/study cp.stl`): one chunk, then an item, usually
 code compiled with warnings and sanitizers and run against cases. Teach
 what blocks problems in the learner's band; leave parts whose `band` is
-far above their rating for later.
+far above their rating for later. Implementing a technique (a segment
+tree, a DSU, a template) is hands-on as `framework/rules/hands-on-coding.md`
+says: its interface in words and as empty stubs, a sample run, the brute
+force to compare against; never the finished code. In a practice set, and
+never in a contest, the live watch may run on their solution file; each
+suggestion that points to the idea is a counted hint.
 
 ## Honesty about the target
 

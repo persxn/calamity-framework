@@ -84,7 +84,10 @@ Rules that hold here as everywhere in this framework (you start without
 2. Run the check from inside your scratch folder, exactly as written (a
    check runs from inside its exercise folder). It must pass on your
    solution.
-3. Run it against an empty or deliberately wrong solution. It must fail.
+3. Run it against an empty or deliberately wrong solution, and against the
+   skeleton the setup creates, as given. It must fail on each. Reject a
+   `code` item whose setup is a nearly finished program with only easy
+   gaps left (`framework/rules/items.md`, "Hands-on items").
 4. Confirm the check stays inside its exercise folder, needs no elevated
    rights and deletes nothing elsewhere.
 5. Record (the engine then deletes your folder):

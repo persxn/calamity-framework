@@ -18,7 +18,7 @@ A typical set has 8–15 exercises: about a third at level 1, a third at level 2
 - **Retrieval from earlier chapters**: at least two exercises that need an earlier chapter's material combined with this one (for example, a bash chapter's exercise that also uses `ls -A` from chapter 1). Say which chapter is being revisited only in the solution, not in the question.
 - **Read the signal**: one exercise built on real output, logs or an error.
 - **Audit the AI**: from time to time, a plausible flawed solution to find and fix.
-- **Hands-on**: at least one exercise run on the reader's own machine, with what to observe.
+- **Hands-on**: at least one exercise run on the reader's own machine, with what to observe. A "write this program" exercise gives the brief (what each part does, its signature, a sample run), never the program; the code is in the solutions only (`framework/rules/hands-on-coding.md`).
 
 Keep wording precise. An exercise should have one defensible reading, unless the ambiguity is the point (and then say so).
 
