@@ -6,6 +6,20 @@ changes their record in `learner/`.
 
 ## Unreleased
 
+- Changed: the teaching standard (`framework/method-teaching.md`) now spells out
+  the delivery **order** a learner meets a new topic in — why → what → what
+  breaks without it → the mechanism → watch it work → edge cases → connect →
+  formalise → practise → compress — and binds it to tracked study, not only the
+  ad-hoc `explain` route. Added hard delivery rules: concrete, traceable operands
+  before abstract symbols (`a + b * c`, not `id + id * id`); draw a structural
+  idea before stating the principle; build small pieces up into big ones; label
+  and walk every worked example step by step; a beginner register (short
+  sentences, each term defined inline, a metaphor before the formal name); never
+  assume a prerequisite the record does not evidence, even when the lesson looks
+  thorough; resist completeness in the first pass; and never surface the internal
+  scaffold labels raw. The `study` skill points at these rules. (A recurrence of
+  shallow, sequence-skipping teaching in tracked study prompted this; see also the
+  earlier ad-hoc fix.)
 - Added: opt-in **Obsidian integration** (`calamity obsidian`). Opens `learner/`
   as an Obsidian vault with git as the only sync, and writes engine-owned views
   under `learner/`: a daily-goals dashboard `Today.md` (the finish line as
