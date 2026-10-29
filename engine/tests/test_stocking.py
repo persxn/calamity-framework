@@ -95,6 +95,7 @@ class Nightly(Case):
         self.assertRegex(script, r"PATH='[^']*[\\/]bin':\"\$HOME/\.local/bin\":\$PATH")
         self.assertNotIn("Bash(*)", script)
         self.assertIn(os.path.join(".calamity", "logs"), script)
+        self.assertIn("obsidian --refresh", script)                         # nightly refresh of the Obsidian views
         cron = read(os.path.join(folder, "crontab.txt"))
         self.assertRegex(cron, r"^45 23 \* \* \* /bin/sh .*stock\.sh' # calamity-stock-[0-9a-f]{8}\n$")
         self.assertIn("calamity-stock-", sb.run("stock", "remove", "--os", "linux"))

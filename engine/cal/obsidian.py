@@ -173,6 +173,11 @@ def _index(repo, tree, books: list) -> str:
         for skill, topic, path in sorted(by_track[track]):
             out.append("- [[%s/_MOC|%s]]" % (topic, _title(path, topic)))
         out.append("")
+    # Optional navigation table for the Dataview plugin. Without the plugin it shows as a labelled
+    # code block; the wikilink lists above always work on their own.
+    out += ["## All chapters (requires the Dataview plugin)", "",
+            "```dataview", "TABLE skill AS Skill, chapter AS Chapter", 'FROM "books"',
+            'WHERE calamity = "book-chapter"', "SORT skill ASC, chapter ASC", "```", ""]
     return "\n".join(out) + "\n"
 
 
